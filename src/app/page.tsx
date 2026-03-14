@@ -181,7 +181,7 @@ function HeroSection() {
           )}
         >
           <a
-            href="#contact"
+            href="#intro"
             className="group relative inline-flex items-center gap-2 sm:gap-3 border border-white/15 rounded-full px-6 py-3 sm:px-8 sm:py-3.5
               text-xs sm:text-sm tracking-[0.15em] sm:tracking-[0.2em] uppercase text-white/70 hover:text-white
               bg-white/[0.03] hover:bg-white/[0.06] backdrop-blur-sm
@@ -482,6 +482,127 @@ function ValueSection() {
   );
 }
 
+// ── Partners Section ─────────────────────────
+
+const partners = [
+  {
+    name: "Chainlink",
+    role: "Oracle & Reserve Validation",
+    logo: "/partners/chainlink.png",
+    type: "png" as const,
+  },
+  {
+    name: "Brickken",
+    role: "Tokenization & Issuance",
+    logo: "/partners/brickken.png",
+    type: "png" as const,
+  },
+  {
+    name: "GIA",
+    role: "Gemological Certification",
+    logo: "/partners/gia.svg",
+    type: "svg" as const,
+  },
+  {
+    name: "Brink\u2019s",
+    role: "Institutional Vault & Custody",
+    logo: "/partners/brinks.png",
+    type: "png" as const,
+  },
+  {
+    name: "Malca-Amit",
+    role: "Precious Asset Logistics",
+    logo: "/partners/malca-amit.svg",
+    type: "svg" as const,
+  },
+];
+
+function PartnersSection() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      { threshold: 0.2 }
+    );
+    const el = document.getElementById("partners");
+    if (el) observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <section id="partners" className="relative py-16 sm:py-28 md:py-36">
+      {/* Top divider */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] max-w-4xl h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
+
+      <div className="relative z-10 max-w-5xl mx-auto px-5 sm:px-6">
+        {/* Header */}
+        <div className="text-center mb-12 sm:mb-16">
+          <p
+            className={cn(
+              "text-[10px] sm:text-xs tracking-[0.3em] sm:tracking-[0.4em] uppercase text-[#1A8B7A] mb-3 sm:mb-4 transition-all duration-700",
+              visible ? "opacity-100" : "opacity-0"
+            )}
+          >
+            Infrastructure Partners
+          </p>
+          <h2
+            className={cn(
+              "font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-white/90 transition-all duration-1000 delay-100",
+              visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+            )}
+          >
+            Built on the Shoulders of Giants
+          </h2>
+          <p
+            className={cn(
+              "mt-4 sm:mt-5 text-sm sm:text-base md:text-lg text-white/40 max-w-2xl mx-auto leading-relaxed transition-all duration-700 delay-300",
+              visible ? "opacity-100" : "opacity-0"
+            )}
+          >
+            Every layer of the PleoChrome stack is powered by institutional-grade
+            specialists. We don&apos;t build what already exists — we orchestrate the best.
+          </p>
+        </div>
+
+        {/* Partner logos grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 sm:gap-8 items-center">
+          {partners.map((partner, i) => (
+            <div
+              key={partner.name}
+              className={cn(
+                "group flex flex-col items-center gap-4 transition-all duration-700",
+                visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+              )}
+              style={{ transitionDelay: `${200 + i * 120}ms` }}
+            >
+              {/* Logo container */}
+              <div className="relative w-full h-16 sm:h-20 flex items-center justify-center px-4 rounded-xl border border-white/[0.04] bg-white/[0.02] group-hover:border-white/[0.08] group-hover:bg-white/[0.04] transition-all duration-500">
+                <Image
+                  src={partner.logo}
+                  alt={partner.name}
+                  width={160}
+                  height={50}
+                  className="max-h-8 sm:max-h-10 w-auto object-contain brightness-0 invert opacity-40 group-hover:opacity-70 transition-all duration-500"
+                />
+              </div>
+              {/* Label */}
+              <div className="text-center">
+                <p className="text-xs sm:text-sm font-medium text-white/50 group-hover:text-white/70 transition-colors duration-300">
+                  {partner.name}
+                </p>
+                <p className="text-[10px] sm:text-xs text-white/25 tracking-wider mt-0.5">
+                  {partner.role}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ── Contact / CTA Section ────────────────────
 
 function ContactSection() {
@@ -603,6 +724,7 @@ export default function HomePage() {
       <IntroSection />
       <ProcessSection />
       <ValueSection />
+      <PartnersSection />
       <ContactSection />
       <Footer />
     </main>
