@@ -1,0 +1,200 @@
+@import "tailwindcss";
+
+/* ═══════════════════════════════════════════════════════
+   PleoChrome — Design Tokens
+   "Trust, Verified from Every Angle"
+   ═══════════════════════════════════════════════════════ */
+
+:root {
+  /* Core palette */
+  --navy: #0B2341;
+  --navy-deep: #030712;
+  --navy-mid: #0F2D52;
+  --slate: #1A2A3F;
+
+  /* Gem facet accents */
+  --emerald: #1B6B4A;
+  --teal: #1A8B7A;
+  --sapphire: #1E3A6E;
+  --amethyst: #5B2D8E;
+  --ruby: #A61D3A;
+  --amber: #C47A1A;
+  --chartreuse: #7BA31E;
+
+  /* Neutrals */
+  --white: #FAFBFC;
+  --white-muted: #C8CDD4;
+  --gray-400: #6B7280;
+  --gray-600: #374151;
+  --gray-800: #1F2937;
+  --gray-900: #111827;
+
+  /* Surfaces */
+  --surface-primary: #030712;
+  --surface-card: rgba(15, 23, 42, 0.6);
+  --surface-card-hover: rgba(15, 23, 42, 0.8);
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-glow: rgba(26, 139, 122, 0.3);
+
+  /* Semantic */
+  --background: var(--surface-primary);
+  --foreground: var(--white);
+  --muted-foreground: var(--white-muted);
+  --border: var(--border-subtle);
+  --muted: var(--gray-800);
+  --black: #000000;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-navy: var(--navy);
+  --color-emerald-accent: var(--emerald);
+  --color-teal-accent: var(--teal);
+  --color-sapphire: var(--sapphire);
+  --color-amber-accent: var(--amber);
+  --font-sans: var(--font-dm-sans);
+  --font-display: var(--font-cormorant);
+}
+
+/* ── Base ───────────────────────────────────── */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--surface-primary);
+  color: var(--white);
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: rgba(26, 139, 122, 0.4);
+  color: var(--white);
+}
+
+/* ── Typography ─────────────────────────────── */
+
+.font-display {
+  font-family: var(--font-cormorant), "Playfair Display", Georgia, serif;
+}
+
+/* ── Animations ─────────────────────────────── */
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 1s ease forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ── Vault texture overlay ──────────────────── */
+
+.vault-texture::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(26, 139, 122, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(91, 45, 142, 0.04) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.vault-texture::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.015'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Gem accent bar ─────────────────────────── */
+
+.gem-bar {
+  display: flex;
+  gap: 2px;
+}
+
+.gem-bar span {
+  height: 2px;
+  flex: 1;
+  border-radius: 1px;
+}
+
+/* ── Glowing card styles ────────────────────── */
+
+.glow {
+  position: absolute;
+  inset: 0;
+}
+
+/* ── Scrollbar ──────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gray-600);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-400);
+}
