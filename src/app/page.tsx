@@ -647,7 +647,7 @@ function ContactSection() {
           </p>
 
           <a
-            href="mailto:info@pleochrome.com"
+            href="mailto:team@pleochrome.com"
             className="group relative inline-flex items-center gap-2 sm:gap-3 rounded-full px-7 py-3.5 sm:px-10 sm:py-4
               text-xs sm:text-sm tracking-[0.15em] sm:tracking-[0.2em] uppercase font-medium
               bg-gradient-to-r from-[#1A8B7A] to-[#1E3A6E]
@@ -668,7 +668,7 @@ function ContactSection() {
           </a>
 
           <p className="mt-6 text-xs tracking-[0.2em] text-white/20">
-            info@pleochrome.com
+            team@pleochrome.com
           </p>
         </div>
       </div>
