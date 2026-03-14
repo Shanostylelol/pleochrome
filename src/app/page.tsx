@@ -110,11 +110,11 @@ function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60 z-[1]" />
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center text-center px-6">
+      <div className="relative z-10 flex flex-col items-center text-center px-4 sm:px-6 w-full">
         {/* Logo */}
         <div
           className={cn(
-            "transition-all duration-[1.4s] ease-[cubic-bezier(0.16,1,0.3,1)]",
+            "transition-all duration-[1.4s] ease-[cubic-bezier(0.16,1,0.3,1)] w-full flex justify-center",
             stage >= 1
               ? "opacity-100 scale-100"
               : "opacity-0 scale-[0.85]"
@@ -123,18 +123,18 @@ function HeroSection() {
           <Image
             src="/logo-white.png"
             alt="PleoChrome"
-            width={420}
-            height={100}
+            width={840}
+            height={200}
             priority
-            className="w-[280px] md:w-[380px] lg:w-[420px] h-auto drop-shadow-[0_0_40px_rgba(26,139,122,0.15)]"
+            className="max-w-[85vw] sm:max-w-[75vw] md:w-[760px] lg:w-[840px] h-auto drop-shadow-[0_0_40px_rgba(26,139,122,0.15)]"
           />
         </div>
 
         {/* Tagline — "Trust" */}
         <h1
           className={cn(
-            "font-display font-light tracking-[0.15em] text-white/90 mt-10 transition-all duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)]",
-            "text-4xl md:text-5xl lg:text-6xl",
+            "font-display font-light text-white/90 mt-8 sm:mt-10 transition-all duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)]",
+            "text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-[0.1em] sm:tracking-[0.15em]",
             stage >= 2
               ? "opacity-100 translate-y-0"
               : "opacity-0 translate-y-6"
@@ -146,7 +146,7 @@ function HeroSection() {
         {/* Tagline — "Verified from Every Angle" */}
         <p
           className={cn(
-            "text-sm md:text-base tracking-[0.35em] uppercase text-white/50 mt-4 transition-all duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)]",
+            "text-[11px] sm:text-sm md:text-base tracking-[0.2em] sm:tracking-[0.35em] uppercase text-white/50 mt-3 sm:mt-4 transition-all duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)]",
             stage >= 3
               ? "opacity-100 translate-y-0"
               : "opacity-0 translate-y-6"
@@ -158,7 +158,7 @@ function HeroSection() {
         {/* Gem accent bar */}
         <div
           className={cn(
-            "gem-bar mt-8 w-48 transition-all duration-[1s] ease-[cubic-bezier(0.16,1,0.3,1)]",
+            "gem-bar mt-6 sm:mt-8 w-32 sm:w-48 transition-all duration-[1s] ease-[cubic-bezier(0.16,1,0.3,1)]",
             stage >= 3 ? "opacity-100" : "opacity-0"
           )}
         >
@@ -174,7 +174,7 @@ function HeroSection() {
         {/* CTA */}
         <div
           className={cn(
-            "mt-12 transition-all duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)]",
+            "mt-8 sm:mt-12 transition-all duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)]",
             stage >= 4
               ? "opacity-100 translate-y-0"
               : "opacity-0 translate-y-8"
@@ -182,8 +182,8 @@ function HeroSection() {
         >
           <a
             href="#contact"
-            className="group relative inline-flex items-center gap-3 border border-white/15 rounded-full px-8 py-3.5
-              text-sm tracking-[0.2em] uppercase text-white/70 hover:text-white
+            className="group relative inline-flex items-center gap-2 sm:gap-3 border border-white/15 rounded-full px-6 py-3 sm:px-8 sm:py-3.5
+              text-xs sm:text-sm tracking-[0.15em] sm:tracking-[0.2em] uppercase text-white/70 hover:text-white
               bg-white/[0.03] hover:bg-white/[0.06] backdrop-blur-sm
               transition-all duration-500 hover:border-white/25 hover:shadow-[0_0_30px_rgba(26,139,122,0.1)]"
           >
@@ -232,12 +232,12 @@ function IntroSection() {
   return (
     <section
       id="intro"
-      className="relative py-32 md:py-40 vault-texture"
+      className="relative py-20 sm:py-32 md:py-40 vault-texture"
     >
-      <div className="relative z-10 max-w-3xl mx-auto px-6 text-center">
+      <div className="relative z-10 max-w-3xl mx-auto px-5 sm:px-6 text-center">
         <p
           className={cn(
-            "text-xs tracking-[0.4em] uppercase text-[#1A8B7A] mb-6 transition-all duration-700",
+            "text-[10px] sm:text-xs tracking-[0.3em] sm:tracking-[0.4em] uppercase text-[#1A8B7A] mb-4 sm:mb-6 transition-all duration-700",
             visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           )}
         >
@@ -245,7 +245,7 @@ function IntroSection() {
         </p>
         <h2
           className={cn(
-            "font-display text-3xl md:text-4xl lg:text-[2.75rem] font-light leading-[1.25] text-white/90 transition-all duration-1000 delay-200",
+            "font-display text-2xl sm:text-3xl md:text-4xl lg:text-[2.75rem] font-light leading-[1.3] sm:leading-[1.25] text-white/90 transition-all duration-1000 delay-200",
             visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
           )}
         >
@@ -315,11 +315,11 @@ function GateCard({ gate, index, area, visible }: GateCardProps) {
 
           {/* Content */}
           <div className="space-y-2.5 mt-auto">
-            <div className="flex items-baseline gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
               <h3 className="text-lg md:text-xl font-semibold tracking-tight text-white/90">
                 {gate.title}
               </h3>
-              <span className="text-xs tracking-wider uppercase text-[#1A8B7A]">
+              <span className="text-[11px] sm:text-xs tracking-wider uppercase text-[#1A8B7A]">
                 {gate.subtitle}
               </span>
             </div>
@@ -359,8 +359,8 @@ function ProcessSection() {
   }, []);
 
   return (
-    <section id="process" className="relative py-28 md:py-36 vault-texture">
-      <div className="relative z-10 max-w-6xl mx-auto px-6">
+    <section id="process" className="relative py-16 sm:py-28 md:py-36 vault-texture">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6">
         {/* Section header */}
         <div className="text-center mb-16 md:mb-20">
           <p
@@ -438,15 +438,15 @@ function ValueSection() {
   ];
 
   return (
-    <section id="value" className="relative py-28 md:py-36">
+    <section id="value" className="relative py-16 sm:py-28 md:py-36">
       {/* Subtle top border */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] max-w-4xl h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
 
-      <div className="relative z-10 max-w-5xl mx-auto px-6">
-        <div className="text-center mb-16">
+      <div className="relative z-10 max-w-5xl mx-auto px-5 sm:px-6">
+        <div className="text-center mb-10 sm:mb-16">
           <h2
             className={cn(
-              "font-display text-3xl md:text-4xl lg:text-5xl font-light text-white/90 transition-all duration-1000",
+              "font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-white/90 transition-all duration-1000",
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             )}
           >
@@ -498,11 +498,11 @@ function ContactSection() {
   }, []);
 
   return (
-    <section id="contact" className="relative py-32 md:py-44 vault-texture">
+    <section id="contact" className="relative py-20 sm:py-32 md:py-44 vault-texture">
       {/* Top divider */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] max-w-4xl h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
 
-      <div className="relative z-10 max-w-2xl mx-auto px-6 text-center">
+      <div className="relative z-10 max-w-2xl mx-auto px-5 sm:px-6 text-center">
         <div
           className={cn(
             "transition-all duration-1000",
@@ -517,18 +517,18 @@ function ContactSection() {
             className="mx-auto mb-8 drop-shadow-[0_0_20px_rgba(26,139,122,0.2)]"
           />
 
-          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-light text-white/90 mb-5">
+          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-white/90 mb-4 sm:mb-5">
             Let&apos;s Build Something<br />Worth Trusting
           </h2>
 
-          <p className="text-white/40 text-base md:text-lg leading-relaxed mb-10 max-w-lg mx-auto">
+          <p className="text-white/40 text-sm sm:text-base md:text-lg leading-relaxed mb-8 sm:mb-10 max-w-lg mx-auto">
             If you represent an asset of exceptional provenance — or the infrastructure to verify one — we should talk.
           </p>
 
           <a
             href="mailto:info@pleochrome.com"
-            className="group relative inline-flex items-center gap-3 rounded-full px-10 py-4
-              text-sm tracking-[0.2em] uppercase font-medium
+            className="group relative inline-flex items-center gap-2 sm:gap-3 rounded-full px-7 py-3.5 sm:px-10 sm:py-4
+              text-xs sm:text-sm tracking-[0.15em] sm:tracking-[0.2em] uppercase font-medium
               bg-gradient-to-r from-[#1A8B7A] to-[#1E3A6E]
               text-white shadow-[0_0_40px_rgba(26,139,122,0.2)]
               hover:shadow-[0_0_60px_rgba(26,139,122,0.35)]
