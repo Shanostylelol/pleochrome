@@ -180,9 +180,33 @@ function Donut({ segments, size = 160 }: { segments: { label: string; value: num
 // MAIN
 // ═══════════════════════════════════════════════
 
+interface SavedDeal {
+  name: string;
+  date: string;
+  assetValue: number;
+  appraisalDiscount: number;
+  tokenPrice: number;
+  bdRate: number;
+  setupFeeRate: number;
+  successFeeRate: number;
+  adminFeeRate: number;
+  overrides: Record<string, number>;
+  customCosts: CustomCost[];
+}
+
+function getSavedDeals(): SavedDeal[] {
+  if (typeof window === "undefined") return [];
+  try { return JSON.parse(localStorage.getItem("pleochrome-deals") || "[]"); } catch { return []; }
+}
+
+function saveDealToStorage(deals: SavedDeal[]) {
+  localStorage.setItem("pleochrome-deals", JSON.stringify(deals));
+}
+
 export default function FinancialModel() {
   const [unlocked, setUnlocked] = useState(false);
   const [dark, setDark] = useState(true);
+  const [dealName, setDealName] = useState("$55M Burmese Ruby");
   const [selectedStone, setSelectedStone] = useState(0);
   const [assetValue, setAssetValue] = useState(55_000_000);
   const [appraisalDiscount, setAppraisalDiscount] = useState(12.7);
@@ -198,8 +222,12 @@ export default function FinancialModel() {
   const [customCosts, setCustomCosts] = useState<CustomCost[]>([]);
   const [openPhases, setOpenPhases] = useState<Set<string>>(new Set());
   const [expandedNotes, setExpandedNotes] = useState<Set<string>>(new Set());
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [activeTab] = useState("model");
+  const [savedDeals, setSavedDeals] = useState<SavedDeal[]>([]);
+  const [showSaved, setShowSaved] = useState(false);
+  const [saveMsg, setSaveMsg] = useState("");
+
+  // Load saved deals on mount
+  useState(() => { setSavedDeals(getSavedDeals()); });
 
   const togglePhase = (p: string) => setOpenPhases(prev => { const n = new Set(prev); n.has(p) ? n.delete(p) : n.add(p); return n; });
   const toggleNote = (id: string) => setExpandedNotes(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
@@ -207,9 +235,54 @@ export default function FinancialModel() {
   const updateCustom = useCallback((id: string, f: string, v: string | number) => setCustomCosts(p => p.map(c => c.id === id ? { ...c, [f]: v } : c)), []);
   const removeCustom = useCallback((id: string) => setCustomCosts(p => p.filter(c => c.id !== id)), []);
 
+  const saveDeal = () => {
+    const deal: SavedDeal = { name: dealName, date: new Date().toISOString(), assetValue, appraisalDiscount, tokenPrice, bdRate, setupFeeRate, successFeeRate, adminFeeRate, overrides, customCosts };
+    const existing = getSavedDeals().filter(d => d.name !== dealName);
+    const updated = [...existing, deal];
+    saveDealToStorage(updated);
+    setSavedDeals(updated);
+    setSaveMsg("Saved!");
+    setTimeout(() => setSaveMsg(""), 2000);
+  };
+
+  const loadDeal = (deal: SavedDeal) => {
+    setDealName(deal.name);
+    setAssetValue(deal.assetValue);
+    setAppraisalDiscount(deal.appraisalDiscount);
+    setTokenPrice(deal.tokenPrice);
+    setBdRate(deal.bdRate);
+    setSetupFeeRate(deal.setupFeeRate);
+    setSuccessFeeRate(deal.successFeeRate);
+    setAdminFeeRate(deal.adminFeeRate);
+    setOverrides(deal.overrides);
+    setCustomCosts(deal.customCosts);
+    setSelectedStone(0);
+    setShowSaved(false);
+  };
+
+  const deleteDeal = (name: string) => {
+    const updated = getSavedDeals().filter(d => d.name !== name);
+    saveDealToStorage(updated);
+    setSavedDeals(updated);
+  };
+
+  const newDeal = () => {
+    setDealName("New Deal");
+    setAssetValue(1_000_000);
+    setAppraisalDiscount(12.7);
+    setTokenPrice(100_000);
+    setBdRate(7.0);
+    setSetupFeeRate(2.0);
+    setSuccessFeeRate(1.5);
+    setAdminFeeRate(0.75);
+    setOverrides({});
+    setCustomCosts([]);
+    setSelectedStone(0);
+  };
+
   const selectStone = (idx: number) => {
     setSelectedStone(idx);
-    if (idx > 0) setAssetValue(comparableStones[idx].value);
+    if (idx > 0) { setAssetValue(comparableStones[idx].value); setDealName(comparableStones[idx].name); }
   };
 
   const model = useMemo(() => {
@@ -277,7 +350,8 @@ export default function FinancialModel() {
   // Export to CSV
   const exportCSV = () => {
     const rows: string[][] = [
-      ["PleoChrome Deal Model — " + new Date().toLocaleDateString()],
+      ["PleoChrome Deal Model: " + dealName],
+      ["Exported: " + new Date().toLocaleString()],
       [],
       ["DEAL PARAMETERS"],
       ["Asset Value", fmtFull(assetValue)],
@@ -332,7 +406,7 @@ export default function FinancialModel() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "PleoChrome-Deal-Model-" + new Date().toISOString().slice(0, 10) + ".csv";
+    a.download = "PleoChrome-" + dealName.replace(/[^a-zA-Z0-9]/g, "-") + "-" + new Date().toISOString().slice(0, 10) + ".csv";
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -351,8 +425,44 @@ export default function FinancialModel() {
             Export CSV
           </button>
         </div>
-        <h1 className="font-[family-name:var(--font-cormorant)] text-lg sm:text-2xl font-light tracking-wider">Interactive Financial Model</h1>
+        <h1 className="font-[family-name:var(--font-cormorant)] text-lg sm:text-2xl font-light tracking-wider">Deal Model</h1>
         <p className={`mt-1 text-[9px] sm:text-[10px] tracking-[0.25em] uppercase ${s1}`}>Value from Every Angle &mdash; Confidential</p>
+
+        {/* Deal Name + Save/Load Bar */}
+        <div className="flex items-center justify-center gap-2 mt-3 flex-wrap">
+          <input type="text" value={dealName} onChange={e => setDealName(e.target.value)}
+            className={`${ib} border rounded-lg px-3 py-1.5 text-sm font-semibold text-center w-48 sm:w-64 outline-none focus:border-[#1A8B7A]/40`}
+            placeholder="Deal name..." />
+          <button onClick={saveDeal} className={`text-[9px] sm:text-[10px] tracking-wider uppercase px-2.5 py-1.5 rounded-lg border flex items-center gap-1 transition-colors ${dark ? "border-[#1B6B4A]/30 text-[#1B6B4A] hover:bg-[#1B6B4A]/10" : "border-[#1B6B4A]/30 text-[#1B6B4A] hover:bg-[#1B6B4A]/5"}`}>
+            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            {saveMsg || "Save"}
+          </button>
+          <button onClick={() => { setSavedDeals(getSavedDeals()); setShowSaved(!showSaved); }} className={`text-[9px] sm:text-[10px] tracking-wider uppercase px-2.5 py-1.5 rounded-lg border flex items-center gap-1 transition-colors ${dark ? "border-white/10 text-white/30 hover:text-white/50" : "border-gray-300 text-gray-400 hover:text-gray-600"}`}>
+            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+            Load
+          </button>
+          <button onClick={newDeal} className={`text-[9px] sm:text-[10px] tracking-wider uppercase px-2.5 py-1.5 rounded-lg border flex items-center gap-1 transition-colors ${dark ? "border-white/10 text-white/30 hover:text-white/50" : "border-gray-300 text-gray-400 hover:text-gray-600"}`}>
+            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M12 5v14M5 12h14"/></svg>
+            New
+          </button>
+        </div>
+
+        {/* Saved Deals Dropdown */}
+        {showSaved && (
+          <div className={`mt-2 max-w-md mx-auto ${cd} border rounded-xl p-3 text-left`}>
+            {savedDeals.length === 0 ? (
+              <p className={`text-xs ${s1} text-center`}>No saved deals yet. Modify the model and click Save.</p>
+            ) : savedDeals.map(d => (
+              <div key={d.name} className={`flex items-center justify-between py-2 border-b ${dv} last:border-0`}>
+                <button onClick={() => loadDeal(d)} className="text-left flex-1 min-w-0">
+                  <p className={`text-xs font-semibold ${s3} truncate`}>{d.name}</p>
+                  <p className={`text-[9px] ${s1}`}>{fmtFull(d.assetValue)} &middot; {new Date(d.date).toLocaleDateString()}</p>
+                </button>
+                <button onClick={() => deleteDeal(d.name)} className="text-[#A61D3A] text-[9px] ml-2 hover:underline shrink-0">Delete</button>
+              </div>
+            ))}
+          </div>
+        )}
       </header>
 
       <div className="max-w-4xl mx-auto px-3 sm:px-5 pb-16">
@@ -589,529 +699,6 @@ export default function FinancialModel() {
               </div>
             </div>
           </div>
-
-        {/* ══════════════════════════════════
-         Removed tabs: Investor View, Market, Scenarios, Fundraise
-         Available in standalone pages if needed
-         ══════════════════════════════════ */}
-
-        {false && (<>
-          <div className={`${cd} border rounded-2xl p-4 sm:p-5 mb-4`}>
-            <h2 className={`text-xs sm:text-sm font-semibold ${s3} mb-2`}>Investor Return Calculator</h2>
-            <p className={`text-[10px] sm:text-[11px] ${s2} leading-relaxed mb-4`}>
-              Model your potential returns as an investor in a PleoChrome tokenized gemstone offering. Adjust your investment amount, expected annual appreciation of the underlying stone, and holding period to see projected outcomes.
-            </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5">
-              <div>
-                <label className={`block text-[8px] sm:text-[9px] tracking-wider uppercase ${s1} mb-1`}>Your Investment</label>
-                <div className={`${ib} border rounded-lg overflow-hidden`}><DollarInput value={investorReturn} onChange={setInvestorReturn} min={100000} max={50000000} /></div>
-              </div>
-              <div>
-                <label className={`block text-[8px] sm:text-[9px] tracking-wider uppercase ${s1} mb-1`}>Annual Appreciation</label>
-                <div className={`${ib} border rounded-lg overflow-hidden`}><PctInput value={appreciation} onChange={setAppreciation} min={-20} max={50} /></div>
-              </div>
-              <div>
-                <label className={`block text-[8px] sm:text-[9px] tracking-wider uppercase ${s1} mb-1`}>Holding Period (Years)</label>
-                <div className={`${ib} border rounded-lg overflow-hidden`}>
-                  <input type="number" value={holdYears} onChange={e => setHoldYears(Math.max(1, Math.min(20, Number(e.target.value))))}
-                    className="w-full bg-transparent text-sm py-2 px-3 text-right font-mono outline-none" />
-                </div>
-              </div>
-            </div>
-
-            {/* Scenarios Table */}
-            <div className="overflow-x-auto -mx-2 px-2">
-              <table className="w-full text-xs min-w-[400px]">
-                <thead><tr className={`text-[9px] tracking-wider uppercase ${s1}`}>
-                  <th className="text-left py-2">Scenario</th><th className="text-right py-2">Annual</th><th className="text-right py-2">Future Value</th><th className="text-right py-2">Profit</th><th className="text-right py-2">Total Return</th>
-                </tr></thead>
-                <tbody className="font-mono">
-                  {[
-                    { label: "Conservative", rate: Math.max(0, appreciation - 5) },
-                    { label: "Base Case", rate: appreciation },
-                    { label: "Optimistic", rate: appreciation + 5 },
-                    { label: "Bull Case", rate: appreciation + 15 },
-                  ].map(sc => {
-                    const fv = investorReturn * Math.pow(1 + sc.rate / 100, holdYears);
-                    const profit = fv - investorReturn;
-                    const totalReturn = ((fv / investorReturn) - 1) * 100;
-                    return (
-                      <tr key={sc.label} className={`border-t ${dv}`}>
-                        <td className={`py-2 font-sans ${s2}`}>{sc.label}</td>
-                        <td className={`text-right ${s1}`}>{sc.rate}%</td>
-                        <td className="text-right text-[#1A8B7A]">{fmtFull(Math.round(fv))}</td>
-                        <td className={`text-right ${profit >= 0 ? "text-[#1B6B4A]" : "text-[#A61D3A]"}`}>{fmtFull(Math.round(profit))}</td>
-                        <td className={`text-right ${totalReturn >= 0 ? "text-[#1A8B7A]" : "text-[#A61D3A]"}`}>{totalReturn.toFixed(1)}%</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* What You Own */}
-          <div className={`${cd} border rounded-2xl p-4 sm:p-5 mb-4`}>
-            <h2 className={`text-xs sm:text-sm font-semibold ${s3} mb-2`}>What Your Investment Represents</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {[
-                { label: "Tokens Owned", value: model.tokensForInvestment.toString(), sub: `of ${model.totalTokens} total` },
-                { label: "Ownership %", value: pct(model.tokensForInvestment, model.totalTokens), sub: "of the tokenized stone" },
-                { label: `Value in ${holdYears} Years`, value: fmtFull(Math.round(model.futureValue)), sub: `at ${appreciation}% annual appreciation` },
-                { label: "Total Profit", value: fmtFull(Math.round(model.investorProfit)), sub: `${((model.futureValue / investorReturn - 1) * 100).toFixed(1)}% total return` },
-              ].map(m => (
-                <div key={m.label} className={`${cd} border rounded-xl p-3`}>
-                  <p className={`text-[8px] sm:text-[9px] tracking-wider uppercase ${s1} mb-0.5`}>{m.label}</p>
-                  <p className={`text-base sm:text-lg font-bold font-mono ${s3}`}>{m.value}</p>
-                  <p className={`text-[8px] sm:text-[9px] ${s1}`}>{m.sub}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Investor Protections */}
-          <div className={`${cd} border rounded-2xl p-4 sm:p-5 mb-4`}>
-            <h2 className={`text-xs sm:text-sm font-semibold ${s3} mb-3`}>Built-In Investor Protections</h2>
-            {[
-              { title: "3-Appraisal Rule", desc: "Three independent, USPAP-compliant appraisals. The two lowest are averaged to set the offering price \u2014 structurally conservative by design." },
-              { title: "Oracle-Gated Minting", desc: "Chainlink Proof of Reserve verifies the stone is in vault custody before any tokens can be created. The smart contract physically cannot mint tokens without oracle confirmation." },
-              { title: "ERC-3643 Compliance", desc: "Every token transfer is automatically verified at the smart contract level: KYC status, accreditation, jurisdiction, and holding limits. Non-compliant transfers are blocked before execution." },
-              { title: "Segregated Custody", desc: "Your stone is stored alone in an institutional vault (Brink's or Malca-Amit) \u2014 never commingled with other assets. Insured by Lloyd's of London or equivalent." },
-              { title: "Bankruptcy Remoteness", desc: "Each stone is held in its own Series LLC. If PleoChrome or any other stone faces legal issues, your investment is structurally isolated." },
-            ].map(p => (
-              <div key={p.title} className={`py-2.5 border-b ${dv} last:border-0`}>
-                <p className={`text-xs font-semibold ${s3}`}>{p.title}</p>
-                <p className={`text-[10px] sm:text-[11px] ${s2} leading-relaxed mt-0.5`}>{p.desc}</p>
-              </div>
-            ))}
-          </div>
-        </>)}
-
-        {/* ══════════════════════════════════ */}
-        {/* TAB: SCENARIOS                    */}
-        {/* ══════════════════════════════════ */}
-        {activeTab === "scenarios" && (<>
-          {/* Break-Even Analysis */}
-          <div className={`${cd} border rounded-2xl p-4 sm:p-5 mb-4`}>
-            <h2 className={`text-xs sm:text-sm font-semibold ${s3} mb-2`}>Break-Even Analysis</h2>
-            <p className={`text-[10px] sm:text-[11px] ${s2} leading-relaxed mb-4`}>
-              PleoChrome&apos;s costs are largely fixed regardless of stone value, creating significant operating leverage. The break-even point is where PleoChrome&apos;s revenue from fees covers its direct costs.
-            </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
-              <div className={`${cd} border rounded-xl p-3`}>
-                <p className={`text-[8px] tracking-wider uppercase ${s1} mb-0.5`}>Fixed Platform Costs</p>
-                <p className="text-lg font-bold font-mono text-[#A61D3A]">{fmtFull(model.fixedCosts)}</p>
-              </div>
-              <div className={`${cd} border rounded-xl p-3`}>
-                <p className={`text-[8px] tracking-wider uppercase ${s1} mb-0.5`}>Break-Even Asset Value</p>
-                <p className="text-lg font-bold font-mono text-[#C47A1A]">{fmt(model.breakeven)}</p>
-              </div>
-              <div className={`${cd} border rounded-xl p-3`}>
-                <p className={`text-[8px] tracking-wider uppercase ${s1} mb-0.5`}>Current Margin</p>
-                <p className={`text-lg font-bold font-mono ${model.yr1Net >= 0 ? "text-[#1B6B4A]" : "text-[#A61D3A]"}`}>{pct(model.yr1Net, model.yr1Rev)}</p>
-              </div>
-            </div>
-
-            {/* Sensitivity Table */}
-            <h3 className={`text-[10px] tracking-wider uppercase ${s1} mb-2 font-semibold`}>Sensitivity: Asset Value vs. PleoChrome Net Income</h3>
-            <div className="overflow-x-auto -mx-2 px-2">
-              <table className="w-full text-[10px] sm:text-xs min-w-[400px]">
-                <thead><tr className={`${s1} text-[9px] tracking-wider uppercase`}>
-                  <th className="text-left py-1.5">Asset Value</th><th className="text-right">Revenue</th><th className="text-right">Costs</th><th className="text-right">Net</th><th className="text-right">Margin</th>
-                </tr></thead>
-                <tbody className="font-mono">
-                  {[5_000_000, 10_000_000, 25_000_000, 55_000_000, 100_000_000, 250_000_000].map(av => {
-                    const ov = av * (1 - appraisalDiscount / 100);
-                    const rev = av * (setupFeeRate / 100) + ov * (successFeeRate / 100) + 12000;
-                    const net = rev - model.fixedCosts;
-                    const isActive = av === assetValue;
-                    return (
-                      <tr key={av} className={`border-t ${dv} ${isActive ? (dark ? "bg-white/[0.03]" : "bg-[#1A8B7A]/5") : ""}`}>
-                        <td className={`py-1.5 ${isActive ? "font-semibold" : ""} ${s2}`}>{fmtFull(av)}</td>
-                        <td className="text-right text-[#1B6B4A]">{fmt(rev)}</td>
-                        <td className="text-right text-[#A61D3A]">{fmt(model.fixedCosts)}</td>
-                        <td className={`text-right font-semibold ${net >= 0 ? "text-[#1A8B7A]" : "text-[#A61D3A]"}`}>{fmt(net)}</td>
-                        <td className={`text-right ${net >= 0 ? "text-[#1A8B7A]" : "text-[#A61D3A]"}`}>{rev > 0 ? pct(net, rev) : "N/A"}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Multi-Year Portfolio Projection */}
-          <div className={`${cd} border rounded-2xl p-4 sm:p-5 mb-4`}>
-            <h2 className={`text-xs sm:text-sm font-semibold ${s3} mb-2`}>5-Year Portfolio Projection</h2>
-            <p className={`text-[10px] sm:text-[11px] ${s2} leading-relaxed mb-4`}>
-              As PleoChrome scales from one stone to a portfolio, fixed costs are amortized across multiple assets and margins expand significantly. Legal templates, Chainlink infrastructure, and the Brickken platform serve all stones simultaneously.
-            </p>
-            <div className="overflow-x-auto -mx-2 px-2">
-              <table className="w-full text-[10px] sm:text-xs min-w-[500px]">
-                <thead><tr className={`${s1} text-[9px] tracking-wider uppercase`}>
-                  <th className="text-left py-1.5">Year</th><th className="text-right">Stones</th><th className="text-right">AUM</th><th className="text-right">Revenue</th><th className="text-right">Net Income</th><th className="text-right">Margin</th>
-                </tr></thead>
-                <tbody className="font-mono">
-                  {[
-                    { yr: 1, stones: 1, aum: model.offeringValue, rev: model.yr1Rev, net: model.yr1Net },
-                    { yr: 2, stones: 3, aum: model.offeringValue * 3.5, rev: model.yr1Rev * 2 + model.yr2Rev, net: model.yr1Rev * 2 + model.yr2Rev - model.fixedCosts * 1.8 },
-                    { yr: 3, stones: 7, aum: model.offeringValue * 7, rev: model.yr1Rev * 3 + model.yr2Rev * 3, net: model.yr1Rev * 3 + model.yr2Rev * 3 - model.fixedCosts * 2.5 },
-                    { yr: 4, stones: 12, aum: model.offeringValue * 12, rev: model.yr1Rev * 4 + model.yr2Rev * 6, net: model.yr1Rev * 4 + model.yr2Rev * 6 - model.fixedCosts * 3 },
-                    { yr: 5, stones: 20, aum: model.offeringValue * 20, rev: model.yr1Rev * 5 + model.yr2Rev * 10, net: model.yr1Rev * 5 + model.yr2Rev * 10 - model.fixedCosts * 3.5 },
-                  ].map(row => (
-                    <tr key={row.yr} className={`border-t ${dv}`}>
-                      <td className={`py-1.5 ${s2}`}>Year {row.yr}</td>
-                      <td className={`text-right ${s2}`}>{row.stones}</td>
-                      <td className="text-right text-[#1E3A6E]">{fmt(row.aum)}</td>
-                      <td className="text-right text-[#1B6B4A]">{fmt(row.rev)}</td>
-                      <td className={`text-right font-semibold ${row.net >= 0 ? "text-[#1A8B7A]" : "text-[#A61D3A]"}`}>{fmt(row.net)}</td>
-                      <td className={`text-right ${row.net >= 0 ? "text-[#1A8B7A]" : "text-[#A61D3A]"}`}>{row.rev > 0 ? pct(row.net, row.rev) : "N/A"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Key Unit Economics */}
-          <div className={`${cd} border rounded-2xl p-4 sm:p-5 mb-4`}>
-            <h2 className={`text-xs sm:text-sm font-semibold ${s3} mb-3`}>Unit Economics</h2>
-            <p className={`text-[10px] sm:text-[11px] ${s2} leading-relaxed mb-4`}>
-              These are the metrics institutional investors use to evaluate platform businesses. PleoChrome&apos;s economics improve dramatically with scale because platform costs are largely fixed while revenue scales linearly with asset value and portfolio size.
-            </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {[
-                { label: "Revenue per Stone (Yr 1)", value: fmtFull(model.yr1Rev), note: "Setup + success + transfers" },
-                { label: "Gross Margin per Stone", value: pct(model.yr1Net, model.yr1Rev), note: "After all PleoChrome direct costs" },
-                { label: "Annual Recurring Revenue", value: fmtFull(model.yr2Rev), note: "Per stone, starting Year 2" },
-                { label: "CAC (Est.)", value: fmtFull(Math.round((overrides["marketing"] ?? 200000) / 120)), note: "Marketing spend \u00F7 target investors" },
-                { label: "LTV per Stone (5yr)", value: fmtFull(model.yr1Rev + model.yr2Rev * 4), note: "Year 1 rev + 4 years recurring" },
-                { label: "Payback Period", value: model.yr1Net >= 0 ? "< 120 days" : "Not yet profitable", note: "Time to recover setup costs" },
-              ].map(m => (
-                <div key={m.label} className={`${cd} border rounded-xl p-3`}>
-                  <p className={`text-[8px] tracking-wider uppercase ${s1} mb-0.5`}>{m.label}</p>
-                  <p className={`text-base font-bold font-mono ${s3}`}>{m.value}</p>
-                  <p className={`text-[8px] ${s1}`}>{m.note}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </>)}
-
-        {/* ══════════════════════════════════ */}
-        {/* TAB: MARKET                       */}
-        {/* ══════════════════════════════════ */}
-        {activeTab === "market" && (<>
-
-          {/* What is Market Sizing */}
-          <div className={`${cd} border rounded-2xl p-4 sm:p-5 mb-4`}>
-            <h2 className={`text-xs sm:text-sm font-semibold ${s3} mb-2`}>Understanding Market Sizing</h2>
-            <p className={`text-[10px] sm:text-[11px] ${s2} leading-relaxed`}>
-              Investors want to know: &ldquo;How big could this get?&rdquo; We answer that with three concentric circles. <strong>TAM</strong> (Total Addressable Market) is the entire universe of potential value. <strong>SAM</strong> (Serviceable Addressable Market) is the slice we could realistically serve with our current model. <strong>SOM</strong> (Serviceable Obtainable Market) is what we expect to actually capture in the next 5 years. Think of it like fishing: TAM is the ocean, SAM is the lake we&apos;re fishing in, and SOM is the fish we expect to catch.
-            </p>
-          </div>
-
-          {/* TAM / SAM / SOM */}
-          <div className={`${cd} border rounded-2xl p-4 sm:p-5 mb-4`}>
-            <h2 className="text-[10px] sm:text-xs tracking-[0.2em] uppercase text-[#1A8B7A] mb-4 font-semibold">Market Opportunity</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
-              {[
-                { label: "TAM", title: "Total Addressable Market", value: "$16T+", sub: "Tokenized RWA by 2030", color: "#1E3A6E", desc: "Boston Consulting Group projects the total tokenized real-world asset market will reach $16 trillion by 2030. Today it\u2019s $21.4 billion \u2014 meaning the market needs to grow roughly 750x. The global gemstone market alone is $38 billion and growing 6% annually. This is the entire ocean of opportunity." },
-                { label: "SAM", title: "Serviceable Addressable", value: "$2-5B", sub: "High-value colored gemstones", color: "#1A8B7A", desc: "Of all gemstones in the world, PleoChrome targets a specific slice: colored gemstones (not diamonds) valued at $100K or more, with GIA-certifiable quality and clean provenance. The accumulated stock of these investment-grade stones in private collections is estimated at $20-50 billion. Of those, $2-5 billion are realistically available for tokenization in the near term." },
-                { label: "SOM", title: "Obtainable in 5 Years", value: "$500M-$800M", sub: "PleoChrome GMV", color: "#1B6B4A", desc: "Based on how fast comparable platforms have grown (Masterworks went from $0 to $941M in art assets in 5 years), PleoChrome targeting $500-800M in tokenized gemstone value by Year 5 is aggressive but achievable. This would represent 500-800 stones at an average value of $1M each, generating $15-40M in annual platform revenue." },
-              ].map(m => (
-                <div key={m.label} className={`${cd} border rounded-xl p-4`}>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded" style={{ color: m.color, background: m.color + "15" }}>{m.label}</span>
-                    <span className={`text-[9px] ${s1}`}>{m.title}</span>
-                  </div>
-                  <p className="text-2xl sm:text-3xl font-bold font-mono mb-1" style={{ color: m.color }}>{m.value}</p>
-                  <p className={`text-[10px] font-medium ${s2} mb-2`}>{m.sub}</p>
-                  <p className={`text-[10px] ${s1} leading-relaxed`}>{m.desc}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* Key stats */}
-            <h3 className={`text-[10px] tracking-wider uppercase ${s1} mb-2 font-semibold`}>Market Growth Signals</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {[
-                { stat: "308%", label: "RWA growth (3yr)", note: "CoinDesk 2025" },
-                { stat: "749%", label: "Tokenized alt funds YoY", note: "Canton Network" },
-                { stat: "54%", label: "Financial firms investing", note: "Broadridge 2026" },
-                { stat: "$2.5B+", label: "RWA VC funding 2025", note: "Cointelegraph" },
-                { stat: "12-15%", label: "Colored gem appreciation/yr", note: "Industry consensus" },
-                { stat: "95%", label: "Value retention in downturns", note: "Investment-grade stones" },
-                { stat: "$18B", label: "BlackRock BUIDL AUM", note: "Feb 2026" },
-                { stat: "0%", label: "Current gemstone share of RWA", note: "White space" },
-              ].map(s => (
-                <div key={s.label} className={`${cd} border rounded-lg p-2.5`}>
-                  <p className="text-lg font-bold font-mono text-[#1A8B7A]">{s.stat}</p>
-                  <p className={`text-[9px] ${s2}`}>{s.label}</p>
-                  <p className={`text-[8px] ${s1}`}>{s.note}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Why Colored Gemstones */}
-          <div className={`${cd} border rounded-2xl p-4 sm:p-5 mb-4`}>
-            <h2 className={`text-xs sm:text-sm font-semibold ${s3} mb-2`}>Why Colored Gemstones?</h2>
-            <p className={`text-[10px] sm:text-[11px] ${s2} leading-relaxed mb-3`}>
-              Not all gemstones are created equal. PleoChrome specifically targets colored gemstones (rubies, sapphires, emeralds, alexandrites) rather than diamonds. Here&apos;s why:
-            </p>
-            {[
-              { title: "Supply is permanently constrained", desc: "Unlike diamonds (which can now be lab-grown cheaply), colored gemstones cannot be synthetically replicated at investment grade. Major mines are closing or depleting. The Mogok ruby mines in Burma, Kashmir sapphire deposits, and Colombian emerald mines are producing less every year. Shrinking supply + growing demand = price appreciation." },
-              { title: "12-15% annual appreciation", desc: "Investment-grade colored gemstones have appreciated 12-15% annually on average, with exceptional specimens achieving 20-25% gains. During economic downturns, certified rare stones retain 95% of their value \u2014 compared to 70% for common varieties. This makes them a compelling alternative asset class." },
-              { title: "Colored gem jewelry is exploding", desc: "Colored gemstone jewelry sales are growing 28% annually, driven by younger buyers who want something distinctive. The Estrela de Fura ruby ($34.8M, 2023) and record-breaking auction results signal institutional appetite. Christie\u2019s jewelry sales grew 17% YoY in 2025." },
-              { title: "Diamonds are commoditized", desc: "De Beers\u2019 monopoly has eroded. Lab-grown diamonds are chemically identical and 80% cheaper. Diamond prices have declined. Colored gemstones remain irreplaceable by synthesis at investment quality, preserving their scarcity premium." },
-            ].map(item => (
-              <div key={item.title} className={`py-2.5 border-b ${dv} last:border-0`}>
-                <p className={`text-xs font-semibold ${s3}`}>{item.title}</p>
-                <p className={`text-[10px] sm:text-[11px] ${s2} leading-relaxed mt-0.5`}>{item.desc}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Competitive Landscape */}
-          <div className={`${cd} border rounded-2xl p-4 sm:p-5 mb-4`}>
-            <h2 className={`text-xs sm:text-sm font-semibold ${s3} mb-2`}>Competitive Landscape</h2>
-            <p className={`text-[10px] sm:text-[11px] ${s2} leading-relaxed mb-3`}>
-              Who else is doing this? The short answer: almost no one is doing what PleoChrome does. Here are the closest comparables and why PleoChrome is different.
-            </p>
-
-            <h3 className={`text-[10px] tracking-wider uppercase ${s1} mb-2 mt-3 font-semibold`}>Direct Competitors (Gemstone Tokenization)</h3>
-            <div className="overflow-x-auto -mx-2 px-2">
-              <table className="w-full text-[10px] sm:text-xs min-w-[500px]">
-                <thead><tr className={`${s1} text-[8px] tracking-wider uppercase`}>
-                  <th className="text-left py-1.5">Company</th><th className="text-left">Model</th><th className="text-left">Scale</th><th className="text-left">Weakness</th>
-                </tr></thead>
-                <tbody>
-                  {[
-                    { name: "NYBlue (ZIRC)", model: "Commodity token \u2014 1M carats blue zircon", scale: "1M tokens on Polygon", weakness: "Single stone type; commodity, not unique high-value stones" },
-                    { name: "Tiamonds", model: "Diamond NFTs (1:1 per stone)", scale: "30K+ diamonds on-chain", weakness: "Diamonds, not colored gems; pivoting away from gemstones" },
-                    { name: "Habsburg Fine Arts", model: "EUR 5M gemstone portfolio token", scale: "EUR 5M total", weakness: "Tiny portfolio; single fund, not marketplace" },
-                    { name: "Gubelin Provenance", model: "Blockchain provenance tracking", scale: "Used by Gemfields", weakness: "Provenance only \u2014 no tokenization, no fractional ownership" },
-                  ].map(c => (
-                    <tr key={c.name} className={`border-t ${dv}`}>
-                      <td className={`py-1.5 font-semibold ${s2}`}>{c.name}</td>
-                      <td className={`${s1}`}>{c.model}</td>
-                      <td className={`${s1}`}>{c.scale}</td>
-                      <td className="text-[#A61D3A]">{c.weakness}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <h3 className={`text-[10px] tracking-wider uppercase ${s1} mb-2 mt-4 font-semibold`}>Adjacent Comparables (Luxury Asset Tokenization)</h3>
-            <div className="overflow-x-auto -mx-2 px-2">
-              <table className="w-full text-[10px] sm:text-xs min-w-[500px]">
-                <thead><tr className={`${s1} text-[8px] tracking-wider uppercase`}>
-                  <th className="text-left py-1.5">Company</th><th className="text-left">Asset</th><th className="text-right">AUM</th><th className="text-right">Revenue</th><th className="text-right">Valuation</th>
-                </tr></thead>
-                <tbody className="font-mono">
-                  {[
-                    { name: "Masterworks", asset: "Fine art", aum: "$941M", rev: "$76.5M", val: "$1.0B" },
-                    { name: "Securitize", asset: "Multi-asset", aum: "$4.0B+", rev: "$55.6M*", val: "$1.25B" },
-                    { name: "Ondo Finance", asset: "Treasuries", aum: "$1.8B", rev: "~$2.7M", val: "$4.9B FDV" },
-                    { name: "Rally", asset: "Collectibles", aum: "$175M+", rev: "N/A", val: "$175M" },
-                  ].map(c => (
-                    <tr key={c.name} className={`border-t ${dv}`}>
-                      <td className={`py-1.5 font-sans font-semibold ${s2}`}>{c.name}</td>
-                      <td className={`font-sans ${s1}`}>{c.asset}</td>
-                      <td className="text-right text-[#1A8B7A]">{c.aum}</td>
-                      <td className="text-right text-[#1B6B4A]">{c.rev}</td>
-                      <td className={`text-right ${s2}`}>{c.val}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <p className={`text-[9px] ${s1} mt-1`}>*Securitize 9-month revenue (2025). Going public via SPAC.</p>
-
-            <h3 className={`text-[10px] tracking-wider uppercase ${s1} mb-2 mt-4 font-semibold`}>PleoChrome&apos;s Differentiation</h3>
-            {[
-              { title: "End-to-end orchestration", desc: "Competitors do 1-2 things (tokenize, or track provenance, or custody). PleoChrome manages the entire pipeline: sourcing \u2192 certification \u2192 appraisal \u2192 custody \u2192 legal \u2192 oracle \u2192 token \u2192 sale \u2192 ongoing management." },
-              { title: "Individual high-value stones", desc: "NYBlue tokenizes a batch of 1 million cheap zircons. PleoChrome tokenizes one $55M ruby. These are fundamentally different propositions for fundamentally different investors." },
-              { title: "Genuine white space", desc: "Of the $21.4 billion in on-chain tokenized assets today, less than $10 million represents gemstones. No credible platform owns this category. PleoChrome has a first-mover opportunity in a $2-5 billion serviceable market." },
-              { title: "Compliance from day one", desc: "Built for SEC Reg D 506(c) and EU MiCA from the start. ERC-3643 tokens with on-chain KYC. This is what separates a real business from a crypto experiment." },
-            ].map(d => (
-              <div key={d.title} className={`py-2 border-b ${dv} last:border-0`}>
-                <p className={`text-xs font-semibold ${s3}`}>{d.title}</p>
-                <p className={`text-[10px] ${s2} leading-relaxed mt-0.5`}>{d.desc}</p>
-              </div>
-            ))}
-          </div>
-        </>)}
-
-        {/* ══════════════════════════════════ */}
-        {/* TAB: FUNDRAISE                    */}
-        {/* ══════════════════════════════════ */}
-        {activeTab === "fundraise" && (<>
-
-          <div className={`${cd} border rounded-2xl p-4 sm:p-5 mb-4`}>
-            <h2 className={`text-xs sm:text-sm font-semibold ${s3} mb-2`}>Understanding This Section</h2>
-            <p className={`text-[10px] sm:text-[11px] ${s2} leading-relaxed`}>
-              This section shows how PleoChrome plans to fund its operations and what the money would be used for. &ldquo;Burn rate&rdquo; is how much cash the company spends each month. &ldquo;Runway&rdquo; is how many months of cash the company has before it runs out. &ldquo;Use of proceeds&rdquo; shows exactly where every dollar of investment goes. Investors want to know: how much do you need, what will you do with it, and when will you need more?
-            </p>
-          </div>
-
-          {/* Fundraise Scenario */}
-          <div className={`${cd} border rounded-2xl p-4 sm:p-5 mb-4`}>
-            <h2 className="text-[10px] sm:text-xs tracking-[0.2em] uppercase text-[#5B2D8E] mb-4 font-semibold">Seed Round Scenario</h2>
-            <p className={`text-[10px] sm:text-[11px] ${s2} leading-relaxed mb-4`}>
-              Based on comparable RWA/tokenization startups (Brickken raised EUR 2.4M seed at EUR 21.7M valuation; average fintech seed is $3.2M), here is a seed round scenario for PleoChrome:
-            </p>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-              {[
-                { label: "Target Raise", value: "$2.5M-$4M", note: "Seed round" },
-                { label: "Pre-Money Valuation", value: "$12M-$18M", note: "Based on fintech seed benchmarks" },
-                { label: "Monthly Burn", value: "$80K-$120K", note: "Fintech seed median: $120K" },
-                { label: "Runway", value: "24-30 months", note: "2025+ investor expectation" },
-              ].map(m => (
-                <div key={m.label} className={`${cd} border rounded-xl p-3`}>
-                  <p className={`text-[8px] tracking-wider uppercase ${s1} mb-0.5`}>{m.label}</p>
-                  <p className={`text-base sm:text-lg font-bold font-mono ${s3}`}>{m.value}</p>
-                  <p className={`text-[8px] ${s1}`}>{m.note}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Use of Proceeds */}
-          <div className={`${cd} border rounded-2xl p-4 sm:p-5 mb-4`}>
-            <h2 className={`text-xs sm:text-sm font-semibold ${s3} mb-2`}>Use of Proceeds</h2>
-            <p className={`text-[10px] sm:text-[11px] ${s2} leading-relaxed mb-3`}>
-              This shows exactly where every dollar of the seed raise would be allocated. Investors hate vague &ldquo;general corporate purposes&rdquo; \u2014 they want specificity. Each category below ties directly to a milestone PleoChrome needs to hit.
-            </p>
-            {[
-              { category: "Legal & Compliance", pct: "25%", amount: "$625K-$1M", color: "#5B2D8E", desc: "Securities counsel engagement, entity formation (Series LLC master + first series), PPM template, compliance program build-out (AML/KYC policy, CCO designation), Form D and blue sky filings, MSB legal opinion. This is the foundation everything else builds on." },
-              { category: "Technology & Infrastructure", pct: "30%", amount: "$750K-$1.2M", color: "#1E3A6E", desc: "Chainlink Proof of Reserve integration (custom adapter + feed deployment), Brickken platform setup, PleoChrome admin dashboard build (asset pipeline tracking, investor management, compliance dashboard), smart contract audit, and SOC 2 Type II preparation. This is PleoChrome\u2019s proprietary operating system." },
-              { category: "First Stone Pilot (120-Day)", pct: "20%", amount: "$500K-$800K", color: "#1A8B7A", desc: "All costs associated with running the first gemstone through the complete 7-gate pipeline: GIA/SSEF certification, three independent appraisals, vault custody deposit, insurance, marketing for the initial offering, and broker-dealer engagement. Proves the model works end-to-end." },
-              { category: "Team & Operations", pct: "15%", amount: "$375K-$600K", color: "#C47A1A", desc: "Key hires: Head of Operations (asset pipeline management), Compliance Officer (required by regulators from day one), and part-time CTO/blockchain developer. Plus office, insurance (D&O, E&O, cyber), and basic operational infrastructure for 18-24 months." },
-              { category: "Working Capital & Reserve", pct: "10%", amount: "$250K-$400K", color: "#A61D3A", desc: "Cash buffer for unexpected costs, timing gaps between expenses and revenue, and the ability to move quickly when a high-value stone opportunity arises. Investors expect 20-30% buffer \u2014 this is the safety net that prevents desperate fundraising." },
-            ].map(item => (
-              <div key={item.category} className={`py-3 border-b ${dv} last:border-0`}>
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded" style={{ background: item.color }} />
-                    <span className={`text-xs font-semibold ${s3}`}>{item.category}</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="font-mono text-xs font-semibold" style={{ color: item.color }}>{item.amount}</span>
-                    <span className={`text-[9px] ${s1} ml-1`}>({item.pct})</span>
-                  </div>
-                </div>
-                <div className={`h-1.5 rounded-full ${dark ? "bg-white/[0.04]" : "bg-gray-100"} mb-2`}>
-                  <div className="h-full rounded-full" style={{ width: item.pct, background: item.color }} />
-                </div>
-                <p className={`text-[10px] ${s2} leading-relaxed`}>{item.desc}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Milestones */}
-          <div className={`${cd} border rounded-2xl p-4 sm:p-5 mb-4`}>
-            <h2 className={`text-xs sm:text-sm font-semibold ${s3} mb-2`}>Milestones This Capital Unlocks</h2>
-            <p className={`text-[10px] sm:text-[11px] ${s2} leading-relaxed mb-3`}>
-              Investors think in milestones, not timelines. Each milestone below de-risks the business and makes the next raise easier and larger. The goal of the seed round is to prove the model works with one stone, then raise a Series A to scale.
-            </p>
-            {[
-              { month: "Month 1-3", title: "Legal Foundation", desc: "Entity formed, securities counsel engaged, compliance program written, CCO designated. PleoChrome exists as a legal entity ready to operate." },
-              { month: "Month 2-5", title: "Technology Platform", desc: "Chainlink PoR integration complete, Brickken sandbox tested, admin dashboard MVP live. The orchestration engine works." },
-              { month: "Month 3-8", title: "First Stone Through Pipeline", desc: "One high-value colored gemstone completes all 7 gates: certified, appraised (3x), vaulted, insured, oracle-verified, tokenized, and offered to accredited investors. This is proof-of-concept." },
-              { month: "Month 6-12", title: "First Token Sale Closes", desc: "Investors purchase tokens in the first offering. Revenue flows. The business model is validated with real money." },
-              { month: "Month 12-18", title: "Pipeline of 5-10 Stones", desc: "With the first stone proven, additional asset holders engage. Legal templates reduce per-stone costs. Platform handles multiple concurrent offerings." },
-              { month: "Month 18-24", title: "Series A Ready", desc: "Proven revenue, 5-10 tokenized stones, growing AUM, institutional partner relationships (Chainlink, Brickken, vault, BD), and SOC 2 in progress. Raise $8-15M Series A to scale to 50+ stones." },
-            ].map(ms => (
-              <div key={ms.month} className={`flex gap-3 py-2.5 border-b ${dv} last:border-0`}>
-                <span className={`text-[9px] font-mono ${s1} w-20 shrink-0 pt-0.5`}>{ms.month}</span>
-                <div>
-                  <p className={`text-xs font-semibold ${s3}`}>{ms.title}</p>
-                  <p className={`text-[10px] ${s2} leading-relaxed mt-0.5`}>{ms.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Burn Rate Model */}
-          <div className={`${cd} border rounded-2xl p-4 sm:p-5 mb-4`}>
-            <h2 className={`text-xs sm:text-sm font-semibold ${s3} mb-2`}>Monthly Burn Rate Projection</h2>
-            <p className={`text-[10px] sm:text-[11px] ${s2} leading-relaxed mb-3`}>
-              &ldquo;Burn rate&rdquo; is how much cash the company spends each month before revenue covers costs. Investors in 2025-2026 expect startups to have 24-30 months of runway (cash \u00F7 monthly burn). The median fintech seed-stage burn is $120K/month.
-            </p>
-            <div className="overflow-x-auto -mx-2 px-2">
-              <table className="w-full text-[10px] sm:text-xs min-w-[400px]">
-                <thead><tr className={`${s1} text-[8px] tracking-wider uppercase`}>
-                  <th className="text-left py-1.5">Category</th><th className="text-right">Month 1-6</th><th className="text-right">Month 7-12</th><th className="text-right">Month 13-18</th><th className="text-right">Month 19-24</th>
-                </tr></thead>
-                <tbody className="font-mono">
-                  {[
-                    { cat: "Team (salaries + contractors)", m1: "$35K", m2: "$45K", m3: "$55K", m4: "$65K" },
-                    { cat: "Legal & Compliance", m1: "$25K", m2: "$15K", m3: "$10K", m4: "$8K" },
-                    { cat: "Technology (infra + dev)", m1: "$20K", m2: "$25K", m3: "$15K", m4: "$12K" },
-                    { cat: "Chainlink + Brickken", m1: "$15K", m2: "$8K", m3: "$8K", m4: "$8K" },
-                    { cat: "Marketing", m1: "$5K", m2: "$15K", m3: "$20K", m4: "$25K" },
-                    { cat: "Insurance + Office + Misc", m1: "$5K", m2: "$5K", m3: "$7K", m4: "$7K" },
-                  ].map(row => (
-                    <tr key={row.cat} className={`border-t ${dv}`}>
-                      <td className={`py-1.5 font-sans ${s2}`}>{row.cat}</td>
-                      <td className="text-right text-[#A61D3A]">{row.m1}</td>
-                      <td className="text-right text-[#A61D3A]">{row.m2}</td>
-                      <td className="text-right text-[#A61D3A]">{row.m3}</td>
-                      <td className="text-right text-[#A61D3A]">{row.m4}</td>
-                    </tr>
-                  ))}
-                  <tr className={`border-t-2 ${dv} font-semibold`}>
-                    <td className={`py-1.5 font-sans ${s3}`}>Total Monthly Burn</td>
-                    <td className="text-right text-[#A61D3A]">$105K</td>
-                    <td className="text-right text-[#A61D3A]">$113K</td>
-                    <td className="text-right text-[#A61D3A]">$115K</td>
-                    <td className="text-right text-[#A61D3A]">$125K</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div className={`mt-3 pt-3 border-t ${dv} grid grid-cols-3 gap-2 text-center`}>
-              <div><p className={`text-[8px] uppercase tracking-wider ${s1}`}>24-Month Total Burn</p><p className="text-sm font-mono font-semibold text-[#A61D3A]">~$2.7M</p></div>
-              <div><p className={`text-[8px] uppercase tracking-wider ${s1}`}>Revenue Offset (est.)</p><p className="text-sm font-mono font-semibold text-[#1B6B4A]">~$1.0M</p><p className={`text-[8px] ${s1}`}>From first 2-3 stone offerings</p></div>
-              <div><p className={`text-[8px] uppercase tracking-wider ${s1}`}>Net Cash Need</p><p className="text-sm font-mono font-semibold text-[#C47A1A]">~$1.7M</p><p className={`text-[8px] ${s1}`}>+ $800K-$1.3M buffer</p></div>
-            </div>
-          </div>
-
-          {/* Comparable Raises */}
-          <div className={`${cd} border rounded-2xl p-4 sm:p-5 mb-4`}>
-            <h2 className={`text-xs sm:text-sm font-semibold ${s3} mb-2`}>What Comparable Companies Raised</h2>
-            <p className={`text-[10px] sm:text-[11px] ${s2} leading-relaxed mb-3`}>
-              These are real fundraising examples from companies in the RWA tokenization space. They show what investors have been willing to pay for similar businesses at similar stages.
-            </p>
-            <div className="overflow-x-auto -mx-2 px-2">
-              <table className="w-full text-[10px] sm:text-xs min-w-[450px]">
-                <thead><tr className={`${s1} text-[8px] tracking-wider uppercase`}>
-                  <th className="text-left py-1.5">Company</th><th className="text-left">Round</th><th className="text-right">Amount</th><th className="text-right">Valuation</th><th className="text-left">Notes</th>
-                </tr></thead>
-                <tbody className="font-mono">
-                  {[
-                    { name: "Brickken", round: "Seed", amount: "$2.6M", val: "$23.5M", note: "Barcelona; EUR 2.4M at EUR 21.7M post-money" },
-                    { name: "Securitize", round: "Total", amount: "$100M+", val: "$1.25B", note: "Going public via SPAC (2026)" },
-                    { name: "Masterworks", round: "Total", amount: "$110M", val: "$1.0B", note: "$941M AUM in art; $76.5M revenue" },
-                    { name: "Rally", round: "Total", amount: "$109M", val: "$175M", note: "8 rounds; collectible fractionalization" },
-                    { name: "RWA sector", round: "All 2025", amount: "$2.5B+", val: "\u2014", note: "#1 category for crypto VC in 2025" },
-                  ].map(c => (
-                    <tr key={c.name} className={`border-t ${dv}`}>
-                      <td className={`py-1.5 font-sans font-semibold ${s2}`}>{c.name}</td>
-                      <td className={`font-sans ${s1}`}>{c.round}</td>
-                      <td className="text-right text-[#1B6B4A]">{c.amount}</td>
-                      <td className={`text-right ${s2}`}>{c.val}</td>
-                      <td className={`font-sans text-[9px] ${s1}`}>{c.note}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </>)}
 
       </div>
 
