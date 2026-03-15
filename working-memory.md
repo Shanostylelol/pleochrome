@@ -3,28 +3,27 @@
 **Last Updated:** 2026-03-14
 
 ## Current Goal
-Research what makes a financial model "Harvard grade" / VC-ready / angel-investor ready — specific frameworks, terminology, metrics, and formatting standards for implementation.
+Research complete market sizing for RWA tokenization, specifically for PleoChrome's gemstone tokenization orchestration platform. Investor-facing TAM/SAM/SOM analysis with exact numbers and sources.
 
 ## Context
 - PleoChrome = gemstone tokenization orchestration platform
 - Previously completed: comprehensive cost research for tokenizing a $55M ruby
-- Now need: investor-grade financial model guidance
-- Focus areas: VC/angel expectations, academic frameworks (HBS/Wharton/Stanford), YC/a16z/Sequoia guidance, marketplace metrics, narrative/visual best practices, common mistakes, RWA/tokenization specifics
+- Previously completed: "Harvard-grade" financial model research
+- Now need: investor-grade market sizing (TAM/SAM/SOM) with sourced numbers
+- Covers: gemstone markets, RWA tokenization forecasts, competitive landscape, burn rate benchmarks
 
 ## Progress
-- [x] Researched VC/angel investor expectations for financial models (2025-2026)
-- [x] Harvard Business School frameworks (POCD, Sahlman's entrepreneurial finance)
-- [x] Stanford GSB and Wharton approaches
-- [x] YCombinator seed/Series A deck guidance
-- [x] Sequoia Capital business plan format and financial projections
-- [x] a16z 16 startup metrics + 13 marketplace metrics (GMV, take rate, etc.)
-- [x] Key SaaS/marketplace metrics (CAC, LTV, NRR, churn, margins, payback)
-- [x] Financial model visual best practices and chart types
-- [x] Institutional color coding conventions (blue/black/green standard)
-- [x] Common mistakes and red flags that kill investor models
-- [x] Narrative/storytelling techniques for non-technical investors
-- [x] RWA tokenization platform comparables and metrics
-- [x] Compiled comprehensive research report
+- [x] Global gemstone market size research (multiple sources)
+- [x] Colored gemstone market specifically
+- [x] RWA tokenization market size (current + 2030 projections)
+- [x] BCG, McKinsey, Citi, Standard Chartered, BlackRock forecasts
+- [x] Competitive landscape (NYBlue/ZIRC, Tiamonds, Habsburg GEM, Masterworks, Rally, Securitize, Ondo)
+- [x] Auction house data (Christie's, Sotheby's) for colored gemstones
+- [x] Institutional adoption signals (BlackRock BUIDL, Franklin Templeton, JPMorgan)
+- [x] Regulatory tailwinds (SEC reset, MiCA, GENIUS Act)
+- [x] Burn rate / runway benchmarks for pre-revenue fintech
+- [x] RWA tokenization startup fundraising examples
+- [x] Compiled comprehensive market sizing report
 
 ## Next Steps
 1. None — research delivered
