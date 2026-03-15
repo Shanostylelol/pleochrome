@@ -15,9 +15,9 @@ const cormorant = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "PleoChrome — Trust, Verified from Every Angle",
+  title: "PleoChrome — Verified from Every Angle",
   description:
-    "PleoChrome is the orchestration platform that transforms high-value colored gemstones into compliant, tokenized digital assets through institutional-grade trust infrastructure.",
+    "PleoChrome is the orchestration platform that transforms high-value colored gemstones into compliant, tokenized digital securities through institutional-grade verification infrastructure.",
   keywords: [
     "gemstone tokenization",
     "digital assets",
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "PleoChrome" }],
   openGraph: {
-    title: "PleoChrome — Trust, Verified from Every Angle",
+    title: "PleoChrome — Verified from Every Angle",
     description:
       "The orchestration platform for tokenized precious assets. Institutional-grade trust infrastructure for high-value colored gemstones.",
     url: "https://pleochrome.com",
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "PleoChrome — Trust, Verified from Every Angle",
+    title: "PleoChrome — Verified from Every Angle",
     description:
       "The orchestration platform for tokenized precious assets.",
   },

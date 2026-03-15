@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 
 /* ═══════════════════════════════════════════════════════
    PleoChrome Landing Page
-   "Trust, Verified from Every Angle"
+   "Verified from Every Angle"
    ═══════════════════════════════════════════════════════ */
 
 // ── 7-Gate data ──────────────────────────────
@@ -27,50 +27,57 @@ const gates = [
     icon: <ShieldCheck className="h-5 w-5" />,
     title: "Intake",
     subtitle: "Source Verification",
+    phase: "Acquisition",
     description:
-      "Every asset begins with rigorous provenance review. Origin legitimacy, seller eligibility, and chain-of-custody documentation — verified before anything moves forward.",
+      "KYC/KYB on every asset holder. Provenance chain verified from mine to present. Clear title confirmed. Sanctions and PEP screening completed. Engagement agreement executed.",
   },
   {
     icon: <FileCheck2 className="h-5 w-5" />,
     title: "Evidence",
     subtitle: "Legal Clearance",
+    phase: "Acquisition",
     description:
-      "Sanctions screening, legal transferability, and regulatory compliance checks create an unbroken evidence trail from source to sale.",
+      "Legal transferability confirmed. Export/import compliance verified. OECD and Kimberley Process adherence documented. Conflict origin screening complete. Unbroken evidence trail established.",
   },
   {
     icon: <Gem className="h-5 w-5" />,
     title: "Verification",
     subtitle: "Independent Valuation",
+    phase: "Preparation",
     description:
-      "Three independent GIA-certified appraisals. The two lowest define the asset\u2019s market value — structurally conservative, investor-protective by design.",
+      "GIA-certified lab grading with origin determination. Three independent USPAP-compliant appraisals. The two lowest define the offering value \u2014 structurally conservative, investor-protective by design.",
   },
   {
     icon: <Lock className="h-5 w-5" />,
     title: "Custody",
     subtitle: "Institutional Vault",
+    phase: "Preparation",
     description:
-      "Physical assets secured in institutional-grade vaults with active insurance. Custody receipts are cryptographically linked to on-chain records.",
+      "Segregated storage at Brink\u2019s or Malca-Amit with active insurance. Chainlink Proof of Reserve oracle connects vault inventory to on-chain records in real time. Custody status verified 24/7.",
   },
   {
     icon: <Building2 className="h-5 w-5" />,
     title: "Issuer",
     subtitle: "Legal Structuring",
+    phase: "Preparation",
     description:
-      "Each asset is wrapped in a dedicated Special Purpose Vehicle. Offering rights, investor protections, and legal frameworks \u2014 all finalized before tokenization.",
+      "Dedicated SPV (Series LLC) per asset. Private Placement Memorandum, Subscription Agreement, and Token Purchase Agreement drafted by securities counsel and compliance-reviewed.",
   },
   {
     icon: <Link2 className="h-5 w-5" />,
     title: "Platform",
-    subtitle: "Token Alignment",
+    subtitle: "Token Deployment",
+    phase: "Tokenization",
     description:
-      "Smart contract parameters are validated against legal documents and vault records. Oracle-gated minting ensures on-chain and off-chain facts are perfectly synchronized.",
+      "ERC-3643 compliant security token deployed on Polygon via Brickken. Smart contract audited. Oracle-gated minting blocks token creation unless reserves are independently verified.",
   },
   {
     icon: <Users className="h-5 w-5" />,
     title: "Sale",
-    subtitle: "Investor Access",
+    subtitle: "Investor Distribution",
+    phase: "Distribution",
     description:
-      "Qualified investor onboarding, compliant distribution channels, and transparent communication paths \u2014 all live and verified before the first token is offered.",
+      "Reg D 506(c) compliant offering to accredited investors. KYC, accreditation verification, and sanctions screening on every buyer. Tokens minted only after subscription is confirmed and funded.",
   },
 ];
 
@@ -94,8 +101,8 @@ function HeroSection() {
   useEffect(() => {
     const timers = [
       setTimeout(() => setStage(1), 600),   // logo
-      setTimeout(() => setStage(2), 1800),  // "Trust"
-      setTimeout(() => setStage(3), 2800),  // "Verified from Every Angle"
+      setTimeout(() => setStage(2), 1800),  // tagline
+      setTimeout(() => setStage(3), 2800),  // descriptor
       setTimeout(() => setStage(4), 4000),  // CTA
     ];
     return () => timers.forEach(clearTimeout);
@@ -130,30 +137,31 @@ function HeroSection() {
           />
         </div>
 
-        {/* Tagline — "Trust" */}
-        <h1
-          className={cn(
-            "font-display font-light text-white/90 mt-8 sm:mt-10 transition-all duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)]",
-            "text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-[0.1em] sm:tracking-[0.15em]",
-            stage >= 2
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-6"
-          )}
-        >
-          Trust
-        </h1>
-
-        {/* Tagline — "Verified from Every Angle" */}
+        {/* Tagline */}
         <p
           className={cn(
-            "text-[11px] sm:text-sm md:text-base tracking-[0.2em] sm:tracking-[0.35em] uppercase text-white/50 mt-3 sm:mt-4 transition-all duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)]",
-            stage >= 3
+            "text-[11px] sm:text-sm md:text-base tracking-[0.2em] sm:tracking-[0.35em] uppercase text-white/50 mt-8 sm:mt-10 transition-all duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)]",
+            stage >= 2
               ? "opacity-100 translate-y-0"
               : "opacity-0 translate-y-6"
           )}
         >
           Verified from Every Angle
         </p>
+
+        {/* Descriptor */}
+        <h1
+          className={cn(
+            "font-display font-light text-white/80 mt-4 sm:mt-5 transition-all duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)]",
+            "text-lg sm:text-xl md:text-2xl lg:text-[1.75rem] tracking-[0.02em] max-w-2xl leading-relaxed",
+            stage >= 3
+              ? "opacity-100 translate-y-0"
+              : "opacity-0 translate-y-6"
+          )}
+        >
+          The orchestration platform that transforms high-value
+          colored gemstones into compliant, tokenized digital securities.
+        </h1>
 
         {/* Gem accent bar */}
         <div
@@ -241,7 +249,7 @@ function IntroSection() {
             visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           )}
         >
-          The Orchestration Platform
+          What We Do
         </p>
         <h2
           className={cn(
@@ -249,10 +257,19 @@ function IntroSection() {
             visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
           )}
         >
-          We don&apos;t hold the stone.<br className="hidden md:block" />
-          We don&apos;t sell the token.<br className="hidden md:block" />
-          We orchestrate the trust that makes both possible.
+          PleoChrome orchestrates the full lifecycle of
+          gemstone-backed digital securities.
         </h2>
+        <p
+          className={cn(
+            "mt-5 sm:mt-6 text-sm sm:text-base text-white/40 max-w-xl mx-auto leading-relaxed transition-all duration-700 delay-400",
+            visible ? "opacity-100" : "opacity-0"
+          )}
+        >
+          From sourcing and independent valuation to institutional custody,
+          oracle-verified reserves, and compliant token issuance &mdash;
+          we coordinate every specialist, every gate, every step of the process.
+        </p>
         <div
           className={cn(
             "gem-bar mt-10 w-32 mx-auto transition-all duration-700 delay-500",
@@ -308,9 +325,14 @@ function GateCard({ gate, index, area, visible }: GateCardProps) {
             <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", gemColors[index])}>
               <span className="text-white/90">{gate.icon}</span>
             </div>
-            <span className="text-xs tracking-[0.3em] uppercase text-white/20 font-medium">
-              Gate {index + 1}
-            </span>
+            <div className="text-right">
+              <span className="text-[10px] tracking-[0.2em] uppercase text-white/15 block">
+                {gate.phase}
+              </span>
+              <span className="text-xs tracking-[0.3em] uppercase text-white/20 font-medium">
+                Gate {index + 1}
+              </span>
+            </div>
           </div>
 
           {/* Content */}
@@ -369,7 +391,7 @@ function ProcessSection() {
               visible ? "opacity-100" : "opacity-0"
             )}
           >
-            The 7-Gate Framework
+            The 7-Gate Execution Framework
           </p>
           <h2
             className={cn(
@@ -377,16 +399,17 @@ function ProcessSection() {
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             )}
           >
-            Nothing Moves Without Evidence
+            Seven Gates. Zero Assumptions.
           </h2>
           <p
             className={cn(
-              "mt-5 text-base md:text-lg text-white/40 max-w-xl mx-auto leading-relaxed transition-all duration-700 delay-300",
+              "mt-5 text-sm sm:text-base md:text-lg text-white/40 max-w-2xl mx-auto leading-relaxed transition-all duration-700 delay-300",
               visible ? "opacity-100" : "opacity-0"
             )}
           >
-            Every asset passes through seven strict, binary decision gates.
-            Each must be satisfied with documented proof before the next opens.
+            Every stone passes through seven strict, binary decision gates spanning
+            four phases: Acquisition, Preparation, Tokenization, and Distribution.
+            Each gate requires documented, independently verified evidence before the next opens.
           </p>
         </div>
 
@@ -424,16 +447,16 @@ function ValueSection() {
 
   const pillars = [
     {
-      label: "Orchestration",
-      text: "We coordinate the specialists \u2014 gemologists, appraisers, custodians, and issuers \u2014 so every function is handled by the best in class.",
+      label: "Institutional Orchestration",
+      text: "Every function \u2014 gemological certification, independent appraisal, vault custody, legal structuring, and token issuance \u2014 is handled by a licensed, best-in-class specialist.",
     },
     {
-      label: "Transparency",
-      text: "Oracle-validated evidence trails tie on-chain token behavior directly to independently verified off-chain facts. Nothing is assumed.",
+      label: "Oracle-Verified Reserves",
+      text: "Chainlink Proof of Reserve connects physical vault inventory to on-chain records in real time. Token minting is programmatically blocked unless reserves are independently confirmed.",
     },
     {
-      label: "Protection",
-      text: "Structurally conservative valuations, automated mint-gating, and institutional custody protect every stakeholder in the chain.",
+      label: "Compliance-First Architecture",
+      text: "ERC-3643 security tokens with built-in KYC, accreditation, and jurisdiction controls. Reg D 506(c) compliant. Every transfer validated at the smart contract level before execution.",
     },
   ];
 
@@ -450,8 +473,8 @@ function ValueSection() {
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             )}
           >
-            Extraordinary Assets Deserve<br className="hidden md:block" />
-            Extraordinary Infrastructure
+            Value, Revealed<br className="hidden md:block" />
+            from Every Angle
           </h2>
         </div>
 
@@ -561,7 +584,7 @@ function PartnersSection() {
             )}
           >
             Every layer of the PleoChrome stack is powered by institutional-grade
-            specialists. We don&apos;t build what already exists — we orchestrate the best.
+            specialists — the same names that secure and verify billions in assets worldwide.
           </p>
         </div>
 
@@ -639,11 +662,13 @@ function ContactSection() {
           />
 
           <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-white/90 mb-4 sm:mb-5">
-            Let&apos;s Build Something<br />Worth Trusting
+            Ready to Tokenize<br />an Exceptional Asset?
           </h2>
 
           <p className="text-white/40 text-sm sm:text-base md:text-lg leading-relaxed mb-8 sm:mb-10 max-w-lg mx-auto">
-            If you represent an asset of exceptional provenance — or the infrastructure to verify one — we should talk.
+            Whether you hold a high-value gemstone, operate custody infrastructure,
+            or represent qualified investors — let&apos;s discuss how PleoChrome
+            can orchestrate the path forward.
           </p>
 
           <a
