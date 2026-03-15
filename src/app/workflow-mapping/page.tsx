@@ -234,6 +234,17 @@ export default function WorkflowMapping() {
   const [activePhase, setActivePhase] = useState<number | null>(null);
   const [openSteps, setOpenSteps] = useState<Set<string>>(new Set());
 
+  const [dark, setDark] = useState(true);
+
+  // Check portal auth + dark mode
+  useState(() => {
+    if (typeof window !== "undefined") {
+      if (localStorage.getItem("pleo-auth") === "true") setUnlocked(true);
+      const saved = localStorage.getItem("pleo-dark");
+      if (saved !== null) setDark(saved === "true");
+    }
+  });
+
   if (!unlocked) {
     return <PasswordGate onUnlock={() => setUnlocked(true)} />;
   }
@@ -253,21 +264,25 @@ export default function WorkflowMapping() {
   };
 
   return (
-    <div className="min-h-screen bg-[#030712] text-[#FAFBFC]">
+    <div className={`min-h-screen ${dark ? "bg-[#030712] text-[#FAFBFC]" : "bg-[#F8F9FA] text-[#1a1a1a]"} transition-colors duration-300`}>
       {/* Header */}
-      <header className="text-center pt-10 pb-8 sm:pt-14 sm:pb-10 relative">
-        <Image
-          src="/logo-white.png"
-          alt="PleoChrome"
-          width={160}
-          height={40}
-          className="mx-auto mb-4 opacity-50 h-6 sm:h-7 w-auto"
-        />
+      <header className="text-center pt-8 pb-6 sm:pt-12 sm:pb-8 relative px-4">
+        <div className="flex items-center justify-center gap-2 mb-3">
+          <a href="/portal" className={`text-[9px] sm:text-[10px] tracking-wider uppercase px-2.5 py-1 rounded-full border transition-colors flex items-center gap-1 ${dark ? "border-white/10 text-white/30 hover:text-white/50" : "border-gray-300 text-gray-400 hover:text-gray-600"}`}>
+            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Portal
+          </a>
+          <Image src={dark ? "/logo-white.png" : "/logo.png"} alt="PleoChrome" width={160} height={40} className="opacity-50 h-5 sm:h-6 w-auto" />
+          <button onClick={() => { setDark(!dark); localStorage.setItem("pleo-dark", String(!dark)); }}
+            className={`text-[9px] sm:text-[10px] tracking-wider uppercase px-2.5 py-1 rounded-full border transition-colors ${dark ? "border-white/10 text-white/30" : "border-gray-300 text-gray-400"}`}>
+            {dark ? "Light" : "Dark"}
+          </button>
+        </div>
         <h1 className="font-[family-name:var(--font-cormorant)] text-xl sm:text-2xl font-light tracking-wider">
           Master Workflow Map
         </h1>
-        <p className="mt-1 text-[10px] sm:text-xs tracking-[0.25em] uppercase text-white/25">
-          Trust, Verified from Every Angle
+        <p className={`mt-1 text-[10px] sm:text-xs tracking-[0.25em] uppercase ${dark ? "text-white/25" : "text-gray-400"}`}>
+          Value from Every Angle
         </p>
         {/* Gem bar */}
         <div className="flex gap-[2px] justify-center mt-3">

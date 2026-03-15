@@ -206,6 +206,15 @@ function saveDealToStorage(deals: SavedDeal[]) {
 export default function FinancialModel() {
   const [unlocked, setUnlocked] = useState(false);
   const [dark, setDark] = useState(true);
+
+  // Check portal auth + dark mode on mount
+  useState(() => {
+    if (typeof window !== "undefined") {
+      if (localStorage.getItem("pleo-auth") === "true") setUnlocked(true);
+      const saved = localStorage.getItem("pleo-dark");
+      if (saved !== null) setDark(saved === "true");
+    }
+  });
   const [dealName, setDealName] = useState("$55M Burmese Ruby");
   const [selectedStone, setSelectedStone] = useState(0);
   const [assetValue, setAssetValue] = useState(55_000_000);
@@ -416,8 +425,12 @@ export default function FinancialModel() {
       {/* Header */}
       <header className="text-center pt-6 pb-4 sm:pt-10 sm:pb-6 relative px-4">
         <div className="flex items-center justify-center gap-2 sm:gap-3 mb-2 flex-wrap">
+          <a href="/portal" className={`text-[9px] sm:text-[10px] tracking-wider uppercase px-2.5 py-1 rounded-full border transition-colors flex items-center gap-1 ${dark ? "border-white/10 text-white/30 hover:text-white/50" : "border-gray-300 text-gray-400 hover:text-gray-600"}`}>
+            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Portal
+          </a>
           <Image src={logo} alt="PleoChrome" width={140} height={35} className="h-5 sm:h-6 w-auto opacity-60" />
-          <button onClick={() => setDark(!dark)} className={`text-[9px] sm:text-[10px] tracking-wider uppercase px-2.5 py-1 rounded-full border transition-colors ${dark ? "border-white/10 text-white/30" : "border-gray-300 text-gray-400"}`}>
+          <button onClick={() => { setDark(!dark); localStorage.setItem("pleo-dark", String(!dark)); }} className={`text-[9px] sm:text-[10px] tracking-wider uppercase px-2.5 py-1 rounded-full border transition-colors ${dark ? "border-white/10 text-white/30" : "border-gray-300 text-gray-400"}`}>
             {dark ? "Light" : "Dark"}
           </button>
           <button onClick={exportCSV} className={`text-[9px] sm:text-[10px] tracking-wider uppercase px-2.5 py-1 rounded-full border transition-colors flex items-center gap-1 ${dark ? "border-[#1B6B4A]/30 text-[#1B6B4A] hover:border-[#1B6B4A]/60" : "border-[#1B6B4A]/30 text-[#1B6B4A] hover:border-[#1B6B4A]"}`}>

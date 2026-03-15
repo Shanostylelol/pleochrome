@@ -120,9 +120,19 @@ function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
 
 export default function LearnPage() {
   const [unlocked, setUnlocked] = useState(false);
+  const [dark, setDark] = useState(true);
   const [expandedTerms, setExpandedTerms] = useState<Set<string>>(new Set());
   const [expandedSteps, setExpandedSteps] = useState<Set<number>>(new Set());
   const [filterCat, setFilterCat] = useState<string | null>(null);
+
+  // Check portal auth + dark mode
+  useState(() => {
+    if (typeof window !== "undefined") {
+      if (localStorage.getItem("pleo-auth") === "true") setUnlocked(true);
+      const saved = localStorage.getItem("pleo-dark");
+      if (saved !== null) setDark(saved === "true");
+    }
+  });
 
   const toggleTerm = (word: string) => setExpandedTerms(prev => { const n = new Set(prev); n.has(word) ? n.delete(word) : n.add(word); return n; });
   const toggleStep = (num: number) => setExpandedSteps(prev => { const n = new Set(prev); n.has(num) ? n.delete(num) : n.add(num); return n; });
@@ -131,12 +141,29 @@ export default function LearnPage() {
 
   const filteredGlossary = filterCat ? glossary.filter(t => t.category === filterCat) : glossary;
 
+  const bg = dark ? "bg-[#030712]" : "bg-[#F8F9FA]";
+  const tx = dark ? "text-[#FAFBFC]" : "text-[#1a1a1a]";
+  const cd = dark ? "bg-[rgba(10,17,32,0.92)] border-white/[0.04]" : "bg-white border-gray-200 shadow-sm";
+  const s1 = dark ? "text-white/25" : "text-gray-400";
+  const s2 = dark ? "text-white/50" : "text-gray-600";
+  const s3 = dark ? "text-white/70" : "text-gray-800";
+
   return (
-    <div className="min-h-screen bg-[#030712] text-[#FAFBFC]">
+    <div className={`min-h-screen ${bg} ${tx} transition-colors duration-300`}>
       <header className="text-center pt-8 pb-6 sm:pt-12 sm:pb-8 relative px-4">
-        <Image src="/logo-white.png" alt="PleoChrome" width={160} height={40} className="mx-auto mb-3 opacity-50 h-5 sm:h-6 w-auto" />
+        <div className="flex items-center justify-center gap-2 mb-3">
+          <a href="/portal" className={`text-[9px] sm:text-[10px] tracking-wider uppercase px-2.5 py-1 rounded-full border transition-colors flex items-center gap-1 ${dark ? "border-white/10 text-white/30 hover:text-white/50" : "border-gray-300 text-gray-400 hover:text-gray-600"}`}>
+            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Portal
+          </a>
+          <Image src={dark ? "/logo-white.png" : "/logo.png"} alt="PleoChrome" width={160} height={40} className="opacity-50 h-5 sm:h-6 w-auto" />
+          <button onClick={() => { setDark(!dark); localStorage.setItem("pleo-dark", String(!dark)); }}
+            className={`text-[9px] sm:text-[10px] tracking-wider uppercase px-2.5 py-1 rounded-full border transition-colors ${dark ? "border-white/10 text-white/30" : "border-gray-300 text-gray-400"}`}>
+            {dark ? "Light" : "Dark"}
+          </button>
+        </div>
         <h1 className="font-[family-name:var(--font-cormorant)] text-xl sm:text-2xl font-light tracking-wider">How It All Works</h1>
-        <p className="mt-1 text-[10px] tracking-[0.25em] uppercase text-white/25">Plain English. No jargon. No BS.</p>
+        <p className={`mt-1 text-[10px] tracking-[0.25em] uppercase ${s1}`}>Plain English. No jargon. No BS.</p>
         <div className="flex gap-[2px] justify-center mt-3">
           {["#1B6B4A","#1A8B7A","#1E3A6E","#5B2D8E","#A61D3A","#C47A1A","#7BA31E"].map(c => (
             <span key={c} className="h-[2px] w-4 rounded-sm" style={{ background: c }} />
