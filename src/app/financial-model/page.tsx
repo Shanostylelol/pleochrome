@@ -117,23 +117,80 @@ function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
   );
 }
 
-function ValidatedInput({ value, onChange, min, max }: { value: number; onChange: (v: number) => void; min: number; max: number }) {
+function DollarInput({ value, onChange, min, max, compact = false }: {
+  value: number; onChange: (v: number) => void; min: number; max: number; compact?: boolean;
+}) {
+  const [focused, setFocused] = useState(false);
   const [raw, setRaw] = useState(String(value));
   const [valid, setValid] = useState(true);
+
+  const displayValue = focused ? raw : "$" + Math.round(value).toLocaleString("en-US");
+
+  const handleFocus = () => { setFocused(true); setRaw(String(Math.round(value))); };
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const s = e.target.value;
+    const s = e.target.value.replace(/[^0-9.-]/g, "");
     setRaw(s);
     const n = Number(s);
-    if (s === "" || isNaN(n)) { setValid(false); return; }
-    if (n < min || n > max) { setValid(false); onChange(Math.max(min, Math.min(max, n))); return; }
+    if (s === "" || s === "-" || isNaN(n)) { setValid(false); return; }
+    if (n < min || n > max) { setValid(false); return; }
     setValid(true);
     onChange(n);
   };
-  const handleBlur = () => { const n = Math.max(min, Math.min(max, Number(raw) || min)); setRaw(String(n)); onChange(n); setValid(true); };
+  const handleBlur = () => {
+    setFocused(false);
+    const n = Math.max(min, Math.min(max, Math.round(Number(raw) || min)));
+    setRaw(String(n));
+    onChange(n);
+    setValid(true);
+  };
+
   return (
-    <input type="text" inputMode="numeric" value={raw} onChange={handleChange} onBlur={handleBlur}
-      className={`w-full bg-inherit border rounded-md px-2 py-1.5 text-xs text-right font-mono outline-none transition-colors [appearance:textfield]
-        ${valid ? "border-inherit focus:border-[#1A8B7A]/40" : "border-[#A61D3A]/50 text-[#A61D3A]"}`} />
+    <input
+      type="text"
+      inputMode="numeric"
+      value={displayValue}
+      onFocus={handleFocus}
+      onChange={handleChange}
+      onBlur={handleBlur}
+      className={`w-full bg-inherit border rounded-md text-right font-mono outline-none transition-colors
+        ${compact ? "px-2 py-1.5 text-xs" : "px-3 py-2 text-sm"}
+        ${valid ? "border-inherit focus:border-[#1A8B7A]/40" : "border-[#A61D3A]/50 text-[#A61D3A]"}`}
+    />
+  );
+}
+
+function PercentInput({ value, onChange, min, max }: {
+  value: number; onChange: (v: number) => void; min: number; max: number;
+}) {
+  const [focused, setFocused] = useState(false);
+  const [raw, setRaw] = useState(String(value));
+
+  const displayValue = focused ? raw : value + "%";
+
+  const handleFocus = () => { setFocused(true); setRaw(String(value)); };
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const s = e.target.value.replace(/[^0-9.]/g, "");
+    setRaw(s);
+    const n = Number(s);
+    if (!isNaN(n) && n >= min && n <= max) onChange(n);
+  };
+  const handleBlur = () => {
+    setFocused(false);
+    const n = Math.max(min, Math.min(max, Number(raw) || min));
+    setRaw(String(n));
+    onChange(n);
+  };
+
+  return (
+    <input
+      type="text"
+      inputMode="decimal"
+      value={displayValue}
+      onFocus={handleFocus}
+      onChange={handleChange}
+      onBlur={handleBlur}
+      className="w-full bg-inherit border border-inherit rounded-md px-3 py-2 text-sm text-right font-mono outline-none transition-colors focus:border-[#1A8B7A]/40"
+    />
   );
 }
 
@@ -266,24 +323,48 @@ export default function FinancialModel() {
         <div className={`${card} border rounded-2xl p-4 sm:p-5 mb-5`}>
           <h2 className={`text-[10px] sm:text-xs tracking-[0.2em] uppercase ${sub2} mb-3 font-semibold`}>Adjust Variables</h2>
           <div className="grid grid-cols-2 gap-x-3 gap-y-2 sm:grid-cols-4 sm:gap-4">
-            {[
-              { label: "Asset Value ($)", value: assetValue, set: setAssetValue, min: 100000, max: 1000000000 },
-              { label: "Appraisal Discount (%)", value: appraisalDiscount, set: setAppraisalDiscount, min: 0, max: 50 },
-              { label: "Token Price ($)", value: tokenPrice, set: setTokenPrice, min: 1000, max: 10000000 },
-              { label: "BD Rate (%)", value: bdRate, set: setBdRate, min: 0, max: 20 },
-              { label: "Setup Fee (%)", value: setupFeeRate, set: setSetupFeeRate, min: 0, max: 10 },
-              { label: "Success Fee (%)", value: successFeeRate, set: setSuccessFeeRate, min: 0, max: 10 },
-              { label: "Admin Fee (%)", value: adminFeeRate, set: setAdminFeeRate, min: 0, max: 5 },
-            ].map((inp) => (
-              <div key={inp.label}>
-                <label className={`block text-[9px] sm:text-[10px] tracking-wider uppercase ${sub} mb-1`}>{inp.label}</label>
-                <div className={`${inputBg} border rounded-lg overflow-hidden`}>
-                  <input type="number" value={inp.value}
-                    onChange={(e) => { const v = Number(e.target.value); if (v >= inp.min && v <= inp.max) inp.set(v); }}
-                    className="w-full bg-transparent text-sm py-2 px-3 outline-none font-mono [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none" />
-                </div>
+            <div>
+              <label className={`block text-[9px] sm:text-[10px] tracking-wider uppercase ${sub} mb-1`}>Asset Value</label>
+              <div className={`${inputBg} border rounded-lg overflow-hidden`}>
+                <DollarInput value={assetValue} onChange={setAssetValue} min={100000} max={1000000000} />
               </div>
-            ))}
+            </div>
+            <div>
+              <label className={`block text-[9px] sm:text-[10px] tracking-wider uppercase ${sub} mb-1`}>Appraisal Discount</label>
+              <div className={`${inputBg} border rounded-lg overflow-hidden`}>
+                <PercentInput value={appraisalDiscount} onChange={setAppraisalDiscount} min={0} max={50} />
+              </div>
+            </div>
+            <div>
+              <label className={`block text-[9px] sm:text-[10px] tracking-wider uppercase ${sub} mb-1`}>Token Price</label>
+              <div className={`${inputBg} border rounded-lg overflow-hidden`}>
+                <DollarInput value={tokenPrice} onChange={setTokenPrice} min={1000} max={10000000} />
+              </div>
+            </div>
+            <div>
+              <label className={`block text-[9px] sm:text-[10px] tracking-wider uppercase ${sub} mb-1`}>BD Placement Rate</label>
+              <div className={`${inputBg} border rounded-lg overflow-hidden`}>
+                <PercentInput value={bdRate} onChange={setBdRate} min={0} max={20} />
+              </div>
+            </div>
+            <div>
+              <label className={`block text-[9px] sm:text-[10px] tracking-wider uppercase ${sub} mb-1`}>Setup Fee Rate</label>
+              <div className={`${inputBg} border rounded-lg overflow-hidden`}>
+                <PercentInput value={setupFeeRate} onChange={setSetupFeeRate} min={0} max={10} />
+              </div>
+            </div>
+            <div>
+              <label className={`block text-[9px] sm:text-[10px] tracking-wider uppercase ${sub} mb-1`}>Success Fee Rate</label>
+              <div className={`${inputBg} border rounded-lg overflow-hidden`}>
+                <PercentInput value={successFeeRate} onChange={setSuccessFeeRate} min={0} max={10} />
+              </div>
+            </div>
+            <div>
+              <label className={`block text-[9px] sm:text-[10px] tracking-wider uppercase ${sub} mb-1`}>Annual Admin Fee</label>
+              <div className={`${inputBg} border rounded-lg overflow-hidden`}>
+                <PercentInput value={adminFeeRate} onChange={setAdminFeeRate} min={0} max={5} />
+              </div>
+            </div>
           </div>
         </div>
 
@@ -339,11 +420,11 @@ export default function FinancialModel() {
                           </div>
                           <div className={`w-24 sm:w-28 shrink-0 ${inputBg} border rounded-md`}>
                             {cost.custom ? (
-                              <input type="number" value={cost.amount}
-                                onChange={(e) => updateCustomCost(cost.id, "amount", Number(e.target.value))}
-                                className="w-full bg-transparent text-xs text-right font-mono py-1.5 px-2 outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none" />
+                              <DollarInput value={cost.amount} compact
+                                onChange={(v) => updateCustomCost(cost.id, "amount", v)}
+                                min={0} max={999999999} />
                             ) : (
-                              <ValidatedInput
+                              <DollarInput compact
                                 value={overrides[cost.id] !== undefined ? overrides[cost.id] : cost.amount}
                                 onChange={(v) => setOverrides((prev) => ({ ...prev, [cost.id]: v }))}
                                 min={cost.min} max={cost.max} />
@@ -414,6 +495,82 @@ export default function FinancialModel() {
             <div className="text-right">
               <span className="font-mono text-xl font-bold text-[#1A8B7A]">{fmtFull(model.netToHolder)}</span>
               <p className={`text-[10px] ${sub}`}>{pct(model.netToHolder, assetValue)} of claimed value</p>
+            </div>
+          </div>
+        </div>
+
+        {/* ── 120-Day Timeline ──────────────── */}
+        <div className={`${card} border rounded-2xl p-4 sm:p-5 mb-3`}>
+          <h2 className="text-[10px] sm:text-xs tracking-[0.2em] uppercase text-[#5B2D8E] mb-4 font-semibold">120-Day Timeline &mdash; Cash Flow Map</h2>
+
+          {/* Timeline ruler */}
+          <div className="relative mb-2">
+            <div className={`h-px w-full ${dark ? "bg-white/10" : "bg-gray-200"}`} />
+            <div className="flex justify-between -mt-1.5">
+              {[0, 15, 30, 45, 60, 75, 90, 105, 120].map((d) => (
+                <div key={d} className="flex flex-col items-center" style={{ width: d === 0 || d === 120 ? "auto" : undefined }}>
+                  <div className={`w-px h-2 ${dark ? "bg-white/15" : "bg-gray-300"}`} />
+                  <span className={`text-[8px] sm:text-[9px] font-mono mt-0.5 ${sub}`}>D{d}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Timeline events */}
+          <div className="space-y-1.5 mt-4">
+            {(() => {
+              const events = [
+                { start: 0, end: 14, label: "KYC & Intake", cost: model.allCosts.filter(c => c.phase === "Acquisition").reduce((s,c) => s + c.amount, 0), inflow: model.setupFee, phase: "Acquisition", inflowLabel: "Setup Fee Collected" },
+                { start: 14, end: 35, label: "GIA + SSEF Labs", cost: (overrides["gia"] ?? 400) + (overrides["ssef"] ?? 4000) + (overrides["gubelin"] ?? 4000), inflow: 0, phase: "Preparation", inflowLabel: "" },
+                { start: 28, end: 56, label: "3x Appraisals + Transit", cost: [overrides["appraisal1"], overrides["appraisal2"], overrides["appraisal3"], overrides["transit-ins"]].reduce((s, v, i) => s + (v ?? [15000,15000,15000,30000][i]), 0), inflow: 0, phase: "Preparation", inflowLabel: "" },
+                { start: 42, end: 63, label: "Vault Intake + Insurance", cost: (overrides["vault"] ?? model.allCosts.find(c=>c.id==="vault")?.amount ?? 82500) + (overrides["insurance"] ?? model.allCosts.find(c=>c.id==="insurance")?.amount ?? 137500), inflow: 0, phase: "Preparation", inflowLabel: "" },
+                { start: 30, end: 70, label: "Legal (SPV + PPM + Agreements)", cost: (overrides["spv"] ?? 8000) + (overrides["ppm"] ?? model.allCosts.find(c=>c.id==="ppm")?.amount ?? 50000) + (overrides["sub-agreement"] ?? 8000) + (overrides["token-agreement"] ?? 10000), inflow: 0, phase: "Preparation", inflowLabel: "" },
+                { start: 42, end: 70, label: "Chainlink PoR Setup", cost: (overrides["chainlink-setup"] ?? 100000), inflow: 0, phase: "Preparation", inflowLabel: "" },
+                { start: 63, end: 84, label: "Token Config + Audit + Deploy", cost: (overrides["brickken"] ?? 35000) + (overrides["audit"] ?? 90000) + (overrides["dev"] ?? 20000) + (overrides["gas"] ?? 200) + (overrides["bluesky"] ?? 15000), inflow: 0, phase: "Tokenization", inflowLabel: "" },
+                { start: 84, end: 120, label: "Offering + Distribution", cost: (overrides["marketing"] ?? model.allCosts.find(c=>c.id==="marketing")?.amount ?? 200000) + (overrides["investor-kyc"] ?? model.allCosts.find(c=>c.id==="investor-kyc")?.amount ?? 12000) + (overrides["transfer-agent"] ?? 30000) + (overrides["data-room"] ?? 10000) + (overrides["compliance-yr1"] ?? 25000) + (overrides["aml-audit"] ?? 15000), inflow: model.successFee, phase: "Distribution", inflowLabel: "Success Fee at Close" },
+              ];
+
+              return events.map((ev, i) => {
+                const leftPct = (ev.start / 120) * 100;
+                const widthPct = ((ev.end - ev.start) / 120) * 100;
+                const pc: Record<string, string> = { Acquisition: "#1B6B4A", Preparation: "#1A8B7A", Tokenization: "#1E3A6E", Distribution: "#C47A1A" };
+                const color = pc[ev.phase] || "#1A8B7A";
+
+                return (
+                  <div key={i} className="relative h-auto min-h-[44px] sm:min-h-[36px]">
+                    {/* Bar */}
+                    <div className="absolute top-0 h-5 sm:h-6 rounded-md flex items-center overflow-hidden"
+                      style={{ left: leftPct + "%", width: widthPct + "%", background: color + "22", borderLeft: `3px solid ${color}` }}>
+                      <span className={`text-[8px] sm:text-[9px] font-medium px-1.5 truncate ${dark ? "text-white/60" : "text-gray-700"}`}>{ev.label}</span>
+                    </div>
+                    {/* Cost + Inflow labels below bar */}
+                    <div className="pt-6 sm:pt-7 flex gap-3 flex-wrap" style={{ paddingLeft: leftPct + "%" }}>
+                      <span className="text-[8px] sm:text-[9px] font-mono text-[#A61D3A]">&darr; {fmt(ev.cost)}</span>
+                      {ev.inflow > 0 && (
+                        <span className="text-[8px] sm:text-[9px] font-mono text-[#1B6B4A]">&uarr; {fmt(ev.inflow)} <span className={`${sub} font-sans`}>{ev.inflowLabel}</span></span>
+                      )}
+                    </div>
+                  </div>
+                );
+              });
+            })()}
+          </div>
+
+          {/* Cumulative summary */}
+          <div className={`mt-5 pt-3 border-t ${divider} grid grid-cols-3 gap-2 text-center`}>
+            <div>
+              <p className={`text-[9px] uppercase tracking-wider ${sub}`}>Total Outflows</p>
+              <p className="text-sm font-mono font-semibold text-[#A61D3A]">{fmt(model.pleoChromeCosts + model.assetHolderCosts)}</p>
+            </div>
+            <div>
+              <p className={`text-[9px] uppercase tracking-wider ${sub}`}>Total Inflows</p>
+              <p className="text-sm font-mono font-semibold text-[#1B6B4A]">{fmt(model.setupFee + model.successFee)}</p>
+            </div>
+            <div>
+              <p className={`text-[9px] uppercase tracking-wider ${sub}`}>Net at Day 120</p>
+              <p className={`text-sm font-mono font-semibold ${model.setupFee + model.successFee - model.pleoChromeCosts > 0 ? "text-[#1A8B7A]" : "text-[#A61D3A]"}`}>
+                {fmt(model.setupFee + model.successFee - model.pleoChromeCosts)}
+              </p>
             </div>
           </div>
         </div>
