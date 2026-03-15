@@ -198,7 +198,8 @@ export default function FinancialModel() {
   const [customCosts, setCustomCosts] = useState<CustomCost[]>([]);
   const [openPhases, setOpenPhases] = useState<Set<string>>(new Set());
   const [expandedNotes, setExpandedNotes] = useState<Set<string>>(new Set());
-  const [activeTab, setActiveTab] = useState<"model" | "investor" | "market" | "scenarios" | "fundraise">("model");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [activeTab] = useState("model");
 
   const togglePhase = (p: string) => setOpenPhases(prev => { const n = new Set(prev); n.has(p) ? n.delete(p) : n.add(p); return n; });
   const toggleNote = (id: string) => setExpandedNotes(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
@@ -273,22 +274,81 @@ export default function FinancialModel() {
   const logo = dark ? "/logo-white.png" : "/logo.png";
   const donutBg = dark ? "#0A1120" : "#ffffff";
 
-  const tabs = [
-    { id: "model" as const, label: "Deal Model" },
-    { id: "investor" as const, label: "Investor View" },
-    { id: "market" as const, label: "Market" },
-    { id: "scenarios" as const, label: "Scenarios" },
-    { id: "fundraise" as const, label: "Fundraise" },
-  ];
+  // Export to CSV
+  const exportCSV = () => {
+    const rows: string[][] = [
+      ["PleoChrome Deal Model — " + new Date().toLocaleDateString()],
+      [],
+      ["DEAL PARAMETERS"],
+      ["Asset Value", fmtFull(assetValue)],
+      ["Appraisal Discount", appraisalDiscount + "%"],
+      ["Offering Value", fmtFull(model.offeringValue)],
+      ["Token Price", fmtFull(tokenPrice)],
+      ["Total Tokens", String(model.totalTokens)],
+      ["BD Placement Rate", bdRate + "%"],
+      ["Setup Fee Rate", setupFeeRate + "%"],
+      ["Success Fee Rate", successFeeRate + "%"],
+      ["Admin Fee Rate (Annual)", adminFeeRate + "%"],
+      [],
+      ["DEAL DASHBOARD"],
+      ["Offering Value", fmtFull(model.offeringValue)],
+      ["Total Deal Costs", fmtFull(model.totalCosts)],
+      ["PleoChrome Year 1 Revenue", fmtFull(model.yr1Rev)],
+      ["PleoChrome Year 1 Net Income", fmtFull(model.yr1Net)],
+      ["Net to Asset Holder", fmtFull(model.netToHolder)],
+      [],
+      ["PHASE-BY-PHASE COSTS"],
+      ["Line Item", "Phase", "Paid By", "Amount"],
+    ];
+    model.all.forEach(c => {
+      const pb = c.paidBy === "pleochrome" ? "PleoChrome" : c.paidBy === "asset-holder" ? "Asset Holder" : "Proceeds";
+      rows.push([c.label, c.phase, pb, fmtFull(c.amount)]);
+    });
+    rows.push([]);
+    rows.push(["COST SUMMARY"]);
+    rows.push(["PleoChrome Direct Costs", "", "", fmtFull(model.pcCosts)]);
+    rows.push(["Asset Holder Pass-Through", "", "", fmtFull(model.ahCosts)]);
+    rows.push(["BD Placement Fee (" + bdRate + "%)", "", "", fmtFull(model.bdFee)]);
+    rows.push(["Total All Costs", "", "", fmtFull(model.totalCosts)]);
+    rows.push([]);
+    rows.push(["REVENUE"]);
+    rows.push(["Setup Fee (" + setupFeeRate + "% of asset)", "", "", fmtFull(model.setupFee)]);
+    rows.push(["Success Fee (" + successFeeRate + "% of offering)", "", "", fmtFull(model.successFee)]);
+    rows.push(["Secondary Transfer Fees (est.)", "", "", "$12,000"]);
+    rows.push(["Year 1 Total Revenue", "", "", fmtFull(model.yr1Rev)]);
+    rows.push(["Annual Admin Fee (Year 2+)", "", "", fmtFull(model.adminFee)]);
+    rows.push([]);
+    rows.push(["ASSET HOLDER ECONOMICS"]);
+    rows.push(["Claimed Asset Value", "", "", fmtFull(assetValue)]);
+    rows.push(["Offering Value", "", "", fmtFull(model.offeringValue)]);
+    rows.push(["Less: BD Placement", "", "", fmtFull(-model.bdFee)]);
+    rows.push(["Less: PleoChrome Setup Fee", "", "", fmtFull(-model.setupFee)]);
+    rows.push(["Less: PleoChrome Success Fee", "", "", fmtFull(-model.successFee)]);
+    rows.push(["Less: Pass-Through Costs", "", "", fmtFull(-model.ahCosts)]);
+    rows.push(["Net Proceeds to Asset Holder", "", "", fmtFull(model.netToHolder)]);
+
+    const csv = rows.map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "PleoChrome-Deal-Model-" + new Date().toISOString().slice(0, 10) + ".csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className={`min-h-screen ${bg} ${tx} transition-colors duration-300`} style={{ "--donut-bg": donutBg } as React.CSSProperties}>
       {/* Header */}
       <header className="text-center pt-6 pb-4 sm:pt-10 sm:pb-6 relative px-4">
-        <div className="flex items-center justify-center gap-3 mb-2">
+        <div className="flex items-center justify-center gap-2 sm:gap-3 mb-2 flex-wrap">
           <Image src={logo} alt="PleoChrome" width={140} height={35} className="h-5 sm:h-6 w-auto opacity-60" />
-          <button onClick={() => setDark(!dark)} className={`text-[10px] tracking-wider uppercase px-3 py-1 rounded-full border transition-colors ${dark ? "border-white/10 text-white/30" : "border-gray-300 text-gray-400"}`}>
+          <button onClick={() => setDark(!dark)} className={`text-[9px] sm:text-[10px] tracking-wider uppercase px-2.5 py-1 rounded-full border transition-colors ${dark ? "border-white/10 text-white/30" : "border-gray-300 text-gray-400"}`}>
             {dark ? "Light" : "Dark"}
+          </button>
+          <button onClick={exportCSV} className={`text-[9px] sm:text-[10px] tracking-wider uppercase px-2.5 py-1 rounded-full border transition-colors flex items-center gap-1 ${dark ? "border-[#1B6B4A]/30 text-[#1B6B4A] hover:border-[#1B6B4A]/60" : "border-[#1B6B4A]/30 text-[#1B6B4A] hover:border-[#1B6B4A]"}`}>
+            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            Export CSV
           </button>
         </div>
         <h1 className="font-[family-name:var(--font-cormorant)] text-lg sm:text-2xl font-light tracking-wider">Interactive Financial Model</h1>
@@ -305,22 +365,7 @@ export default function FinancialModel() {
           </p>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex gap-1 mb-5 overflow-x-auto">
-          {tabs.map(t => (
-            <button key={t.id} onClick={() => setActiveTab(t.id)}
-              className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all whitespace-nowrap ${activeTab === t.id ? (dark ? "bg-white/10 text-white" : "bg-gray-900 text-white") : (dark ? "text-white/30 hover:text-white/50" : "text-gray-400 hover:text-gray-600")}`}>
-              {t.label}
-            </button>
-          ))}
-        </div>
-
-        {/* ══════════════════════════════════ */}
-        {/* TAB: DEAL MODEL                   */}
-        {/* ══════════════════════════════════ */}
-        {activeTab === "model" && (<>
-
-          {/* Comparable Stone Selector */}
+        {/* Comparable Stone Selector */}
           <div className={`${cd} border rounded-2xl p-4 sm:p-5 mb-4`}>
             <h2 className={`text-[10px] sm:text-xs tracking-[0.2em] uppercase ${s1} mb-3 font-semibold`}>Select Comparable Stone</h2>
             <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
@@ -544,12 +589,13 @@ export default function FinancialModel() {
               </div>
             </div>
           </div>
-        </>)}
 
-        {/* ══════════════════════════════════ */}
-        {/* TAB: INVESTOR VIEW                */}
-        {/* ══════════════════════════════════ */}
-        {activeTab === "investor" && (<>
+        {/* ══════════════════════════════════
+         Removed tabs: Investor View, Market, Scenarios, Fundraise
+         Available in standalone pages if needed
+         ══════════════════════════════════ */}
+
+        {false && (<>
           <div className={`${cd} border rounded-2xl p-4 sm:p-5 mb-4`}>
             <h2 className={`text-xs sm:text-sm font-semibold ${s3} mb-2`}>Investor Return Calculator</h2>
             <p className={`text-[10px] sm:text-[11px] ${s2} leading-relaxed mb-4`}>
