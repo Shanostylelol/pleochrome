@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback } from "react";
 import Image from "next/image";
 
-const PASSCODE = "PleoChrome2026";
+const PASSCODE = "pleo123";
 
 // ═══════════════════════════════════════════════
 // HELPERS

@@ -9,7 +9,7 @@ import Image from "next/image";
    /workflow-mapping
    ═══════════════════════════════════════════════════════ */
 
-const PASSCODE = "PleoChrome2026";
+const PASSCODE = "pleo123";
 
 // ── Data ──────────────────────────────────────
 
