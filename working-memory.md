@@ -1,29 +1,27 @@
 # Working Memory
 
-**Last Updated:** 2026-03-15
+**Last Updated:** 2026-03-16
 
 ## Current Goal
-Research REALISTIC lean-startup costs for gemstone tokenization orchestration platform. Previous estimates were inflated — need actual founder-achievable numbers with sources.
+Research Univer spreadsheet library integration for Next.js 16 + React 19 app.
 
 ## Context
-- PleoChrome = gemstone tokenization orchestration platform
-- Previously completed: comprehensive cost research, financial model, TAM/SAM/SOM
-- Now need: honest, defensible cost estimates at startup-stage pricing (not enterprise/BigLaw)
-- 12 specific cost categories to research with lean-startup pricing
+- PleoChrome = gemstone tokenization orchestration platform (Next.js 16 + React 19 + TypeScript)
+- Need embedded spreadsheet with 5 sheets of pre-populated data
+- Toolbar with formatting (bold, colors, etc.)
+- Programmatic cell formatting (currency, percentage)
+- Must handle Next.js SSR (client-only component)
 
 ## Progress
-- [x] Chainlink BUILD program research — free program, 3-7% token commitment
-- [x] Brickken pricing tiers — Core EUR 299/mo through Enterprise EUR 1,999/mo
-- [x] Smart contract audit costs — $5K-$20K for simple, ERC-3643 factory is pre-audited
-- [x] Securities attorney PPM costs — $2,290 average flat fee on ContractsCounsel, $5K-$15K boutique
-- [x] KYC/AML providers — Sumsub $1.35/verification, $149/mo min; Veriff $0.80/verification, $49/mo
-- [x] Vault custody — 0.12%-1% of asset value annually, custom quotes
-- [x] Specie insurance — 0.1%-0.5% for institutional vault-stored, not 1-2%
-- [x] Blue sky filings — only states where investors reside, $100-$300/state, not all 50
-- [x] Transfer agent — ERC-3643 provides on-chain registry, Brickken handles it
-- [x] Accredited investor marketing — LinkedIn Sales Navigator $120/mo, direct outreach
-- [x] Wyoming Series LLC — $100 formation + $60/yr annual report + registered agent
-- [x] GIA/SSEF lab reports — GIA colored stone ~$150-$500, SSEF CHF 2,000-4,400 for 50+ ct
+- [x] Researched Univer docs - installation guide (preset + plugin modes)
+- [x] Found React integration guide with complete component code
+- [x] Found workbook/worksheet/cell data structures (IWorkbookData, IWorksheetData, ICellData)
+- [x] Found number format API (setNumberFormat, setNumberFormats on FRange)
+- [x] Found cell style properties (bl, it, cl, bg, ff, fs, ht, vt, etc.)
+- [x] Confirmed React 19 support (peer dep: ^19.0.0 || ^19.0.0-rc)
+- [x] Found SSR issue #6610 - Path2D not defined in Node.js, need dynamic import
+- [x] Got latest version: 0.17.0 for all @univerjs packages
+- [x] Found preset-sheets-advanced for charts, pivot tables, printing, sparklines
 
 ## Next Steps
-1. Compile comprehensive findings into final report
+1. Deliver comprehensive findings to user

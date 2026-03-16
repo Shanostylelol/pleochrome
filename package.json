@@ -9,15 +9,15 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@handsontable/react-wrapper": "^17.0.0",
+    "@univerjs/preset-sheets-core": "^0.17.0",
+    "@univerjs/presets": "^0.17.0",
     "clsx": "^2.1.1",
-    "handsontable": "^17.0.0",
-    "hyperformula": "^3.2.0",
     "lucide-react": "^0.577.0",
     "motion": "^12.36.0",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "rxjs": "^7.8.2",
     "tailwind-merge": "^3.5.0",
     "three": "^0.183.2"
   },

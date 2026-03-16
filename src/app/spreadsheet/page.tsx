@@ -7,7 +7,7 @@ import dynamic from "next/dynamic";
 const PASSCODE = "pleo123";
 
 // Dynamically import Handsontable (SSR incompatible)
-const HotTableWrapper = dynamic(() => import("./HotTable"), { ssr: false });
+const UniverSheet = dynamic(() => import("./UniverSheet"), { ssr: false });
 
 /* ═══════════════════════════════════════════════════════
    PleoChrome — Live Financial Spreadsheet
@@ -77,7 +77,7 @@ export default function SpreadsheetPage() {
 
       <div className="px-2 sm:px-4 pb-8">
         <div className="max-w-[1400px] mx-auto">
-          <HotTableWrapper dark={dark} />
+          <UniverSheet dark={dark} />
         </div>
       </div>
 
