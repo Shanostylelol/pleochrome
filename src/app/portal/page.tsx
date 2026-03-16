@@ -64,6 +64,18 @@ export default function Portal() {
       ),
     },
     {
+      title: "Live Spreadsheet",
+      subtitle: "Formula-Driven Financial Model",
+      desc: "Full spreadsheet with real Excel-like formulas, 5 tabs (Assumptions, Deal Model, P&L, Pricing Sources, Payment Timeline). Edit any cell, formulas auto-calculate across tabs.",
+      href: "/spreadsheet",
+      color: "#1A8B7A",
+      icon: (
+        <svg className="w-7 h-7 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+          <rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18M3 15h18M9 3v18M15 3v18" />
+        </svg>
+      ),
+    },
+    {
       title: "Workflow Map",
       subtitle: "7-Gate Execution Framework",
       desc: "Interactive visual map of PleoChrome's complete pipeline — from stone acquisition through tokenization to investor distribution. Click each gem to explore the 34 steps across 4 phases.",
