@@ -88,6 +88,18 @@ export default function Portal() {
         </svg>
       ),
     },
+    {
+      title: "System Architecture",
+      subtitle: "Governance Engine Blueprint",
+      desc: "Internal mission-control system design: state machine workflow, role-based access control, AI automation, partner API integrations, and 12-week MVP build plan.",
+      href: "/architecture",
+      color: "#5B2D8E",
+      icon: (
+        <svg className="w-7 h-7 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+          <path d="M12 2L2 7l10 5 10-5z" /><path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
+        </svg>
+      ),
+    },
   ];
 
   return (
