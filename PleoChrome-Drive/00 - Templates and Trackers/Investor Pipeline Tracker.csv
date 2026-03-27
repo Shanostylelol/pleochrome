@@ -1,0 +1,8 @@
+Investor ID,Name,Entity Name (if applicable),Type (Individual/Entity),Email,Phone,Referred By,Interest Level,KYC Status,Accreditation Status,Accreditation Method,Sanctions Screening,Wallet Address,Wallet Screened,Stones Interested In,Subscription Amount,Subscription Status,Tokens Issued,K-1 Sent,Notes,Last Contact,Next Follow-Up
+INV-001,[Template],,Individual,,,,,Not Started,Not Verified,,,Not Screened,,,,Not Started,No,No,,,
+
+KYC STATUS: Not Started | Submitted | In Review | Approved | Failed | Expired
+ACCREDITATION STATUS: Not Verified | Pending | Verified | Expired
+ACCREDITATION METHOD: Income (W-2/Tax) | Net Worth (Statements) | Professional Cert | Self-Cert ($200K+ investment) | Qualified Purchaser ($5M+)
+SANCTIONS: Not Screened | Clear | Flagged | Blocked
+SUBSCRIPTION: Not Started | Docs Sent | Signed | Funded | Confirmed | Tokens Issued

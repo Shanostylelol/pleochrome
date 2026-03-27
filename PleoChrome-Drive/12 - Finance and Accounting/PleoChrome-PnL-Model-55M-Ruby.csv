@@ -1,0 +1,251 @@
+PLEOCHROME — FINANCIAL MODEL & P&L,,,,,,,
+"$55,000,000 Burmese Ruby — Tokenization Economics",,,,,,,
+"Model Date: March 14, 2026 | Confidential",,,,,,,
+,,,,,,,
+═══════════════════════════════════════════════,,,,,,,
+SECTION 1: ASSET ASSUMPTIONS,,,,,,,
+═══════════════════════════════════════════════,,,,,,,
+,,,,,,,
+Category,Assumption,Value,Unit,Source / Justification,,
+Asset Type,Stone Type,Burmese Ruby (Pigeon's Blood),,World's most valuable ruby variety; Mogok origin commands highest premiums,,
+Asset Type,Carat Weight,55.00,carats,"Comparable: Estrela de Fura (55.22ct) sold $34.8M at Sotheby's NY, June 2023",,
+Asset Type,Treatment,No Heat Treatment,,"Unheated Burmese rubies command 2-5x premium over heated stones (GIA, SSEF research)",,
+Asset Type,Claimed Value,$55000000,USD,"58% premium over current world record ($34.8M). Justified by: exceptional size + pigeon's blood color + no heat + Burmese origin + extraordinary provenance",,
+,,,,,,,
+Offering Structure,Offering Value (Conservative),$48000000,USD,"3-Appraisal Rule: Average of 2 lowest appraisals. Assumed 12.7% discount from claimed value as conservative baseline",,
+Offering Structure,Token Price (Min Investment),$100000,USD/token,"Reg D 506(c) accredited investors; $200K+ qualifies for self-certification (SEC March 2025 guidance)",,
+Offering Structure,Total Tokens,480,tokens,"$48M offering ÷ $100K per token. Fractional ownership enabling broader accredited investor access",,
+Offering Structure,Target Investor Count,120,investors,"Average $400K investment per investor. Range: $100K-$2M per investor typical for alternative assets",,
+Offering Structure,Offering Period,90,days,"Standard Reg D 506(c) offering window. Can extend if not fully subscribed",,
+Offering Structure,Regulatory Exemption,Reg D 506(c),,"Permits general solicitation; ALL investors must be verified accredited. Simplified self-cert for $200K+ (2025 guidance)",,
+Offering Structure,Blockchain,Polygon,,"Low gas costs ($0.01-0.10/tx), Brickken supported, Chainlink PoR available, full EVM compatibility",,
+Offering Structure,Token Standard,ERC-3643,,"$32B+ tokenized; DTCC joined ecosystem (March 2025); built-in KYC/compliance at smart contract level",,
+,,,,,,,
+SPV Structure,Entity Type,Series LLC,,"Wyoming or Delaware. Each series bankruptcy-remote. One stone per series.",,
+SPV Structure,Jurisdiction,TBD (WY or DE),,"Wyoming: $100 formation + $60/yr. Delaware: $110 formation + $300/yr. Wyoming offers better privacy.",,
+,,,,,,,
+═══════════════════════════════════════════════,,,,,,,
+SECTION 2: PHASE-BY-PHASE COST BREAKDOWN,,,,,,,
+═══════════════════════════════════════════════,,,,,,,
+,,,,,,,
+PHASE 1: ACQUISITION — Building the Pipeline,,,,,,,
+,,,,,,,
+Line Item,Description,Low Estimate,High Estimate,Best Estimate,Paid By,Source / Justification
+1.1 KYC/KYB on Asset Holder,"Identity verification, UBO identification, background screening via Sumsub/ComPilot",$50,$500,$150,PleoChrome,"Sumsub: $1.00-$1.35/check + enhanced screening. Entity KYB is higher ($50-$500). Source: Sumsub pricing page"
+1.2 Sanctions & PEP Screening,"OFAC SDN, EU/UN sanctions, PEP databases, adverse media screening",$100,$500,$250,PleoChrome,"Included in KYC provider bundle or $50-$100 per screening. Chainalysis add-on for wallet screening."
+1.3 Provenance Research,"Chain of custody investigation, title search, OECD/Kimberley compliance review",$2000,$10000,$5000,Asset Holder,"Legal research + document review. 10-40 hours at $250/hr. Complexity depends on stone history length."
+1.4 Legal — Intake Agreement,"Draft and execute master engagement agreement between PleoChrome and asset holder",$3000,$8000,$5000,PleoChrome,"Securities attorney time: 10-20 hours at $400-$600/hr. Template reduces cost for subsequent stones."
+,PHASE 1 SUBTOTAL,$5150,$19000,$10400,,
+,,,,,,,
+PHASE 2: PREPARATION — Building the Evidence Layer,,,,,,,
+,,,,,,,
+Line Item,Description,Low Estimate,High Estimate,Best Estimate,Paid By,Source / Justification
+2.1 GIA Grading Report,"Colored stone identification + origin report. GIA is industry gold standard.",$300,$500,$400,Asset Holder,"GIA fee schedule: highest tier for colored stones. Source: gia.edu/gem-lab-fee-schedule"
+2.2 SSEF Origin Report,"Swiss Gemmological Institute — preferred by auction houses for high-value colored stones",$3600,$5400,$4000,Asset Holder,"SSEF: CHF 4,000 for 50-100ct ID+Origin report. Express +50%. Source: ssef.ch/testing-prices"
+2.3 Gubelin Report (Optional),"Third lab report for maximum credibility. Gubelin Gem Lab, Switzerland.",$3000,$5000,$4000,Asset Holder,"Comparable to SSEF pricing. Triple-lab certification (GIA + SSEF + Gubelin) is the institutional standard for $50M+ stones."
+2.4 Appraisal #1 (USPAP),"Independent CGA/MGA certified appraiser. Physical inspection + written report.",$5000,$25000,$15000,Asset Holder,"USPAP prohibits %-of-value fees. Hourly: $150-$250/hr. A $55M stone requires 20-80+ hours of research + market analysis + written report. Source: ASA/AGS appraiser guidelines"
+2.5 Appraisal #2 (USPAP),"Second independent appraiser. Zero affiliation with Appraiser #1 or any party.",$5000,$25000,$15000,Asset Holder,Same basis as 2.4. Sequential — stone shipped between appraisers with insured transit.
+2.6 Appraisal #3 (USPAP),"Third independent appraiser. Completes the 3-Appraisal Rule requirement.",$5000,$25000,$15000,Asset Holder,Same basis as 2.4 and 2.5. Three independent valuations is PleoChrome's core credibility mechanism.
+2.7 Transit Insurance (Appraisals),"Inland marine insurance for shipping stone between labs and appraisers. 4-6 shipments.",$20000,$50000,$30000,Asset Holder,"0.25-1.0% per transit on $55M value. 4-6 transits at $5K-$10K each. Source: Marsh Fine Art & Specie"
+2.8 Vault Intake & Year 1 Custody,"Segregated storage at Brink's or Malca-Amit. Climate controlled, 24/7 security.",$15000,$275000,$82500,Asset Holder,"Range depends on fee model: flat fee ($15K-$50K) vs percentage (0.15-0.50% of value = $82.5K-$275K). Negotiated rate for a $55M single stone. Source: Brink's, Malca-Amit published rates"
+2.9 Insurance — Year 1 Premium,"Specie insurance from Lloyd's syndicate or specialist (AXA XL, Liberty Specialty)",$55000,$275000,$137500,Asset Holder,"Specie insurance: 0.10-0.50% of insured value annually. Vault-stored with strong security gets favorable rates. Midpoint: 0.25% × $55M = $137.5K. Source: AXA XL Fine Art & Specie"
+2.10 Chainlink PoR — Setup,"Custom external adapter development, PoR feed contract deployment on Polygon, enterprise integration",$50000,$150000,$100000,PleoChrome,"Chainlink does not publish enterprise pricing. Estimate based on comparable PoR integrations (Serenity Labs Feb 2026, Paxos PAXG). One-time setup. Source: chain.link/proof-of-reserve, rwa.io pricing"
+2.11 Chainlink PoR — Year 1 Maintenance,"Oracle network fees, data feed updates, monitoring",$25000,$100000,$50000,PleoChrome,"Annual recurring. Source: Industry estimates from RWA.io tokenization pricing guide"
+2.12 SPV Formation,"Series LLC formation (WY or DE) + Operating Agreement + EIN + bank account",$5000,$15000,$8000,PleoChrome,"Formation filing: $100-$360. Operating Agreement drafting: $5K-$15K (attorney). EIN: free. Bank account: free. Source: DE/WY SOS fee schedules, attorney market rates"
+2.13 PPM Drafting,"Private Placement Memorandum — risk factors, use of proceeds, management, tax considerations",$25000,$75000,$50000,PleoChrome,"For a $55M novel asset-backed offering. Higher end due to complexity and value. Source: Ascent Law, FactRight private placement fee analysis"
+2.14 Subscription Agreement,"Investor representations, accreditation self-certification, payment terms",$5000,$15000,$8000,PleoChrome,"Often included in PPM engagement or billed separately. Source: Securities attorney market rates"
+2.15 Token Purchase Agreement,"Links on-chain token to legal rights in SPV. Novel document for tokenized securities.",$5000,$15000,$10000,PleoChrome,"Specialized document connecting blockchain rights to legal structure. Source: Cooley, Latham RWA tokenization legal guides"
+2.16 Photo & Media Documentation,"Professional photography (8+ angles, macro, 360 video), weight verification, data room prep",$3000,$10000,$5000,Asset Holder,"Professional gemstone photography: $1K-$3K. Video: $2K-$5K. Data room setup: $1K-$2K."
+,PHASE 2 SUBTOTAL,$230400,$1065900,$534400,,
+,PleoChrome Cost,$115000,$370000,$226000,,
+,Asset Holder Cost (Pass-Through),$115400,$695900,$308400,,
+,,,,,,,
+PHASE 3: TOKENIZATION — Minting the Digital Asset,,,,,,,
+,,,,,,,
+Line Item,Description,Low Estimate,High Estimate,Best Estimate,Paid By,Source / Justification
+3.1 Brickken Platform — Year 1,"Enterprise tier: token configuration, deployment, compliance module, investor management",$24000,$49000,$35000,PleoChrome,"Brickken Enterprise: EUR 22K/yr ($24K). Whitelabel Premium: EUR 45K/yr ($49K). Source: brickken.com/plans"
+3.2 Smart Contract Audit,"Independent security audit of ERC-3643 token + compliance modules + escrow contract",$60000,$150000,$90000,PleoChrome,"ERC-3643 is multi-contract (identity registry + compliance + token + escrow). CertiK/Hacken/OpenZeppelin. Source: Sherlock 2026 audit pricing report"
+3.3 Testnet Development & Testing,"Developer time for integration testing, PoR gate testing, compliance rule validation",$10000,$30000,$20000,PleoChrome,"40-120 hours of blockchain developer time at $200-$400/hr. Source: Market rates for Solidity/Web3 developers"
+3.4 Mainnet Deployment,"Gas fees for contract deployment on Polygon + configuration",$100,$500,$200,PleoChrome,"Polygon gas costs are minimal ($0.01-$0.10/tx). Multiple contract deployments. Source: Polygon gas tracker"
+3.5 Form D Filing,"SEC EDGAR filing — required within 15 days of first sale",$0,$0,$0,PleoChrome,"Form D has zero filing fee. Filed electronically. Source: sec.gov/resources-small-businesses"
+3.6 Blue Sky Filings — All 50 States,"State notice filings for Reg D 506 offering. Fees vary by state.",$13000,$18000,$15000,PleoChrome,"Complete state-by-state fee schedule. Range: $0 (FL, IN) to $1,500 (PR, VI). All 50 + DC: ~$13K-$18K. Source: NASAA Form D fee matrix, colonialstock.com blue sky fees"
+,PHASE 3 SUBTOTAL,$107100,$247500,$160200,,
+,,,,,,,
+PHASE 4: DISTRIBUTION — Token Sale & Management,,,,,,,
+,,,,,,,
+Line Item,Description,Low Estimate,High Estimate,Best Estimate,Paid By,Source / Justification
+4.1 Broker-Dealer Placement Fee,"FINRA-registered BD handles compliant distribution to accredited investors",$2400000,$5760000,$3360000,"Deducted from Proceeds","Selling commissions: 5-7%. Managing BD: 2-3%. Digital distribution can reduce to 5-7% total. On $48M offering: 7% = $3.36M. Source: FactRight, FINRA private placement guidelines"
+4.2 Marketing & Investor Acquisition,"Digital marketing (506c permits advertising), content, events, lead gen",$50000,$500000,$200000,PleoChrome,"Digital-first approach reduces traditional marketing costs. Cost per accredited lead: $15-$50. 120 investors × $1.5K acquisition cost = $180K. Source: Lightmark accredited investor lead gen"
+4.3 Investor KYC & Accreditation,"Per-investor: identity verification + accredited investor verification + sanctions screening",$6000,$30000,$12000,PleoChrome,"120 investors × $50-$100 each (KYC $1.35 + accreditation verification $25-$75 + sanctions $10). Source: Sumsub, VerifyInvestor.com pricing"
+4.4 Transfer Agent — Year 1,"Shareholder recordkeeping, corporate actions, investor communications",$16000,$75000,$30000,PleoChrome,"Base annual: $15K-$25K + per-account fees ($5-$13 × 120 accounts). Source: Securitize, SEC transfer agent fee schedules"
+4.5 Investor Portal / Data Room,"Secure online portal for investor access to documents, reports, PoR status",$5000,$20000,$10000,PleoChrome,"SaaS data room (Intralinks, DealRoom) or built into PleoChrome platform. $500-$2K/month."
+4.6 Compliance Monitoring — Year 1,"Ongoing sanctions screening (quarterly), transaction monitoring, AML program",$15000,$40000,$25000,PleoChrome,"Quarterly re-screening of 120 investors + continuous monitoring. $5K/quarter + monitoring tools. Source: Chainalysis, ComPilot pricing"
+4.7 Annual Independent AML Audit,"Required: independent third-party audit of AML/KYC program",$10000,$25000,$15000,PleoChrome,"Annual requirement for compliance programs. CPA or consulting firm. Source: BSA/AML compliance guidelines"
+,PHASE 4 SUBTOTAL,$2502000,$6450000,$3652000,,
+,PleoChrome Cost,$102000,$690000,$292000,,
+,BD Placement (Deducted from Proceeds),$2400000,$5760000,$3360000,,
+,,,,,,,
+═══════════════════════════════════════════════,,,,,,,
+SECTION 3: TOTAL COST SUMMARY,,,,,,,
+═══════════════════════════════════════════════,,,,,,,
+,,,,,,,
+Cost Category,,Low Estimate,High Estimate,Best Estimate,% of Offering,
+PleoChrome Direct Costs (Setup),"Legal, platform, audit, development, filings, KYC, marketing",$329250,$1326500,$688600,1.4%,
+Asset Holder Pass-Through Costs,"GIA, appraisals, vault, insurance, transit, media — paid by stone owner",$115400,$695900,$308400,0.6%,
+Broker-Dealer Placement Fee,"Commission on $48M offering — deducted from gross proceeds",$2400000,$5760000,$3360000,7.0%,
+TOTAL ONE-TIME COSTS,,"$2,844,650","$7,782,400","$4,357,000",9.1%,
+,,,,,,,
+Annual Ongoing Costs (Year 2+),,Low Estimate,High Estimate,Best Estimate,% of Asset Value,
+Vault Custody,,$15000,$275000,$82500,,
+Insurance Premium,,$55000,$275000,$137500,,
+Chainlink PoR Maintenance,,$25000,$100000,$50000,,
+Brickken Platform,,$24000,$49000,$35000,,
+Transfer Agent,,$16000,$75000,$30000,,
+Compliance Monitoring,,$15000,$40000,$25000,,
+Annual AML Audit,,$10000,$25000,$15000,,
+Annual Re-Appraisal (2x),,$10000,$50000,$25000,,
+Quarterly Investor Reports,,$8000,$20000,$12000,,
+Blue Sky Renewals,,$5000,$10000,$7500,,
+State LLC Annual Fees,,$60,$300,$100,,
+TOTAL ANNUAL ONGOING,,"$183,060","$919,300","$419,600",0.76%,
+,,,,,,,
+═══════════════════════════════════════════════,,,,,,,
+SECTION 4: PLEOCHROME REVENUE MODEL,,,,,,,
+═══════════════════════════════════════════════,,,,,,,
+,,,,,,,
+Revenue Stream,Description,Rate,Amount,Timing,Justification,
+,,,,,,,
+Setup / Structuring Fee,"One-time fee charged to asset holder for coordinating intake, diligence, and launch",2.00%,$1100000,At engagement,"Industry standard: 1-3% setup fee. On $55M asset: 2% = $1.1M. Covers PleoChrome's direct costs + margin. Source: RWA.io, Securitize platform fees"
+Primary Sale Success Fee,"Transaction fee at closing, paid from offering proceeds",1.50%,$720000,At token sale close,"0.5-3.0% success fee. Must be carefully structured to comply with BD regulations. On $48M offering: 1.5% = $720K. Source: FactRight private placement fee analysis"
+Annual Administration Fee,"Recurring fee for recordkeeping, reserve monitoring, holder support, partner coordination",0.75%,$360000,Annually (Year 2+),"0.50-1.00% annual admin fee is standard for alternative asset management. On $48M: 0.75% = $360K. This is PleoChrome's core SaaS-like recurring revenue. Source: Industry standard for fund administration"
+Annual Valuation Refresh Fee,"Coordination of annual re-appraisal and updated market analysis",$25000,$25000,Annually (Year 2+),"Flat fee for coordinating independent re-appraisal. Covers PleoChrome's time + margin on pass-through appraisal costs."
+Secondary Transfer Admin Fee,"Fee per secondary token transfer (processed through ERC-3643 compliance module)",0.25%,Variable,Per transfer,"On a $100K token transfer: $250. If 20% of tokens trade annually (96 transfers × $250): ~$24K/year. Source: tZERO, Securitize transfer fee models"
+,,,,,,,
+REVENUE SUMMARY,,Year 1,,Year 2+,Year 3+,
+Setup / Structuring Fee,,"$1,100,000",,,
+Primary Sale Success Fee,,"$720,000",,,
+Annual Administration Fee,,—,,"$360,000","$360,000"
+Annual Valuation Refresh,,—,,"$25,000","$25,000"
+Secondary Transfer Fees (est.),,"$12,000",,"$24,000","$24,000"
+TOTAL REVENUE,,"$1,832,000",,"$409,000","$409,000"
+,,,,,,,
+═══════════════════════════════════════════════,,,,,,,
+SECTION 5: NET P&L — PLEOCHROME,,,,,,,
+═══════════════════════════════════════════════,,,,,,,
+,,,,,,,
+,Year 1,Year 2,Year 3,Year 4,Year 5,5-Year Total
+REVENUE,,,,,,
+Setup / Structuring Fee,"$1,100,000",$0,$0,$0,$0,"$1,100,000"
+Primary Sale Success Fee,"$720,000",$0,$0,$0,$0,"$720,000"
+Annual Administration Fee,$0,"$360,000","$360,000","$360,000","$360,000","$1,440,000"
+Valuation Refresh Fee,$0,"$25,000","$25,000","$25,000","$25,000","$100,000"
+Secondary Transfer Fees,"$12,000","$24,000","$24,000","$24,000","$24,000","$108,000"
+TOTAL REVENUE,"$1,832,000","$409,000","$409,000","$409,000","$409,000","$3,468,000"
+,,,,,,
+PLEOCHROME DIRECT COSTS,,,,,,
+Phase 1 (Acquisition),"$10,400",$0,$0,$0,$0,"$10,400"
+Phase 2 (PleoChrome portion),"$226,000",$0,$0,$0,$0,"$226,000"
+Phase 3 (Tokenization),"$160,200",$0,$0,$0,$0,"$160,200"
+Phase 4 (PleoChrome portion),"$292,000",$0,$0,$0,$0,"$292,000"
+Annual Ongoing (PleoChrome share),$0,"$195,100","$195,100","$195,100","$195,100","$780,400"
+TOTAL COSTS,"$688,600","$195,100","$195,100","$195,100","$195,100","$1,469,000"
+,,,,,,
+NET INCOME (PleoChrome),"$1,143,400","$213,900","$213,900","$213,900","$213,900","$1,999,000"
+NET MARGIN,62.4%,52.3%,52.3%,52.3%,52.3%,57.6%
+,,,,,,
+CUMULATIVE NET INCOME,"$1,143,400","$1,357,300","$1,571,200","$1,785,100","$1,999,000",
+,,,,,,,
+═══════════════════════════════════════════════,,,,,,,
+SECTION 6: ASSET HOLDER ECONOMICS,,,,,,,
+═══════════════════════════════════════════════,,,,,,,
+,,,,,,,
+Item,,Amount,% of Asset Value,,,
+Asset Claimed Value,,"$55,000,000",100.0%,,,
+Offering Value (After 3-Appraisal Rule),,"$48,000,000",87.3%,,,
+,,,,,,
+DEDUCTIONS FROM PROCEEDS,,,,,,
+Broker-Dealer Placement Fee (7%),,"-$3,360,000",-6.1%,,,
+PleoChrome Setup Fee (2%),,"-$1,100,000",-2.0%,,,
+PleoChrome Success Fee (1.5% of offering),,"-$720,000",-1.3%,,,
+,,,,,,
+NET PROCEEDS TO ASSET HOLDER,,"$42,820,000",77.9%,,,
+,,,,,,
+ASSET HOLDER PASS-THROUGH COSTS (Pre-Sale),,,,,,
+Lab Reports (GIA + SSEF + Gubelin),,"-$8,400",,,,
+Appraisals (3x USPAP),,"-$45,000",,,,
+Transit Insurance,,"-$30,000",,,,
+Vault Custody (Year 1),,"-$82,500",,,,
+Insurance (Year 1),,"-$137,500",,,,
+Photo & Media,,"-$5,000",,,,
+Total Pass-Through Costs,,"-$308,400",-0.6%,,,
+,,,,,,
+NET TO ASSET HOLDER (After All Costs),,"$42,511,600",77.3%,,,
+,,,,,,
+═══════════════════════════════════════════════,,,,,,,
+SECTION 7: TIMELINE / CASH FLOW,,,,,,,
+═══════════════════════════════════════════════,,,,,,,
+,,,,,,,
+Week,Phase,Cash Out (PleoChrome),Cash Out (Asset Holder),Cash In (PleoChrome),Cumulative (PleoChrome),Notes
+1-2,Acquisition — KYC/Screening,"-$10,400",$0,"$1,100,000","$1,089,600","Setup fee collected at engagement"
+3-5,GIA + SSEF Submission,$0,"-$8,400",$0,"$1,089,600","Labs: 2-3 week turnaround"
+5-9,3x Independent Appraisals,$0,"-$75,000",$0,"$1,089,600","Sequential shipping. Transit insurance: $30K"
+8-10,Vault Intake,$0,"-$82,500",$0,"$1,089,600","Stone to Brink's/Malca-Amit. Insurance begins."
+6-12,Legal Structuring (Parallel),"-$76,000",$0,$0,"$1,013,600","SPV + PPM + Agreements. Runs parallel with appraisals/vault."
+8-12,Chainlink PoR Setup,"-$100,000",$0,$0,"$913,600","Custom adapter + feed deployment"
+10-13,Token Config + Testnet,"-$55,200",$0,$0,"$858,400","Brickken + testing + audit"
+13-14,Smart Contract Audit,"-$90,000",$0,$0,"$768,400","CertiK/Hacken/OZ"
+14,Mainnet + Regulatory Filings,"-$15,200",$0,$0,"$753,200","Blue sky + Form D"
+14-17,Offering Period,"-$292,000","-$137,500","$732,000","$1,193,200","Marketing + KYC + BD placement. Success fee at close."
+17+,Ongoing (Monthly),,,,,"Admin fees begin Month 13"
+,,,,,,,
+═══════════════════════════════════════════════,,,,,,,
+SECTION 8: SENSITIVITY ANALYSIS,,,,,,,
+═══════════════════════════════════════════════,,,,,,,
+,,,,,,,
+Asset Value Scenario,$10M,$25M,$55M,$100M,$250M,
+,,,,,,
+PleoChrome Revenue (Year 1),,,,,,
+Setup Fee (2%),"$200,000","$500,000","$1,100,000","$2,000,000","$5,000,000"
+Success Fee (1.5% of offering),"$130,500","$326,250","$720,000","$1,305,000","$3,262,500"
+Total Year 1 Revenue,"$342,500","$838,250","$1,832,000","$3,317,000","$8,274,500"
+,,,,,,
+PleoChrome Costs (Year 1),,,,,,
+Direct Costs,"$588,600","$638,600","$688,600","$738,600","$838,600"
+Net Income Year 1,"-$246,100","$199,650","$1,143,400","$2,578,400","$7,435,900"
+Net Margin,-71.9%,23.8%,62.4%,77.7%,89.9%
+,,,,,,
+Annual Recurring (Year 2+),,,,,,
+Admin Fee (0.75%),"$65,250","$163,125","$360,000","$652,500","$1,631,250"
+Annual Costs,"$195,100","$195,100","$195,100","$220,000","$280,000"
+Net Recurring,"-$129,850","-$31,975","$164,900","$432,500","$1,351,250"
+,,,,,,
+BREAKEVEN ANALYSIS,,,,,,
+"Minimum asset value for Year 1 profitability:",$17200000,,,,,
+"Minimum asset value for Year 2+ recurring profitability:",$26100000,,,,,
+"Revenue per stone scales linearly; costs are largely fixed — margin improves dramatically above $25M",,,,,
+,,,,,,,
+═══════════════════════════════════════════════,,,,,,,
+SECTION 9: MULTI-ASSET PORTFOLIO PROJECTION,,,,,,,
+═══════════════════════════════════════════════,,,,,,,
+,,,,,,,
+Year,Stones in Pipeline,Avg Value,Total AUM,Year Revenue,Year Costs,Net Income
+1,1,"$55,000,000","$48,000,000","$1,832,000","$688,600","$1,143,400"
+2,3,"$40,000,000","$168,000,000","$2,476,000","$1,273,900","$1,202,100"
+3,7,"$35,000,000","$393,000,000","$5,049,500","$2,254,300","$2,795,200"
+4,12,"$30,000,000","$648,000,000","$7,692,000","$3,429,800","$4,262,200"
+5,20,"$30,000,000","$1,080,000,000","$11,730,000","$5,300,000","$6,430,000"
+,,,,,,
+5-Year Cumulative Revenue,,,,"$28,779,500",,
+5-Year Cumulative Costs,,,,"$12,946,600",,
+5-Year Cumulative Net Income,,,,"$15,832,900",,
+5-Year Cumulative Margin,,,,55.0%,,
+,,,,,,,
+NOTES & DISCLAIMERS,,,,,,,
+"1. All estimates use best-available sourced data as of March 2026. Actual costs will vary based on negotiations, market conditions, and deal specifics.",,,,,,,
+"2. Broker-dealer placement is the single largest cost (5-12% of offering). Digital-first distribution under 506(c) general solicitation can significantly reduce this.",,,,,,,
+"3. PleoChrome's direct costs are largely fixed regardless of asset value — creating significant operating leverage above $25M per stone.",,,,,,,
+"4. Annual ongoing costs (0.76% of asset value at $55M) are competitive with traditional alternative asset administration (typically 1-2%).",,,,,,,
+"5. The 3-Appraisal Rule discount (12.7% from claimed value) is a conservative assumption. Actual discount depends on appraisal variance.",,,,,,,
+"6. $55M ruby valuation would be a world record. The model works at any asset value — sensitivity analysis shows profitability above ~$17M per stone.",,,,,,,
+"7. Multi-asset portfolio projection assumes PleoChrome builds pipeline over 5 years. Fixed costs are shared across portfolio, improving margins.",,,,,,,
+"8. Revenue model excludes potential future income from: token-backed lending, secondary market ATS integration, and multi-jurisdiction expansion.",,,,,,,

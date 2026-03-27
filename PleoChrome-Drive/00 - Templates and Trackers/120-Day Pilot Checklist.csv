@@ -1,0 +1,53 @@
+Phase,Day Range,Task,Owner,Status,Due Date,Dependencies,Notes
+Foundation,1-15,Engage securities counsel,Shane,Not Started,,,"Budget $50K-150K; need tokenized securities expertise"
+Foundation,1-15,Determine MSB registration requirement,Legal Counsel,Not Started,,Securities counsel,"Critical: operating unregistered MSB is federal crime"
+Foundation,1-15,Form Delaware Series LLC (Master),Legal Counsel,Not Started,,Securities counsel,
+Foundation,1-15,Obtain EIN from IRS,Shane/David,Not Started,,LLC formed,
+Foundation,1-15,Open company bank account,Shane,Not Started,,EIN obtained,
+Foundation,1-15,Designate Compliance Officer,Shane,Not Started,,,"Named person required from day 1"
+Foundation,1-15,Select and engage insurance broker,David,Not Started,,,"Need D&O, E&O, Cyber at minimum"
+Foundation,1-15,Begin Brickken sandbox integration,Shane/Dev,Not Started,,,"dapp.sandbox.brickken.com"
+Foundation,1-15,Contact Chainlink enterprise team,Shane,Not Started,,,"PoR for physical gemstones — custom adapter needed"
+Sourcing,10-35,Identify and select pilot stone,Shane/David,Not Started,,,"Clean paperwork > beauty for pilot"
+Sourcing,10-35,Complete Asset Holder Intake Questionnaire,Asset Holder,Not Started,,Stone identified,
+Sourcing,10-35,KYC/KYB on asset holder,David,Not Started,,Intake questionnaire,
+Sourcing,10-35,Sanctions screening on asset holder,David,Not Started,,KYC/KYB,
+Sourcing,10-35,Source of asset / provenance review,David,Not Started,,Intake questionnaire,
+Sourcing,10-35,Clear title verification,Legal Counsel,Not Started,,Provenance docs,
+Verification,20-55,Submit stone to GIA for grading,David,Not Started,,Gate 1 passed,
+Verification,20-55,Receive GIA Grading Report,GIA,Not Started,,Stone submitted,"2-3 week turnaround"
+Verification,20-55,Verify GIA report authenticity,David,Not Started,,GIA report received,
+Verification,20-55,Build approved appraiser panel (3 minimum),David,Not Started,,,"CGA/MGA certified, independent, USPAP compliant"
+Verification,20-55,Appraiser 1 — physical inspection + report,Appraiser 1,Not Started,,GIA report + appraiser panel,"5-10 business days"
+Verification,20-55,Appraiser 2 — physical inspection + report,Appraiser 2,Not Started,,Appraiser 1 complete,"Ship stone; 5-10 business days"
+Verification,20-55,Appraiser 3 — physical inspection + report,Appraiser 3,Not Started,,Appraiser 2 complete,"Ship stone; 5-10 business days"
+Verification,20-55,Variance analysis across 3 appraisals,David,Not Started,,All 3 appraisals,"Flag if >15-20% spread"
+Verification,20-55,Determine final offering valuation,Shane/David/Legal,Not Started,,Variance analysis,
+Custody,30-65,Select vault partner (Brinks or Malca-Amit),Shane/David,Not Started,,,"Get proposals from both"
+Custody,30-65,Negotiate and execute custody agreement,Legal Counsel,Not Started,,Vault selected,
+Custody,30-65,Arrange insured transport to vault,David,Not Started,,Custody agreement,"Inland marine insurance required"
+Custody,30-65,Vault receives and verifies stone,Vault Partner,Not Started,,Stone shipped,
+Custody,30-65,Obtain Vault Receipt / Custody Acknowledgment,David,Not Started,,Vault intake,"Critical for Gate 4"
+Custody,30-65,Verify vault insurance covers this asset,David,Not Started,,Vault receipt,
+Platform,45-90,Create SPV Series for this stone,Legal Counsel,Not Started,,Master LLC formed,
+Platform,45-90,Draft PPM,Securities Attorney,Not Started,,SPV created + valuation finalized,"$15K-50K cost"
+Platform,45-90,Draft Subscription Agreement,Securities Attorney,Not Started,,PPM draft,
+Platform,45-90,Draft Token Purchase Agreement,Securities Attorney,Not Started,,PPM draft,
+Platform,45-90,Configure token in Brickken (sandbox first),Shane/Dev,Not Started,,Legal docs finalized,
+Platform,45-90,Deploy ERC-3643 token on Polygon (testnet),Shane/Dev,Not Started,,Brickken config,
+Platform,45-90,Set up Chainlink PoR feed,Shane/Dev + Chainlink,Not Started,,Vault API access,"Custom external adapter"
+Platform,45-90,Smart contract audit,Audit Firm,Not Started,,Token deployed on testnet,
+Platform,45-90,Deploy to mainnet,Shane/Dev,Not Started,,Audit passed,
+Readiness,75-105,All legal docs reviewed and signed,Legal Counsel,Not Started,,All docs drafted,
+Readiness,75-105,File Form D with SEC,Legal Counsel,Not Started,,,"Within 15 days of first sale"
+Readiness,75-105,File blue sky notices,Legal Counsel,Not Started,,Form D,
+Readiness,75-105,Investor onboarding flow tested end-to-end,Shane/David,Not Started,,KYC + accreditation providers live,
+Readiness,75-105,PoR feed verified — matches vault records,Shane/Dev,Not Started,,PoR feed active,
+Readiness,75-105,Compliance rules tested (whitelist/block),Shane/Dev,Not Started,,Token on mainnet,
+Readiness,75-105,Investor marketing materials prepared (506c compliant),Shane/David,Not Started,,PPM finalized,
+Readiness,75-105,Final readiness review — all gates passed,All,Not Started,,Everything above,
+Sale,100-120,Begin controlled investor outreach,Broker-Dealer/Shane,Not Started,,Readiness review passed,"Narrow, accredited investors only"
+Sale,100-120,First investor completes KYC + accreditation,Investor,Not Started,,Outreach begun,
+Sale,100-120,First subscription signed + funded,Investor,Not Started,,KYC + accreditation verified,
+Sale,100-120,First tokens minted and distributed,Shane/Dev,Not Started,,Subscription confirmed,"PoR gate must be green"
+Sale,100-120,Pilot retrospective — document learnings,All,Not Started,,First sale complete,"What worked, what didn't, process improvements"

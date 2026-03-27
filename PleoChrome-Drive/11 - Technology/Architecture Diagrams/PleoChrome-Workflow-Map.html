@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PleoChrome — Master Workflow Map</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --navy-deep:#030712; --surface:#0A1120; --card:rgba(10,17,32,0.92);
+    --emerald:#1B6B4A; --teal:#1A8B7A; --sapphire:#1E3A6E;
+    --amethyst:#5B2D8E; --ruby:#A61D3A; --amber:#C47A1A; --chartreuse:#7BA31E;
+    --w:#FAFBFC; --w70:rgba(250,251,252,0.7); --w50:rgba(250,251,252,0.5);
+    --w30:rgba(250,251,252,0.3); --w15:rgba(250,251,252,0.15);
+    --w08:rgba(250,251,252,0.08); --w04:rgba(250,251,252,0.04);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--navy-deep);color:var(--w);font-family:'DM Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  .container{max-width:1100px;margin:0 auto;padding:0 20px}
+
+  /* Header */
+  header{text-align:center;padding:48px 0 36px;position:relative}
+  header::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:80%;max-width:500px;height:1px;background:linear-gradient(90deg,transparent,var(--w08),transparent)}
+  header img{height:30px;opacity:.6;margin-bottom:16px}
+  header h1{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:2rem;letter-spacing:.06em}
+  header .sub{margin-top:6px;font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;color:var(--w30)}
+  .gem-bar{display:flex;gap:2px;justify-content:center;margin-top:14px}
+  .gem-bar span{height:2px;width:20px;border-radius:1px}
+
+  /* Legend */
+  .legend{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;padding:16px 0 8px}
+  .legend-item{display:flex;align-items:center;gap:4px;font-size:.65rem;color:var(--w30)}
+  .tag{font-size:.55rem;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:3px;white-space:nowrap}
+  .tag.rw{color:var(--amber);background:rgba(196,122,26,.1)}
+  .tag.dg{color:var(--teal);background:rgba(26,139,122,.1)}
+  .tag.lg{color:var(--amethyst);background:rgba(91,45,142,.1)}
+  .tag.pt{color:var(--sapphire);background:rgba(30,58,110,.15)}
+  .tag.gt{color:var(--ruby);background:rgba(166,29,58,.1);font-weight:600}
+  .tag.ai{color:var(--chartreuse);background:rgba(123,163,30,.1)}
+
+  /* Gem Nav */
+  .gem-nav{display:flex;justify-content:center;gap:36px;flex-wrap:wrap;padding:40px 0 12px}
+  .gem-stone{cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:10px;transition:all .4s cubic-bezier(.16,1,.3,1);user-select:none}
+  .gem-stone:hover{transform:translateY(-4px)}
+  .gem-stone.active{transform:translateY(-6px)}
+  .gem-icon{width:68px;height:68px;transition:all .5s cubic-bezier(.16,1,.3,1)}
+  .gem-icon svg{width:100%;height:100%;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3));transition:all .5s cubic-bezier(.16,1,.3,1)}
+  .gem-stone:hover .gem-icon svg,.gem-stone.active .gem-icon svg{filter:drop-shadow(0 6px 24px var(--glow));transform:scale(1.08)}
+  .gem-stone.active .gem-icon svg{filter:drop-shadow(0 8px 32px var(--glow)) drop-shadow(0 0 16px var(--glow));transform:scale(1.12)}
+  .gem-label{font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--w30);transition:color .3s;text-align:center}
+  .gem-stone:hover .gem-label,.gem-stone.active .gem-label{color:var(--w70)}
+  .gem-number{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--w15);margin-top:-4px;transition:color .3s}
+  .gem-stone.active .gem-number{color:var(--w30)}
+
+  /* Phase Panel */
+  .phase-content{max-height:0;overflow:hidden;opacity:0;transition:max-height .6s cubic-bezier(.16,1,.3,1),opacity .4s ease,margin .4s ease;margin:0}
+  .phase-content.open{max-height:8000px;opacity:1;margin:28px 0 40px}
+  .phase-inner{background:var(--card);border:1px solid var(--w04);border-radius:18px;padding:32px 28px;backdrop-filter:blur(10px)}
+  .phase-head{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+  .phase-badge{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:500;color:#fff;flex-shrink:0}
+  .phase-title{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:1.5rem;letter-spacing:.03em}
+  .phase-subtitle{font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--w30);margin-top:1px}
+  .phase-desc{color:var(--w30);font-size:.82rem;max-width:620px;margin:10px 0 24px;line-height:1.7}
+
+  /* Step Accordion Row */
+  .step-row{border-bottom:1px solid var(--w04)}
+  .step-row:first-child{border-top:1px solid var(--w04)}
+
+  .step-header{
+    display:flex;align-items:center;gap:12px;
+    padding:14px 16px;cursor:pointer;
+    transition:background .2s;
+  }
+  .step-header:hover{background:rgba(255,255,255,.02)}
+  .step-row.open .step-header{background:rgba(255,255,255,.03)}
+
+  .step-num{
+    font-family:'JetBrains Mono',monospace;font-size:.6rem;
+    color:var(--w15);letter-spacing:.08em;width:28px;flex-shrink:0;
+  }
+
+  .step-dot{
+    width:10px;height:10px;border-radius:50%;flex-shrink:0;
+    border:2px solid var(--phase-color);
+    background:transparent;transition:all .3s;
+  }
+  .step-row.open .step-dot{background:var(--phase-color)}
+
+  .step-title{font-weight:600;font-size:.85rem;color:var(--w50);flex:1;transition:color .2s}
+  .step-row.open .step-title,.step-header:hover .step-title{color:var(--w70)}
+
+  .step-tags-inline{display:flex;gap:3px;flex-shrink:0}
+
+  .step-chevron{
+    width:16px;height:16px;flex-shrink:0;
+    transition:transform .3s cubic-bezier(.16,1,.3,1);
+    color:var(--w15);
+  }
+  .step-row.open .step-chevron{transform:rotate(180deg);color:var(--w30)}
+
+  .step-body{
+    max-height:0;overflow:hidden;opacity:0;
+    transition:max-height .4s cubic-bezier(.16,1,.3,1),opacity .3s,padding .3s;
+    padding:0 16px 0 56px;
+  }
+  .step-row.open .step-body{
+    max-height:300px;opacity:1;
+    padding:0 16px 16px 56px;
+  }
+
+  .step-detail{font-size:.78rem;color:var(--w30);line-height:1.7}
+
+  /* Gate (inline in step list) */
+  .gate-row{
+    display:flex;align-items:center;gap:10px;
+    padding:12px 16px;
+    background:linear-gradient(135deg,rgba(166,29,58,.06),rgba(91,45,142,.03));
+    border-bottom:1px solid rgba(166,29,58,.1);
+  }
+  .gate-badge{
+    width:28px;height:28px;border-radius:6px;background:var(--ruby);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'JetBrains Mono',monospace;font-size:.6rem;font-weight:600;color:#fff;flex-shrink:0;
+  }
+  .gate-name{font-size:.78rem;font-weight:600;color:var(--w50)}
+  .gate-desc{font-size:.72rem;color:var(--w30);margin-left:auto;max-width:500px;text-align:right}
+
+  /* Connector line between gems */
+  .gem-connector{display:flex;align-items:center;gap:0;margin:0 -8px}
+  .gem-connector .line{flex:1;height:1px;background:var(--w08)}
+
+  /* Footer */
+  footer{text-align:center;padding:36px 0;color:var(--w15);font-size:.65rem;letter-spacing:.15em;border-top:1px solid var(--w04);margin-top:32px}
+
+  @media(max-width:640px){
+    .gem-nav{gap:16px}
+    .gem-icon{width:52px;height:52px}
+    .phase-inner{padding:20px 14px}
+    .step-header{padding:12px 10px}
+    .step-body{padding-left:40px!important}
+    .gate-desc{display:none}
+    header h1{font-size:1.5rem}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <img src="https://www.pleochrome.com/logo-white.png" alt="PleoChrome" />
+    <h1>Master Workflow Map</h1>
+    <div class="sub">Trust, Verified from Every Angle</div>
+    <div class="gem-bar">
+      <span style="background:#1B6B4A"></span><span style="background:#1A8B7A"></span>
+      <span style="background:#1E3A6E"></span><span style="background:#5B2D8E"></span>
+      <span style="background:#A61D3A"></span><span style="background:#C47A1A"></span>
+      <span style="background:#7BA31E"></span>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="legend">
+    <div class="legend-item"><span class="tag rw">Real World</span></div>
+    <div class="legend-item"><span class="tag dg">Digital</span></div>
+    <div class="legend-item"><span class="tag lg">Legal</span></div>
+    <div class="legend-item"><span class="tag pt">Partner</span></div>
+    <div class="legend-item"><span class="tag gt">Gate</span></div>
+    <div class="legend-item"><span class="tag ai">AI</span></div>
+  </div>
+
+  <!-- ═══ GEM NAVIGATION ═══ -->
+  <div class="gem-nav">
+    <div class="gem-stone" data-phase="1" style="--glow:rgba(27,107,74,.5)" onclick="togglePhase(1)">
+      <div class="gem-icon"><svg viewBox="0 0 100 100"><polygon points="50,5 90,25 90,75 50,95 10,75 10,25" fill="#1B6B4A" opacity=".9"/><polygon points="50,5 90,25 50,45 10,25" fill="#25905F" opacity=".8"/><polygon points="90,25 90,75 50,45" fill="#1B6B4A" opacity=".7"/><polygon points="10,25 50,45 10,75" fill="#167040" opacity=".6"/><polygon points="50,95 90,75 50,45 10,75" fill="#134F32" opacity=".8"/><line x1="50" y1="5" x2="50" y2="45" stroke="rgba(255,255,255,.15)" stroke-width=".5"/><line x1="90" y1="25" x2="50" y2="45" stroke="rgba(255,255,255,.15)" stroke-width=".5"/><line x1="10" y1="25" x2="50" y2="45" stroke="rgba(255,255,255,.15)" stroke-width=".5"/></svg></div>
+      <div class="gem-label">Acquisition</div><div class="gem-number">Phase 01 &middot; 8 Steps</div>
+    </div>
+    <div class="gem-stone" data-phase="2" style="--glow:rgba(26,139,122,.5)" onclick="togglePhase(2)">
+      <div class="gem-icon"><svg viewBox="0 0 100 100"><polygon points="50,5 90,25 90,75 50,95 10,75 10,25" fill="#1A8B7A" opacity=".9"/><polygon points="50,5 90,25 50,45 10,25" fill="#22B09B" opacity=".8"/><polygon points="90,25 90,75 50,45" fill="#1A8B7A" opacity=".7"/><polygon points="10,25 50,45 10,75" fill="#158A6E" opacity=".6"/><polygon points="50,95 90,75 50,45 10,75" fill="#116B58" opacity=".8"/><line x1="50" y1="5" x2="50" y2="45" stroke="rgba(255,255,255,.15)" stroke-width=".5"/><line x1="90" y1="25" x2="50" y2="45" stroke="rgba(255,255,255,.15)" stroke-width=".5"/><line x1="10" y1="25" x2="50" y2="45" stroke="rgba(255,255,255,.15)" stroke-width=".5"/></svg></div>
+      <div class="gem-label">Preparation</div><div class="gem-number">Phase 02 &middot; 10 Steps</div>
+    </div>
+    <div class="gem-stone" data-phase="3" style="--glow:rgba(30,58,110,.6)" onclick="togglePhase(3)">
+      <div class="gem-icon"><svg viewBox="0 0 100 100"><polygon points="50,5 90,25 90,75 50,95 10,75 10,25" fill="#1E3A6E" opacity=".9"/><polygon points="50,5 90,25 50,45 10,25" fill="#2A5299" opacity=".8"/><polygon points="90,25 90,75 50,45" fill="#1E3A6E" opacity=".7"/><polygon points="10,25 50,45 10,75" fill="#1A3560" opacity=".6"/><polygon points="50,95 90,75 50,45 10,75" fill="#142A4F" opacity=".8"/><line x1="50" y1="5" x2="50" y2="45" stroke="rgba(255,255,255,.15)" stroke-width=".5"/><line x1="90" y1="25" x2="50" y2="45" stroke="rgba(255,255,255,.15)" stroke-width=".5"/><line x1="10" y1="25" x2="50" y2="45" stroke="rgba(255,255,255,.15)" stroke-width=".5"/></svg></div>
+      <div class="gem-label">Tokenization</div><div class="gem-number">Phase 03 &middot; 6 Steps</div>
+    </div>
+    <div class="gem-stone" data-phase="4" style="--glow:rgba(196,122,26,.5)" onclick="togglePhase(4)">
+      <div class="gem-icon"><svg viewBox="0 0 100 100"><polygon points="50,5 90,25 90,75 50,95 10,75 10,25" fill="#C47A1A" opacity=".9"/><polygon points="50,5 90,25 50,45 10,25" fill="#E09525" opacity=".8"/><polygon points="90,25 90,75 50,45" fill="#C47A1A" opacity=".7"/><polygon points="10,25 50,45 10,75" fill="#A86A15" opacity=".6"/><polygon points="50,95 90,75 50,45 10,75" fill="#8A5710" opacity=".8"/><line x1="50" y1="5" x2="50" y2="45" stroke="rgba(255,255,255,.15)" stroke-width=".5"/><line x1="90" y1="25" x2="50" y2="45" stroke="rgba(255,255,255,.15)" stroke-width=".5"/><line x1="10" y1="25" x2="50" y2="45" stroke="rgba(255,255,255,.15)" stroke-width=".5"/></svg></div>
+      <div class="gem-label">Distribution</div><div class="gem-number">Phase 04 &middot; 10 Steps</div>
+    </div>
+  </div>
+
+  <!-- ═══ PHASE 1 ═══ -->
+  <div class="phase-content" id="phase-1">
+    <div class="phase-inner" style="--phase-color:var(--emerald)">
+      <div class="phase-head"><div class="phase-badge" style="background:var(--emerald)">01</div><div><div class="phase-title">Acquisition</div><div class="phase-subtitle">Building the Pipeline</div></div></div>
+      <p class="phase-desc">Source high-value stones from vaults, dealer networks, and direct holders. Verify seller identity, negotiate terms, execute intake agreements.</p>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">1.1</div><div class="step-dot"></div><div class="step-title">Source Identification</div><div class="step-tags-inline"><span class="tag rw">RW</span><span class="tag dg">DG</span><span class="tag ai">AI</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">Three channels: <strong>(A)</strong> Already-vaulted stones at Brink's/Malca-Amit with existing GIA reports. <strong>(B)</strong> Dealer networks, auction houses (Christie's, Sotheby's), and mining consortiums. <strong>(C)</strong> Direct holder submissions via PleoChrome intake portal. AI can score and rank pipeline opportunities by documentation completeness and estimated value.</div></div></div>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">1.2</div><div class="step-dot"></div><div class="step-title">Initial Screening</div><div class="step-tags-inline"><span class="tag dg">DG</span><span class="tag ai">AI</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">Quick-kill assessment: Does the stone meet minimum value thresholds ($100K+)? Does initial provenance documentation exist? Is the seller/holder in a non-sanctioned jurisdiction? Is the stone type suitable for tokenization (emeralds, rubies, sapphires, high-value diamonds)? Reject early, save everyone time.</div></div></div>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">1.3</div><div class="step-dot"></div><div class="step-title">Asset Holder Intake</div><div class="step-tags-inline"><span class="tag dg">DG</span><span class="tag rw">RW</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">Seller completes full intake questionnaire: personal/entity identity, stone specifications (type, carat, color, origin claim), acquisition history, provenance chain, existing certifications (GIA reports, prior appraisals), high-resolution photos (min 4 angles + scale), and seller representations (clear title, no liens, not previously tokenized).</div></div></div>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">1.4</div><div class="step-dot"></div><div class="step-title">KYC / KYB on Seller</div><div class="step-tags-inline"><span class="tag pt">PT</span><span class="tag dg">DG</span><span class="tag ai">AI</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">Full identity verification via Sumsub or ComPilot: government ID with liveness check (individuals), formation documents + UBO identification for >25% owners (entities). Source of wealth verification. Background screening. Enhanced due diligence for high-risk profiles (PEPs, high-risk jurisdictions).</div></div></div>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">1.5</div><div class="step-dot"></div><div class="step-title">Sanctions & PEP Screening</div><div class="step-tags-inline"><span class="tag pt">PT</span><span class="tag ai">AI</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">Screen seller + all beneficial owners against OFAC SDN list, EU/UN consolidated sanctions, PEP databases, and adverse media. Blockchain wallet screening via Chainalysis if crypto-connected. Any hit = escalate to compliance officer. Document all screening results.</div></div></div>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">1.6</div><div class="step-dot"></div><div class="step-title">Provenance & Title Review</div><div class="step-tags-inline"><span class="tag lg">LG</span><span class="tag rw">RW</span><span class="tag ai">AI</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">Verify complete chain of custody from mine to current holder. Confirm clear legal title — no liens, encumbrances, or competing claims. Verify stone has not been previously tokenized, securitized, or pledged as collateral. OECD Due Diligence Guidance compliance. Kimberley Process (diamonds). AI can parse and cross-reference provenance documents.</div></div></div>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">1.7</div><div class="step-dot"></div><div class="step-title">Price Negotiation</div><div class="step-tags-inline"><span class="tag rw">RW</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">Negotiate tokenization terms with asset holder: PleoChrome fee structure (setup fee $5K-$50K + success fee 0.5-3% + annual admin 0.5-1%), pass-through costs (3 appraisals, vault storage, insurance, legal docs — paid by asset holder), and expected offering value range. All costs transparent and documented.</div></div></div>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">1.8</div><div class="step-dot"></div><div class="step-title">Intake Agreement</div><div class="step-tags-inline"><span class="tag lg">LG</span><span class="tag rw">RW</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">Execute master engagement agreement between PleoChrome and asset holder. Defines: obligations of both parties, fee structure, timeline expectations, conditions for proceeding through all 7 gates, termination provisions, and confidentiality. Signed electronically via OneSpan Sign (WORM-compliant).</div></div></div>
+      <div class="gate-row"><div class="gate-badge">G1</div><div class="gate-name">INTAKE GATE</div><div class="gate-desc">Seller verified, sanctions clear, provenance reviewed, title confirmed, agreement executed</div></div>
+      <div class="gate-row"><div class="gate-badge">G2</div><div class="gate-name">EVIDENCE GATE</div><div class="gate-desc">Legal transferability, export/import compliance, conflict origin screening complete</div></div>
+    </div>
+  </div>
+
+  <!-- ═══ PHASE 2 ═══ -->
+  <div class="phase-content" id="phase-2">
+    <div class="phase-inner" style="--phase-color:var(--teal)">
+      <div class="phase-head"><div class="phase-badge" style="background:var(--teal)">02</div><div><div class="phase-title">Preparation</div><div class="phase-subtitle">Building the Evidence Layer</div></div></div>
+      <p class="phase-desc">Transform a raw stone into a fully documented, independently valued, institutionally vaulted, and legally structured asset. Every claim verified by independent specialists.</p>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">2.1</div><div class="step-dot"></div><div class="step-title">GIA Lab Submission</div><div class="step-tags-inline"><span class="tag pt">PT</span><span class="tag rw">RW</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">Ship stone to GIA (or SSEF/Gubelin for colored stones). Lab performs: cut, color, clarity, carat weight grading. For colored stones: geographic origin determination via spectroscopic analysis and treatment disclosure (heat, irradiation, filling). Turnaround: 2-3 weeks. GIA report is the industry gold standard — non-negotiable.</div></div></div>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">2.2</div><div class="step-dot"></div><div class="step-title">Report Verification</div><div class="step-tags-inline"><span class="tag dg">DG</span><span class="tag ai">AI</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">Verify GIA report authenticity via GIA Report Check system (online verification using report number + carat weight). Confirm stone identity matches submitted documentation. Cross-reference any pre-existing reports. AI can flag discrepancies between seller claims and lab results.</div></div></div>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">2.3</div><div class="step-dot"></div><div class="step-title">3x Independent Appraisals</div><div class="step-tags-inline"><span class="tag pt">PT</span><span class="tag rw">RW</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">Ship stone sequentially to 3 independent appraisers from approved panel. Each must be CGA/MGA certified, USPAP-compliant, and have zero affiliation with seller, PleoChrome, or each other. Each performs physical inspection + formal written appraisal. 5-10 business days each. Insured inland marine transit between appraisers. Cost: $100-$5,000+ per appraisal depending on stone value. Total phase: 3-4 weeks.</div></div></div>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">2.4</div><div class="step-dot"></div><div class="step-title">Valuation Reconciliation</div><div class="step-tags-inline"><span class="tag dg">DG</span><span class="tag ai">AI</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">Analyze variance across 3 appraisals. If spread >15-20%, flag for 4th appraisal or reject. <strong>The 3-Appraisal Rule:</strong> Average the two lowest values to determine structurally conservative offering baseline. Compare to market comparables (recent auction records at Christie's/Sotheby's, dealer wholesale prices). AI can automate comparable analysis.</div></div></div>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">2.5</div><div class="step-dot"></div><div class="step-title">Vault Intake & Custody</div><div class="step-tags-inline"><span class="tag pt">PT</span><span class="tag rw">RW</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">Transport stone to Brink's or Malca-Amit via insured specialized carrier. Vault intake: verify stone against GIA report, photograph, assign segregated storage location (not commingled), activate climate control. Issue Vault Receipt / Custody Acknowledgment. Malca-Amit offers Free Trade Zone facilities (100% duty-free). Activate API reporting feed for PleoChrome system integration.</div></div></div>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">2.6</div><div class="step-dot"></div><div class="step-title">Insurance Verification</div><div class="step-tags-inline"><span class="tag rw">RW</span><span class="tag dg">DG</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">Verify vault insurance covers this specific asset at appraised value. Confirm no coverage gaps between transport, storage, and any future movement. Lloyd's of London is the gold standard (used by Tiamonds). Document policy numbers, coverage limits, sublimits for gemstones, and expiration dates. Set renewal tracking.</div></div></div>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">2.7</div><div class="step-dot"></div><div class="step-title">Chainlink PoR Setup</div><div class="step-tags-inline"><span class="tag pt">PT</span><span class="tag dg">DG</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">Build custom External Adapter connecting to vault's inventory API. Deploy Proof of Reserve feed contract on Polygon. Define update triggers: custody change events trigger immediate update, plus daily attestation. Multiple independent Chainlink nodes verify and aggregate. On-chain feed reports: # stones held, appraised value, custody status. Smart contracts query this before any mint. <em>Reference: Serenity Labs (Feb 2026) built similar for precious metals with Chainlink + Zoniqx.</em></div></div></div>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">2.8</div><div class="step-dot"></div><div class="step-title">SPV Formation</div><div class="step-tags-inline"><span class="tag lg">LG</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">Create new Series under Delaware Series LLC master entity (PleoChrome Holdings LLC). File with DE Division of Corporations ($110). Each series is bankruptcy-remote — one stone's issues don't affect others. Draft Operating Agreement defining: token holder economic rights, distribution waterfall, governance, transfer restrictions, dissolution. Obtain EIN. Open SPV bank account.</div></div></div>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">2.9</div><div class="step-dot"></div><div class="step-title">Legal Document Suite</div><div class="step-tags-inline"><span class="tag lg">LG</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">Securities attorney drafts: <strong>PPM</strong> (Private Placement Memorandum — risk factors, use of proceeds, management, tax), <strong>Subscription Agreement</strong> (investor representations, accreditation self-cert, payment terms), <strong>Token Purchase Agreement</strong> (links on-chain token to legal rights in SPV). Internal compliance review of all documents. Cost: $15K-$50K per offering. Templates reduce cost for subsequent stones.</div></div></div>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">2.10</div><div class="step-dot"></div><div class="step-title">Photo & Media Documentation</div><div class="step-tags-inline"><span class="tag rw">RW</span><span class="tag ai">AI</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">Professional photography under standardized lighting (minimum 8 angles + macro detail + scale reference + 360 video). Independent weight verification on calibrated scale. Create marketing-ready assets for investor materials, data room, and platform listing. All media timestamped and hashed as part of evidence trail.</div></div></div>
+      <div class="gate-row"><div class="gate-badge">G3</div><div class="gate-name">VERIFICATION GATE</div><div class="gate-desc">GIA verified, 3 appraisals reconciled, final valuation set</div></div>
+      <div class="gate-row"><div class="gate-badge">G4</div><div class="gate-name">CUSTODY GATE</div><div class="gate-desc">Vaulted, insured, PoR feed live and verified</div></div>
+      <div class="gate-row"><div class="gate-badge">G5</div><div class="gate-name">ISSUER GATE</div><div class="gate-desc">SPV formed, PPM finalized, legal docs complete</div></div>
+    </div>
+  </div>
+
+  <!-- ═══ PHASE 3 ═══ -->
+  <div class="phase-content" id="phase-3">
+    <div class="phase-inner" style="--phase-color:var(--sapphire)">
+      <div class="phase-head"><div class="phase-badge" style="background:var(--sapphire)">03</div><div><div class="phase-title">Tokenization</div><div class="phase-subtitle">Minting the Digital Asset</div></div></div>
+      <p class="phase-desc">Deploy a compliant ERC-3643 security token on Polygon via Brickken. Oracle-gated minting ensures nothing is created without verified reserves.</p>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">3.1</div><div class="step-dot"></div><div class="step-title">Token Configuration</div><div class="step-tags-inline"><span class="tag dg">DG</span><span class="tag pt">PT</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">Configure in Brickken API: token name, symbol, total supply (offering value / min investment), decimals. Compliance rules: KYC whitelist required, accredited investor status required, jurisdiction blocks (sanctioned countries), max holder limit, lock-up period, transfer restrictions. Trusted issuers for ONCHAINID identity claims. Agent addresses for admin operations.</div></div></div>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">3.2</div><div class="step-dot"></div><div class="step-title">Testnet Deployment</div><div class="step-tags-inline"><span class="tag dg">DG</span><span class="tag pt">PT</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">Deploy ERC-3643 token contract + escrow contract on Polygon testnet via Brickken sandbox (dapp.sandbox.brickken.com). Deploy ONCHAINID identity infrastructure (ClaimTopicsRegistry, TrustedIssuersRegistry, IdentityRegistry). Attach hashed legal documents on-chain. Configure mint-gate to require Chainlink PoR verification before any token creation.</div></div></div>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">3.3</div><div class="step-dot"></div><div class="step-title">Integration Testing</div><div class="step-tags-inline"><span class="tag dg">DG</span><span class="tag ai">AI</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">Full lifecycle testing: <strong>(1)</strong> Mint tokens to whitelisted wallet — should succeed. <strong>(2)</strong> Transfer between whitelisted wallets — should succeed. <strong>(3)</strong> Transfer to non-whitelisted wallet — should revert. <strong>(4)</strong> Change PoR custody status to false — minting should halt. <strong>(5)</strong> Verify compliance rules block non-accredited, wrong jurisdiction, over-limit. Automated test suite recommended.</div></div></div>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">3.4</div><div class="step-dot"></div><div class="step-title">Smart Contract Audit</div><div class="step-tags-inline"><span class="tag pt">PT</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">Independent security audit by CertiK, Hacken, QuillAudits, or OpenZeppelin ($5K-$30K). Verify: no vulnerabilities, no backdoors, no logic errors, no infinite mint vectors, no reentrancy. Audit report filed as permanent evidence. Required for institutional credibility. Each unique compliance module should be audited independently.</div></div></div>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">3.5</div><div class="step-dot"></div><div class="step-title">Mainnet Deployment</div><div class="step-tags-inline"><span class="tag dg">DG</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">Deploy audited contracts to Polygon mainnet. Verify ALL parameters match testnet exactly. Confirm PoR feed connected and reporting correctly on mainnet (not testnet feed). Record contract addresses permanently in PleoChrome evidence system. This is irreversible — double-check everything.</div></div></div>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">3.6</div><div class="step-dot"></div><div class="step-title">Regulatory Filings</div><div class="step-tags-inline"><span class="tag lg">LG</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">File Form D with SEC via EDGAR (required within 15 days of first sale — no filing fee). File blue sky notices in each state where investors will be solicited (fees vary by state). Formally engage broker-dealer for compliant distribution. Prepare marketing materials — must include proper disclaimers for Reg D 506(c).</div></div></div>
+      <div class="gate-row"><div class="gate-badge">G6</div><div class="gate-name">PLATFORM GATE</div><div class="gate-desc">Token live, PoR verified, audited, parameters match legal docs</div></div>
+    </div>
+  </div>
+
+  <!-- ═══ PHASE 4 ═══ -->
+  <div class="phase-content" id="phase-4">
+    <div class="phase-inner" style="--phase-color:var(--amber)">
+      <div class="phase-head"><div class="phase-badge" style="background:var(--amber)">04</div><div><div class="phase-title">Distribution</div><div class="phase-subtitle">Token Sale & Ongoing Management</div></div></div>
+      <p class="phase-desc">Execute a controlled Reg D 506(c) offering to qualified investors. Every buyer verified, every transaction recorded, evidence trail continues indefinitely.</p>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">4.1</div><div class="step-dot"></div><div class="step-title">Investor Outreach</div><div class="step-tags-inline"><span class="tag pt">PT</span><span class="tag rw">RW</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">Targeted outreach via broker-dealer network. Reg D 506(c) permits general solicitation (websites, social media, events, advertising) — unlike 506(b). All investors MUST be verified accredited. Marketing materials must be compliant (include risk disclosures, "for accredited investors only" language). Broker-dealer handles distribution compliance.</div></div></div>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">4.2</div><div class="step-dot"></div><div class="step-title">Investor KYC & Accreditation</div><div class="step-tags-inline"><span class="tag pt">PT</span><span class="tag dg">DG</span><span class="tag ai">AI</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">Each investor completes: gov ID + liveness check, address verification, accredited investor verification. <strong>2025 SEC simplification:</strong> investments of $200K+ (individuals) or $1M+ (entities) qualify for self-certification — no third-party verification needed. Below those thresholds: tax returns, bank statements, CPA/attorney letter, or broker confirmation. Sanctions screening on every investor. Via VerifyInvestor.com or ComPilot.</div></div></div>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">4.3</div><div class="step-dot"></div><div class="step-title">Subscription Execution</div><div class="step-tags-inline"><span class="tag lg">LG</span><span class="tag dg">DG</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">Investor reviews PPM (Private Placement Memorandum), signs Subscription Agreement + Token Purchase Agreement electronically. Wire funds to SPV escrow account (funds never touch PleoChrome — goes directly to the SPV). Broker-dealer reviews and formally accepts the subscription. All executed via WORM-compliant e-signature.</div></div></div>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">4.4</div><div class="step-dot"></div><div class="step-title">Wallet Whitelist & Mint</div><div class="step-tags-inline"><span class="tag dg">DG</span><span class="tag pt">PT</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">Add verified investor's wallet address to ERC-3643 Identity Registry (ONCHAINID). PoR gate confirms custody status = green. <strong>Chainlink Secure Mint:</strong> contract checks reserves >= supply + requested mint. If yes → tokens minted proportional to investment. If no → transaction reverts. Transfer tokens to investor wallet. Update cap table in PleoChrome system.</div></div></div>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">4.5</div><div class="step-dot"></div><div class="step-title">Investor Confirmation</div><div class="step-tags-inline"><span class="tag dg">DG</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">Send investor confirmation package: token quantity, wallet address, contract address, cap table position, Polygon block explorer link, access credentials for investor portal/data room, ongoing reporting schedule (quarterly + annual), and PleoChrome support contact.</div></div></div>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">4.6</div><div class="step-dot"></div><div class="step-title">Ongoing: PoR Monitoring</div><div class="step-tags-inline"><span class="tag dg">DG</span><span class="tag pt">PT</span><span class="tag ai">AI</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">Chainlink PoR feed runs continuously (24/7). Daily attestation confirms stone remains in vault. Any custody change triggers automated alert to PleoChrome operations. Token minting auto-halts if reserves < supply. Chainlink Automation can trigger circuit breakers — halting all minting, burning, and transfers when reserve thresholds are not met. Dashboard monitors all active assets.</div></div></div>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">4.7</div><div class="step-dot"></div><div class="step-title">Ongoing: Reporting</div><div class="step-tags-inline"><span class="tag dg">DG</span><span class="tag ai">AI</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail"><strong>Quarterly:</strong> custody confirmation, PoR status, market comparable updates, any material events. <strong>Annually:</strong> independent re-appraisal by new appraiser, K-1 tax statements for all investors, insurance renewal verification, Form D amendment filing. AI can automate report generation from structured data.</div></div></div>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">4.8</div><div class="step-dot"></div><div class="step-title">Ongoing: Compliance</div><div class="step-tags-inline"><span class="tag lg">LG</span><span class="tag ai">AI</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">Re-screen all investors quarterly against OFAC/sanctions lists. Monitor for accreditation status changes. File SARs when suspicious activity triggers are met. Annual independent AML program audit by external firm. Multi-jurisdiction compliance tracking (US Reg D, EU MiCA, UAE VARA, Singapore MAS). AI-powered transaction monitoring via ComPilot or Chainalysis.</div></div></div>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">4.9</div><div class="step-dot"></div><div class="step-title">Secondary Transfers</div><div class="step-tags-inline"><span class="tag dg">DG</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">Token holder initiates transfer. ERC-3643 compliance module automatically verifies: recipient wallet is in Identity Registry (KYC verified), recipient has accredited investor claim, recipient jurisdiction is not blocked, transfer doesn't exceed max holder limit, lock-up period has expired. <strong>Compliant = transfer executes on-chain. Non-compliant = blocked at smart contract level.</strong> No manual intervention needed. Secondary trading possible via tZERO ATS (24/7, SEC/FINRA regulated).</div></div></div>
+      <div class="step-row" onclick="toggleStep(this)"><div class="step-header"><div class="step-num">4.10</div><div class="step-dot"></div><div class="step-title">Redemption</div><div class="step-tags-inline"><span class="tag rw">RW</span><span class="tag lg">LG</span><span class="tag dg">DG</span></div><svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="step-body"><div class="step-detail">If a holder (or group holding 100% of tokens) wants the physical stone: <strong>(1)</strong> Submit redemption request through PleoChrome portal. <strong>(2)</strong> Burn all tokens for that series (maintaining supply/reserve parity). <strong>(3)</strong> Coordinate vault release with custodian. <strong>(4)</strong> Arrange insured specialized transport to holder's registered address. <strong>(5)</strong> Delivery confirmation + ownership transfer documentation. <strong>(6)</strong> SPV series dissolves. <strong>(7)</strong> Full audit trail preserved permanently. <em>Note: Redemption logistics are an underserved market — major software opportunity.</em></div></div></div>
+      <div class="gate-row"><div class="gate-badge">G7</div><div class="gate-name">SALE GATE</div><div class="gate-desc">Onboarding live, KYC verified, Form D filed, broker-dealer engaged</div></div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <div class="gem-bar" style="margin-bottom:10px">
+      <span style="background:#1B6B4A"></span><span style="background:#1A8B7A"></span>
+      <span style="background:#1E3A6E"></span><span style="background:#5B2D8E"></span>
+      <span style="background:#A61D3A"></span><span style="background:#C47A1A"></span>
+      <span style="background:#7BA31E"></span>
+    </div>
+    PleoChrome &mdash; Trust, Verified from Every Angle &mdash; Florida &mdash; Confidential
+  </div>
+</footer>
+
+<script>
+function togglePhase(n) {
+  const stones = document.querySelectorAll('.gem-stone');
+  const panels = document.querySelectorAll('.phase-content');
+  const target = document.getElementById('phase-' + n);
+  const stone = document.querySelector('[data-phase="' + n + '"]');
+  const isOpen = target.classList.contains('open');
+
+  // Close all phases + steps
+  panels.forEach(p => { p.classList.remove('open'); p.querySelectorAll('.step-row.open').forEach(s => s.classList.remove('open')); });
+  stones.forEach(s => s.classList.remove('active'));
+
+  if (!isOpen) {
+    target.classList.add('open');
+    stone.classList.add('active');
+    setTimeout(() => target.scrollIntoView({ behavior:'smooth', block:'start' }), 80);
+  }
+}
+
+function toggleStep(el) {
+  // Don't toggle if clicking a gate row
+  if (el.classList.contains('gate-row')) return;
+  el.classList.toggle('open');
+}
+</script>
+
+</body>
+</html>

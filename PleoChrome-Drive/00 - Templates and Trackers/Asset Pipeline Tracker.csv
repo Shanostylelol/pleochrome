@@ -1,0 +1,22 @@
+Stone ID,Stone Name,Type,Carat Weight,Origin,Estimated Value,Asset Holder,Pipeline Stage,Gate 1 - Intake,Gate 2 - Evidence,Gate 3 - Verification,Gate 4 - Custody,Gate 5 - Issuer,Gate 6 - Platform,Gate 7 - Sale,GIA Report Number,Appraisal 1 Value,Appraisal 2 Value,Appraisal 3 Value,Final Offering Value,Vault Location,SPV Series,Token Contract Address,Offering Status,Total Raised,Notes
+STONE-001,[Name],Emerald,,,,,,Not Started,Not Started,Not Started,Not Started,Not Started,Not Started,Not Started,,,,,,,,,Not Started,,First pilot stone - 120 day timeline
+STONE-002,[Template],,,,,,Intake Queue,Not Started,Not Started,Not Started,Not Started,Not Started,Not Started,Not Started,,,,,,,,,,,[Copy this row for new stones]
+
+GATE STATUS OPTIONS:
+Not Started
+In Progress
+Passed
+Failed
+Blocked
+
+PIPELINE STAGES:
+Intake Queue
+Screening
+GIA Certification
+Appraisal
+Vault Custody
+Legal Structuring
+Token Creation
+Active Offering
+Closed and Settled
+Rejected
