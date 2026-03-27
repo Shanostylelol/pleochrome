@@ -15,22 +15,26 @@ const cormorant = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "PleoChrome — Verified from Every Angle",
+  title: "PleoChrome — Value from Every Angle",
   description:
-    "PleoChrome is the orchestration platform that transforms high-value colored gemstones into compliant, tokenized digital securities through institutional-grade verification infrastructure.",
+    "PleoChrome orchestrates fractional securities, tokenization, and asset-backed lending for high-value colored gemstones — three paths to unlock every dimension of value.",
   keywords: [
     "gemstone tokenization",
+    "fractional securities",
+    "asset-backed lending",
     "digital assets",
     "trust infrastructure",
     "colored gemstones",
     "asset tokenization",
     "blockchain compliance",
+    "debt instruments",
+    "RWA",
   ],
   authors: [{ name: "PleoChrome" }],
   openGraph: {
-    title: "PleoChrome — Verified from Every Angle",
+    title: "PleoChrome — Value from Every Angle",
     description:
-      "The orchestration platform for tokenized precious assets. Institutional-grade trust infrastructure for high-value colored gemstones.",
+      "Three paths to value for precious assets: fractional securities, tokenization, and asset-backed lending. Institutional-grade orchestration.",
     url: "https://pleochrome.com",
     siteName: "PleoChrome",
     type: "website",
@@ -38,9 +42,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "PleoChrome — Verified from Every Angle",
+    title: "PleoChrome — Value from Every Angle",
     description:
-      "The orchestration platform for tokenized precious assets.",
+      "Three paths to value for precious assets: fractional securities, tokenization, and asset-backed lending.",
   },
   icons: {
     icon: "/favicon.png",

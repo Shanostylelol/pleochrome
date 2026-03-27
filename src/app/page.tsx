@@ -10,6 +10,11 @@ import {
   Building2,
   Link2,
   Users,
+  Layers,
+  Hexagon,
+  Landmark,
+  Check,
+  X,
 } from "lucide-react";
 import { ShaderAnimation } from "@/components/ui/shader-animation";
 import { GlowingEffect } from "@/components/ui/glowing-effect";
@@ -17,7 +22,7 @@ import { cn } from "@/lib/utils";
 
 /* ═══════════════════════════════════════════════════════
    PleoChrome Landing Page
-   "Verified from Every Angle"
+   "Value from Every Angle"
    ═══════════════════════════════════════════════════════ */
 
 // ── 7-Gate data ──────────────────────────────
@@ -78,6 +83,77 @@ const gates = [
     phase: "Distribution",
     description:
       "Reg D 506(c) compliant offering to accredited investors. KYC, accreditation verification, and sanctions screening on every buyer. Tokens minted only after subscription is confirmed and funded.",
+  },
+];
+
+// ── Three Paths to Value data ────────────────
+
+const valuePaths = [
+  {
+    icon: <Layers className="h-6 w-6" />,
+    title: "Fractional Securities",
+    color: "bg-[#1B6B4A]",
+    borderColor: "border-[#1B6B4A]/30",
+    glowColor: "rgba(27, 107, 74, 0.15)",
+    accentText: "text-[#1B6B4A]",
+    tagline: "Divide and Distribute",
+    description:
+      "Split a high-value asset into affordable, SEC-compliant fractional shares. Open the door to investors who couldn\u2019t access these assets before.",
+    advantages: [
+      "Lower minimums broaden the investor base",
+      "Portfolio diversification across multiple stones",
+      "Familiar securities structure for traditional investors",
+      "Reg D 506(c) \u2014 general solicitation permitted",
+    ],
+    considerations: [
+      "More complex SPV and legal structuring per asset",
+      "Higher ongoing administration and reporting",
+      "Investor liquidity depends on secondary market development",
+    ],
+  },
+  {
+    icon: <Hexagon className="h-6 w-6" />,
+    title: "Tokenization",
+    color: "bg-[#1A8B7A]",
+    borderColor: "border-[#1A8B7A]/30",
+    glowColor: "rgba(26, 139, 122, 0.15)",
+    accentText: "text-[#1A8B7A]",
+    tagline: "Programmable Ownership",
+    description:
+      "Convert full asset value into ERC-3643 security tokens on Polygon. Compliance is embedded at the smart contract level \u2014 every transfer is validated before execution.",
+    advantages: [
+      "24/7 secondary market liquidity potential",
+      "Programmable compliance baked into every token",
+      "Real-time Chainlink Proof of Reserve verification",
+      "Global settlement in seconds, not days",
+    ],
+    considerations: [
+      "Requires blockchain infrastructure and integrations",
+      "Investor education curve for digital securities",
+      "Smart contract audit and security requirements",
+    ],
+  },
+  {
+    icon: <Landmark className="h-6 w-6" />,
+    title: "Debt Instruments",
+    color: "bg-[#1E3A6E]",
+    borderColor: "border-[#1E3A6E]/30",
+    glowColor: "rgba(30, 58, 110, 0.15)",
+    accentText: "text-[#4A7BC7]",
+    tagline: "Borrow Against Value",
+    description:
+      "Use verified, vaulted gemstones as collateral for asset-backed loans. The holder retains ownership while unlocking immediate capital.",
+    advantages: [
+      "Asset holders keep ownership of their stones",
+      "Predictable yield structure for lenders",
+      "Familiar to traditional finance institutions",
+      "Fastest path from asset to capital",
+    ],
+    considerations: [
+      "Interest rate and default risk management required",
+      "Collateral revaluation at regular intervals",
+      "Additional insurance and custody requirements",
+    ],
   },
 ];
 
@@ -146,7 +222,7 @@ function HeroSection() {
               : "opacity-0 translate-y-6"
           )}
         >
-          Verified from Every Angle
+          Value from Every Angle
         </p>
 
         {/* Descriptor */}
@@ -159,8 +235,8 @@ function HeroSection() {
               : "opacity-0 translate-y-6"
           )}
         >
-          The orchestration platform that transforms high-value
-          colored gemstones into compliant, tokenized digital securities.
+          The orchestration platform that unlocks fractional ownership,
+          tokenized securities, and asset-backed lending for high-value gemstones.
         </h1>
 
         {/* Gem accent bar */}
@@ -189,13 +265,13 @@ function HeroSection() {
           )}
         >
           <a
-            href="#intro"
+            href="#paths"
             className="group relative inline-flex items-center gap-2 sm:gap-3 border border-white/15 rounded-full px-6 py-3 sm:px-8 sm:py-3.5
               text-xs sm:text-sm tracking-[0.15em] sm:tracking-[0.2em] uppercase text-white/70 hover:text-white
               bg-white/[0.03] hover:bg-white/[0.06] backdrop-blur-sm
               transition-all duration-500 hover:border-white/25 hover:shadow-[0_0_30px_rgba(26,139,122,0.1)]"
           >
-            <span>Learn More</span>
+            <span>Explore the Paths</span>
             <svg
               className="w-4 h-4 transition-transform duration-300 group-hover:translate-y-0.5"
               fill="none"
@@ -257,8 +333,8 @@ function IntroSection() {
             visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
           )}
         >
-          PleoChrome orchestrates the full lifecycle of
-          gemstone-backed digital securities.
+          One asset. Three paths to value.
+          PleoChrome orchestrates them all.
         </h2>
         <p
           className={cn(
@@ -266,9 +342,9 @@ function IntroSection() {
             visible ? "opacity-100" : "opacity-0"
           )}
         >
-          From sourcing and independent valuation to institutional custody,
-          oracle-verified reserves, and compliant token issuance &mdash;
-          we coordinate every specialist, every gate, every step of the process.
+          Whether you choose fractional ownership, full tokenization, or
+          asset-backed lending &mdash; we coordinate every specialist,
+          every gate, and every compliance requirement from intake to capital.
         </p>
         <div
           className={cn(
@@ -283,6 +359,175 @@ function IntroSection() {
           <span className="bg-[#A61D3A]" />
           <span className="bg-[#C47A1A]" />
           <span className="bg-[#7BA31E]" />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Three Paths to Value Section ─────────────
+
+function PathCard({
+  path,
+  index,
+  visible,
+}: {
+  path: (typeof valuePaths)[number];
+  index: number;
+  visible: boolean;
+}) {
+  return (
+    <div
+      className={cn(
+        "relative group transition-all duration-700",
+        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+      )}
+      style={{ transitionDelay: `${200 + index * 150}ms` }}
+    >
+      <div className="relative h-full rounded-2xl border border-white/[0.06] p-[3px] md:rounded-[1.5rem]">
+        <GlowingEffect
+          spread={40}
+          glow
+          disabled={false}
+          proximity={64}
+          inactiveZone={0.01}
+          borderWidth={2}
+        />
+        <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(1rem-1px)] md:rounded-[calc(1.5rem-3px)] bg-[#0A0F1A]/80 backdrop-blur-sm border border-white/[0.03]">
+          {/* Header — fixed zone */}
+          <div className="p-6 md:p-8 pb-0">
+            <div className="flex items-center gap-4 mb-5">
+              <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center shrink-0", path.color)}>
+                <span className="text-white/90">{path.icon}</span>
+              </div>
+              <div>
+                <h3 className="text-xl md:text-2xl font-semibold tracking-tight text-white/90">
+                  {path.title}
+                </h3>
+                <span className={cn("text-xs tracking-[0.2em] uppercase", path.accentText)}>
+                  {path.tagline}
+                </span>
+              </div>
+            </div>
+            {/* Description — fixed height so advantages start at the same line */}
+            <div className="lg:min-h-[7rem]">
+              <p className="text-[15px] leading-relaxed text-white/50">
+                {path.description}
+              </p>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="mx-6 md:mx-8 my-5 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
+
+          {/* Advantages — grows to fill */}
+          <div className="px-6 md:px-8 flex-1 flex flex-col">
+            <p className="text-[10px] tracking-[0.3em] uppercase text-white/25 mb-3">Advantages</p>
+            <ul className="space-y-2.5 flex-1">
+              {path.advantages.map((item) => (
+                <li key={item} className="flex items-start gap-2.5">
+                  <div className={cn("w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5", path.color)}>
+                    <Check className="w-2.5 h-2.5 text-white" />
+                  </div>
+                  <span className="text-sm text-white/60 leading-relaxed">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Considerations — pinned to bottom */}
+          <div className="px-6 md:px-8 mt-5 pb-6 md:pb-8">
+            <p className="text-[10px] tracking-[0.3em] uppercase text-white/25 mb-3">Considerations</p>
+            <ul className="space-y-2.5">
+              {path.considerations.map((item) => (
+                <li key={item} className="flex items-start gap-2.5">
+                  <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5 bg-white/[0.06]">
+                    <X className="w-2.5 h-2.5 text-white/30" />
+                  </div>
+                  <span className="text-sm text-white/35 leading-relaxed">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PathsSection() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      { threshold: 0.05 }
+    );
+    const el = document.getElementById("paths");
+    if (el) observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <section id="paths" className="relative py-16 sm:py-28 md:py-36">
+      {/* Top divider */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] max-w-4xl h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
+
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6">
+        {/* Section header */}
+        <div className="text-center mb-14 md:mb-20">
+          <p
+            className={cn(
+              "text-xs tracking-[0.4em] uppercase text-[#C47A1A] mb-4 transition-all duration-700",
+              visible ? "opacity-100" : "opacity-0"
+            )}
+          >
+            Three Levels of Value Creation
+          </p>
+          <h2
+            className={cn(
+              "font-display text-3xl md:text-4xl lg:text-5xl font-light text-white/90 transition-all duration-1000 delay-100",
+              visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+            )}
+          >
+            One Asset. Three Paths.
+          </h2>
+          <p
+            className={cn(
+              "mt-5 text-sm sm:text-base md:text-lg text-white/40 max-w-2xl mx-auto leading-relaxed transition-all duration-700 delay-300",
+              visible ? "opacity-100" : "opacity-0"
+            )}
+          >
+            Every verified gemstone can unlock value in multiple ways. PleoChrome
+            orchestrates each path with the same institutional-grade infrastructure
+            &mdash; so you choose the structure that fits your strategy.
+          </p>
+        </div>
+
+        {/* Three path cards */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-5 items-stretch">
+          {valuePaths.map((path, i) => (
+            <PathCard key={path.title} path={path} index={i} visible={visible} />
+          ))}
+        </div>
+
+        {/* Bottom note */}
+        <div
+          className={cn(
+            "mt-12 md:mt-16 text-center transition-all duration-700 delay-700",
+            visible ? "opacity-100" : "opacity-0"
+          )}
+        >
+          <div className="inline-flex items-center gap-3 rounded-full border border-white/[0.06] bg-white/[0.02] px-6 py-3">
+            <div className="flex gap-1">
+              <span className="w-2 h-2 rounded-full bg-[#1B6B4A]" />
+              <span className="w-2 h-2 rounded-full bg-[#1A8B7A]" />
+              <span className="w-2 h-2 rounded-full bg-[#1E3A6E]" />
+            </div>
+            <span className="text-xs sm:text-sm tracking-wide text-white/40">
+              All three paths share the same 7-Gate verification infrastructure
+            </span>
+          </div>
         </div>
       </div>
     </section>
@@ -407,9 +652,9 @@ function ProcessSection() {
               visible ? "opacity-100" : "opacity-0"
             )}
           >
-            Every stone passes through seven strict, binary decision gates spanning
-            four phases: Acquisition, Preparation, Tokenization, and Distribution.
-            Each gate requires documented, independently verified evidence before the next opens.
+            Regardless of which value path you choose, every asset passes through
+            seven strict, binary decision gates. Each gate requires documented,
+            independently verified evidence before the next opens.
           </p>
         </div>
 
@@ -448,15 +693,15 @@ function ValueSection() {
   const pillars = [
     {
       label: "Institutional Orchestration",
-      text: "Every function \u2014 gemological certification, independent appraisal, vault custody, legal structuring, and token issuance \u2014 is handled by a licensed, best-in-class specialist.",
+      text: "Every function \u2014 gemological certification, independent appraisal, vault custody, legal structuring, and capital deployment \u2014 is handled by a licensed, best-in-class specialist.",
     },
     {
       label: "Oracle-Verified Reserves",
-      text: "Chainlink Proof of Reserve connects physical vault inventory to on-chain records in real time. Token minting is programmatically blocked unless reserves are independently confirmed.",
+      text: "Chainlink Proof of Reserve connects physical vault inventory to on-chain records in real time. Token minting and loan collateral status are programmatically verified.",
     },
     {
       label: "Compliance-First Architecture",
-      text: "ERC-3643 security tokens with built-in KYC, accreditation, and jurisdiction controls. Reg D 506(c) compliant. Every transfer validated at the smart contract level before execution.",
+      text: "ERC-3643 security tokens with built-in KYC, accreditation, and jurisdiction controls. Reg D 506(c) compliant. Every transfer and lending event validated at the protocol level.",
     },
   ];
 
@@ -509,14 +754,8 @@ function ValueSection() {
 
 const partners = [
   {
-    name: "Chainlink",
-    role: "Oracle & Reserve Validation",
-    logo: "/partners/chainlink.png",
-    type: "png" as const,
-  },
-  {
     name: "Brickken",
-    role: "Tokenization & Issuance",
+    role: "Tokenization Platform",
     logo: "/partners/brickken.png",
     type: "png" as const,
   },
@@ -527,8 +766,14 @@ const partners = [
     type: "svg" as const,
   },
   {
+    name: "Chainlink",
+    role: "Oracle Infrastructure",
+    logo: "/partners/chainlink.png",
+    type: "png" as const,
+  },
+  {
     name: "Brink\u2019s",
-    role: "Institutional Vault & Custody",
+    role: "Vault & Custody",
     logo: "/partners/brinks.png",
     type: "png" as const,
   },
@@ -583,8 +828,8 @@ function PartnersSection() {
               visible ? "opacity-100" : "opacity-0"
             )}
           >
-            Every layer of the PleoChrome stack is powered by institutional-grade
-            specialists — the same names that secure and verify billions in assets worldwide.
+            PleoChrome is building its stack on institutional-grade infrastructure
+            &mdash; partnering with the names that secure and verify billions in assets worldwide.
           </p>
         </div>
 
@@ -662,13 +907,13 @@ function ContactSection() {
           />
 
           <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-white/90 mb-4 sm:mb-5">
-            Ready to Tokenize<br />an Exceptional Asset?
+            Ready to Unlock<br />the Full Value?
           </h2>
 
           <p className="text-white/40 text-sm sm:text-base md:text-lg leading-relaxed mb-8 sm:mb-10 max-w-lg mx-auto">
             Whether you hold a high-value gemstone, operate custody infrastructure,
-            or represent qualified investors — let&apos;s discuss how PleoChrome
-            can orchestrate the path forward.
+            represent qualified investors, or provide lending capital &mdash;
+            let&apos;s discuss the right path forward.
           </p>
 
           <a
@@ -747,6 +992,7 @@ export default function HomePage() {
     <main className="bg-[#030712] min-h-screen">
       <HeroSection />
       <IntroSection />
+      <PathsSection />
       <ProcessSection />
       <ValueSection />
       <PartnersSection />
