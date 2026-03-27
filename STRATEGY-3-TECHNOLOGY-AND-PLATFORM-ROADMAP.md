@@ -1,9 +1,17 @@
 # PleoChrome Strategy Document 3: Technology & Platform Roadmap
 
-**Document Version:** 1.0
+**Document Version:** 1.1
 **Date:** March 19, 2026
+**Last Updated:** 2026-03-27
 **Prepared for:** Shane Pierson (CEO), David Whiting (CTO/COO)
 **Audience:** Technical and business leadership -- written to be understood by both
+
+### Recent Changes (2026-03-27)
+- Added Zoniqx (ERC-7518) as parallel evaluation alongside Brickken (ERC-3643) per Decisions #003, #004
+- Removed Brickken-only language; tokenization platform references are now platform-agnostic
+- Added platform evaluation note to Section 5 (Brickken Integration Roadmap renamed)
+- Updated tagline references to "Value from Every Angle" per Decision #001
+- Previously corrected: Compliance Officer references (Chris to Shane, interim) per audit findings
 
 ---
 
@@ -38,7 +46,7 @@
 | **GitHub** | Shanostylelol/pleochrome, 20+ commits | Active repository. No branch protection, no PR workflow, no automated checks. |
 | **Google Workspace** | team@, shane@, chris@, david@ pleochrome.com | Operational. DKIM pending (DNS TXT record not yet added in GoDaddy). |
 | **Research corpus** | 8 documents totaling 100,000+ words covering blockchain, SEC compliance, distribution platforms, operations, GIA certification | Exceptional knowledge base. This IS the competitive advantage of the team's preparation. |
-| **Brickken relationship** | Intro call completed, sandbox access pending | Pre-integration. No code written, no API tested, no contracts deployed. |
+| **Tokenization platform** | Brickken intro call completed, Zoniqx intro call completed (2026-03-26). Both sandbox access pending. Per Decisions #003/#004, evaluating in parallel. | Pre-integration. No code written, no API tested, no contracts deployed. |
 
 ### 1.2 What Is Completely Missing
 
@@ -65,7 +73,7 @@ These are not "nice to have" items. Each one is a prerequisite for processing a 
 | Risk | Severity | Detail |
 |------|----------|--------|
 | **Hardcoded passcode in client JS** | CRITICAL | `const PASSCODE = "pleo123"` in `src/app/portal/page.tsx`. This is visible to anyone who opens browser dev tools. The localStorage persistence (`pleo-auth`) means anyone who sets that key can bypass the gate entirely. This must be replaced before any sensitive information is placed behind it. |
-| **No environment variables** | HIGH | No `.env` file, no `NEXT_PUBLIC_*` variables, no secrets management. When Brickken API keys, Supabase credentials, and other secrets are needed, there is no infrastructure to store them. |
+| **No environment variables** | HIGH | No `.env` file, no `NEXT_PUBLIC_*` variables, no secrets management. When tokenization platform API keys, Supabase credentials, and other secrets are needed, there is no infrastructure to store them. |
 | **No error boundaries** | MEDIUM | If any component throws, the entire page crashes with a white screen. No error boundary components, no fallback UI. |
 | **Three.js bundle size** | LOW | Three.js adds approximately 500KB to the client bundle. Acceptable for the landing page but should be code-split so it does not load on every route. |
 | **No TypeScript strict mode enforcement** | MEDIUM | `tsconfig.json` exists but no evidence of `strict: true` being enforced across the codebase. No type-checking CI step. |
@@ -117,7 +125,7 @@ The PleoChrome platform will consist of six application layers plus an integrati
                                                     |
                     +-------------------------------v-------------------------------+
                     |                   INTEGRATION LAYER                           |
-                    |  Brickken API | Chainlink | Vault API | KYC | DocuSign       |
+                    |  Tokenization API | Chainlink | Vault API | KYC | DocuSign    |
                     +--------------------------------------------------------------+
 ```
 
@@ -136,7 +144,7 @@ The PleoChrome platform will consist of six application layers plus an integrati
 | **Investor list** | View all investors, their KYC status, accreditation verification status, token holdings, and communication history | P1 |
 | **Reporting** | Generate quarterly NAV reports, investor statements, and compliance summaries | P1 |
 | **Activity log** | Immutable audit trail of every action taken by every team member: who uploaded what, who approved what, who changed what, when | P0 (MVP) |
-| **Token operations** | Interface to trigger Brickken operations: deploy tokens, whitelist investors, mint, burn, freeze, pause | P2 |
+| **Token operations** | Interface to trigger tokenization platform operations: deploy tokens, whitelist investors, mint, burn, freeze, pause | P2 |
 | **Chainlink monitoring** | Real-time view of PoR feed status: last update timestamp, current reserve value, feed health | P2 |
 
 **Access:** Shane, Chris, David. Future: fractional CFO, operations analyst, investor relations manager.
@@ -258,7 +266,8 @@ PleoChrome Platform
 | Audit Log    |
 +------+------+
        |
-       +------- Brickken API (Token deployment, KYC whitelisting, escrow management)
+       +------- Tokenization Platform API (Token deployment, KYC whitelisting, escrow management)
+       |          - Evaluating: Brickken (ERC-3643) and Zoniqx (ERC-7518) per Decision #003
        |
        +------- Chainlink (PoR feed reading, oracle status monitoring)
        |
@@ -274,7 +283,7 @@ PleoChrome Platform
        |
        +------- OFAC API (sanctionssearch.ofac.treas.gov -- sanctions screening)
        |
-       +------- Stripe (PleoChrome subscription billing -- if/when offering Brickken-like SaaS tier)
+       +------- Stripe (PleoChrome subscription billing -- if/when offering a SaaS tier)
        |
        +------- VerifyInvestor API (Accredited investor verification)
 ```
@@ -299,7 +308,7 @@ PleoChrome Platform
 | **Documents (PDFs, images)** | Supabase Storage | GIA reports, appraisals, legal documents, custody confirmations. Organized by asset and type. |
 | **Generated reports** | Supabase Storage | Quarterly reports, investor statements, NAV reports. Generated as PDFs, stored for access. |
 | **Real-time notifications** | Supabase Realtime | Gate status changes, new document uploads, compliance alerts. Push to connected clients. |
-| **On-chain data** | Polygon blockchain (via Brickken) | Token balances, transfer history, compliance contract state. Read via Brickken API or direct RPC. |
+| **On-chain data** | Polygon blockchain (via selected tokenization platform) | Token balances, transfer history, compliance contract state. Read via platform API or direct RPC. |
 | **Oracle data** | Polygon blockchain (via Chainlink) | Reserve verification values, update timestamps. Read via Chainlink aggregator contract. |
 | **Email templates** | Supabase PostgreSQL or code | Investor communications, notifications, system alerts. |
 | **Secrets and API keys** | Vercel env vars + Supabase Vault | Never in code, never in database tables, never in localStorage. |
@@ -326,17 +335,17 @@ For each major capability, the recommendation is one of:
 
 | Capability | Recommendation | Vendor/Approach | Rationale | Estimated Cost |
 |-----------|---------------|-----------------|-----------|---------------|
-| **Tokenization (ERC-3643 deployment, escrow, minting)** | BUY | **Brickken Enterprise** | Building and auditing ERC-3643 contracts from scratch would cost $200K+ and take 6+ months. Brickken provides pre-audited, factory-deployed contracts with integrated KYC whitelisting and escrow. This is the single most important buy decision. | EUR 1,999/mo (~$24K/yr) |
+| **Tokenization (ERC-3643/7518 deployment, escrow, minting)** | BUY | **Brickken or Zoniqx** (evaluating both -- see Decisions #003/#004) | Building and auditing security token contracts from scratch would cost $200K+ and take 6+ months. Both Brickken (ERC-3643) and Zoniqx (ERC-7518) provide pre-audited, factory-deployed contracts with integrated KYC whitelisting and escrow. This is the single most important buy decision. Platform selection in progress. | ~$2,000/mo (~$24K/yr) |
 | **Chainlink PoR oracle** | INTEGRATE | **Chainlink BUILD program** | Chainlink is the only credible decentralized oracle network for institutional-grade reserve verification. The external adapter is custom code (BUILD), but the oracle infrastructure is theirs. No realistic alternative exists. | $5K-20K development + ongoing LINK costs |
-| **Cap table management** | BUY (Brickken) | **Brickken** (built-in) | Brickken's dashboard manages the on-chain cap table. The ERC-3643 token contract IS the cap table. Supplemental off-chain records stored in Supabase for legal/tax purposes. | Included in Brickken subscription |
+| **Cap table management** | BUY (platform built-in) | **Tokenization platform** (built-in) | The selected platform's dashboard manages the on-chain cap table. The security token contract IS the cap table. Supplemental off-chain records stored in Supabase for legal/tax purposes. | Included in platform subscription |
 | **Investor communications** | BUILD + INTEGRATE | **Custom UI + Resend/SendGrid** | The investor portal (custom) is where investors view communications. Email delivery via Resend or SendGrid API. No need for a dedicated investor comms platform at this scale (< 50 investors initially). | Resend: free tier (3K emails/mo) then $20/mo |
 | **Document management / data room** | BUILD (simple) or BUY (expedient) | **Supabase Storage** (build) or **DocSend** (buy initially) | For MVP, DocSend ($45/mo) provides a data room immediately with tracking analytics. Longer-term, build the data room into the investor portal using Supabase Storage for full control and branding. | DocSend: $45/mo; Custom: dev time only |
 | **CRM** | BUY | **HubSpot Free** or **Attio** | PleoChrome needs to track investor leads, meeting notes, and pipeline. At < 100 contacts, HubSpot Free CRM is sufficient. Do not build a CRM. | HubSpot Free: $0; Attio: $29/user/mo |
 | **Compliance monitoring** | BUILD | **Custom (Supabase)** | No off-the-shelf compliance platform is tailored to tokenized gemstone securities. Build compliance tracking tables, audit trail logging, and compliance calendar into the admin dashboard. This is core IP. | Dev time only |
 | **Reporting / analytics** | BUILD | **Custom (React-PDF + Supabase)** | Reports are too domain-specific (NAV calculations, PoR verification, gemstone market data) for any generic reporting tool. Build templated PDF generation using React-PDF or Puppeteer. | Dev time + React-PDF (open source) |
 | **Email marketing** | BUY | **Resend** or **Mailchimp** | For investor newsletters and market updates. Do not build an email marketing system. | Resend: $20/mo; Mailchimp: free tier |
-| **Payment processing** | INTEGRATE | **Wire transfer** (primary) + **Stablecoin** (via Brickken escrow) | Institutional investors wire funds to the SPV bank account. Brickken's escrow handles on-chain USDC deposits. PleoChrome does not need Stripe for investor payments. Stripe might be used later for PleoChrome's own SaaS billing if it offers a platform tier. | Wire: $0 (bank fees); Brickken escrow: included |
-| **KYC/AML verification** | INTEGRATE | **Sumsub** or **Brickken built-in** | Brickken Enterprise includes KYC/AML verification (1,000 verifications/year). If Brickken's KYC is insufficient, integrate Sumsub ($1.50-2.50/verification) or Onfido as a supplemental provider. | Brickken: included; Sumsub: ~$2/verification |
+| **Payment processing** | INTEGRATE | **Wire transfer** (primary) + **Stablecoin** (via platform escrow) | Institutional investors wire funds to the SPV bank account. The tokenization platform's escrow handles on-chain USDC deposits. PleoChrome does not need Stripe for investor payments. Stripe might be used later for PleoChrome's own SaaS billing if it offers a platform tier. | Wire: $0 (bank fees); escrow: included in platform |
+| **KYC/AML verification** | INTEGRATE | **Platform built-in** or **Sumsub** | Both Brickken and Zoniqx include KYC/AML verification. If the selected platform's KYC is insufficient, integrate Sumsub ($1.50-2.50/verification) or Onfido as a supplemental provider. | Platform: included; Sumsub: ~$2/verification |
 | **Accredited investor verification** | INTEGRATE | **VerifyInvestor** or **self-certification** | For investments $200K+, March 2025 SEC guidance allows self-certification. For smaller investments or belt-and-suspenders, integrate VerifyInvestor ($50-150/investor). | $0-150/investor |
 | **Document signing** | INTEGRATE | **DocuSign** or **PandaDoc** | Subscription agreements, engagement letters, and other legal documents need legally binding e-signatures. Do not build this. | DocuSign: $25/mo (starter); PandaDoc: $35/mo |
 | **Sanctions screening** | BUILD + INTEGRATE | **OFAC SDN search** (free) + **custom logging** | Use the free OFAC SDN search API for screening. Build logging and scheduling into the compliance engine. At scale (100+ investors), consider paid providers like ComplyAdvantage or Chainalysis KYT. | $0 (free tier); ComplyAdvantage: $500+/mo at scale |
@@ -345,7 +354,7 @@ For each major capability, the recommendation is one of:
 
 | Service | Monthly Cost | Annual Cost |
 |---------|-------------|------------|
-| Brickken Enterprise | $2,000 | $24,000 (EUR 22,000 annual billing) |
+| Tokenization platform (Brickken or Zoniqx) | $2,000 | $24,000 (estimated; final cost depends on platform selection) |
 | Supabase Pro | $25 | $300 |
 | Vercel Pro | $20 | $240 |
 | Resend (email) | $20 | $240 |
@@ -355,7 +364,7 @@ For each major capability, the recommendation is one of:
 | Domain + DNS (GoDaddy) | ~$2 | ~$24 |
 | **Total** | **~$2,137/mo** | **~$25,644/yr** |
 
-This is manageable. The dominant cost is Brickken, which is non-negotiable for the tokenization infrastructure.
+This is manageable. The dominant cost is the tokenization platform, which is essential for the tokenization infrastructure. [UPDATED 2026-03-27: Final platform cost depends on Brickken vs. Zoniqx selection per Decision #003.]
 
 ---
 
@@ -371,7 +380,7 @@ Rationale:
 - React 19 server components reduce client-side JavaScript, improving performance for the investor portal
 - The team (Shane via Claude Code, David learning) does not need to learn a new framework
 - Vercel deployment is already configured and provides edge functions, analytics, and preview deployments
-- Every other tool in the ecosystem (Supabase client, Brickken SDK, ethers.js) has first-class React/Next.js support
+- Every other tool in the ecosystem (Supabase client, tokenization platform SDKs, ethers.js) has first-class React/Next.js support
 
 **Do NOT switch to:**
 - Python/Django: David's strength, but would mean running two separate systems (marketing site + backend). Next.js API routes + Supabase Edge Functions cover the backend needs.
@@ -416,7 +425,7 @@ Rationale:
 - Custom serverless functions (Supabase Edge Functions)
 
 **What Supabase does NOT replace:**
-- Brickken (tokenization is a separate domain)
+- Tokenization platform (tokenization is a separate domain)
 - Chainlink (oracle network is a separate domain)
 - Next.js API routes (used for server-side rendering logic, webhook handlers, and middleware)
 
@@ -655,11 +664,15 @@ Next.js middleware runs on every request and checks:
 
 ---
 
-## 5. Brickken Integration Roadmap
+## 5. Tokenization Platform Integration Roadmap
 
-### 5.1 What Brickken Provides
+> **[UPDATED 2026-03-27]** This section was originally written for Brickken as the sole platform. Per Decisions #003 and #004, PleoChrome is now evaluating both Brickken (ERC-3643) and Zoniqx (ERC-7518) in parallel. The sandbox testing plan below should be executed for both platforms during the 30-day evaluation period. Brickken-specific references below are retained for specificity but apply equally to the Zoniqx evaluation track.
+>
+> **Zoniqx differentiators to evaluate:** Chainlink PoR already integrated, physical asset experience (Serenity precious metals), white-label portals, Z-Connect distribution network, ERC-7518 (proprietary Draft-status standard). Key risk: ERC-7518 is not yet ratified -- verify ERC-3643 compatibility.
 
-Brickken is the tokenization infrastructure layer. It provides:
+### 5.1 What the Tokenization Platform Provides
+
+The tokenization platform is the infrastructure layer. It provides:
 
 1. **Factory-deployed ERC-3643 contracts** -- pre-audited smart contracts deployed on Polygon
 2. **KYC/AML integration** -- investor identity verification and on-chain whitelisting
@@ -1151,7 +1164,7 @@ The minimum viable platform to process the first gemstone through to the first i
 | **Monitoring** | Sentry free tier for error tracking. Manual Polygonscan checks for on-chain status. | Automated health checks, real-time alerts |
 
 **MVP development time:** 4-6 weeks (David + Claude Code)
-**MVP cost:** Supabase free tier, Vercel free tier, DocSend ($45/mo), Brickken Enterprise ($2,200/mo). Total: ~$2,300/mo in SaaS.
+**MVP cost:** Supabase free tier, Vercel free tier, DocSend ($45/mo), tokenization platform (~$2,000/mo). Total: ~$2,100/mo in SaaS.
 
 ### 9.2 Stone #2-3: What Gets Built Next?
 
@@ -1338,11 +1351,12 @@ REVERSIBILITY: [Easy/Medium/Hard to change later]
 - Rationale: Already built, working, deployed. Full-stack (SSR + API routes). Vercel deployment. React ecosystem compatibility.
 - Reversibility: Hard. Would require full rewrite.
 
-**Decision 3: Brickken Enterprise for Tokenization**
-- Date: March 2026 (recommendation)
-- Alternatives: Securitize, Tokeny, custom ERC-3643 deployment
-- Rationale: Pre-audited contracts, integrated KYC, existing relationship. Custom development would cost $200K+ and 6+ months. Securitize targets larger issuances ($50M+) and is more expensive.
-- Reversibility: Medium. Token contracts are on-chain and platform-agnostic. If Brickken disappears, the contracts still function. Dashboard and KYC integration would need replacement.
+**Decision 3: Tokenization Platform Selection** [SUPERSEDED -- see Decisions #003, #004]
+- Date: March 2026 (original recommendation: Brickken); 2026-03-27 (updated to platform-agnostic)
+- Alternatives under evaluation: Brickken (ERC-3643), Zoniqx (ERC-7518), Securitize, Tokeny, custom deployment
+- Rationale for platform-agnostic approach: (a) Zoniqx call (2026-03-26) revealed compelling alternative with Chainlink PoR already integrated; (b) ERC-7518 vs ERC-3643 is fundamental architectural choice; (c) Platform agnosticism is itself a competitive advantage -- PleoChrome as orchestration layer above any tokenization platform.
+- Reversibility: Medium. Token contracts are on-chain and platform-agnostic. Either platform's contracts function independently of the dashboard.
+- Timeline: 30-day parallel evaluation, then commit.
 
 ---
 
@@ -1357,7 +1371,7 @@ REVERSIBILITY: [Easy/Medium/Hard to change later]
 | **Provider (ethers.js)** | A connection to a blockchain node. `new ethers.JsonRpcProvider("https://polygon-rpc.com")` gives you read access to Polygon. You call `provider.getBalance(address)` to check balances. |
 | **Signer (ethers.js)** | A provider plus a private key. Signers can WRITE to the blockchain (send transactions). Used when PleoChrome triggers on-chain operations (minting, whitelisting). |
 | **Contract Instance (ethers.js)** | A JavaScript object representing a deployed smart contract. Created with: `new ethers.Contract(address, abi, providerOrSigner)`. You call functions on it like `contract.balanceOf(wallet)`. |
-| **ABI** | The "interface definition" of a smart contract. A JSON file that tells ethers.js what functions the contract has, what parameters they take, and what they return. Brickken provides ABIs for their deployed contracts. |
+| **ABI** | The "interface definition" of a smart contract. A JSON file that tells ethers.js what functions the contract has, what parameters they take, and what they return. The tokenization platform provides ABIs for their deployed contracts. |
 | **Testnet** | A practice blockchain where tokens have no real value. Polygon Amoy is the testnet. Use it to test everything before deploying to mainnet with real money. |
 | **Gas** | The fee paid for blockchain transactions. On Polygon, gas costs fractions of a penny. David's deployment wallet needs a small amount of MATIC to pay gas. |
 

@@ -1,7 +1,14 @@
 # PLEOCHROME STRATEGY DOCUMENT 1: CORPORATE GOVERNANCE & ORGANIZATIONAL STRUCTURE
 
-**Document Version:** 1.0
+**Document Version:** 1.1
 **Date:** March 19, 2026
+**Last Updated:** 2026-03-27
+
+### Recent Changes (2026-03-27)
+- Updated tagline references to "Value from Every Angle" per Decision #001
+- Added three-path value creation scope (Fractional Securities, Tokenization, Debt Instruments) per Decision #002
+- Updated partner references to reflect platform-agnostic approach (Brickken and Zoniqx under evaluation) per Decisions #003, #004
+- Confirmed Shane as interim CCO per existing audit findings
 **Classification:** Confidential -- Founding Team Only
 **Prepared for:** Shane Pierson, David Whiting, Chris Ramsey
 
@@ -62,15 +69,15 @@
 **Critical Ramp-Up Required:** David's blockchain certification is introductory only. Before mainnet deployment, he must develop working proficiency in:
 - Polygon network architecture and gas mechanics
 - ERC-3643 (T-REX) token standard -- identity registry, compliance modules, claim topics
-- Solidity fundamentals (enough to read and verify Brickken's contracts, not necessarily write from scratch)
+- Solidity fundamentals (enough to read and verify tokenization platform contracts, not necessarily write from scratch)
 - Chainlink external adapter development (Node.js or Python web service architecture)
 - Wallet management, key custody, and multisig operations
 - Smart contract security patterns and common vulnerabilities
 
 **Recommended Learning Path (6-8 weeks, parallel with business buildout):**
-1. Weeks 1-2: Polygon Academy + ERC-3643 whitepaper + Brickken technical documentation
+1. Weeks 1-2: Polygon Academy + ERC-3643 whitepaper + tokenization platform documentation (Brickken and/or Zoniqx)
 2. Weeks 3-4: Chainlink developer documentation + external adapter tutorials
-3. Weeks 5-6: Deploy test ERC-20 on Polygon Mumbai, then ERC-3643 via Brickken sandbox
+3. Weeks 5-6: Deploy test ERC-20 on Polygon Mumbai, then ERC-3643 via tokenization platform sandbox (Brickken or Zoniqx -- see Decision #003)
 4. Weeks 7-8: Build a minimal Chainlink external adapter connecting to a mock vault API
 5. Ongoing: Audit report review (read 3-5 published ERC-3643 audit reports to understand common findings)
 
@@ -143,7 +150,7 @@
 | Investor pipeline | Shane + Chris | Board of Managers | David |
 | Financial management | Shane | Board of Managers | David, Chris |
 | Legal counsel coordination | Shane | Board of Managers | David, Chris |
-| Partner relationships (Brickken, Chainlink) | Shane (strategy), David (technical) | Board of Managers | Chris |
+| Partner relationships (tokenization platform, Chainlink) | Shane (strategy), David (technical) | Board of Managers | Chris |
 | Vault operations | David | Shane | Chris |
 | Quarterly investor reporting | David (prepares) | Shane (approves + sends) | Chris (reviews) |
 
@@ -172,7 +179,7 @@ PleoChrome should assemble a 3-5 person advisory board within 90 days of entity 
 - Shane's SBA lending network (financial institution connections)
 - Chris's legal and asset holder network
 - LinkedIn targeted outreach (use same institutional-luxury brand positioning)
-- Brickken partner network (they may recommend Web3 advisors)
+- Tokenization platform partner networks (Brickken, Zoniqx -- they may recommend Web3 advisors)
 - GIA alumni network
 
 ### When to Hire Key Roles
@@ -260,8 +267,8 @@ The founding team of three can operate the business through the first asset clos
 
 | Function | Shane (CEO) | David (CTO/COO) | Chris (CRO) | External |
 |----------|:-----------:|:----------------:|:------------:|:--------:|
-| Brickken platform configuration | C | R, A | I | Brickken (C) |
-| Brickken plan selection and management | A | C | I | Brickken (R) |
+| Tokenization platform configuration | C | R, A | I | Platform vendor (C) |
+| Tokenization platform selection and management | A | C | I | Platform vendor (R) |
 | Token design (name, symbol, supply, rules) | A | R | C | Securities Counsel (C) |
 | Smart contract deployment (testnet) | I | R, A | I | -- |
 | Smart contract deployment (mainnet) | A | R | C | -- |
@@ -318,7 +325,7 @@ The founding team of three can operate the business through the first asset clos
 | Marketing compliance review | A | I | C | Securities Counsel (R), BD (C) |
 | Content creation (articles, LinkedIn) | R, A | I | I | -- |
 | Website updates | C | R, A | I | -- |
-| Partnership development (Brickken) | R, A | C | I | Brickken (R) |
+| Partnership development (tokenization platform) | R, A | C | I | Platform vendor (R) |
 | Partnership development (Chainlink) | R, A | C | I | Chainlink (R) |
 | Partnership development (Vaults) | A | R | C | Vault Providers (R) |
 | Partnership development (BDs/ATS) | R, A | I | C | BD (R) |
@@ -345,7 +352,7 @@ The founding team of three can operate the business through the first asset clos
 At a three-person startup preparing a regulated securities offering, the CEO's role is not strategy deck creation or vision speeches. It is three things, in order of priority:
 
 1. **Get the money in the door.** Raise capital from accredited investors. This is the single activity that determines whether PleoChrome survives.
-2. **Manage the critical relationships.** Securities counsel, Brickken, Chainlink, broker-dealers, and the first institutional investor relationships are all CEO-level relationships.
+2. **Manage the critical relationships.** Securities counsel, tokenization platform partners (Brickken/Zoniqx), Chainlink, broker-dealers, and the first institutional investor relationships are all CEO-level relationships.
 3. **Make the decisions that only the CEO can make.** Asset acceptance/rejection, offering value sign-off, PPM approval, team capital calls, and hiring.
 
 Everything else should be delegated.
@@ -385,7 +392,7 @@ Everything else should be delegated.
 | Activity | Hours/Week | Percentage |
 |----------|-----------|------------|
 | Investor outreach and relationship management | 15 | 30% |
-| Partner relationship management (Brickken, Chainlink, BD, vaults) | 10 | 20% |
+| Partner relationship management (tokenization platform, Chainlink, BD, vaults) | 10 | 20% |
 | Legal and regulatory coordination (counsel, filings, document review) | 8 | 16% |
 | Team leadership and strategic planning | 7 | 14% |
 | Financial management (cash flow, budgeting, capital calls) | 5 | 10% |
@@ -401,7 +408,7 @@ These cannot be delegated:
 
 2. **The securities counsel relationship.** Counsel reports to Shane. Shane reviews every PPM section, every legal opinion, every compliance determination. He does not need to be a lawyer -- he needs to be the person who asks "what does this mean for us?" and ensures counsel's work product is actionable.
 
-3. **The Brickken and Chainlink partnerships.** These are strategic partnerships that define PleoChrome's infrastructure. The business relationship is Shane's. David owns the technical integration, but the partnership terms, commercial negotiations, and escalations go through Shane.
+3. **The tokenization platform and Chainlink partnerships.** These are strategic partnerships that define PleoChrome's infrastructure. The business relationship is Shane's. David owns the technical integration, but the partnership terms, commercial negotiations, and escalations go through Shane. [UPDATED 2026-03-27: Both Brickken and Zoniqx are under evaluation per Decisions #003/#004.]
 
 4. **The final go/no-go on every asset.** When the team brings an asset through the 7-Gate framework, Shane makes the final call on whether PleoChrome accepts it. This decision carries the company's reputation and legal exposure.
 
@@ -431,7 +438,7 @@ These cannot be delegated:
 | Relationship | Frequency of Contact | Purpose |
 |-------------|---------------------|---------|
 | Securities counsel (lead attorney) | Weekly during PPM drafting; monthly after | Legal strategy, document review, regulatory guidance |
-| Brickken (commercial contact) | Biweekly during integration; monthly after | Partnership terms, feature requests, escalations |
+| Tokenization platform (Brickken and/or Zoniqx) | Biweekly during integration; monthly after | Partnership terms, feature requests, escalations |
 | Chainlink (BUILD program contact) | Monthly | PoR integration support, partnership development |
 | Broker-dealer (Dalmore or selected BD) | Weekly during offering; monthly otherwise | Compliance review, marketing approval, investor coordination |
 | Top 5 investor relationships | As needed (responsive within 24 hours) | Capital raising, relationship management |
@@ -470,7 +477,7 @@ Shane requires all three members' approval for:
 
 ### The CTO/COO's Job at PleoChrome
 
-David wears two hats. As CTO, he owns everything that involves code, configuration, integration, and technical architecture. As COO, he owns the operational machinery that makes PleoChrome function day-to-day: the processes, the logistics, the compliance execution, the reporting systems. The combination makes sense at a three-person company because PleoChrome's operations ARE technology -- Brickken configuration, Chainlink integration, vault API feeds, investor onboarding systems, and data pipelines.
+David wears two hats. As CTO, he owns everything that involves code, configuration, integration, and technical architecture. As COO, he owns the operational machinery that makes PleoChrome function day-to-day: the processes, the logistics, the compliance execution, the reporting systems. The combination makes sense at a three-person company because PleoChrome's operations ARE technology -- tokenization platform configuration (Brickken or Zoniqx -- see Decision #003), Chainlink integration, vault API feeds, investor onboarding systems, and data pipelines.
 
 ### Technology Stack Ownership
 
@@ -481,13 +488,13 @@ David is the single point of technical authority. Nothing deploys without his ap
 | System | David's Responsibility | Current Status |
 |--------|----------------------|----------------|
 | **PleoChrome Website** (pleochrome.com) | Next.js application, Vercel deployment, content updates, performance | LIVE (7 routes + partner portal) |
-| **Brickken Platform** | Token configuration, compliance rules, KYC settings, dashboard management | PENDING (sandbox access requested) |
+| **Tokenization Platform** | Token configuration, compliance rules, KYC settings, dashboard management. Evaluating Brickken (ERC-3643) and Zoniqx (ERC-7518) per Decision #003/#004 | PENDING (sandbox access requested for both) |
 | **Chainlink PoR** | External adapter development, oracle feed configuration, monitoring | NOT STARTED |
 | **Investor Onboarding System** | KYC flow, accreditation verification, wallet setup, subscription processing | NOT STARTED |
 | **Reporting Infrastructure** | Quarterly NAV calculations, investor reports, compliance logs, sanctions screening records | NOT STARTED |
 | **Data Room** | DocSend/Dealroom setup, document management, access controls | NOT STARTED |
 | **Internal Systems** | Google Workspace administration, Drive structure, calendar management | ACTIVE |
-| **Smart Contracts** | ERC-3643 token (via Brickken), compliance modules, identity registry | NOT STARTED |
+| **Smart Contracts** | ERC-3643 or ERC-7518 token (via selected tokenization platform), compliance modules, identity registry | NOT STARTED |
 | **Security Infrastructure** | Key management, wallet security, multisig setup, access controls | NOT STARTED |
 
 ### Data Infrastructure and Reporting
@@ -522,17 +529,17 @@ David's statistics and data engineering background makes him the natural owner o
 - Token contract state monitoring (paused/unpaused, frozen addresses, compliance events)
 - Cash flow dashboard
 
-### Brickken Platform Management
+### Tokenization Platform Management
 
-David is the platform administrator. He configures, tests, and deploys through Brickken's dashboard.
+David is the platform administrator. He configures, tests, and deploys through the selected tokenization platform dashboard. [UPDATED 2026-03-27: PleoChrome is evaluating both Brickken (ERC-3643) and Zoniqx (ERC-7518) per Decisions #003 and #004. References below apply to whichever platform is selected after the 30-day evaluation period.]
 
 **Pre-Launch Responsibilities:**
-1. Obtain and configure sandbox access
-2. Map PleoChrome's compliance requirements to Brickken's compliance module configuration
+1. Obtain and configure sandbox access (both platforms during evaluation)
+2. Map PleoChrome's compliance requirements to the platform's compliance module configuration
 3. Configure token parameters (name, symbol, total supply, compliance rules)
 4. Test KYC integration flow
 5. Deploy to testnet and run comprehensive test suite
-6. Coordinate with Brickken support on any configuration limitations
+6. Coordinate with platform support on any configuration limitations
 7. Prepare mainnet deployment checklist
 8. Deploy to mainnet (with Shane's approval)
 
@@ -541,8 +548,8 @@ David is the platform administrator. He configures, tests, and deploys through B
 2. Process investor whitelisting (after KYC clearance)
 3. Execute token minting operations
 4. Monitor compliance module for blocked transactions
-5. Manage Brickken subscription (renewal, tier changes)
-6. Coordinate with Brickken on platform updates or breaking changes
+5. Manage platform subscription (renewal, tier changes)
+6. Coordinate with platform vendor on updates or breaking changes
 7. Maintain backup of all configuration data and contract ABIs
 
 ### Chainlink Integration
@@ -579,7 +586,7 @@ This is David's most technically demanding responsibility and the one that requi
 ### Smart Contract Deployment and Testing
 
 **Testnet Phase (David owns entirely):**
-- Deploy ERC-3643 token via Brickken on Polygon Amoy testnet
+- Deploy ERC-3643 token via selected tokenization platform on Polygon Amoy testnet
 - Configure compliance modules (KYC required, accredited investor only, US jurisdiction)
 - Test scenarios:
   - Mint to whitelisted wallet (should succeed)
@@ -662,7 +669,7 @@ David builds and maintains:
 |-------|----------|----------------|----------------|
 | ERC-3643 Token Standard | T-REX whitepaper + Tokeny documentation | 20 hours | Can explain identity registry, compliance modules, and claim topics without notes |
 | Polygon Network | Polygon Academy + developer docs | 15 hours | Can deploy a contract on Polygon Amoy testnet and explain gas mechanics |
-| Brickken Platform | Brickken documentation + sandbox exploration | 15 hours | Can configure and deploy a token through Brickken's dashboard |
+| Tokenization Platform(s) | Brickken and Zoniqx documentation + sandbox exploration | 20 hours | Can configure and deploy a token through either platform's dashboard |
 | Wallet Management | MetaMask + Gnosis Safe documentation | 10 hours | Can set up multisig, manage keys, execute transactions |
 | Solidity Basics | CryptoZombies + OpenZeppelin docs | 25 hours | Can read and understand ERC-3643 contract code; can identify common vulnerabilities |
 

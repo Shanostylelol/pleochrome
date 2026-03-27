@@ -1,9 +1,16 @@
 # PLEOCHROME: GO-TO-MARKET AND REVENUE STRATEGY
 
-**Document Version:** 1.0
+**Document Version:** 1.1
 **Date:** March 19, 2026
+**Last Updated:** 2026-03-27
 **Prepared for:** Shane Pierson (CEO), David Whiting (CTO/COO), Chris Ramsey (CRO)
 **Purpose:** Definitive playbook for revenue generation, asset acquisition, investor acquisition, pricing, sales, and multi-year growth. Companion to CRITICAL-NEXT-STEPS-AND-ACTION-PLAN.md.
+
+### Recent Changes (2026-03-27)
+- Updated tagline from "Verified from Every Angle" to "Value from Every Angle" per Decision #001
+- Added fractional securities and debt instrument revenue streams per Decision #002
+- Updated tokenization platform references to reflect platform-agnostic approach per Decisions #003, #004
+- Confirmed Shane as interim CCO per existing audit findings
 
 ---
 
@@ -114,7 +121,7 @@ PleoChrome's three-tier fee model:
 |----------|-------------|------------|
 | Vault custody (0.5% of $10M) | $4,167 | $50,000 |
 | Insurance (D&O + E&O + Cyber + GL) | $2,083 | $25,000 |
-| Brickken Enterprise subscription | $2,000 | $24,000 |
+| Tokenization platform subscription (Brickken or Zoniqx -- evaluating) | $2,000 | $24,000 |
 | Legal counsel retainer | $1,250 | $15,000 |
 | Chainlink PoR maintenance | $833 | $10,000 |
 | Annual re-appraisal (amortized) | $583 | $7,000 |
@@ -170,6 +177,21 @@ Beyond the core three fees, PleoChrome should build toward these revenue lines:
 | **White-label orchestration** | Year 3+ | $100K-$1M+/yr | Other firms use PleoChrome's infrastructure for non-gem assets |
 | **Data/analytics subscriptions** | Year 3+ | $10K-$50K/yr per client | Market intelligence on tokenized gemstone valuations |
 | **Event/conference sponsorship revenue** | Year 2+ | $25K-$100K/event | Host tokenization industry events |
+
+### 1.6 Three-Path Revenue Streams [ADDED per Decision #002]
+
+PleoChrome's three-path value creation strategy enables revenue stacking on the same asset:
+
+| Path | Revenue Model | Fee Structure | Key Advantage |
+|------|---------------|---------------|---------------|
+| **Path A: Fractional Securities** | Reg D 506(c) fractional LLC units | Same 2%/1.5%/0.75% structure | Lower minimums ($25K-$100K), broader investor access, no blockchain complexity |
+| **Path B: Tokenization** | ERC-3643 or ERC-7518 security tokens on Polygon | Same fee structure + potential secondary trading fees | Programmable compliance, 24/7 liquidity potential, Chainlink PoR verification |
+| **Path C: Debt Instruments** | Asset-backed lending, UCC Article 9 secured | Origination fee (1-2%) + spread (4-8%) + servicing (0.25-0.5%) | Asset holders unlock capital without selling; PleoChrome earns lending spread |
+
+**Revenue Stacking Example (Single $10M Asset):**
+- Path A alone: $425K Year 1 + $75K/yr recurring
+- Path B+C on same asset: $1.12M over 5 years vs. $745K standalone
+- All three paths addressable from Day 1 with the same verified, vaulted asset
 
 ---
 
@@ -653,15 +675,15 @@ The 7-Gate Framework is PleoChrome's single most important brand asset. It is:
 - "The 7-Gate Framework is why institutional investors trust PleoChrome."
 - "Failed a gate? We pause, investigate, and either resolve it or walk away. That discipline is what makes our tokens defensible."
 
-### 5.4 "Verified from Every Angle" Positioning
+### 5.4 "Value from Every Angle" Positioning [UPDATED per Decision #001]
 
 This tagline works on three levels:
 
-1. **Gemological:** Every angle of the stone is verified -- GIA grading examines color, clarity, cut, and carat from every physical angle
-2. **Financial:** Every angle of the valuation is verified -- three independent appraisals, variance analysis, conservative pricing
-3. **Compliance:** Every angle of the legal structure is verified -- KYC, sanctions, provenance, PPM, BD review, FINRA filing
+1. **Gemological:** Every angle of the stone creates value -- GIA grading examines color, clarity, cut, and carat from every physical angle
+2. **Financial:** Every angle of the asset is monetized -- fractional securities for broader access, tokenization for programmable compliance, debt instruments for capital without selling (three paths per Decision #002)
+3. **Structural:** Every angle of the legal and compliance framework creates investor confidence -- KYC, sanctions, provenance, PPM, BD review, FINRA filing
 
-**In investor presentations:** "We call it 'Verified from Every Angle' because we verify the stone (GIA), the value (3 independent appraisals), the custody (Chainlink Proof of Reserve), the compliance (SEC Reg D, FINRA BD), and the holder (KYC/AML/OFAC). There is no angle left unchecked."
+**In investor presentations:** "We call it 'Value from Every Angle' because we extract value from the stone (GIA), the valuation (3 independent appraisals), the custody (Chainlink Proof of Reserve), the compliance (SEC Reg D, FINRA BD), and the structure (fractional ownership, tokenization, and lending). There is no angle left unmonetized."
 
 ### 5.5 What Institutional Partners Care About
 

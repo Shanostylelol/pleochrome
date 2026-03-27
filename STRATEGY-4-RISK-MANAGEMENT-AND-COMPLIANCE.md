@@ -1,10 +1,17 @@
 # PLEOCHROME STRATEGY DOCUMENT 4: RISK MANAGEMENT & COMPLIANCE FRAMEWORK
 
-**Document Version:** 1.0
+**Document Version:** 1.1
 **Date:** March 19, 2026
+**Last Updated:** 2026-03-27
 **Classification:** Confidential -- Internal Use Only
 **Prepared for:** Shane Pierson (CEO), David Whiting (CTO/COO), Chris Ramsey (CRO)
 **Purpose:** Institutional-grade compliance and risk management framework for PleoChrome Holdings LLC
+
+### Recent Changes (2026-03-27)
+- Added lending/UCC Article 9 risk considerations for Debt Instrument path per Decision #002
+- Updated tokenization platform references for platform-agnostic approach per Decisions #003, #004
+- Updated tagline references to "Value from Every Angle" per Decision #001
+- Confirmed Shane as interim CCO (already corrected in this document)
 
 ---
 
@@ -284,7 +291,7 @@ EDD procedures include:
 **Key Analysis Points:**
 - Does PleoChrome "accept and transmit value" at any point in the token purchase process? If investor funds flow through PleoChrome's bank account (even briefly) before reaching the SPV, PleoChrome may be a "money transmitter" under BSA rules
 - Does PleoChrome "issue" the tokens? Under FinCEN's 2019 guidance on convertible virtual currencies, the administrator of a CVC system is generally an MSB
-- If Brickken handles token issuance and the SPV account directly receives investor funds, PleoChrome's argument for exemption is stronger
+- If the tokenization platform (Brickken or Zoniqx) handles token issuance and the SPV account directly receives investor funds, PleoChrome's argument for exemption is stronger
 - If a broker-dealer handles all fund flows, PleoChrome's MSB risk is significantly reduced (the BD is already separately regulated)
 
 **If PleoChrome IS an MSB:**
@@ -561,7 +568,7 @@ The following risk taxonomy identifies every material risk facing PleoChrome, ca
 
 ### RISK 6: Technology Risk (Smart Contract Bugs, Hacks, Platform Downtime)
 
-**Description:** Smart contract vulnerabilities that could allow unauthorized minting, theft of tokens, bypass of compliance rules, or permanent loss of admin access. Platform downtime (Polygon, Brickken, or PleoChrome systems) could prevent investor access or token operations.
+**Description:** Smart contract vulnerabilities that could allow unauthorized minting, theft of tokens, bypass of compliance rules, or permanent loss of admin access. Platform downtime (Polygon, tokenization platform, or PleoChrome systems) could prevent investor access or token operations.
 
 | Attribute | Assessment |
 |-----------|-----------|
@@ -646,13 +653,13 @@ The following risk taxonomy identifies every material risk facing PleoChrome, ca
 
 ---
 
-### RISK 9: Counterparty Risk (Brickken, Chainlink, Vault, BD Failures)
+### RISK 9: Counterparty Risk (Tokenization Platform, Chainlink, Vault, BD Failures)
 
-**Description:** Key service providers could fail, change terms, or become unable to deliver their services. PleoChrome's business depends on multiple external partners, any of whom could create operational disruption.
+**Description:** Key service providers could fail, change terms, or become unable to deliver their services. PleoChrome's business depends on multiple external partners, any of whom could create operational disruption. [UPDATED 2026-03-27: Platform agnosticism per Decision #003 reduces single-vendor dependency.]
 
 | Attribute | Assessment |
 |-----------|-----------|
-| **Probability** | 2 (Low) for Chainlink (massive, well-funded); 3 (Moderate) for Brickken (startup risk); 1 (Very Low) for Brink's/Malca-Amit (established institutions); 2 (Low) for BD/Dalmore |
+| **Probability** | 2 (Low) for Chainlink (massive, well-funded); 3 (Moderate) for tokenization platform (startup risk -- mitigated by evaluating both Brickken and Zoniqx); 1 (Very Low) for Brink's/Malca-Amit (established institutions); 2 (Low) for BD/Dalmore |
 | **Impact** | 3 (Moderate) for any single provider failure -- PleoChrome can migrate to alternatives, but migration costs time and money |
 | **Risk Score** | 6-9 (varies by counterparty) |
 | **Owner** | Shane (CEO) -- partnership oversight; David (CTO) -- technical migration planning |
@@ -771,9 +778,36 @@ The following risk taxonomy identifies every material risk facing PleoChrome, ca
 | 6 | Technology (smart contract bugs) | 2 | 5 | **10** | David | HIGH |
 | 12 | Key person (team of 3) | 2 | 5 | **10** | Shane | HIGH |
 | 8 | Valuation (appraisal accuracy) | 3 | 3 | **9** | David + Shane | MEDIUM |
-| 9 | Counterparty (Brickken, Chainlink, vault) | 2-3 | 3 | **6-9** | Shane + David | MEDIUM |
+| 9 | Counterparty (tokenization platform, Chainlink, vault) | 2-3 | 3 | **6-9** | Shane + David | MEDIUM |
 | 3 | Regulatory (state) | 2 | 3 | **6** | Counsel + CCO | MEDIUM |
 | 7 | Custody (vault breach, insurance gap) | 1 | 5 | **5** | David + Shane | MEDIUM |
+| 13 | Lending/UCC (debt instrument path) | 3 | 3 | **9** | Shane + counsel | MEDIUM |
+
+### RISK 13: Lending and UCC Article 9 Risks [ADDED per Decision #002]
+
+**Description:** PleoChrome's Debt Instrument path (Path C) involves asset-backed lending with gemstones as collateral under UCC Article 9. This introduces lending-specific risks distinct from the securities risks covered above.
+
+| Attribute | Assessment |
+|-----------|-----------|
+| **Probability** | 3 (Moderate) -- gemstone collateral is a novel asset class for secured lending; UCC filing procedures for gems are not well-established |
+| **Impact** | 3 (Moderate) -- improperly perfected security interest could result in loss of collateral priority; borrower default requires liquidation expertise |
+| **Risk Score** | 9 |
+| **Owner** | Shane (CEO) + Securities Counsel |
+
+**Key Risks:**
+1. **Perfection of security interest:** UCC-1 filing must correctly describe the gemstone collateral. "Barrel of emeralds at [vault]" may be insufficient; need specific descriptions tied to GIA certificates.
+2. **Priority disputes:** Other creditors of the borrower may claim priority over the gemstones. Title search and lien search required before lending.
+3. **Collateral valuation decline:** Gemstone values can decline. LTV ratios must account for potential 20-30% drops.
+4. **Default and liquidation:** If borrower defaults, PleoChrome must liquidate gemstones -- a specialized skill requiring auction house relationships (Christie's, Sotheby's, Bonhams).
+5. **Licensing requirements:** Many states require lending licenses. Counsel must opine on whether PleoChrome's debt instrument structure requires state lending licenses.
+6. **Usury laws:** State-specific interest rate caps may apply. Counsel must confirm the proposed spread (4-8%) is compliant in all target states.
+
+**Mitigation:**
+- Engage counsel with UCC Article 9 experience for all lending documentation
+- Require LTV ratio of 50% or lower (conservative for novel collateral)
+- Perfect security interest via UCC-1 filing in borrower's state AND state where collateral is stored
+- Require gemstones to remain in approved vault with PleoChrome as loss payee on insurance
+- Build liquidation relationships with auction houses before originating first loan
 
 ---
 

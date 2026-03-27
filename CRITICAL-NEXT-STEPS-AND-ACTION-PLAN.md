@@ -1,9 +1,16 @@
 # PLEOCHROME: CRITICAL NEXT STEPS AND DEFINITIVE ACTION PLAN
 
-**Document Version:** 1.0
+**Document Version:** 1.1
 **Date:** March 19, 2026
+**Last Updated:** 2026-03-27
 **Prepared for:** Shane Pierson, Chris Ramsey, David Whiting
 **Purpose:** Single source of truth for what happens NOW. Upload to NotebookLM.
+
+### Recent Changes (2026-03-27)
+- Added Zoniqx NDA/demo to Week 1-2 action items per Decision #004
+- Updated tokenization platform references for platform-agnostic approach per Decisions #003, #004
+- Updated tagline references to "Value from Every Angle" per Decision #001
+- Added three-path scope note per Decision #002
 
 ---
 
@@ -35,7 +42,7 @@
 | Due Diligence | DONE | 3 team members, 3 vault companies, 3 asset holders |
 | Brand Assets | DONE | Logo, favicon, gem color bar, design system |
 | Research | DONE | 8 research documents totaling ~100,000+ words |
-| Brickken Relationship | INITIATED | Intro call done, sandbox access pending |
+| Brickken Relationship | INITIATED | Intro call done, sandbox access pending. [UPDATED: Evaluating in parallel with Zoniqx per Decisions #003/#004] |
 | First Asset Identified | YES | ~$10-18M barrel of emeralds, Olympic Vault, Tacoma WA |
 
 ### What Does NOT Exist (Critical Gaps)
@@ -50,7 +57,7 @@
 | Legal opinion on Kandi provenance | CRITICAL | Determines if first asset is viable |
 | $62K vault bill resolution | CRITICAL | Cannot access, move, or appraise the stones |
 | PPM (Private Placement Memorandum) | CRITICAL | Cannot sell a single token without it |
-| Brickken sandbox tested | MEDIUM | Cannot deploy token contracts |
+| Tokenization platform sandbox tested (Brickken AND Zoniqx) | MEDIUM | Cannot deploy token contracts |
 | Appraiser panel selected | MEDIUM | Cannot value the asset |
 | Vault partner selected | MEDIUM | Cannot achieve institutional-grade custody |
 | Chainlink PoR integration | MEDIUM | Key differentiator but not launch-blocking |
@@ -97,6 +104,7 @@ Emiel A. Kandi, the asset holder for the first deal, is a **convicted federal fe
 | Draft 5-page AML/KYC Policy | Chris + Shane | $0-3,000 (self-draft or counsel-assisted) | Written AML/KYC Policy document | Compliance Officer designated | Use BSA/AML template; must include: CDD procedures, sanctions screening, SAR filing, training, record retention |
 | Submit insurance applications to 2-3 brokers | David | $0 | Applications submitted | Entity docs, business description | Underwriting for fintech takes 2-4 weeks; start now |
 | Request Brickken sandbox access (follow up from intro call) | Shane | $0 | Sandbox login credentials | None | If no response in 5 business days, escalate to a different contact |
+| Sign Zoniqx NDA and schedule demo [ADDED per Decision #004] | Shane | $0 | NDA executed, demo scheduled | Zoniqx intro call (completed 2026-03-26) | NDA pending signature. Demo to include: sandbox access timeline, ERC-7518 vs ERC-3643 compatibility, Chainlink PoR integration details, pricing |
 | Set up OFAC/sanctions screening capability | David | $0 | Documented screening process | None | sanctionssearch.ofac.treas.gov is free; screen your own team first |
 | Run OFAC/PEP screening on all 3 team members | David | $0 | 3 screening result documents | OFAC capability set up | Document results even if "no results found" |
 
@@ -196,7 +204,7 @@ Emiel A. Kandi, the asset holder for the first deal, is a **convicted federal fe
 | Contact North Capital / PPEX ATS inquiry | Shane | $0 | Initial conversation or response | PPM in progress | Use northcapital.com/contact-us. Ask about new Token Services subsidiary (launched Feb 2026) |
 | Contact Rialto Markets for white-label BD/ATS inquiry | Shane | $0 | Initial conversation or response | PPM in progress | Email support@rialtomarkets.com or call 877-774-2586 |
 | PPM drafting continues (risk factors, use of proceeds, management bios) | Counsel + Shane | Ongoing | PPM draft sections for review | Counsel engaged | Review each section as it is drafted. Do not wait for the complete document |
-| Select Brickken plan tier (Professional or Enterprise) | Shane | $0 (decision only) | Tier decision documented | Sandbox exploration complete | For $10-18M offering: Enterprise (EUR 1,999/mo or EUR ~22,000/yr) recommended for institutional credibility. Professional (EUR 999/mo) is minimum viable |
+| Select tokenization platform (Brickken or Zoniqx) and plan tier | Shane | $0 (decision only) | Platform and tier decision documented | Both sandbox explorations complete (30-day eval per Decision #003) | Compare: ERC-3643 vs ERC-7518, Chainlink PoR integration, KYC capabilities, pricing, white-label options |
 | Draft Token Purchase Agreement framework | Counsel | Included in PPM package | Draft agreement | SPV formed | Links the ERC-3643 token to legal SPV rights. Must specify: what the token represents, transfer restrictions, distribution rights |
 
 **Week 7 Spend:** $0 (counsel fees ongoing)
@@ -648,8 +656,9 @@ to handle:
 6. Form D filing and blue sky compliance
 7. Compliance review of marketing materials under 506(c) general solicitation rules
 
-Our tokenization partner is Brickken (ERC-3643 on Polygon). We plan to integrate
-Chainlink Proof of Reserve for on-chain custody verification.
+We are evaluating tokenization platforms (Brickken for ERC-3643 and Zoniqx for ERC-7518,
+both on Polygon) and plan to integrate Chainlink Proof of Reserve for on-chain custody
+verification. [UPDATED 2026-03-27 per Decisions #003/#004]
 
 Could you provide:
 - Your experience with tokenized securities offerings under Reg D

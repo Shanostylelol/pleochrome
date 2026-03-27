@@ -1,8 +1,15 @@
 # PleoChrome — First Asset Execution Plan
 
+**Last Updated:** 2026-03-27
+
+### Recent Changes (2026-03-27)
+- Updated tagline references to "Value from Every Angle" per Decision #001
+- Added platform-agnostic tokenization note per Decisions #003, #004
+- Corrected Compliance Officer designation (Shane as interim CCO per audit findings)
+
 ## THE ASSET: ~$10M Barrel of Emeralds (Trial Run)
 
-**This is our proof-of-concept.** Every step below must be done right because this first deal becomes the template for every deal after it. We're not just tokenizing a stone — we're building the process.
+**This is our proof-of-concept.** Every step below must be done right because this first deal becomes the template for every deal after it. We're not just tokenizing a stone — we're building the process. [UPDATED 2026-03-27: PleoChrome now pursues three paths to value -- Fractional Securities, Tokenization, and Debt Instruments -- per Decision #002. This execution plan covers the tokenization path; the other paths follow a parallel structure.]
 
 ---
 
@@ -19,10 +26,10 @@ These must be done BEFORE we process the first asset:
   - **WHY:** You cannot sign contracts, collect fees, or operate without a legal entity
 
 ### 0.2 Designate a Compliance Officer
-- [ ] **Name someone as Compliance Officer** (can be one of you initially)
+- [ ] **Designate Shane as interim Compliance Officer** (board resolution)
   - This person is responsible for: AML/KYC program, sanctions screening, regulatory filings
   - Regulators expect this from Day 1. It's non-negotiable.
-  - **WHO:** Chris may be best suited given legal background. Or hire fractional.
+  - **WHO:** Shane serves as interim Compliance Officer, a standard practice for early-stage companies. David executes compliance procedures; Chris reviews for substance using his legal background. Fractional CCO hire when budget permits.
 
 ### 0.3 Write the Basic Compliance Program
 - [ ] **Draft a 5-page AML/KYC Policy**
@@ -191,8 +198,8 @@ These must be done BEFORE we process the first asset:
 
 ## PHASE 4: TOKENIZATION
 
-### 4.1 Brickken Configuration
-- [ ] **Configure token in Brickken dashboard:**
+### 4.1 Tokenization Platform Configuration [UPDATED per Decisions #003/#004 -- platform-agnostic]
+- [ ] **Configure token in selected tokenization platform dashboard (Brickken or Zoniqx):**
   - Token name: e.g., "PleoChrome Emerald Series A"
   - Token symbol: e.g., "PCEA"
   - Total supply: Offering value ÷ token price (e.g., $9.65M ÷ $100K = 96 tokens)

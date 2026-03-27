@@ -28,7 +28,7 @@ const assetStates = [
   { id: "LEGAL_PENDING", label: "Legal Pending", phase: "Preparation", color: "#5B2D8E", desc: "SPV formed. PPM + agreements being drafted by securities counsel.", gate: null },
   { id: "LEGAL_COMPLETE", label: "Legal Complete", phase: "Preparation", color: "#5B2D8E", desc: "All legal docs finalized. Compliance sign-off received.", gate: "G5" },
   { id: "MINT_AUTH", label: "Mint Authorized", phase: "Tokenization", color: "#1E3A6E", desc: "MULTI-SIG: Legal + Ops + Founder all approved. Token ready to deploy.", gate: null },
-  { id: "MINTED", label: "Minted", phase: "Tokenization", color: "#1E3A6E", desc: "ERC-3643 token live on Polygon mainnet. PoR gate verified.", gate: "G6" },
+  { id: "MINTED", label: "Minted", phase: "Tokenization", color: "#1E3A6E", desc: "Security token (ERC-3643 or ERC-7518) live on Polygon mainnet. PoR gate verified.", gate: "G6" },
   { id: "OFFERING_OPEN", label: "Offering Open", phase: "Distribution", color: "#C47A1A", desc: "Form D filed. Blue sky filed. Investors can purchase tokens.", gate: "G7" },
   { id: "OFFERING_CLOSED", label: "Offering Closed", phase: "Distribution", color: "#C47A1A", desc: "Target raise met or period expired. All tokens distributed.", gate: null },
   { id: "ACTIVE_MGMT", label: "Active Management", phase: "Distribution", color: "#C47A1A", desc: "Ongoing: PoR monitoring, quarterly reports, compliance, annual reappraisal.", gate: null },
@@ -73,7 +73,7 @@ const mvpPhases = [
   { phase: "Phase 1", weeks: "Weeks 1-3", title: "Foundation", items: ["Database schema + RLS policies", "Auth with roles (6 roles)", "Asset registry CRUD", "State machine logic (gate enforcement)", "Audit trail logging (append-only)"], color: "#1B6B4A" },
   { phase: "Phase 2", weeks: "Weeks 3-5", title: "Evidence Layer", items: ["Document upload + storage", "Document taxonomy per state", "Hash verification on upload", "Basic reconciliation (weight/desc matching)"], color: "#1A8B7A" },
   { phase: "Phase 3", weeks: "Weeks 5-7", title: "Workflow UI", items: ["Asset pipeline view (Kanban by state)", "Single-asset detail (timeline + docs + approvals)", "Multi-sig approval flow", "Alert dashboard"], color: "#1E3A6E" },
-  { phase: "Phase 4", weeks: "Weeks 7-9", title: "Partner APIs", items: ["KYC webhook (Sumsub/Veriff)", "Vault status integration", "Brickken API (token deployment)", "Chainlink PoR monitoring"], color: "#5B2D8E" },
+  { phase: "Phase 4", weeks: "Weeks 7-9", title: "Partner APIs", items: ["KYC webhook (Sumsub/Veriff)", "Vault status integration", "Tokenization platform API (Brickken or Zoniqx)", "Chainlink PoR monitoring"], color: "#5B2D8E" },
   { phase: "Phase 5", weeks: "Weeks 9-12", title: "AI + Polish", items: ["Document OCR/extraction (Claude API)", "Automated reconciliation engine", "Compliance calendar + alerts", "Insurance gap monitoring", "Investor onboarding flow"], color: "#C47A1A" },
 ];
 
@@ -163,7 +163,8 @@ export default function ArchitecturePage() {
         <div className={`${cd} border rounded-2xl p-4 sm:p-5 mb-5`}>
           <p className={`text-xs sm:text-sm ${s2} leading-relaxed`}>
             <strong className={s3}>&ldquo;Good software does not replace governance. It enforces governance.&rdquo;</strong><br /><br />
-            This is PleoChrome&apos;s proprietary internal system — a strict state machine that enforces the 7-gate workflow,
+            This is PleoChrome&apos;s proprietary internal system — a strict state machine that enforces the 7-gate workflow
+            across all three value creation paths (Fractional Securities, Tokenization, and Debt Instruments),
             catalogs every piece of evidence with permanent audit trails, connects to external partners via modular APIs,
             and uses AI for continuous verification. Partners can be swapped. This logic cannot.
           </p>

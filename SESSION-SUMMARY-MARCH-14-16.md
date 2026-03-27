@@ -1,5 +1,7 @@
 # PleoChrome — Session Summary (March 14-16, 2026)
 
+> **[Updated 2026-03-27: See DECISION-AUDIT-LOG.md for subsequent pivots including tagline change (Decision #001), three-path strategy (Decision #002), platform agnosticism (Decision #003), and Zoniqx evaluation (Decision #004).]**
+
 ## What We Built in 3 Days
 
 ### 1. Live Website (pleochrome.com)

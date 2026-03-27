@@ -1,9 +1,16 @@
 # PLEOCHROME: SCALING & GROWTH PLAYBOOK
 
-**Document Version:** 1.0
+**Document Version:** 1.1
 **Date:** March 19, 2026
+**Last Updated:** 2026-03-27
 **Prepared for:** Shane Pierson (CEO), David Whiting (CTO/COO), Chris Ramsey (CRO)
 **Purpose:** Strategic roadmap from proof of concept through market leadership. The kind of document you hand to a VC and they say "these people know what they're doing."
+
+### Recent Changes (2026-03-27)
+- Updated tagline from "Verified from Every Angle" to "Value from Every Angle" per Decision #001
+- Added three-path scaling strategy (Fractional Securities, Tokenization, Debt Instruments) per Decision #002
+- Updated tokenization platform references for platform-agnostic approach per Decisions #003, #004
+- Previously corrected: Chris CRO/CCO to CRO only, Shane as interim Compliance Officer per audit findings
 
 ---
 
@@ -24,7 +31,7 @@
 
 ## EXECUTIVE SUMMARY
 
-PleoChrome is building the operating system for tokenized luxury assets. We are not a gemstone dealer, a vault, an exchange, or a blockchain company. We are the trust infrastructure layer that orchestrates GIA verification, independent appraisals, institutional custody, Brickken tokenization, Chainlink oracle validation, and broker-dealer distribution into a single, repeatable pipeline -- the 7-Gate Framework.
+PleoChrome is building the operating system for luxury asset value creation. We are not a gemstone dealer, a vault, an exchange, or a blockchain company. We are the orchestration layer that coordinates GIA verification, independent appraisals, institutional custody, tokenization (platform-agnostic -- evaluating Brickken and Zoniqx per Decisions #003/#004), Chainlink oracle validation, and broker-dealer distribution into a single, repeatable pipeline -- the 7-Gate Framework. PleoChrome creates value through three paths: Fractional Securities, Tokenization, and Debt Instruments (per Decision #002).
 
 **The opportunity:** The global colored gemstone market is valued at $34.3 billion (2024, Business Research Insights). The total addressable market for tokenized real-world assets is projected to reach $16 trillion by 2030 (Boston Consulting Group / ADDX, 2022). No platform currently specializes in tokenizing colored gemstones with institutional-grade verification infrastructure. PleoChrome is entering a vacuum.
 
@@ -521,7 +528,7 @@ By Month 36, PleoChrome should be recognized as:
 1. **The institutional standard** for gemstone tokenization (the way Securitize is for fund tokenization)
 2. **The 7-Gate Framework originator** -- an industry-standard methodology that others reference and adopt
 3. **The largest tokenized gemstone AUM holder** -- no competitor comes close
-4. **The trust brand** in the space -- "Verified from Every Angle" means something to every stakeholder
+4. **The trust brand** in the space -- "Value from Every Angle" means something to every stakeholder
 
 ### 50+ Stones: Pipeline Velocity
 
@@ -1254,11 +1261,11 @@ More Assets Tokenized (cycle repeats)
 
 **How to make the 7-Gate Framework the industry standard:**
 
-1. **Trademark it.** File for trademark protection on "7-Gate Framework" and "Verified from Every Angle."
+1. **Trademark it.** File for trademark protection on "7-Gate Framework" and "Value from Every Angle."
 
 2. **Publish it.** Write a detailed whitepaper explaining the framework (without proprietary implementation details). Get it cited by industry publications, law review articles, and blockchain conferences.
 
-3. **Get it adopted by partners.** When Brickken markets their platform, they reference PleoChrome's 7-Gate Framework. When tZERO or Securitize lists a gemstone token, they reference the 7-Gate verification process.
+3. **Get it adopted by partners.** When tokenization platforms market their products, they reference PleoChrome's 7-Gate Framework. When tZERO or Securitize lists a gemstone token, they reference the 7-Gate verification process.
 
 4. **Present it at conferences.** Blockchain conferences (Consensus, EthDenver, Token2049), gemstone industry events (JCK Las Vegas, Tucson Gem Show, BaselWorld), and wealth management conferences.
 
@@ -1311,7 +1318,7 @@ A competitor would need to replicate every integration point. Each integration h
 
 ### 9.6 Brand Moat
 
-**"Trust, Verified from Every Angle" is not just a tagline -- it is a brand promise.**
+**"Value from Every Angle" is not just a tagline -- it is a brand promise.**
 
 **Brand equity compounds over time:**
 - Every successful offering reinforces the brand

@@ -54,7 +54,7 @@ export default function Portal() {
     {
       title: "Deal Model",
       subtitle: "Interactive P&L Calculator",
-      desc: "Build, adjust, save, and export complete tokenization deal models. Change any cost, add custom expenses, compare stones, and download the P&L as a CSV for Excel or Google Sheets.",
+      desc: "Build, adjust, save, and export complete deal models across all three value paths. Change any cost, add custom expenses, compare stones, and download the P&L as a CSV for Excel or Google Sheets.",
       href: "/financial-model",
       color: "#1B6B4A",
       icon: (
@@ -78,7 +78,7 @@ export default function Portal() {
     {
       title: "Workflow Map",
       subtitle: "7-Gate Execution Framework",
-      desc: "Interactive visual map of PleoChrome's complete pipeline — from stone acquisition through tokenization to investor distribution. Click each gem to explore the 34 steps across 4 phases.",
+      desc: "Interactive visual map of PleoChrome's complete pipeline — from stone acquisition through value creation to investor distribution. Click each gem to explore the 34 steps across 4 phases.",
       href: "/workflow-mapping",
       color: "#1A8B7A",
       icon: (
@@ -115,7 +115,7 @@ export default function Portal() {
     {
       title: "Partner Meeting Prep",
       subtitle: "Questions, Scripts & Strategy",
-      desc: "Interview playbooks for every partner type. Brickken-specific questions for tomorrow's call, scripted PleoChrome talking points, and universal partner interview questions.",
+      desc: "Interview playbooks for every partner type. Tokenization platform evaluation questions, scripted PleoChrome talking points, and universal partner interview questions.",
       href: "/partner-prep",
       color: "#A61D3A",
       icon: (
@@ -152,7 +152,7 @@ export default function Portal() {
         <div className={`${cd} border rounded-2xl p-4 sm:p-5 mb-6`}>
           <p className={`text-xs sm:text-sm ${s2} leading-relaxed`}>
             Welcome to the PleoChrome partner portal. These tools are designed to help you understand,
-            model, and explain the gemstone tokenization process. Select a tool below.
+            model, and explain PleoChrome&apos;s three value creation paths: Fractional Securities, Tokenization, and Debt Instruments. Select a tool below.
           </p>
         </div>
 

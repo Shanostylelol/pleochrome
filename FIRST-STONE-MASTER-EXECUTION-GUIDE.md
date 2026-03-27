@@ -1,5 +1,12 @@
 # PLEOCHROME FIRST ASSET MASTER EXECUTION GUIDE
 
+**Last Updated:** 2026-03-27
+
+### Recent Changes (2026-03-27)
+- Updated tagline references to "Value from Every Angle" per Decision #001
+- Added note about platform evaluation (Brickken and Zoniqx) per Decisions #003, #004
+- Previously corrected: Compliance Officer references (Shane as interim CCO per audit findings)
+
 ## The Asset: ~$10-18M Barrel of Emeralds at Olympic Vault, Tacoma, WA
 
 ---
@@ -221,7 +228,7 @@ The emeralds themselves have a convoluted history. White Oak Partners II LLC was
 | 4.4 | Draft Token Purchase Agreement | Securities Attorney | 2-3 weeks (parallel) | Included in PPM package | Token Purchase Agreement | PPM draft | Links the ERC-3643 token to legal SPV rights. Must specify: what the token represents, transfer restrictions, dividend/distribution rights. |
 | 4.5 | Draft Custody Agreement | Counsel | 1-2 weeks | $2,000-$5,000 | Executed Custody Agreement | Vault selected | Defines vault's obligations, insurance requirements, access procedures, reporting requirements. |
 | 4.6 | Internal compliance review | Shane (Compliance Officer) | 1 week | $0 | Compliance sign-off | All docs drafted | Every document must be reviewed against the AML/KYC policy and SEC requirements. |
-| 4.7 | Determine MSB registration requirement | Counsel | 2-4 weeks | $2,000-$5,000 (legal opinion) | Legal opinion on MSB status | Counsel engaged | CRITICAL: Operating as an unregistered MSB is a federal crime. If PleoChrome handles value transfer, FinCEN MSB registration may be required. If Brickken handles token issuance and transfers, PleoChrome may be exempt. Counsel must opine. |
+| 4.7 | Determine MSB registration requirement | Counsel | 2-4 weeks | $2,000-$5,000 (legal opinion) | Legal opinion on MSB status | Counsel engaged | CRITICAL: Operating as an unregistered MSB is a federal crime. If PleoChrome handles value transfer, FinCEN MSB registration may be required. If the tokenization platform handles token issuance and transfers, PleoChrome may be exempt. Counsel must opine. |
 
 ---
 
@@ -229,7 +236,7 @@ The emeralds themselves have a convoluted history. White Oak Partners II LLC was
 
 | # | Task | Who | Duration | Cost | Output | Dependencies | Pitfalls |
 |---|------|-----|----------|------|--------|-------------|----------|
-| 5.1 | Select Brickken plan tier | Shane | 1 day | See Brickken pricing below | Active Brickken subscription | Legal structure finalized | For $10-18M offering, you need Professional (unlimited issuance cap) at minimum. Enterprise if you want whitelabel. |
+| 5.1 | Select tokenization platform and plan tier [UPDATED per Decision #003] | Shane | 1 day | See platform pricing below | Active platform subscription | Legal structure finalized, 30-day evaluation complete (Brickken vs Zoniqx) | For $10-18M offering, need a tier with unlimited issuance cap at minimum. Enterprise/equivalent if whitelabel needed. |
 | 5.2 | Configure token in Brickken dashboard | Shane + David | 3-5 days | Included in plan | Token configuration | Brickken plan active, legal docs finalized | Token name, symbol, total supply (offering value / token price), compliance rules (KYC required, accredited only, US jurisdiction). |
 | 5.3 | Deploy to Polygon testnet | Shane + David | 1-2 days | $0 (testnet) | Testnet token contract | Token configured | Test EVERYTHING on testnet first. |
 | 5.4 | Testing suite | Shane + David | 1-2 weeks | $0 | Test report | Testnet deployment | Test: mint to whitelisted wallet (should work), transfer to non-whitelisted (should fail), mint when PoR reports no custody (should fail), all compliance rules blocking correctly. |
@@ -384,7 +391,7 @@ The emeralds themselves have a convoluted history. White Oak Partners II LLC was
 | **R4** | **Emerald quality disappointment** — GIA grading reveals stones are lower quality than represented, significantly reducing offering value | MEDIUM | HIGH | This is why the 3-appraisal process exists. Conservative valuation (two lowest averaged) protects investors. Set expectations with asset holder that final valuation may differ from their estimate. |
 | **R5** | **Appraisal variance too wide** — Three appraisals differ by >20%, undermining confidence in valuation | MEDIUM | HIGH | Select highly credentialed appraisers with specific emerald expertise. If variance is too wide, commission a 4th tiebreaker appraisal. |
 | **R6** | **MSB classification** — FinCEN determines PleoChrome is a Money Services Business, requiring registration + 47-state money transmitter licenses | MEDIUM | HIGH | Get legal opinion on MSB status BEFORE launching. If PleoChrome only orchestrates (doesn't handle or transmit funds), it may be exempt. Structure all fund flows through the SPV or broker-dealer, not through PleoChrome. Budget $500K+ if MTL licensing is needed. |
-| **R7** | **Brickken platform risk** — Brickken goes down, changes pricing dramatically, or can't handle the compliance requirements | LOW-MEDIUM | HIGH | Maintain documented processes that could be migrated to another platform (Securitize, Tokeny, Polymath). Keep local copies of all configurations and legal document hashes. |
+| **R7** | **Tokenization platform risk** — selected platform goes down, changes pricing, or can't handle compliance requirements [UPDATED per Decision #003: evaluating both Brickken and Zoniqx reduces single-vendor risk] | LOW-MEDIUM | HIGH | Maintain documented processes that could be migrated to another platform. Keep local copies of all configurations and legal document hashes. Platform agnosticism is itself a mitigation. |
 | **R8** | **Chainlink integration delays** — BUILD program rejection or long integration timeline delays launch | MEDIUM | MEDIUM | Apply early (Week 4-6). Have a manual PoR backup plan: vault issues monthly custody confirmations, PleoChrome publishes them on-chain manually until automated feed is live. |
 | **R9** | **No investors** — 506(c) offering fails to attract sufficient accredited investor interest | MEDIUM | HIGH | Start investor outreach early (even before offering is live -- build a waitlist). Engage a broker-dealer for distribution support. Price tokens conservatively. |
 | **R10** | **Regulatory change** — SEC issues new guidance that impacts tokenized securities or Reg D exemptions | LOW | MEDIUM | Stay current via securities counsel. The January 2026 SEC statement on tokenized securities actually CONFIRMED that standard securities rules apply (favorable). |
