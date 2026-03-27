@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import Image from "next/image";
 import {
   ShieldCheck,
@@ -19,6 +19,12 @@ import {
 } from "lucide-react";
 import { ShaderAnimation } from "@/components/ui/shader-animation";
 import { cn } from "@/lib/utils";
+import {
+  motion,
+  AnimatePresence,
+  useScroll,
+  useTransform,
+} from "motion/react";
 
 /* ═══════════════════════════════════════════════════════
    PleoChrome Landing Page
@@ -206,6 +212,11 @@ const gemColors = [
   "bg-[#7BA31E]",
 ];
 
+// ── Shared spring config ─────────────────────
+
+const springTab = { type: "spring" as const, stiffness: 400, damping: 30 };
+const easeSmooth = [0.25, 0.1, 0.25, 1] as const;
+
 // ── Hero Section ─────────────────────────────
 
 function HeroSection() {
@@ -330,10 +341,33 @@ function IntroSection() {
 
 // ── Interactive Paths + Workflow Section ──────
 
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.08 },
+  },
+};
+
+const stepVariants = {
+  hidden: { opacity: 0, x: -20 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.45, ease: easeSmooth },
+  },
+};
+
 function PathsSection() {
   const [visible, setVisible] = useState(false);
   const [activePath, setActivePath] = useState(0);
-  const [animKey, setAnimKey] = useState(0);
+  const [direction, setDirection] = useState(0);
+  const timelineRef = useRef<HTMLDivElement>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: timelineRef,
+    offset: ["start center", "end center"],
+  });
+  const lineScale = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -347,15 +381,15 @@ function PathsSection() {
 
   const handlePathChange = useCallback((index: number) => {
     if (index !== activePath) {
+      setDirection(index > activePath ? 1 : -1);
       setActivePath(index);
-      setAnimKey((k) => k + 1);
     }
   }, [activePath]);
 
   const active = paths[activePath];
 
   return (
-    <section id="paths" className="relative py-16 sm:py-28 md:py-36">
+    <section id="paths" className="relative py-20 sm:py-28 md:py-36">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] max-w-4xl h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6">
@@ -378,135 +412,163 @@ function PathsSection() {
           </p>
         </div>
 
-        {/* Path selector tabs */}
+        {/* Pill bar tab selector */}
         <div className={cn(
-          "flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-12 md:mb-16 transition-all duration-700 delay-200",
+          "flex justify-center mb-12 md:mb-16 transition-all duration-700 delay-200",
           visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
         )}>
-          {paths.map((path, i) => (
-            <button
-              key={path.id}
-              onClick={() => handlePathChange(i)}
-              className={cn(
-                "group relative flex items-center gap-3 rounded-2xl px-6 py-4 sm:px-8 sm:py-5 transition-all duration-500 cursor-pointer",
-                "border text-left sm:text-center sm:flex-col sm:items-center sm:flex-1 sm:max-w-[240px]",
-                activePath === i
-                  ? "border-white/[0.12] bg-white/[0.04] shadow-[0_0_40px_rgba(0,0,0,0.3)]"
-                  : "border-white/[0.04] bg-white/[0.01] hover:border-white/[0.08] hover:bg-white/[0.02]"
-              )}
-            >
-              {/* Active indicator glow */}
-              {activePath === i && (
-                <div
-                  className="absolute inset-0 rounded-2xl opacity-20 blur-xl pointer-events-none"
-                  style={{ background: `radial-gradient(ellipse at center, ${path.color}, transparent 70%)` }}
-                />
-              )}
-
-              <div className={cn(
-                "relative w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 transition-all duration-500",
-                activePath === i ? "scale-110" : "scale-100"
-              )} style={{ backgroundColor: activePath === i ? path.color : "rgba(255,255,255,0.04)" }}>
-                <span className={cn("transition-colors duration-500", activePath === i ? "text-white" : "text-white/30")}>
-                  {path.icon}
-                </span>
-              </div>
-
-              <div className="relative">
-                <p className={cn(
-                  "font-semibold tracking-tight transition-colors duration-500",
-                  activePath === i ? "text-white/90" : "text-white/40"
-                )}>{path.title}</p>
-                <p className={cn(
-                  "text-[10px] sm:text-xs tracking-[0.15em] uppercase transition-colors duration-500 mt-0.5",
-                  activePath === i ? "text-white/40" : "text-white/20"
-                )}>{path.tagline}</p>
-              </div>
-            </button>
-          ))}
-        </div>
-
-        {/* Active path description */}
-        <div key={`desc-${animKey}`} className="text-center mb-10 md:mb-14 animate-fade-in">
-          <p className="text-[15px] sm:text-base text-white/50 max-w-2xl mx-auto leading-relaxed">
-            {active.description}
-          </p>
-        </div>
-
-        {/* Workflow timeline */}
-        <div key={`flow-${animKey}`} className="relative max-w-3xl mx-auto">
-          {/* Vertical connecting line */}
-          <div
-            className="absolute left-5 sm:left-7 top-3 bottom-3 w-px opacity-30"
-            style={{
-              background: `linear-gradient(to bottom, transparent, ${active.color} 10%, ${active.color} 90%, transparent)`,
-            }}
-          />
-
-          <div className="space-y-1">
-            {active.steps.map((step, i) => (
-              <div
-                key={`${active.id}-${i}`}
-                className="relative flex gap-5 sm:gap-7 group animate-fade-in-up"
-                style={{ animationDelay: `${i * 100}ms`, animationFillMode: "backwards" }}
+          <div className="inline-flex bg-white/[0.03] border border-white/[0.06] rounded-full p-1 sm:p-1.5">
+            {paths.map((path, i) => (
+              <button
+                key={path.id}
+                onClick={() => handlePathChange(i)}
+                className={cn(
+                  "relative flex items-center gap-2 sm:gap-2.5 rounded-full px-4 py-2.5 sm:px-6 sm:py-3 transition-colors duration-300 cursor-pointer",
+                  "text-[10px] sm:text-xs tracking-[0.15em] uppercase font-medium",
+                  activePath === i ? "text-white" : "text-white/35 hover:text-white/55"
+                )}
               >
-                {/* Step node */}
-                <div className="relative shrink-0 flex flex-col items-center z-10">
-                  <div
-                    className="w-10 h-10 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center border transition-all duration-500 group-hover:scale-110"
+                {/* Sliding active indicator */}
+                {activePath === i && (
+                  <motion.div
+                    layoutId="activePathPill"
+                    className="absolute inset-0 rounded-full border border-white/[0.1]"
+                    style={{ backgroundColor: `${path.color}20` }}
+                    transition={springTab}
+                  />
+                )}
+
+                {/* Dot + label */}
+                <span className="relative z-10 flex items-center gap-2 sm:gap-2.5">
+                  <span
+                    className="w-2 h-2 rounded-full transition-all duration-300 shrink-0"
                     style={{
-                      backgroundColor: `${active.color}15`,
-                      borderColor: `${active.color}30`,
+                      backgroundColor: activePath === i ? path.color : "rgba(255,255,255,0.15)",
+                      boxShadow: activePath === i ? `0 0 8px ${path.color}40` : "none",
                     }}
-                  >
-                    <span style={{ color: active.color }}>{step.icon}</span>
-                  </div>
-                </div>
-
-                {/* Step content */}
-                <div className="flex-1 pb-8 sm:pb-10">
-                  {/* Step number + title */}
-                  <div className="flex items-baseline gap-3 mb-2">
-                    <span className="text-[10px] tracking-[0.2em] uppercase font-medium" style={{ color: active.color }}>
-                      Step {i + 1}
-                    </span>
-                    <h3 className="text-base sm:text-lg font-semibold tracking-tight text-white/85 group-hover:text-white transition-colors duration-300">
-                      {step.title}
-                    </h3>
-                  </div>
-
-                  <p className="text-sm text-white/40 leading-relaxed mb-3 max-w-xl">
-                    {step.description}
-                  </p>
-
-                  {/* Tags */}
-                  <div className="flex flex-wrap gap-2">
-                    <span className="inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] tracking-wider uppercase px-2.5 py-1 rounded-full border border-white/[0.06] bg-white/[0.02] text-white/30">
-                      <BadgeCheck className="w-3 h-3" />
-                      {step.compliance}
-                    </span>
-                    {step.partner && (
-                      <span
-                        className="inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] tracking-wider uppercase px-2.5 py-1 rounded-full border"
-                        style={{
-                          borderColor: `${active.color}25`,
-                          backgroundColor: `${active.color}08`,
-                          color: active.color,
-                        }}
-                      >
-                        <Handshake className="w-3 h-3" />
-                        {step.partner}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
+                  />
+                  <span className="hidden sm:inline">{path.title}</span>
+                  <span className="sm:hidden">{path.title.split(" ")[0]}</span>
+                </span>
+              </button>
             ))}
           </div>
         </div>
 
-        {/* Bottom connector */}
-        <div className="mt-12 md:mt-16 text-center animate-fade-in" style={{ animationDelay: "600ms" }}>
+        {/* Animated workflow content */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={active.id}
+            initial={{ opacity: 0, x: direction * 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: direction * -20 }}
+            transition={{ duration: 0.3, ease: easeSmooth }}
+          >
+            {/* Path description */}
+            <p className="text-center text-[15px] sm:text-base text-white/45 max-w-2xl mx-auto leading-relaxed mb-12 md:mb-16">
+              {active.description}
+            </p>
+
+            {/* Timeline */}
+            <div ref={timelineRef} className="relative max-w-3xl mx-auto">
+              {/* Scroll-linked vertical line */}
+              <motion.div
+                className="absolute left-[15px] sm:left-[23px] top-3 bottom-3 w-px origin-top"
+                style={{
+                  background: `linear-gradient(to bottom, transparent, ${active.color}50 8%, ${active.color}50 92%, transparent)`,
+                  scaleY: lineScale,
+                }}
+              />
+
+              {/* Steps */}
+              <motion.div
+                className="space-y-2"
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                {active.steps.map((step, i) => (
+                  <motion.div
+                    key={`${active.id}-step-${i}`}
+                    variants={stepVariants}
+                    className="relative flex gap-6 sm:gap-10 group"
+                  >
+                    {/* Timeline node */}
+                    <div className="relative shrink-0 flex flex-col items-center pt-1 z-10">
+                      {/* Glow ring */}
+                      <div
+                        className="absolute w-7 h-7 sm:w-8 sm:h-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 -top-0.5 sm:-top-0.5"
+                        style={{
+                          background: `radial-gradient(circle, ${active.color}25, transparent 70%)`,
+                          left: "50%",
+                          transform: "translateX(-50%)",
+                        }}
+                      />
+                      {/* Dot */}
+                      <div
+                        className="w-[11px] h-[11px] sm:w-[13px] sm:h-[13px] rounded-full border-2 transition-all duration-200 group-hover:scale-[1.35]"
+                        style={{
+                          borderColor: active.color,
+                          backgroundColor: `${active.color}30`,
+                        }}
+                      />
+                    </div>
+
+                    {/* Step content — editorial floating text */}
+                    <div className="flex-1 pb-10 sm:pb-12">
+                      <p
+                        className="text-[10px] tracking-[0.2em] uppercase font-medium mb-1.5"
+                        style={{ color: `${active.color}90` }}
+                      >
+                        Step {String(i + 1).padStart(2, "0")}
+                      </p>
+                      <h3 className="text-base sm:text-lg font-semibold tracking-tight text-white/85 group-hover:text-white transition-colors duration-300 mb-2">
+                        {step.title}
+                      </h3>
+                      <p className="text-sm text-white/40 leading-relaxed mb-4 max-w-xl">
+                        {step.description}
+                      </p>
+
+                      {/* Tags — stagger after content */}
+                      <motion.div
+                        className="flex flex-wrap gap-2"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.15 + i * 0.08, duration: 0.4 }}
+                      >
+                        <span className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.12em] uppercase px-2.5 py-1 rounded-full border border-white/[0.06] bg-white/[0.02] text-white/30">
+                          <BadgeCheck className="w-3 h-3" />
+                          {step.compliance}
+                        </span>
+                        {step.partner && (
+                          <span
+                            className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.12em] uppercase px-2.5 py-1 rounded-full border"
+                            style={{
+                              borderColor: `${active.color}30`,
+                              backgroundColor: `${active.color}08`,
+                              color: `${active.color}cc`,
+                            }}
+                          >
+                            <Handshake className="w-3 h-3" />
+                            {step.partner}
+                          </span>
+                        )}
+                      </motion.div>
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Bottom note */}
+        <motion.div
+          className="mt-14 md:mt-20 text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: visible ? 1 : 0 }}
+          transition={{ delay: 0.8, duration: 0.6 }}
+        >
           <div className="inline-flex items-center gap-3 rounded-full border border-white/[0.06] bg-white/[0.02] px-6 py-3">
             <div className="flex gap-1">
               <span className="w-2 h-2 rounded-full bg-[#1B6B4A]" />
@@ -517,7 +579,7 @@ function PathsSection() {
               All paths share the same institutional verification infrastructure
             </span>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
