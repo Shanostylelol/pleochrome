@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import {
   ShieldCheck,
@@ -13,11 +13,11 @@ import {
   Layers,
   Hexagon,
   Landmark,
-  Check,
-  X,
+  BadgeCheck,
+  ArrowRight,
+  Handshake,
 } from "lucide-react";
 import { ShaderAnimation } from "@/components/ui/shader-animation";
-import { GlowingEffect } from "@/components/ui/glowing-effect";
 import { cn } from "@/lib/utils";
 
 /* ═══════════════════════════════════════════════════════
@@ -25,148 +25,185 @@ import { cn } from "@/lib/utils";
    "Value from Every Angle"
    ═══════════════════════════════════════════════════════ */
 
-// ── 7-Gate data ──────────────────────────────
+// ── Workflow step type ───────────────────────
 
-const gates = [
-  {
-    icon: <ShieldCheck className="h-5 w-5" />,
-    title: "Intake",
-    subtitle: "Source Verification",
-    phase: "Acquisition",
-    description:
-      "KYC/KYB on every asset holder. Provenance chain verified from mine to present. Clear title confirmed. Sanctions and PEP screening completed. Engagement agreement executed.",
-  },
-  {
-    icon: <FileCheck2 className="h-5 w-5" />,
-    title: "Evidence",
-    subtitle: "Legal Clearance",
-    phase: "Acquisition",
-    description:
-      "Legal transferability confirmed. Export/import compliance verified. OECD and Kimberley Process adherence documented. Conflict origin screening complete. Unbroken evidence trail established.",
-  },
-  {
-    icon: <Gem className="h-5 w-5" />,
-    title: "Verification",
-    subtitle: "Independent Valuation",
-    phase: "Preparation",
-    description:
-      "GIA-certified lab grading with origin determination. Three independent USPAP-compliant appraisals. The two lowest define the offering value \u2014 structurally conservative, investor-protective by design.",
-  },
-  {
-    icon: <Lock className="h-5 w-5" />,
-    title: "Custody",
-    subtitle: "Institutional Vault",
-    phase: "Preparation",
-    description:
-      "Segregated storage at Brink\u2019s or Malca-Amit with active insurance. Chainlink Proof of Reserve oracle connects vault inventory to on-chain records in real time. Custody status verified 24/7.",
-  },
-  {
-    icon: <Building2 className="h-5 w-5" />,
-    title: "Issuer",
-    subtitle: "Legal Structuring",
-    phase: "Preparation",
-    description:
-      "Dedicated SPV (Series LLC) per asset. Private Placement Memorandum, Subscription Agreement, and Token Purchase Agreement drafted by securities counsel and compliance-reviewed.",
-  },
-  {
-    icon: <Link2 className="h-5 w-5" />,
-    title: "Platform",
-    subtitle: "Token Deployment",
-    phase: "Tokenization",
-    description:
-      "ERC-3643 compliant security token deployed on Polygon via Brickken. Smart contract audited. Oracle-gated minting blocks token creation unless reserves are independently verified.",
-  },
-  {
-    icon: <Users className="h-5 w-5" />,
-    title: "Sale",
-    subtitle: "Investor Distribution",
-    phase: "Distribution",
-    description:
-      "Reg D 506(c) compliant offering to accredited investors. KYC, accreditation verification, and sanctions screening on every buyer. Tokens minted only after subscription is confirmed and funded.",
-  },
-];
+interface WorkflowStep {
+  title: string;
+  description: string;
+  compliance: string;
+  partner?: string;
+  icon: React.ReactNode;
+}
 
-// ── Three Paths to Value data ────────────────
+// ── Three Paths data ─────────────────────────
 
-const valuePaths = [
+const paths = [
   {
-    icon: <Layers className="h-6 w-6" />,
+    id: "fractional",
+    icon: <Layers className="h-5 w-5" />,
     title: "Fractional Securities",
-    color: "bg-[#1B6B4A]",
-    borderColor: "border-[#1B6B4A]/30",
-    glowColor: "rgba(27, 107, 74, 0.15)",
-    accentText: "text-[#1B6B4A]",
     tagline: "Divide and Distribute",
+    color: "#1B6B4A",
     description:
-      "Split a high-value asset into affordable, SEC-compliant fractional shares. Open the door to investors who couldn\u2019t access these assets before.",
-    advantages: [
-      "Lower minimums broaden the investor base",
-      "Portfolio diversification across multiple stones",
-      "Familiar securities structure for traditional investors",
-      "Reg D 506(c) \u2014 general solicitation permitted",
-    ],
-    considerations: [
-      "More complex SPV and legal structuring per asset",
-      "Higher ongoing administration and reporting",
-      "Investor liquidity depends on secondary market development",
-    ],
+      "Split a high-value asset into affordable, SEC-compliant fractional shares. Lower minimums open the door to a broader investor base while maintaining full regulatory compliance.",
+    steps: [
+      {
+        title: "Asset Intake & Verification",
+        description: "KYC/KYB on every asset holder. Full provenance chain verified from mine to present. OFAC sanctions and PEP screening. Clear title and legal transferability confirmed.",
+        compliance: "BSA/AML \u00b7 OFAC \u00b7 Kimberley Process",
+        icon: <ShieldCheck className="h-4 w-4" />,
+      },
+      {
+        title: "Independent Certification & Valuation",
+        description: "GIA-certified lab grading with origin determination. Three independent USPAP-compliant appraisals. Two-lowest average defines offering value \u2014 structurally conservative, investor-protective.",
+        compliance: "USPAP \u00b7 FTC Jewelry Guides",
+        partner: "GIA",
+        icon: <Gem className="h-4 w-4" />,
+      },
+      {
+        title: "Institutional Custody",
+        description: "Segregated storage at an institutional-grade vault with active specie insurance. Insured chain-of-custody transport. Real-time inventory verification protocols.",
+        compliance: "Bailee Standards \u00b7 Lloyd\u2019s Coverage",
+        partner: "Brink\u2019s",
+        icon: <Lock className="h-4 w-4" />,
+      },
+      {
+        title: "SPV Formation & Unit Structuring",
+        description: "Dedicated Series LLC per asset. Offering divided into fractional units with defined rights and obligations. Operating agreement, PPM, and subscription documents drafted by securities counsel.",
+        compliance: "SEC Reg D 506(c) \u00b7 State Blue Sky",
+        icon: <Building2 className="h-4 w-4" />,
+      },
+      {
+        title: "Securities Filing & Distribution",
+        description: "Form D filed with SEC within 15 days of first sale. Accredited investor onboarding with verification, sanctions screening, and subscription processing. General solicitation permitted under 506(c).",
+        compliance: "Form D \u00b7 Accredited Verification",
+        icon: <Users className="h-4 w-4" />,
+      },
+      {
+        title: "Ongoing Management & Reporting",
+        description: "Quarterly NAV updates and investor communications. Annual independent re-appraisal. K-1 tax distribution. Compliance monitoring and regulatory filings maintained throughout the asset lifecycle.",
+        compliance: "Annual Audit \u00b7 K-1 \u00b7 Form D Amendment",
+        icon: <FileCheck2 className="h-4 w-4" />,
+      },
+    ] as WorkflowStep[],
   },
   {
-    icon: <Hexagon className="h-6 w-6" />,
+    id: "tokenization",
+    icon: <Hexagon className="h-5 w-5" />,
     title: "Tokenization",
-    color: "bg-[#1A8B7A]",
-    borderColor: "border-[#1A8B7A]/30",
-    glowColor: "rgba(26, 139, 122, 0.15)",
-    accentText: "text-[#1A8B7A]",
     tagline: "Programmable Ownership",
+    color: "#1A8B7A",
     description:
-      "Convert full asset value into ERC-3643 security tokens on Polygon. Compliance is embedded at the smart contract level \u2014 every transfer is validated before execution.",
-    advantages: [
-      "24/7 secondary market liquidity potential",
-      "Programmable compliance baked into every token",
-      "Real-time Chainlink Proof of Reserve verification",
-      "Global settlement in seconds, not days",
-    ],
-    considerations: [
-      "Requires blockchain infrastructure and integrations",
-      "Investor education curve for digital securities",
-      "Smart contract audit and security requirements",
-    ],
+      "Convert full asset value into ERC-3643 security tokens on Polygon. Compliance is embedded at the smart contract level \u2014 every transfer is validated before execution. Settlement in seconds, not days.",
+    steps: [
+      {
+        title: "Asset Intake & Verification",
+        description: "KYC/KYB on every asset holder. Full provenance chain verified from mine to present. OFAC sanctions and PEP screening. Clear title and legal transferability confirmed.",
+        compliance: "BSA/AML \u00b7 OFAC \u00b7 Kimberley Process",
+        icon: <ShieldCheck className="h-4 w-4" />,
+      },
+      {
+        title: "Independent Certification & Valuation",
+        description: "GIA-certified lab grading with origin determination. Three independent USPAP-compliant appraisals. Two-lowest average defines offering value \u2014 structurally conservative, investor-protective.",
+        compliance: "USPAP \u00b7 FTC Jewelry Guides",
+        partner: "GIA",
+        icon: <Gem className="h-4 w-4" />,
+      },
+      {
+        title: "Institutional Custody",
+        description: "Segregated storage at an institutional-grade vault with active specie insurance. Insured chain-of-custody transport. Real-time inventory verification protocols.",
+        compliance: "Bailee Standards \u00b7 Lloyd\u2019s Coverage",
+        partner: "Brink\u2019s",
+        icon: <Lock className="h-4 w-4" />,
+      },
+      {
+        title: "Legal Structuring & SEC Filing",
+        description: "Dedicated SPV (Series LLC) per asset. PPM, subscription agreement, and securities opinion drafted by counsel. Form D filed with SEC. Blue Sky notices in applicable states.",
+        compliance: "SEC Reg D 506(c) \u00b7 Blue Sky",
+        icon: <Building2 className="h-4 w-4" />,
+      },
+      {
+        title: "Token Deployment & Smart Contract Audit",
+        description: "ERC-3643 compliant security token deployed on Polygon. Built-in KYC, accreditation, and jurisdiction controls enforced at the protocol level. Smart contract independently audited before mainnet.",
+        compliance: "ERC-3643 \u00b7 Transfer Restrictions",
+        icon: <Hexagon className="h-4 w-4" />,
+      },
+      {
+        title: "Oracle-Verified Reserves",
+        description: "Chainlink Proof of Reserve connects physical vault inventory to on-chain records in real time. Token minting is programmatically blocked unless reserves are independently confirmed.",
+        compliance: "On-Chain Attestation",
+        partner: "Chainlink",
+        icon: <Link2 className="h-4 w-4" />,
+      },
+      {
+        title: "Investor Distribution",
+        description: "Accredited investor onboarding with KYC, verification, and sanctions screening. Tokens minted only upon confirmed and funded subscription. General solicitation permitted under 506(c).",
+        compliance: "KYC/AML \u00b7 Accredited Verification",
+        icon: <Users className="h-4 w-4" />,
+      },
+    ] as WorkflowStep[],
   },
   {
-    icon: <Landmark className="h-6 w-6" />,
+    id: "debt",
+    icon: <Landmark className="h-5 w-5" />,
     title: "Debt Instruments",
-    color: "bg-[#1E3A6E]",
-    borderColor: "border-[#1E3A6E]/30",
-    glowColor: "rgba(30, 58, 110, 0.15)",
-    accentText: "text-[#4A7BC7]",
     tagline: "Borrow Against Value",
+    color: "#1E3A6E",
     description:
-      "Use verified, vaulted gemstones as collateral for asset-backed loans. The holder retains ownership while unlocking immediate capital.",
-    advantages: [
-      "Asset holders keep ownership of their stones",
-      "Predictable yield structure for lenders",
-      "Familiar to traditional finance institutions",
-      "Fastest path from asset to capital",
-    ],
-    considerations: [
-      "Interest rate and default risk management required",
-      "Collateral revaluation at regular intervals",
-      "Additional insurance and custody requirements",
-    ],
+      "Use verified, vaulted gemstones as collateral for asset-backed loans. The holder retains full ownership while unlocking immediate capital. The fastest path from asset to liquidity.",
+    steps: [
+      {
+        title: "Borrower Intake & Verification",
+        description: "KYC/KYB on the borrower and all beneficial owners. Financial capacity assessment. OFAC sanctions and PEP screening. Asset provenance and clear title confirmed.",
+        compliance: "BSA/AML \u00b7 OFAC \u00b7 Kimberley Process",
+        icon: <ShieldCheck className="h-4 w-4" />,
+      },
+      {
+        title: "Independent Certification & LTV Determination",
+        description: "GIA-certified lab grading with origin determination. Three independent USPAP-compliant appraisals. Loan-to-value ratio set conservatively at 50\u201370% of the two-lowest average.",
+        compliance: "USPAP \u00b7 FTC Jewelry Guides",
+        partner: "GIA",
+        icon: <Gem className="h-4 w-4" />,
+      },
+      {
+        title: "Custody & Collateral Perfection",
+        description: "Gemstones transferred to institutional vault under segregated custody. UCC-1 financing statement filed to perfect the security interest. Collateral insured throughout the loan term.",
+        compliance: "UCC Article 9 \u00b7 Bailee Standards",
+        partner: "Brink\u2019s",
+        icon: <Lock className="h-4 w-4" />,
+      },
+      {
+        title: "Loan Structuring & Documentation",
+        description: "Terms, rate, and maturity defined. Security agreement, promissory note, and guaranty drafted by counsel. Borrower representations and covenants documented.",
+        compliance: "State Lending Regulations \u00b7 Usury Laws",
+        icon: <Building2 className="h-4 w-4" />,
+      },
+      {
+        title: "Capital Deployment",
+        description: "Lender matching or participation note offering under Reg D 506(c). Funds disbursed to borrower upon executed documentation. Loan activated and servicing begins.",
+        compliance: "Reg D 506(c) if participation notes",
+        icon: <Landmark className="h-4 w-4" />,
+      },
+      {
+        title: "Servicing, Maturity & Release",
+        description: "Payment collection, compliance monitoring, and quarterly reporting throughout the loan term. Upon maturity: payoff confirmed, collateral released, UCC termination filed.",
+        compliance: "Ongoing Servicing \u00b7 UCC Termination",
+        icon: <FileCheck2 className="h-4 w-4" />,
+      },
+    ] as WorkflowStep[],
   },
 ];
 
-// ── Gem accent colors for visual variety ─────
+// ── Gem accent colors ────────────────────────
 
 const gemColors = [
-  "bg-[#1B6B4A]", // emerald
-  "bg-[#1A8B7A]", // teal
-  "bg-[#1E3A6E]", // sapphire
-  "bg-[#5B2D8E]", // amethyst
-  "bg-[#A61D3A]", // ruby
-  "bg-[#C47A1A]", // amber
-  "bg-[#7BA31E]", // chartreuse
+  "bg-[#1B6B4A]",
+  "bg-[#1A8B7A]",
+  "bg-[#1E3A6E]",
+  "bg-[#5B2D8E]",
+  "bg-[#A61D3A]",
+  "bg-[#C47A1A]",
+  "bg-[#7BA31E]",
 ];
 
 // ── Hero Section ─────────────────────────────
@@ -176,123 +213,70 @@ function HeroSection() {
 
   useEffect(() => {
     const timers = [
-      setTimeout(() => setStage(1), 600),   // logo
-      setTimeout(() => setStage(2), 1800),  // tagline
-      setTimeout(() => setStage(3), 2800),  // descriptor
-      setTimeout(() => setStage(4), 4000),  // CTA
+      setTimeout(() => setStage(1), 600),
+      setTimeout(() => setStage(2), 1800),
+      setTimeout(() => setStage(3), 2800),
+      setTimeout(() => setStage(4), 4000),
     ];
     return () => timers.forEach(clearTimeout);
   }, []);
 
   return (
     <section className="relative h-screen w-full overflow-hidden flex items-center justify-center">
-      {/* Shader background */}
       <ShaderAnimation />
-
-      {/* Dark overlay for readability */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60 z-[1]" />
 
-      {/* Content */}
       <div className="relative z-10 flex flex-col items-center text-center px-4 sm:px-6 w-full">
-        {/* Logo */}
-        <div
-          className={cn(
-            "transition-all duration-[1.4s] ease-[cubic-bezier(0.16,1,0.3,1)] w-full flex justify-center",
-            stage >= 1
-              ? "opacity-100 scale-100"
-              : "opacity-0 scale-[0.85]"
-          )}
-        >
-          <Image
-            src="/logo-white.png"
-            alt="PleoChrome"
-            width={840}
-            height={200}
-            priority
-            className="max-w-[85vw] sm:max-w-[75vw] md:w-[760px] lg:w-[840px] h-auto drop-shadow-[0_0_40px_rgba(26,139,122,0.15)]"
-          />
+        <div className={cn(
+          "transition-all duration-[1.4s] ease-[cubic-bezier(0.16,1,0.3,1)] w-full flex justify-center",
+          stage >= 1 ? "opacity-100 scale-100" : "opacity-0 scale-[0.85]"
+        )}>
+          <Image src="/logo-white.png" alt="PleoChrome" width={840} height={200} priority
+            className="max-w-[85vw] sm:max-w-[75vw] md:w-[760px] lg:w-[840px] h-auto drop-shadow-[0_0_40px_rgba(26,139,122,0.15)]" />
         </div>
 
-        {/* Tagline */}
-        <p
-          className={cn(
-            "text-[11px] sm:text-sm md:text-base tracking-[0.2em] sm:tracking-[0.35em] uppercase text-white/50 mt-8 sm:mt-10 transition-all duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)]",
-            stage >= 2
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-6"
-          )}
-        >
+        <p className={cn(
+          "text-[11px] sm:text-sm md:text-base tracking-[0.2em] sm:tracking-[0.35em] uppercase text-white/50 mt-8 sm:mt-10 transition-all duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)]",
+          stage >= 2 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+        )}>
           Value from Every Angle
         </p>
 
-        {/* Descriptor */}
-        <h1
-          className={cn(
-            "font-display font-light text-white/80 mt-4 sm:mt-5 transition-all duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)]",
-            "text-lg sm:text-xl md:text-2xl lg:text-[1.75rem] tracking-[0.02em] max-w-2xl leading-relaxed",
-            stage >= 3
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-6"
-          )}
-        >
+        <h1 className={cn(
+          "font-display font-light text-white/80 mt-4 sm:mt-5 transition-all duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)]",
+          "text-lg sm:text-xl md:text-2xl lg:text-[1.75rem] tracking-[0.02em] max-w-2xl leading-relaxed",
+          stage >= 3 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+        )}>
           The orchestration platform that unlocks fractional ownership,
           tokenized securities, and asset-backed lending for high-value gemstones.
         </h1>
 
-        {/* Gem accent bar */}
-        <div
-          className={cn(
-            "gem-bar mt-6 sm:mt-8 w-32 sm:w-48 transition-all duration-[1s] ease-[cubic-bezier(0.16,1,0.3,1)]",
-            stage >= 3 ? "opacity-100" : "opacity-0"
-          )}
-        >
-          <span className="bg-[#1B6B4A]" />
-          <span className="bg-[#1A8B7A]" />
-          <span className="bg-[#1E3A6E]" />
-          <span className="bg-[#5B2D8E]" />
-          <span className="bg-[#A61D3A]" />
-          <span className="bg-[#C47A1A]" />
-          <span className="bg-[#7BA31E]" />
+        <div className={cn(
+          "gem-bar mt-6 sm:mt-8 w-32 sm:w-48 transition-all duration-[1s] ease-[cubic-bezier(0.16,1,0.3,1)]",
+          stage >= 3 ? "opacity-100" : "opacity-0"
+        )}>
+          <span className="bg-[#1B6B4A]" /><span className="bg-[#1A8B7A]" /><span className="bg-[#1E3A6E]" />
+          <span className="bg-[#5B2D8E]" /><span className="bg-[#A61D3A]" /><span className="bg-[#C47A1A]" /><span className="bg-[#7BA31E]" />
         </div>
 
-        {/* CTA */}
-        <div
-          className={cn(
-            "mt-8 sm:mt-12 transition-all duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)]",
-            stage >= 4
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-8"
-          )}
-        >
-          <a
-            href="#paths"
-            className="group relative inline-flex items-center gap-2 sm:gap-3 border border-white/15 rounded-full px-6 py-3 sm:px-8 sm:py-3.5
-              text-xs sm:text-sm tracking-[0.15em] sm:tracking-[0.2em] uppercase text-white/70 hover:text-white
-              bg-white/[0.03] hover:bg-white/[0.06] backdrop-blur-sm
-              transition-all duration-500 hover:border-white/25 hover:shadow-[0_0_30px_rgba(26,139,122,0.1)]"
-          >
+        <div className={cn(
+          "mt-8 sm:mt-12 transition-all duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)]",
+          stage >= 4 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+        )}>
+          <a href="#paths" className="group relative inline-flex items-center gap-2 sm:gap-3 border border-white/15 rounded-full px-6 py-3 sm:px-8 sm:py-3.5
+            text-xs sm:text-sm tracking-[0.15em] sm:tracking-[0.2em] uppercase text-white/70 hover:text-white
+            bg-white/[0.03] hover:bg-white/[0.06] backdrop-blur-sm
+            transition-all duration-500 hover:border-white/25 hover:shadow-[0_0_30px_rgba(26,139,122,0.1)]">
             <span>Explore the Paths</span>
-            <svg
-              className="w-4 h-4 transition-transform duration-300 group-hover:translate-y-0.5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={1.5}
-            >
+            <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3" />
             </svg>
           </a>
         </div>
       </div>
 
-      {/* Scroll indicator */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
-        <div
-          className={cn(
-            "w-[1px] h-12 bg-gradient-to-b from-transparent to-white/20 transition-opacity duration-1000",
-            stage >= 4 ? "opacity-100" : "opacity-0"
-          )}
-        />
+        <div className={cn("w-[1px] h-12 bg-gradient-to-b from-transparent to-white/20 transition-opacity duration-1000", stage >= 4 ? "opacity-100" : "opacity-0")} />
       </div>
     </section>
   );
@@ -314,149 +298,42 @@ function IntroSection() {
   }, []);
 
   return (
-    <section
-      id="intro"
-      className="relative py-20 sm:py-32 md:py-40 vault-texture"
-    >
+    <section id="intro" className="relative py-20 sm:py-32 md:py-40 vault-texture">
       <div className="relative z-10 max-w-3xl mx-auto px-5 sm:px-6 text-center">
-        <p
-          className={cn(
-            "text-[10px] sm:text-xs tracking-[0.3em] sm:tracking-[0.4em] uppercase text-[#1A8B7A] mb-4 sm:mb-6 transition-all duration-700",
-            visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-          )}
-        >
-          What We Do
-        </p>
-        <h2
-          className={cn(
-            "font-display text-2xl sm:text-3xl md:text-4xl lg:text-[2.75rem] font-light leading-[1.3] sm:leading-[1.25] text-white/90 transition-all duration-1000 delay-200",
-            visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-          )}
-        >
+        <p className={cn(
+          "text-[10px] sm:text-xs tracking-[0.3em] sm:tracking-[0.4em] uppercase text-[#1A8B7A] mb-4 sm:mb-6 transition-all duration-700",
+          visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+        )}>What We Do</p>
+        <h2 className={cn(
+          "font-display text-2xl sm:text-3xl md:text-4xl lg:text-[2.75rem] font-light leading-[1.3] sm:leading-[1.25] text-white/90 transition-all duration-1000 delay-200",
+          visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+        )}>
           One asset. Three paths to value.
           PleoChrome orchestrates them all.
         </h2>
-        <p
-          className={cn(
-            "mt-5 sm:mt-6 text-sm sm:text-base text-white/40 max-w-xl mx-auto leading-relaxed transition-all duration-700 delay-400",
-            visible ? "opacity-100" : "opacity-0"
-          )}
-        >
+        <p className={cn(
+          "mt-5 sm:mt-6 text-sm sm:text-base text-white/40 max-w-xl mx-auto leading-relaxed transition-all duration-700 delay-400",
+          visible ? "opacity-100" : "opacity-0"
+        )}>
           Whether you choose fractional ownership, full tokenization, or
           asset-backed lending &mdash; we coordinate every specialist,
           every gate, and every compliance requirement from intake to capital.
         </p>
-        <div
-          className={cn(
-            "gem-bar mt-10 w-32 mx-auto transition-all duration-700 delay-500",
-            visible ? "opacity-100" : "opacity-0"
-          )}
-        >
-          <span className="bg-[#1B6B4A]" />
-          <span className="bg-[#1A8B7A]" />
-          <span className="bg-[#1E3A6E]" />
-          <span className="bg-[#5B2D8E]" />
-          <span className="bg-[#A61D3A]" />
-          <span className="bg-[#C47A1A]" />
-          <span className="bg-[#7BA31E]" />
+        <div className={cn("gem-bar mt-10 w-32 mx-auto transition-all duration-700 delay-500", visible ? "opacity-100" : "opacity-0")}>
+          <span className="bg-[#1B6B4A]" /><span className="bg-[#1A8B7A]" /><span className="bg-[#1E3A6E]" />
+          <span className="bg-[#5B2D8E]" /><span className="bg-[#A61D3A]" /><span className="bg-[#C47A1A]" /><span className="bg-[#7BA31E]" />
         </div>
       </div>
     </section>
   );
 }
 
-// ── Three Paths to Value Section ─────────────
-
-function PathCard({
-  path,
-  index,
-  visible,
-}: {
-  path: (typeof valuePaths)[number];
-  index: number;
-  visible: boolean;
-}) {
-  return (
-    <div
-      className={cn(
-        "relative group transition-all duration-700",
-        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-      )}
-      style={{ transitionDelay: `${200 + index * 150}ms` }}
-    >
-      <div className="relative h-full rounded-2xl border border-white/[0.06] p-[3px] md:rounded-[1.5rem]">
-        <GlowingEffect
-          spread={40}
-          glow
-          disabled={false}
-          proximity={64}
-          inactiveZone={0.01}
-          borderWidth={2}
-        />
-        <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(1rem-1px)] md:rounded-[calc(1.5rem-3px)] bg-[#0A0F1A]/80 backdrop-blur-sm border border-white/[0.03]">
-          {/* Header — fixed zone */}
-          <div className="p-6 md:p-8 pb-0">
-            <div className="flex items-center gap-4 mb-5">
-              <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center shrink-0", path.color)}>
-                <span className="text-white/90">{path.icon}</span>
-              </div>
-              <div>
-                <h3 className="text-xl md:text-2xl font-semibold tracking-tight text-white/90">
-                  {path.title}
-                </h3>
-                <span className={cn("text-xs tracking-[0.2em] uppercase", path.accentText)}>
-                  {path.tagline}
-                </span>
-              </div>
-            </div>
-            {/* Description — fixed height so advantages start at the same line */}
-            <div className="lg:min-h-[7rem]">
-              <p className="text-[15px] leading-relaxed text-white/50">
-                {path.description}
-              </p>
-            </div>
-          </div>
-
-          {/* Divider */}
-          <div className="mx-6 md:mx-8 my-5 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
-
-          {/* Advantages — grows to fill */}
-          <div className="px-6 md:px-8 flex-1 flex flex-col">
-            <p className="text-[10px] tracking-[0.3em] uppercase text-white/25 mb-3">Advantages</p>
-            <ul className="space-y-2.5 flex-1">
-              {path.advantages.map((item) => (
-                <li key={item} className="flex items-start gap-2.5">
-                  <div className={cn("w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5", path.color)}>
-                    <Check className="w-2.5 h-2.5 text-white" />
-                  </div>
-                  <span className="text-sm text-white/60 leading-relaxed">{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Considerations — pinned to bottom */}
-          <div className="px-6 md:px-8 mt-5 pb-6 md:pb-8">
-            <p className="text-[10px] tracking-[0.3em] uppercase text-white/25 mb-3">Considerations</p>
-            <ul className="space-y-2.5">
-              {path.considerations.map((item) => (
-                <li key={item} className="flex items-start gap-2.5">
-                  <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5 bg-white/[0.06]">
-                    <X className="w-2.5 h-2.5 text-white/30" />
-                  </div>
-                  <span className="text-sm text-white/35 leading-relaxed">{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+// ── Interactive Paths + Workflow Section ──────
 
 function PathsSection() {
   const [visible, setVisible] = useState(false);
+  const [activePath, setActivePath] = useState(0);
+  const [animKey, setAnimKey] = useState(0);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -468,56 +345,168 @@ function PathsSection() {
     return () => observer.disconnect();
   }, []);
 
+  const handlePathChange = useCallback((index: number) => {
+    if (index !== activePath) {
+      setActivePath(index);
+      setAnimKey((k) => k + 1);
+    }
+  }, [activePath]);
+
+  const active = paths[activePath];
+
   return (
     <section id="paths" className="relative py-16 sm:py-28 md:py-36">
-      {/* Top divider */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] max-w-4xl h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
 
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6">
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6">
         {/* Section header */}
-        <div className="text-center mb-14 md:mb-20">
-          <p
-            className={cn(
-              "text-xs tracking-[0.4em] uppercase text-[#C47A1A] mb-4 transition-all duration-700",
-              visible ? "opacity-100" : "opacity-0"
-            )}
-          >
-            Three Levels of Value Creation
-          </p>
-          <h2
-            className={cn(
-              "font-display text-3xl md:text-4xl lg:text-5xl font-light text-white/90 transition-all duration-1000 delay-100",
-              visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-            )}
-          >
-            One Asset. Three Paths.
-          </h2>
-          <p
-            className={cn(
-              "mt-5 text-sm sm:text-base md:text-lg text-white/40 max-w-2xl mx-auto leading-relaxed transition-all duration-700 delay-300",
-              visible ? "opacity-100" : "opacity-0"
-            )}
-          >
-            Every verified gemstone can unlock value in multiple ways. PleoChrome
-            orchestrates each path with the same institutional-grade infrastructure
-            &mdash; so you choose the structure that fits your strategy.
+        <div className="text-center mb-12 md:mb-16">
+          <p className={cn(
+            "text-xs tracking-[0.4em] uppercase text-[#C47A1A] mb-4 transition-all duration-700",
+            visible ? "opacity-100" : "opacity-0"
+          )}>Three Levels of Value Creation</p>
+          <h2 className={cn(
+            "font-display text-3xl md:text-4xl lg:text-5xl font-light text-white/90 transition-all duration-1000 delay-100",
+            visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+          )}>Choose Your Path</h2>
+          <p className={cn(
+            "mt-5 text-sm sm:text-base md:text-lg text-white/40 max-w-2xl mx-auto leading-relaxed transition-all duration-700 delay-300",
+            visible ? "opacity-100" : "opacity-0"
+          )}>
+            Every verified gemstone can unlock value in multiple ways. Select a path
+            to explore the complete orchestration workflow.
           </p>
         </div>
 
-        {/* Three path cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-5 items-stretch">
-          {valuePaths.map((path, i) => (
-            <PathCard key={path.title} path={path} index={i} visible={visible} />
+        {/* Path selector tabs */}
+        <div className={cn(
+          "flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-12 md:mb-16 transition-all duration-700 delay-200",
+          visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+        )}>
+          {paths.map((path, i) => (
+            <button
+              key={path.id}
+              onClick={() => handlePathChange(i)}
+              className={cn(
+                "group relative flex items-center gap-3 rounded-2xl px-6 py-4 sm:px-8 sm:py-5 transition-all duration-500 cursor-pointer",
+                "border text-left sm:text-center sm:flex-col sm:items-center sm:flex-1 sm:max-w-[240px]",
+                activePath === i
+                  ? "border-white/[0.12] bg-white/[0.04] shadow-[0_0_40px_rgba(0,0,0,0.3)]"
+                  : "border-white/[0.04] bg-white/[0.01] hover:border-white/[0.08] hover:bg-white/[0.02]"
+              )}
+            >
+              {/* Active indicator glow */}
+              {activePath === i && (
+                <div
+                  className="absolute inset-0 rounded-2xl opacity-20 blur-xl pointer-events-none"
+                  style={{ background: `radial-gradient(ellipse at center, ${path.color}, transparent 70%)` }}
+                />
+              )}
+
+              <div className={cn(
+                "relative w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 transition-all duration-500",
+                activePath === i ? "scale-110" : "scale-100"
+              )} style={{ backgroundColor: activePath === i ? path.color : "rgba(255,255,255,0.04)" }}>
+                <span className={cn("transition-colors duration-500", activePath === i ? "text-white" : "text-white/30")}>
+                  {path.icon}
+                </span>
+              </div>
+
+              <div className="relative">
+                <p className={cn(
+                  "font-semibold tracking-tight transition-colors duration-500",
+                  activePath === i ? "text-white/90" : "text-white/40"
+                )}>{path.title}</p>
+                <p className={cn(
+                  "text-[10px] sm:text-xs tracking-[0.15em] uppercase transition-colors duration-500 mt-0.5",
+                  activePath === i ? "text-white/40" : "text-white/20"
+                )}>{path.tagline}</p>
+              </div>
+            </button>
           ))}
         </div>
 
-        {/* Bottom note */}
-        <div
-          className={cn(
-            "mt-12 md:mt-16 text-center transition-all duration-700 delay-700",
-            visible ? "opacity-100" : "opacity-0"
-          )}
-        >
+        {/* Active path description */}
+        <div key={`desc-${animKey}`} className="text-center mb-10 md:mb-14 animate-fade-in">
+          <p className="text-[15px] sm:text-base text-white/50 max-w-2xl mx-auto leading-relaxed">
+            {active.description}
+          </p>
+        </div>
+
+        {/* Workflow timeline */}
+        <div key={`flow-${animKey}`} className="relative max-w-3xl mx-auto">
+          {/* Vertical connecting line */}
+          <div
+            className="absolute left-5 sm:left-7 top-3 bottom-3 w-px opacity-30"
+            style={{
+              background: `linear-gradient(to bottom, transparent, ${active.color} 10%, ${active.color} 90%, transparent)`,
+            }}
+          />
+
+          <div className="space-y-1">
+            {active.steps.map((step, i) => (
+              <div
+                key={`${active.id}-${i}`}
+                className="relative flex gap-5 sm:gap-7 group animate-fade-in-up"
+                style={{ animationDelay: `${i * 100}ms`, animationFillMode: "backwards" }}
+              >
+                {/* Step node */}
+                <div className="relative shrink-0 flex flex-col items-center z-10">
+                  <div
+                    className="w-10 h-10 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center border transition-all duration-500 group-hover:scale-110"
+                    style={{
+                      backgroundColor: `${active.color}15`,
+                      borderColor: `${active.color}30`,
+                    }}
+                  >
+                    <span style={{ color: active.color }}>{step.icon}</span>
+                  </div>
+                </div>
+
+                {/* Step content */}
+                <div className="flex-1 pb-8 sm:pb-10">
+                  {/* Step number + title */}
+                  <div className="flex items-baseline gap-3 mb-2">
+                    <span className="text-[10px] tracking-[0.2em] uppercase font-medium" style={{ color: active.color }}>
+                      Step {i + 1}
+                    </span>
+                    <h3 className="text-base sm:text-lg font-semibold tracking-tight text-white/85 group-hover:text-white transition-colors duration-300">
+                      {step.title}
+                    </h3>
+                  </div>
+
+                  <p className="text-sm text-white/40 leading-relaxed mb-3 max-w-xl">
+                    {step.description}
+                  </p>
+
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-2">
+                    <span className="inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] tracking-wider uppercase px-2.5 py-1 rounded-full border border-white/[0.06] bg-white/[0.02] text-white/30">
+                      <BadgeCheck className="w-3 h-3" />
+                      {step.compliance}
+                    </span>
+                    {step.partner && (
+                      <span
+                        className="inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] tracking-wider uppercase px-2.5 py-1 rounded-full border"
+                        style={{
+                          borderColor: `${active.color}25`,
+                          backgroundColor: `${active.color}08`,
+                          color: active.color,
+                        }}
+                      >
+                        <Handshake className="w-3 h-3" />
+                        {step.partner}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Bottom connector */}
+        <div className="mt-12 md:mt-16 text-center animate-fade-in" style={{ animationDelay: "600ms" }}>
           <div className="inline-flex items-center gap-3 rounded-full border border-white/[0.06] bg-white/[0.02] px-6 py-3">
             <div className="flex gap-1">
               <span className="w-2 h-2 rounded-full bg-[#1B6B4A]" />
@@ -525,151 +514,10 @@ function PathsSection() {
               <span className="w-2 h-2 rounded-full bg-[#1E3A6E]" />
             </div>
             <span className="text-xs sm:text-sm tracking-wide text-white/40">
-              All three paths share the same 7-Gate verification infrastructure
+              All paths share the same institutional verification infrastructure
             </span>
           </div>
         </div>
-      </div>
-    </section>
-  );
-}
-
-// ── Process Gate Card ────────────────────────
-
-interface GateCardProps {
-  gate: (typeof gates)[number];
-  index: number;
-  area: string;
-  visible: boolean;
-}
-
-function GateCard({ gate, index, area, visible }: GateCardProps) {
-  return (
-    <li
-      className={cn(
-        "min-h-[16rem] list-none transition-all duration-700",
-        area,
-        visible
-          ? "opacity-100 translate-y-0"
-          : "opacity-0 translate-y-8"
-      )}
-      style={{ transitionDelay: `${150 + index * 100}ms` }}
-    >
-      <div className="relative h-full rounded-2xl border border-white/[0.06] p-[3px] md:rounded-[1.5rem]">
-        <GlowingEffect
-          spread={40}
-          glow
-          disabled={false}
-          proximity={64}
-          inactiveZone={0.01}
-          borderWidth={2}
-        />
-        <div className="relative flex h-full flex-col justify-between gap-4 overflow-hidden rounded-[calc(1rem-1px)] md:rounded-[calc(1.5rem-3px)] bg-[#0A0F1A]/80 backdrop-blur-sm p-6 md:p-7 border border-white/[0.03]">
-          {/* Gate number + icon */}
-          <div className="flex items-center justify-between">
-            <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", gemColors[index])}>
-              <span className="text-white/90">{gate.icon}</span>
-            </div>
-            <div className="text-right">
-              <span className="text-[10px] tracking-[0.2em] uppercase text-white/15 block">
-                {gate.phase}
-              </span>
-              <span className="text-xs tracking-[0.3em] uppercase text-white/20 font-medium">
-                Gate {index + 1}
-              </span>
-            </div>
-          </div>
-
-          {/* Content */}
-          <div className="space-y-2.5 mt-auto">
-            <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
-              <h3 className="text-lg md:text-xl font-semibold tracking-tight text-white/90">
-                {gate.title}
-              </h3>
-              <span className="text-[11px] sm:text-xs tracking-wider uppercase text-[#1A8B7A]">
-                {gate.subtitle}
-              </span>
-            </div>
-            <p className="text-sm leading-relaxed text-white/40">
-              {gate.description}
-            </p>
-          </div>
-        </div>
-      </div>
-    </li>
-  );
-}
-
-// ── Process Section ──────────────────────────
-
-const gridAreas = [
-  "md:[grid-area:1/1/2/5]",
-  "md:[grid-area:1/5/2/9]",
-  "md:[grid-area:1/9/2/13]",
-  "md:[grid-area:2/1/3/7]",
-  "md:[grid-area:2/7/3/13]",
-  "md:[grid-area:3/1/4/7]",
-  "md:[grid-area:3/7/4/13]",
-];
-
-function ProcessSection() {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.1 }
-    );
-    const el = document.getElementById("process");
-    if (el) observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  return (
-    <section id="process" className="relative py-16 sm:py-28 md:py-36 vault-texture">
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6">
-        {/* Section header */}
-        <div className="text-center mb-16 md:mb-20">
-          <p
-            className={cn(
-              "text-xs tracking-[0.4em] uppercase text-[#C47A1A] mb-4 transition-all duration-700",
-              visible ? "opacity-100" : "opacity-0"
-            )}
-          >
-            The 7-Gate Execution Framework
-          </p>
-          <h2
-            className={cn(
-              "font-display text-3xl md:text-4xl lg:text-5xl font-light text-white/90 transition-all duration-1000 delay-100",
-              visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-            )}
-          >
-            Seven Gates. Zero Assumptions.
-          </h2>
-          <p
-            className={cn(
-              "mt-5 text-sm sm:text-base md:text-lg text-white/40 max-w-2xl mx-auto leading-relaxed transition-all duration-700 delay-300",
-              visible ? "opacity-100" : "opacity-0"
-            )}
-          >
-            Regardless of which value path you choose, every asset passes through
-            seven strict, binary decision gates. Each gate requires documented,
-            independently verified evidence before the next opens.
-          </p>
-        </div>
-
-        {/* Gate cards grid */}
-        <ul className="grid grid-cols-1 gap-4 md:grid-cols-12 md:grid-rows-3 lg:gap-5">
-          {gates.map((gate, i) => (
-            <GateCard
-              key={gate.title}
-              gate={gate}
-              index={i}
-              area={gridAreas[i]}
-              visible={visible}
-            />
-          ))}
-        </ul>
       </div>
     </section>
   );
@@ -707,41 +555,28 @@ function ValueSection() {
 
   return (
     <section id="value" className="relative py-16 sm:py-28 md:py-36">
-      {/* Subtle top border */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] max-w-4xl h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
-
       <div className="relative z-10 max-w-5xl mx-auto px-5 sm:px-6">
         <div className="text-center mb-10 sm:mb-16">
-          <h2
-            className={cn(
-              "font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-white/90 transition-all duration-1000",
-              visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-            )}
-          >
+          <h2 className={cn(
+            "font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-white/90 transition-all duration-1000",
+            visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+          )}>
             Value, Revealed<br className="hidden md:block" />
             from Every Angle
           </h2>
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
           {pillars.map((pillar, i) => (
-            <div
-              key={pillar.label}
-              className={cn(
-                "transition-all duration-700",
-                visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-              )}
-              style={{ transitionDelay: `${200 + i * 150}ms` }}
-            >
+            <div key={pillar.label} className={cn(
+              "transition-all duration-700",
+              visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            )} style={{ transitionDelay: `${200 + i * 150}ms` }}>
               <div className="flex items-center gap-3 mb-4">
                 <div className={cn("w-1.5 h-1.5 rounded-full", gemColors[i * 2])} />
-                <span className="text-xs tracking-[0.3em] uppercase text-white/50">
-                  {pillar.label}
-                </span>
+                <span className="text-xs tracking-[0.3em] uppercase text-white/50">{pillar.label}</span>
               </div>
-              <p className="text-white/60 leading-relaxed text-[15px]">
-                {pillar.text}
-              </p>
+              <p className="text-white/60 leading-relaxed text-[15px]">{pillar.text}</p>
             </div>
           ))}
         </div>
@@ -753,36 +588,10 @@ function ValueSection() {
 // ── Partners Section ─────────────────────────
 
 const partners = [
-  {
-    name: "Brickken",
-    role: "Tokenization Platform",
-    logo: "/partners/brickken.png",
-    type: "png" as const,
-  },
-  {
-    name: "GIA",
-    role: "Gemological Certification",
-    logo: "/partners/gia.svg",
-    type: "svg" as const,
-  },
-  {
-    name: "Chainlink",
-    role: "Oracle Infrastructure",
-    logo: "/partners/chainlink.png",
-    type: "png" as const,
-  },
-  {
-    name: "Brink\u2019s",
-    role: "Vault & Custody",
-    logo: "/partners/brinks.png",
-    type: "png" as const,
-  },
-  {
-    name: "Malca-Amit",
-    role: "Precious Asset Logistics",
-    logo: "/partners/malca-amit.svg",
-    type: "svg" as const,
-  },
+  { name: "GIA", role: "Gemological Certification", logo: "/partners/gia.svg" },
+  { name: "Chainlink", role: "Oracle Infrastructure", logo: "/partners/chainlink.png" },
+  { name: "Brink\u2019s", role: "Vault & Custody", logo: "/partners/brinks.png" },
+  { name: "Malca-Amit", role: "Precious Asset Logistics", logo: "/partners/malca-amit.svg" },
 ];
 
 function PartnersSection() {
@@ -800,68 +609,39 @@ function PartnersSection() {
 
   return (
     <section id="partners" className="relative py-16 sm:py-28 md:py-36">
-      {/* Top divider */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] max-w-4xl h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
-
       <div className="relative z-10 max-w-5xl mx-auto px-5 sm:px-6">
-        {/* Header */}
         <div className="text-center mb-12 sm:mb-16">
-          <p
-            className={cn(
-              "text-[10px] sm:text-xs tracking-[0.3em] sm:tracking-[0.4em] uppercase text-[#1A8B7A] mb-3 sm:mb-4 transition-all duration-700",
-              visible ? "opacity-100" : "opacity-0"
-            )}
-          >
-            Infrastructure Partners
-          </p>
-          <h2
-            className={cn(
-              "font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-white/90 transition-all duration-1000 delay-100",
-              visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-            )}
-          >
-            Built on the Shoulders of Giants
-          </h2>
-          <p
-            className={cn(
-              "mt-4 sm:mt-5 text-sm sm:text-base md:text-lg text-white/40 max-w-2xl mx-auto leading-relaxed transition-all duration-700 delay-300",
-              visible ? "opacity-100" : "opacity-0"
-            )}
-          >
+          <p className={cn(
+            "text-[10px] sm:text-xs tracking-[0.3em] sm:tracking-[0.4em] uppercase text-[#1A8B7A] mb-3 sm:mb-4 transition-all duration-700",
+            visible ? "opacity-100" : "opacity-0"
+          )}>Infrastructure Partners</p>
+          <h2 className={cn(
+            "font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-white/90 transition-all duration-1000 delay-100",
+            visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+          )}>Built on the Shoulders of Giants</h2>
+          <p className={cn(
+            "mt-4 sm:mt-5 text-sm sm:text-base md:text-lg text-white/40 max-w-2xl mx-auto leading-relaxed transition-all duration-700 delay-300",
+            visible ? "opacity-100" : "opacity-0"
+          )}>
             PleoChrome is building its stack on institutional-grade infrastructure
             &mdash; partnering with the names that secure and verify billions in assets worldwide.
           </p>
         </div>
 
-        {/* Partner logos grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 sm:gap-8 items-center">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 items-center">
           {partners.map((partner, i) => (
-            <div
-              key={partner.name}
-              className={cn(
-                "group flex flex-col items-center gap-4 transition-all duration-700",
-                visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-              )}
-              style={{ transitionDelay: `${200 + i * 120}ms` }}
-            >
-              {/* Logo container */}
+            <div key={partner.name} className={cn(
+              "group flex flex-col items-center gap-4 transition-all duration-700",
+              visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+            )} style={{ transitionDelay: `${200 + i * 120}ms` }}>
               <div className="relative w-full h-16 sm:h-20 flex items-center justify-center px-4 rounded-xl border border-white/[0.04] bg-white/[0.02] group-hover:border-white/[0.08] group-hover:bg-white/[0.04] transition-all duration-500">
-                <Image
-                  src={partner.logo}
-                  alt={partner.name}
-                  width={160}
-                  height={50}
-                  className="max-h-8 sm:max-h-10 w-auto object-contain brightness-0 invert opacity-40 group-hover:opacity-70 transition-all duration-500"
-                />
+                <Image src={partner.logo} alt={partner.name} width={160} height={50}
+                  className="max-h-8 sm:max-h-10 w-auto object-contain brightness-0 invert opacity-40 group-hover:opacity-70 transition-all duration-500" />
               </div>
-              {/* Label */}
               <div className="text-center">
-                <p className="text-xs sm:text-sm font-medium text-white/50 group-hover:text-white/70 transition-colors duration-300">
-                  {partner.name}
-                </p>
-                <p className="text-[10px] sm:text-xs text-white/25 tracking-wider mt-0.5">
-                  {partner.role}
-                </p>
+                <p className="text-xs sm:text-sm font-medium text-white/50 group-hover:text-white/70 transition-colors duration-300">{partner.name}</p>
+                <p className="text-[10px] sm:text-xs text-white/25 tracking-wider mt-0.5">{partner.role}</p>
               </div>
             </div>
           ))}
@@ -888,58 +668,30 @@ function ContactSection() {
 
   return (
     <section id="contact" className="relative py-20 sm:py-32 md:py-44 vault-texture">
-      {/* Top divider */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] max-w-4xl h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
-
       <div className="relative z-10 max-w-2xl mx-auto px-5 sm:px-6 text-center">
-        <div
-          className={cn(
-            "transition-all duration-1000",
-            visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          )}
-        >
-          <Image
-            src="/favicon.png"
-            alt="PleoChrome"
-            width={56}
-            height={56}
-            className="mx-auto mb-8 drop-shadow-[0_0_20px_rgba(26,139,122,0.2)]"
-          />
-
+        <div className={cn("transition-all duration-1000", visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8")}>
+          <Image src="/favicon.png" alt="PleoChrome" width={56} height={56}
+            className="mx-auto mb-8 drop-shadow-[0_0_20px_rgba(26,139,122,0.2)]" />
           <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-white/90 mb-4 sm:mb-5">
             Ready to Unlock<br />the Full Value?
           </h2>
-
           <p className="text-white/40 text-sm sm:text-base md:text-lg leading-relaxed mb-8 sm:mb-10 max-w-lg mx-auto">
             Whether you hold a high-value gemstone, operate custody infrastructure,
             represent qualified investors, or provide lending capital &mdash;
             let&apos;s discuss the right path forward.
           </p>
-
-          <a
-            href="mailto:team@pleochrome.com"
+          <a href="mailto:team@pleochrome.com"
             className="group relative inline-flex items-center gap-2 sm:gap-3 rounded-full px-7 py-3.5 sm:px-10 sm:py-4
               text-xs sm:text-sm tracking-[0.15em] sm:tracking-[0.2em] uppercase font-medium
               bg-gradient-to-r from-[#1A8B7A] to-[#1E3A6E]
               text-white shadow-[0_0_40px_rgba(26,139,122,0.2)]
               hover:shadow-[0_0_60px_rgba(26,139,122,0.35)]
-              transition-all duration-500 hover:scale-[1.02]"
-          >
+              transition-all duration-500 hover:scale-[1.02]">
             <span>Contact Us</span>
-            <svg
-              className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-            </svg>
+            <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
           </a>
-
-          <p className="mt-6 text-xs tracking-[0.2em] text-white/20">
-            team@pleochrome.com
-          </p>
+          <p className="mt-6 text-xs tracking-[0.2em] text-white/20">team@pleochrome.com</p>
         </div>
       </div>
     </section>
@@ -953,27 +705,12 @@ function Footer() {
     <footer className="relative py-12 border-t border-white/[0.04]">
       <div className="max-w-6xl mx-auto px-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            <Image
-              src="/logo-white.png"
-              alt="PleoChrome"
-              width={140}
-              height={34}
-              className="opacity-40 hover:opacity-60 transition-opacity"
-            />
-          </div>
-
-          {/* Gem bar */}
+          <Image src="/logo-white.png" alt="PleoChrome" width={140} height={34}
+            className="opacity-40 hover:opacity-60 transition-opacity" />
           <div className="gem-bar w-28">
-            <span className="bg-[#1B6B4A]" />
-            <span className="bg-[#1A8B7A]" />
-            <span className="bg-[#1E3A6E]" />
-            <span className="bg-[#5B2D8E]" />
-            <span className="bg-[#A61D3A]" />
-            <span className="bg-[#C47A1A]" />
-            <span className="bg-[#7BA31E]" />
+            <span className="bg-[#1B6B4A]" /><span className="bg-[#1A8B7A]" /><span className="bg-[#1E3A6E]" />
+            <span className="bg-[#5B2D8E]" /><span className="bg-[#A61D3A]" /><span className="bg-[#C47A1A]" /><span className="bg-[#7BA31E]" />
           </div>
-
           <div className="flex items-center gap-6 text-xs tracking-wider text-white/25">
             <span>Florida</span>
             <span className="w-px h-3 bg-white/10" />
@@ -993,7 +730,6 @@ export default function HomePage() {
       <HeroSection />
       <IntroSection />
       <PathsSection />
-      <ProcessSection />
       <ValueSection />
       <PartnersSection />
       <ContactSection />
