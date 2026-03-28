@@ -2,6 +2,15 @@
 
 import { useState, useMemo, useCallback } from "react";
 import Image from "next/image";
+import {
+  type ValuePath,
+  type PartnerStack,
+  PARTNER_STACKS,
+  getPathCostLines,
+  REVENUE_MODELS,
+  VALUE_PATHS,
+} from "@/lib/portal-data";
+import { PathSelector } from "@/components/portal/PathSelector";
 
 const PASSCODE = "pleo123";
 
@@ -31,9 +40,9 @@ function pct(n: number, d: number): string {
 // DATA
 // ═══════════════════════════════════════════════
 
-interface CostLine {
+interface PageCostLine {
   id: string; label: string; narrative: string;
-  phase: "Acquisition" | "Preparation" | "Tokenization" | "Distribution";
+  phase: string;
   paidBy: "pleochrome" | "asset-holder" | "proceeds";
   defaultAmount: number; scaleFactor?: number; fixed?: boolean; min: number; max: number;
 }
@@ -50,13 +59,15 @@ const comparableStones = [
   { name: "Hope Spinel", value: 1470000, type: "Spinel", carat: 50.13, note: "Bonhams London, 2015. Historic provenance, exceptional size." },
 ];
 
-const defaultCosts: CostLine[] = [
-  // ACQUISITION — lean defaults
+// Phases 1-2 costs stay the same regardless of value path
+const acquisitionCosts: PageCostLine[] = [
   { id:"kyc",label:"KYC / KYB on Asset Holder",narrative:"Identity verification on the stone owner. Includes government ID check with liveness detection, entity verification for businesses, and identification of all owners with >25% stake. May be covered by the tokenization platform subscription (e.g., Brickken\u2019s Advanced tier includes 150 KYC checks). Standalone cost via Veriff: $0.80/check or Didit: free for up to 500/month.",phase:"Acquisition",paidBy:"pleochrome",defaultAmount:50,fixed:true,min:0,max:5000 },
   { id:"sanctions",label:"Sanctions & PEP Screening",narrative:"Screening against OFAC SDN, EU/UN sanctions, and PEP databases. Typically bundled with KYC provider at no additional cost, or $10-$50 per screening via Sumsub Compliance tier. A single sanctions hit halts the entire process \u2014 this protects everyone from criminal and regulatory liability.",phase:"Acquisition",paidBy:"pleochrome",defaultAmount:100,fixed:true,min:0,max:5000 },
   { id:"provenance",label:"Provenance Research",narrative:"Tracing the stone\u2019s ownership history from mine to current holder. Confirms no competing claims, liens, or encumbrances. Like a title search for real estate. For stones with existing auction/dealer records, this is straightforward. Stones with gaps require more investigation. Hourly legal research at $150-$250/hr.",phase:"Acquisition",paidBy:"asset-holder",defaultAmount:2500,fixed:true,min:500,max:50000 },
   { id:"intake-legal",label:"Intake Agreement (Legal)",narrative:"The engagement contract between PleoChrome and the stone owner. A boutique securities attorney can draft this from a template for $1,500-$3,000. The first one costs more; subsequent stones reuse the template with modifications. This becomes a standard form document after the first deal.",phase:"Acquisition",paidBy:"pleochrome",defaultAmount:2500,fixed:true,min:500,max:25000 },
-  // PREPARATION — lean defaults
+];
+
+const preparationCosts: PageCostLine[] = [
   { id:"gia",label:"GIA Grading Report",narrative:"The global gold standard for gemstone certification. Most high-value stones already have a GIA report \u2014 these travel with the stone through its lifetime. If a fresh report is needed, GIA charges $150-$500 for colored stones depending on carat weight. For a $55M stone, the report almost certainly already exists.",phase:"Preparation",paidBy:"asset-holder",defaultAmount:0,fixed:true,min:0,max:5000 },
   { id:"ssef",label:"SSEF Origin Report",narrative:"The Swiss Gemmological Institute determines where the stone was mined using spectroscopy. Origin dramatically affects value \u2014 a Burmese ruby can be worth 2-5x a Mozambican one. Published price: CHF 4,000 (~$4,500) for a 50-100ct ID + Origin report. Most $55M stones already have this report.",phase:"Preparation",paidBy:"asset-holder",defaultAmount:0,fixed:true,min:0,max:15000 },
   { id:"gubelin",label:"Gub\u00e9lin Report (Optional)",narrative:"Third lab certification for maximum credibility. For stones above $10M, triple-lab (GIA + SSEF + Gub\u00e9lin) is the auction house standard. ~$4,000-$5,000 if needed. Set to $0 if the stone already has existing certifications, which is typical for stones at this price point.",phase:"Preparation",paidBy:"asset-holder",defaultAmount:0,fixed:true,min:0,max:15000 },
@@ -73,27 +84,41 @@ const defaultCosts: CostLine[] = [
   { id:"sub-agreement",label:"Subscription Agreement",narrative:"The investor sign-up contract. Typically bundled with the PPM engagement or drafted separately for $1,500-$3,000. After the first deal, this becomes a standard template requiring minimal customization per stone.",phase:"Preparation",paidBy:"pleochrome",defaultAmount:2000,fixed:true,min:500,max:30000 },
   { id:"token-agreement",label:"Token Purchase Agreement",narrative:"Connects the blockchain token to legal SPV ownership rights. A specialized document, but once the template exists from the first deal, subsequent stones require only minor modifications. First-deal cost: $2,000-$3,000.",phase:"Preparation",paidBy:"pleochrome",defaultAmount:2500,fixed:true,min:500,max:30000 },
   { id:"media",label:"Photo & Media Documentation",narrative:"Professional gemstone photography (8+ angles, macro, 360 video) plus weight verification. Can be done at the vault facility during intake. $1,000-$3,000 for a professional gemstone photographer. Or $500 if the vault\u2019s own documentation is sufficient.",phase:"Preparation",paidBy:"asset-holder",defaultAmount:2000,fixed:true,min:500,max:25000 },
-  // TOKENIZATION — lean defaults
-  { id:"brickken",label:"Tokenization Platform (Year 1)",narrative:"Evaluating Brickken (ERC-3643, ~EUR 5,000/yr Advanced tier) and Zoniqx (ERC-7518). Both offer: token deployment from pre-audited factory contracts, KYC checks, compliance guidance, multi-chain support, and investor management. Budget estimate based on Brickken Advanced tier; Zoniqx pricing TBD. The contracts are pre-audited by the platform provider.",phase:"Tokenization",paidBy:"pleochrome",defaultAmount:5500,fixed:true,min:3000,max:100000 },
-  { id:"audit",label:"Configuration Review",narrative:"Since both Brickken and Zoniqx deploy pre-audited factory contracts, you do NOT need a full $50K-$100K custom smart contract audit. What you need is a configuration review \u2014 verifying your specific deployment parameters (compliance rules, identity settings, transfer restrictions) are correctly set. A boutique security firm charges $2,500-$5,000 for this. May be covered by the platform\u2019s compliance guidance.",phase:"Tokenization",paidBy:"pleochrome",defaultAmount:3500,fixed:true,min:0,max:300000 },
-  { id:"dev",label:"Development & Testing",narrative:"Configuring token parameters on the selected tokenization platform, running testnet deployment, verifying compliance rules, and connecting the Chainlink PoR feed. If using the platform\u2019s dashboard (not custom API integration), this is 10-30 hours of work, not 100+. A blockchain developer or even a technical co-founder can handle this.",phase:"Tokenization",paidBy:"pleochrome",defaultAmount:5000,fixed:true,min:0,max:100000 },
-  { id:"gas",label:"Blockchain Gas Fees",narrative:"Polygon transaction fees to deploy contracts. Under $1 per transaction. Multiple contract deployments + test transactions = $50-$200 total. This is essentially free compared to Ethereum ($5-$50+ per tx).",phase:"Tokenization",paidBy:"pleochrome",defaultAmount:100,fixed:true,min:10,max:5000 },
-  { id:"bluesky",label:"Blue Sky Filings (Target States)",narrative:"You only file in states where your actual investors reside \u2014 NOT all 50 states. For a first offering targeting 3-5 states through your existing network: $300-$900 in government fees + $200-$500 for a filing service. File via NASAA\u2019s electronic system (EFD). All 50 states is unnecessary and costs $13K+.",phase:"Tokenization",paidBy:"pleochrome",defaultAmount:1500,fixed:true,min:300,max:25000 },
-  // DISTRIBUTION — lean defaults
-  { id:"marketing",label:"Marketing & Investor Acquisition",narrative:"Under 506(c), you can advertise publicly. But for a first offering, your existing network is the primary channel. LinkedIn Sales Navigator ($120/mo), targeted LinkedIn ads ($500-$1,000 burst), direct outreach via email, and one virtual investor webinar. Total 6-month budget: $1,700-$3,000. No placement agent needed for the first deal.",phase:"Distribution",paidBy:"pleochrome",defaultAmount:3000,scaleFactor:0.3,min:500,max:5000000 },
-  { id:"investor-kyc",label:"Investor KYC & Accreditation",narrative:"May be covered by the tokenization platform\u2019s included KYC checks (e.g., Brickken Advanced includes 150/yr). For accredited investor verification: investments of $200K+ allow self-certification under March 2025 SEC guidance \u2014 the investor signs a letter, no third-party verification needed. Below $200K: use VerifyInvestor.com at $50-$150/investor.",phase:"Distribution",paidBy:"pleochrome",defaultAmount:0,fixed:true,min:0,max:100000 },
-  { id:"transfer-agent",label:"Transfer Agent",narrative:"For a first Reg D 506(c) offering, you do NOT need a separate registered transfer agent. The on-chain identity registry IS your shareholder record. The tokenization platform maintains the cap table. Per the SEC\u2019s Jan 2026 statement, blockchain can serve as the master securityholder file. Budget $0 for the first offering; add a TA ($5K-$15K/yr) when you scale to secondary trading.",phase:"Distribution",paidBy:"pleochrome",defaultAmount:0,fixed:true,min:0,max:150000 },
-  { id:"data-room",label:"Investor Portal / Data Room",narrative:"A secure online workspace for investors to access the PPM, certifications, vault receipts, and reports. For a first offering: a simple password-protected page on your existing website (already built on Vercel) or Google Drive shared folder costs $0. As you scale, use Dealroom or Intralinks at $200-$500/month.",phase:"Distribution",paidBy:"pleochrome",defaultAmount:0,fixed:true,min:0,max:50000 },
-  { id:"compliance-yr1",label:"Compliance Monitoring (Year 1)",narrative:"Quarterly sanctions re-screening of investors (may be included in tokenization platform or $1-$2/check via Sumsub). Transaction monitoring is built into the compliance token smart contracts. The main cost is your time managing the compliance program, not software subscriptions. Budget for annual re-screening of ~50-100 investors.",phase:"Distribution",paidBy:"pleochrome",defaultAmount:500,fixed:true,min:0,max:100000 },
-  { id:"aml-audit",label:"Annual AML Program Audit",narrative:"Independent third-party review of your AML program. Required by regulation, but for a startup with one offering and <100 investors, a boutique compliance consultant can do this for $3,000-$5,000 (not $15K+). The first year may only require a program setup review, not a full operational audit.",phase:"Distribution",paidBy:"pleochrome",defaultAmount:3500,fixed:true,min:1000,max:50000 },
 ];
 
-const phaseInfo: Record<string, { color: string; num: string; subtitle: string }> = {
-  Acquisition: { color: "#1B6B4A", num: "01", subtitle: "Building the Pipeline" },
-  Preparation: { color: "#1A8B7A", num: "02", subtitle: "Building the Evidence Layer" },
-  Tokenization: { color: "#1E3A6E", num: "03", subtitle: "Minting the Digital Asset" },
-  Distribution: { color: "#C47A1A", num: "04", subtitle: "Token Sale & Management" },
+// Phase labels change based on path
+const PHASE_LABELS: Record<ValuePath, { phase3: string; phase4: string }> = {
+  tokenization: { phase3: "Tokenization", phase4: "Distribution" },
+  fractional: { phase3: "Securities", phase4: "Management" },
+  debt: { phase3: "Loan Structuring", phase4: "Servicing" },
 };
+
+// Phase info (colors + subtitles) also change based on path
+function getPhaseInfo(path: ValuePath): Record<string, { color: string; num: string; subtitle: string }> {
+  const labels = PHASE_LABELS[path];
+  const pathColor = VALUE_PATHS[path].color;
+  const phase4Colors: Record<ValuePath, string> = {
+    tokenization: "#C47A1A",
+    fractional: "#C47A1A",
+    debt: "#4A7BC7",
+  };
+  const phase3Subtitles: Record<ValuePath, string> = {
+    tokenization: "Minting the Digital Asset",
+    fractional: "Unit Division & Registration",
+    debt: "Collateral & Documentation",
+  };
+  const phase4Subtitles: Record<ValuePath, string> = {
+    tokenization: "Token Sale & Management",
+    fractional: "Investor Access & Reporting",
+    debt: "Deployment Through Maturity",
+  };
+  return {
+    Acquisition: { color: "#1B6B4A", num: "01", subtitle: "Building the Pipeline" },
+    Preparation: { color: "#1A8B7A", num: "02", subtitle: "Building the Evidence Layer" },
+    [labels.phase3]: { color: pathColor, num: "03", subtitle: phase3Subtitles[path] },
+    [labels.phase4]: { color: phase4Colors[path], num: "04", subtitle: phase4Subtitles[path] },
+  };
+}
 
 // ═══════════════════════════════════════════════
 // COMPONENTS
@@ -192,6 +217,8 @@ interface SavedDeal {
   adminFeeRate: number;
   overrides: Record<string, number>;
   customCosts: CustomCost[];
+  path?: ValuePath;
+  partnerStack?: PartnerStack;
 }
 
 function getSavedDeals(): SavedDeal[] {
@@ -235,6 +262,10 @@ export default function FinancialModel() {
   const [showSaved, setShowSaved] = useState(false);
   const [saveMsg, setSaveMsg] = useState("");
 
+  // New state: value path and partner stack
+  const [selectedPath, setSelectedPath] = useState<ValuePath>("tokenization");
+  const [selectedStack, setSelectedStack] = useState<PartnerStack>("rialto-full");
+
   // Load saved deals on mount
   useState(() => { setSavedDeals(getSavedDeals()); });
 
@@ -245,7 +276,7 @@ export default function FinancialModel() {
   const removeCustom = useCallback((id: string) => setCustomCosts(p => p.filter(c => c.id !== id)), []);
 
   const saveDeal = () => {
-    const deal: SavedDeal = { name: dealName, date: new Date().toISOString(), assetValue, appraisalDiscount, tokenPrice, bdRate, setupFeeRate, successFeeRate, adminFeeRate, overrides, customCosts };
+    const deal: SavedDeal = { name: dealName, date: new Date().toISOString(), assetValue, appraisalDiscount, tokenPrice, bdRate, setupFeeRate, successFeeRate, adminFeeRate, overrides, customCosts, path: selectedPath, partnerStack: selectedStack };
     const existing = getSavedDeals().filter(d => d.name !== dealName);
     const updated = [...existing, deal];
     saveDealToStorage(updated);
@@ -267,6 +298,8 @@ export default function FinancialModel() {
     setCustomCosts(deal.customCosts);
     setSelectedStone(0);
     setShowSaved(false);
+    if (deal.path) setSelectedPath(deal.path);
+    if (deal.partnerStack) setSelectedStack(deal.partnerStack);
   };
 
   const deleteDeal = (name: string) => {
@@ -287,12 +320,107 @@ export default function FinancialModel() {
     setOverrides({});
     setCustomCosts([]);
     setSelectedStone(0);
+    setSelectedPath("tokenization");
+    setSelectedStack("rialto-full");
   };
 
   const selectStone = (idx: number) => {
     setSelectedStone(idx);
     if (idx > 0) { setAssetValue(comparableStones[idx].value); setDealName(comparableStones[idx].name); }
   };
+
+  // Build cost lines combining fixed phases 1-2 with path-specific phases 3-4 and partner stack overlay
+  const buildCostLines = useMemo(() => {
+    const labels = PHASE_LABELS[selectedPath];
+    const pathCosts = getPathCostLines(selectedPath);
+
+    // Map portal-data CostLine to PageCostLine
+    const mappedPathCosts: PageCostLine[] = pathCosts.map(cl => ({
+      id: cl.id,
+      label: cl.label,
+      narrative: cl.narrative,
+      phase: cl.phase,
+      paidBy: cl.paidBy,
+      defaultAmount: cl.defaultAmount,
+      scaleFactor: cl.scaleFactor,
+      fixed: cl.fixed,
+      min: cl.min,
+      max: cl.max,
+    }));
+
+    // Partner stack overlay lines injected into the distribution/management/servicing phase
+    const stackInfo = PARTNER_STACKS[selectedStack];
+    const phase4 = labels.phase4;
+    const stackCosts: PageCostLine[] = [];
+
+    if (selectedStack === "rialto-full") {
+      stackCosts.push({
+        id: "ps-rialto-full", label: `${stackInfo.shortLabel} (Setup)`, narrative: stackInfo.description + ". Single partner handling BD, ATS, Transfer Agent, Tokenization, KYC/AML, and White-Label Portal.",
+        phase: phase4, paidBy: "pleochrome", defaultAmount: stackInfo.setupCost, fixed: true, min: 25000, max: 200000,
+      });
+      stackCosts.push({
+        id: "ps-rialto-annual", label: `${stackInfo.shortLabel} (Annual)`, narrative: "Annual cost covers ongoing platform access, compliance monitoring, ATS listing, and transfer agent services.",
+        phase: phase4, paidBy: "pleochrome", defaultAmount: stackInfo.annualCost, fixed: true, min: 30000, max: 200000,
+      });
+    } else if (selectedStack === "rialto-brickken") {
+      stackCosts.push({
+        id: "ps-rialto-setup", label: "Rialto Markets (Setup)", narrative: "Rialto Markets BD/ATS/TA setup. Includes broker-dealer of record, ATS for secondary trading, and transfer agent.",
+        phase: phase4, paidBy: "pleochrome", defaultAmount: 50000, fixed: true, min: 25000, max: 200000,
+      });
+      stackCosts.push({
+        id: "ps-rialto-annual-rb", label: "Rialto Markets (Annual)", narrative: "Ongoing Rialto annual cost: BD services, ATS listing, transfer agent.",
+        phase: phase4, paidBy: "pleochrome", defaultAmount: 60000, fixed: true, min: 30000, max: 200000,
+      });
+      stackCosts.push({
+        id: "ps-brickken", label: "Brickken (ERC-3643, Annual)", narrative: "Brickken Advanced tier for tokenization: ERC-3643 compliance tokens, 150 KYC checks included, investor management dashboard.",
+        phase: phase4, paidBy: "pleochrome", defaultAmount: 5500, fixed: true, min: 3000, max: 20000,
+      });
+    } else if (selectedStack === "rialto-zoniqx") {
+      stackCosts.push({
+        id: "ps-rialto-setup-rz", label: "Rialto Markets (Setup)", narrative: "Rialto Markets BD/ATS/TA setup.",
+        phase: phase4, paidBy: "pleochrome", defaultAmount: 50000, fixed: true, min: 25000, max: 200000,
+      });
+      stackCosts.push({
+        id: "ps-rialto-annual-rz", label: "Rialto Markets (Annual)", narrative: "Ongoing Rialto annual cost: BD services, ATS listing, transfer agent.",
+        phase: phase4, paidBy: "pleochrome", defaultAmount: 60000, fixed: true, min: 30000, max: 200000,
+      });
+      stackCosts.push({
+        id: "ps-zoniqx", label: "Zoniqx (ERC-7518, Annual)", narrative: "Zoniqx tokenization platform: ERC-7518 security tokens, zCompliance KYC/AML. Pricing under NDA — placeholder.",
+        phase: phase4, paidBy: "pleochrome", defaultAmount: 0, fixed: true, min: 0, max: 100000,
+      });
+    } else if (selectedStack === "multi-partner") {
+      stackCosts.push({
+        id: "ps-dalmore", label: "Dalmore Group (BD Setup)", narrative: "Dalmore Group broker-dealer of record for primary distribution. $25-55K setup + 1-3% success fee.",
+        phase: phase4, paidBy: "pleochrome", defaultAmount: 35000, fixed: true, min: 25000, max: 55000,
+      });
+      stackCosts.push({
+        id: "ps-tzero", label: "tZERO / North Capital (ATS)", narrative: "Alternative trading system for secondary market. $10-50K setup + per-trade fees.",
+        phase: phase4, paidBy: "pleochrome", defaultAmount: 25000, fixed: true, min: 10000, max: 50000,
+      });
+      stackCosts.push({
+        id: "ps-vertalo", label: "Vertalo (Transfer Agent)", narrative: "Digital transfer agent for cap table management and shareholder registry.",
+        phase: phase4, paidBy: "pleochrome", defaultAmount: 15000, fixed: true, min: 10000, max: 25000,
+      });
+      stackCosts.push({
+        id: "ps-brickken-mp", label: "Brickken (ERC-3643, Annual)", narrative: "Brickken tokenization platform for smart contract deployment and compliance.",
+        phase: phase4, paidBy: "pleochrome", defaultAmount: 5500, fixed: true, min: 3000, max: 20000,
+      });
+      stackCosts.push({
+        id: "ps-kyc-mp", label: "KYC/AML Provider (Annual)", narrative: "Sumsub or equivalent for investor identity verification and sanctions screening.",
+        phase: phase4, paidBy: "pleochrome", defaultAmount: 3500, fixed: true, min: 2000, max: 5000,
+      });
+    }
+
+    // Common distribution-phase items (marketing, compliance, etc.) adapted per path
+    const commonDistributionCosts: PageCostLine[] = [
+      { id:"marketing",label:"Marketing & Investor Acquisition",narrative:"Under 506(c), you can advertise publicly. But for a first offering, your existing network is the primary channel. LinkedIn Sales Navigator ($120/mo), targeted LinkedIn ads ($500-$1,000 burst), direct outreach via email, and one virtual investor webinar.",phase:phase4,paidBy:"pleochrome",defaultAmount:3000,scaleFactor:0.3,min:500,max:5000000 },
+      { id:"investor-kyc",label:"Investor KYC & Accreditation",narrative:"May be covered by the tokenization platform\u2019s included KYC checks (e.g., Brickken Advanced includes 150/yr). For accredited investor verification: investments of $200K+ allow self-certification under March 2025 SEC guidance.",phase:phase4,paidBy:"pleochrome",defaultAmount:0,fixed:true,min:0,max:100000 },
+      { id:"compliance-yr1",label:"Compliance Monitoring (Year 1)",narrative:"Quarterly sanctions re-screening of investors. Transaction monitoring is built into the compliance token smart contracts.",phase:phase4,paidBy:"pleochrome",defaultAmount:500,fixed:true,min:0,max:100000 },
+      { id:"aml-audit",label:"Annual AML Program Audit",narrative:"Independent third-party review of your AML program. Required by regulation.",phase:phase4,paidBy:"pleochrome",defaultAmount:3500,fixed:true,min:1000,max:50000 },
+    ];
+
+    return [...acquisitionCosts, ...preparationCosts, ...mappedPathCosts, ...stackCosts, ...commonDistributionCosts];
+  }, [selectedPath, selectedStack]);
 
   const model = useMemo(() => {
     const offeringValue = assetValue * (1 - appraisalDiscount / 100);
@@ -303,7 +431,7 @@ export default function FinancialModel() {
     const successFee = offeringValue * (successFeeRate / 100);
     const adminFee = offeringValue * (adminFeeRate / 100);
 
-    const costs = defaultCosts.map(line => {
+    const costs = buildCostLines.map(line => {
       if (overrides[line.id] !== undefined) return { ...line, amount: overrides[line.id] };
       let a = line.defaultAmount;
       if (!line.fixed && line.scaleFactor !== undefined) a = line.defaultAmount * Math.pow(sf, line.scaleFactor);
@@ -339,8 +467,34 @@ export default function FinancialModel() {
     const fixedCosts = costs.filter(c => c.fixed && c.paidBy === "pleochrome").reduce((s, c) => s + c.amount, 0);
     const breakeven = fixedCosts / ((setupFeeRate + successFeeRate * (1 - appraisalDiscount / 100)) / 100);
 
-    return { offeringValue, totalTokens, sf, bdFee, setupFee, successFee, adminFee, all, pcCosts, ahCosts, totalCosts, yr1Rev, yr2Rev, yr1Net, netToHolder, tokensForInvestment, futureValue, investorProfit, cashPoints, breakeven, fixedCosts };
-  }, [assetValue, appraisalDiscount, tokenPrice, bdRate, setupFeeRate, successFeeRate, adminFeeRate, overrides, customCosts, investorReturn, appreciation, holdYears]);
+    // Revenue projections (5-year)
+    const revModel = REVENUE_MODELS[selectedPath];
+    const revenueProjection = Array.from({ length: 5 }, (_, i) => {
+      const year = i + 1;
+      const sF = year === 1 ? offeringValue * revModel.setupFeeRate : 0;
+      const succF = year === 1 ? offeringValue * revModel.successFeeRate : 0;
+      const admF = year >= 2 ? offeringValue * revModel.adminFeeRate : 0;
+      const base = sF + succF + admF;
+      // Estimate additional fees
+      let additional = 0;
+      for (const af of revModel.additionalFees) {
+        if (af.rate.includes("per transfer") || af.rate.includes("0.25%")) {
+          additional += year >= 1 ? offeringValue * 0.002 : 0; // ~0.2% from secondary
+        } else if (af.rate.includes("2% of loan") || af.rate.includes("Origination")) {
+          additional += year === 1 ? offeringValue * 0.02 : 0;
+        } else if (af.rate.includes("0.75%/yr") || af.rate.includes("Servicing")) {
+          additional += year >= 1 ? offeringValue * 0.0075 : 0;
+        } else if (af.rate.includes("1.0%")) {
+          additional += year === 5 ? offeringValue * 0.01 : 0; // exit in year 5
+        } else if (af.rate.includes("3%")) {
+          additional += year >= 1 ? offeringValue * 0.03 : 0; // interest spread
+        }
+      }
+      return { year, setupFee: sF, successFee: succF, adminFee: admF, additional, total: base + additional };
+    });
+
+    return { offeringValue, totalTokens, sf, bdFee, setupFee, successFee, adminFee, all, pcCosts, ahCosts, totalCosts, yr1Rev, yr2Rev, yr1Net, netToHolder, tokensForInvestment, futureValue, investorProfit, cashPoints, breakeven, fixedCosts, revenueProjection };
+  }, [assetValue, appraisalDiscount, tokenPrice, bdRate, setupFeeRate, successFeeRate, adminFeeRate, overrides, customCosts, investorReturn, appreciation, holdYears, buildCostLines, selectedPath]);
 
   if (!unlocked) return <PasswordGate onUnlock={() => setUnlocked(true)} />;
 
@@ -356,11 +510,20 @@ export default function FinancialModel() {
   const logo = dark ? "/logo-white.png" : "/logo.png";
   const donutBg = dark ? "#0A1120" : "#ffffff";
 
+  // Phase names for current path
+  const labels = PHASE_LABELS[selectedPath];
+  const phaseInfo = getPhaseInfo(selectedPath);
+  const phaseOrder = ["Acquisition", "Preparation", labels.phase3, labels.phase4];
+
   // Export to CSV
   const exportCSV = () => {
+    const stackInfo = PARTNER_STACKS[selectedStack];
+    const pathInfo = VALUE_PATHS[selectedPath];
     const rows: string[][] = [
       ["PleoChrome Deal Model: " + dealName],
       ["Exported: " + new Date().toLocaleString()],
+      ["Value Path: " + pathInfo.label],
+      ["Partner Stack: " + stackInfo.label],
       [],
       ["DEAL PARAMETERS"],
       ["Asset Value", fmtFull(assetValue)],
@@ -400,6 +563,19 @@ export default function FinancialModel() {
     rows.push(["Secondary Transfer Fees (est.)", "", "", "$12,000"]);
     rows.push(["Year 1 Total Revenue", "", "", fmtFull(model.yr1Rev)]);
     rows.push(["Annual Admin Fee (Year 2+)", "", "", fmtFull(model.adminFee)]);
+    rows.push([]);
+    rows.push(["PARTNER STACK: " + stackInfo.label]);
+    rows.push(["Setup Cost", "", "", fmtFull(stackInfo.setupCost)]);
+    rows.push(["Annual Cost", "", "", fmtFull(stackInfo.annualCost)]);
+    stackInfo.components.forEach(comp => {
+      rows.push([comp.role, comp.provider, "", comp.cost]);
+    });
+    rows.push([]);
+    rows.push(["REVENUE PROJECTION (5-Year)"]);
+    rows.push(["Year", "Setup Fee", "Success Fee", "Admin Fee", "Additional", "Total"]);
+    model.revenueProjection.forEach(rp => {
+      rows.push(["Year " + rp.year, fmtFull(rp.setupFee), fmtFull(rp.successFee), fmtFull(rp.adminFee), fmtFull(rp.additional), fmtFull(rp.total)]);
+    });
     rows.push([]);
     rows.push(["ASSET HOLDER ECONOMICS"]);
     rows.push(["Claimed Asset Value", "", "", fmtFull(assetValue)]);
@@ -469,7 +645,7 @@ export default function FinancialModel() {
               <div key={d.name} className={`flex items-center justify-between py-2 border-b ${dv} last:border-0`}>
                 <button onClick={() => loadDeal(d)} className="text-left flex-1 min-w-0">
                   <p className={`text-xs font-semibold ${s3} truncate`}>{d.name}</p>
-                  <p className={`text-[9px] ${s1}`}>{fmtFull(d.assetValue)} &middot; {new Date(d.date).toLocaleDateString()}</p>
+                  <p className={`text-[9px] ${s1}`}>{fmtFull(d.assetValue)} &middot; {d.path ? VALUE_PATHS[d.path].shortLabel : "Tokenization"} &middot; {new Date(d.date).toLocaleDateString()}</p>
                 </button>
                 <button onClick={() => deleteDeal(d.name)} className="text-[#A61D3A] text-[9px] ml-2 hover:underline shrink-0">Delete</button>
               </div>
@@ -484,8 +660,45 @@ export default function FinancialModel() {
         <div className={`${cd} border rounded-2xl p-4 sm:p-5 mb-5`}>
           <h2 className={`text-xs sm:text-sm font-semibold ${s3} mb-2`}>How to Read This Model</h2>
           <p className={`text-[11px] sm:text-xs ${s2} leading-relaxed`}>
-            This interactive model maps the complete economics of a single high-value gemstone through PleoChrome&apos;s 7-Gate framework (shown here for the tokenization path; fractional securities and debt instruments share the same verification pipeline with different distribution economics). Every number is adjustable &mdash; change the asset value, fee rates, or any individual cost to see how the deal economics shift in real time. Costs are color-coded: <span className="text-[#1A8B7A] font-semibold">PleoChrome</span> pays green items, <span className="text-[#C47A1A] font-semibold">Asset Holder</span> pays amber items (pass-through), and <span className="text-[#5B2D8E] font-semibold">Broker-Dealer</span> fees come from offering proceeds. Click &ldquo;What is this?&rdquo; on any line item for a plain-English explanation.
+            This interactive model maps the complete economics of a single high-value gemstone through PleoChrome&apos;s 7-Gate framework. Select a value path below to see how costs and revenue change across Tokenization, Fractional Securities, and Debt Instruments. Then choose a partner stack to see infrastructure costs. Every number is adjustable &mdash; change the asset value, fee rates, or any individual cost to see how the deal economics shift in real time. Costs are color-coded: <span className="text-[#1A8B7A] font-semibold">PleoChrome</span> pays green items, <span className="text-[#C47A1A] font-semibold">Asset Holder</span> pays amber items (pass-through), and <span className="text-[#5B2D8E] font-semibold">Broker-Dealer</span> fees come from offering proceeds. Click &ldquo;What is this?&rdquo; on any line item for a plain-English explanation.
           </p>
+        </div>
+
+        {/* Path Selector */}
+        <PathSelector selected={selectedPath} onChange={setSelectedPath} dark={dark} className="mb-4" layoutId="dealModelPath" />
+
+        {/* Partner Stack Selector */}
+        <div className={`${cd} border rounded-2xl p-4 sm:p-5 mb-4`}>
+          <h2 className={`text-[10px] sm:text-xs tracking-[0.2em] uppercase ${s1} mb-3 font-semibold`}>Partner Stack</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {(Object.entries(PARTNER_STACKS) as [PartnerStack, typeof PARTNER_STACKS[PartnerStack]][]).map(([key, stack]) => {
+              const isActive = selectedStack === key;
+              return (
+                <button key={key} onClick={() => setSelectedStack(key)}
+                  className={`text-left px-3 py-2.5 rounded-xl border transition-all ${isActive ? (dark ? "border-[#1A8B7A]/50 bg-[#1A8B7A]/10" : "border-[#1A8B7A] bg-[#1A8B7A]/5") : (dark ? "border-white/[0.06] hover:border-white/10" : "border-gray-200 hover:border-gray-300")}`}>
+                  <p className={`text-[10px] sm:text-xs font-semibold ${isActive ? "text-[#1A8B7A]" : s2}`}>{stack.shortLabel}</p>
+                  <p className={`text-[9px] ${s1} mt-0.5 line-clamp-1`}>{stack.description}</p>
+                  <div className="flex gap-3 mt-1">
+                    <span className={`text-[8px] font-mono ${s1}`}>Setup: {fmtFull(stack.setupCost)}</span>
+                    <span className={`text-[8px] font-mono ${s1}`}>Annual: {fmtFull(stack.annualCost)}</span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+          {/* Component breakdown for selected stack */}
+          <div className={`mt-3 pt-3 border-t ${dv}`}>
+            <p className={`text-[9px] tracking-wider uppercase ${s1} mb-2`}>Stack Components</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+              {PARTNER_STACKS[selectedStack].components.map((comp, i) => (
+                <div key={i} className={`text-[9px] ${s2} flex flex-col`}>
+                  <span className={`font-semibold ${s3}`}>{comp.role}</span>
+                  <span className={`${s1}`}>{comp.provider}</span>
+                  <span className="font-mono opacity-60">{comp.cost}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Comparable Stone Selector */}
@@ -564,8 +777,9 @@ export default function FinancialModel() {
           </div>
 
           {/* Phase Costs (Collapsible) */}
-          {(["Acquisition", "Preparation", "Tokenization", "Distribution"] as const).map(phase => {
+          {phaseOrder.map(phase => {
             const pi = phaseInfo[phase];
+            if (!pi) return null;
             const isOpen = openPhases.has(phase);
             const phaseCosts = model.all.filter(c => c.phase === phase);
             const phaseTotal = phaseCosts.reduce((s, c) => s + c.amount, 0);
@@ -641,6 +855,62 @@ export default function FinancialModel() {
               <span className={`text-xs font-semibold ${s2}`}>Year 1 Total</span>
               <span className="font-mono text-sm font-bold text-[#1B6B4A]">{fmtFull(model.yr1Rev)}</span>
             </div>
+          </div>
+
+          {/* Revenue Projection (5-Year) */}
+          <div className={`${cd} border rounded-2xl p-4 sm:p-5 mb-3`}>
+            <h2 className="text-[10px] sm:text-xs tracking-[0.2em] uppercase text-[#1B6B4A] mb-1 font-semibold">5-Year Revenue Projection</h2>
+            <p className={`text-[10px] ${s1} mb-3`}>Based on <span className="font-semibold">{VALUE_PATHS[selectedPath].label}</span> fee structure from REVENUE_MODELS</p>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-[10px] sm:text-xs">
+                <thead>
+                  <tr className={`border-b ${dv}`}>
+                    <th className={`text-left py-2 pr-2 ${s1} font-semibold tracking-wider uppercase text-[8px] sm:text-[9px]`}>Year</th>
+                    <th className={`text-right py-2 px-2 ${s1} font-semibold tracking-wider uppercase text-[8px] sm:text-[9px]`}>Setup</th>
+                    <th className={`text-right py-2 px-2 ${s1} font-semibold tracking-wider uppercase text-[8px] sm:text-[9px]`}>Success</th>
+                    <th className={`text-right py-2 px-2 ${s1} font-semibold tracking-wider uppercase text-[8px] sm:text-[9px]`}>Admin</th>
+                    <th className={`text-right py-2 px-2 ${s1} font-semibold tracking-wider uppercase text-[8px] sm:text-[9px]`}>Additional</th>
+                    <th className={`text-right py-2 pl-2 font-semibold tracking-wider uppercase text-[8px] sm:text-[9px] text-[#1B6B4A]`}>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {model.revenueProjection.map(rp => (
+                    <tr key={rp.year} className={`border-b ${dv} last:border-0`}>
+                      <td className={`py-2 pr-2 font-semibold ${s3}`}>Year {rp.year}</td>
+                      <td className={`py-2 px-2 text-right font-mono ${rp.setupFee > 0 ? s2 : s1}`}>{rp.setupFee > 0 ? fmt(rp.setupFee) : "-"}</td>
+                      <td className={`py-2 px-2 text-right font-mono ${rp.successFee > 0 ? s2 : s1}`}>{rp.successFee > 0 ? fmt(rp.successFee) : "-"}</td>
+                      <td className={`py-2 px-2 text-right font-mono ${rp.adminFee > 0 ? s2 : s1}`}>{rp.adminFee > 0 ? fmt(rp.adminFee) : "-"}</td>
+                      <td className={`py-2 px-2 text-right font-mono ${rp.additional > 0 ? s2 : s1}`}>{rp.additional > 0 ? fmt(rp.additional) : "-"}</td>
+                      <td className="py-2 pl-2 text-right font-mono font-semibold text-[#1B6B4A]">{fmt(rp.total)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr className={`border-t-2 ${dark ? "border-[#1B6B4A]/20" : "border-[#1B6B4A]/10"}`}>
+                    <td className={`py-2 pr-2 font-bold ${s3}`}>5-Year Total</td>
+                    <td colSpan={4} />
+                    <td className="py-2 pl-2 text-right font-mono font-bold text-[#1B6B4A]">{fmtFull(model.revenueProjection.reduce((s, rp) => s + rp.total, 0))}</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+            {/* Path-specific additional fee breakdown */}
+            {REVENUE_MODELS[selectedPath].additionalFees.length > 0 && (
+              <div className={`mt-3 pt-3 border-t ${dv}`}>
+                <p className={`text-[9px] tracking-wider uppercase ${s1} mb-2`}>Path-Specific Fee Streams ({VALUE_PATHS[selectedPath].shortLabel})</p>
+                {REVENUE_MODELS[selectedPath].additionalFees.map((af, i) => (
+                  <div key={i} className={`flex items-center justify-between py-1.5 ${i < REVENUE_MODELS[selectedPath].additionalFees.length - 1 ? `border-b ${dv}` : ""}`}>
+                    <div>
+                      <span className={`text-[10px] sm:text-xs ${s2}`}>{af.label}</span>
+                      <span className={`text-[9px] ${s1} ml-2`}>{af.timing}</span>
+                    </div>
+                    <span className="font-mono text-[10px] sm:text-xs text-[#1B6B4A]">{af.rate}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* 120-Day Timeline */}

@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { motion, AnimatePresence } from "motion/react";
+import { SHARED_STATES, getPathStates, BRANCH_LABEL, type ValuePath, VALUE_PATHS } from "@/lib/portal-data";
+import { PathSelector } from "@/components/portal/PathSelector";
 
 const PASSCODE = "pleo123";
 
@@ -13,26 +16,7 @@ const PASSCODE = "pleo123";
 
 // ── Data ──────────────────────────────────────
 
-const assetStates = [
-  { id: "PROPOSED", label: "Proposed", phase: "Acquisition", color: "#1B6B4A", desc: "Stone submitted for evaluation. Intake questionnaire received.", gate: null },
-  { id: "INTAKE_REVIEW", label: "Intake Review", phase: "Acquisition", color: "#1B6B4A", desc: "Questionnaire reviewed for completeness. Red flags assessed.", gate: null },
-  { id: "KYC_PENDING", label: "KYC Pending", phase: "Acquisition", color: "#1B6B4A", desc: "Identity/entity verification in progress. Sanctions screening running.", gate: null },
-  { id: "KYC_CLEARED", label: "KYC Cleared", phase: "Acquisition", color: "#1B6B4A", desc: "Owner identity verified. Sanctions clear. PEP clear. Provenance reviewed.", gate: "G1" },
-  { id: "LAB_SUBMITTED", label: "Lab Submitted", phase: "Preparation", color: "#1A8B7A", desc: "Stone shipped to GIA/SSEF with tracking number. Awaiting lab results.", gate: null },
-  { id: "LAB_COMPLETE", label: "Lab Complete", phase: "Preparation", color: "#1A8B7A", desc: "GIA grading report received and verified authentic via GIA Report Check.", gate: "G2" },
-  { id: "APPRAISAL_IP", label: "Appraisal In Progress", phase: "Preparation", color: "#1A8B7A", desc: "3 independent appraisers assigned. Sequential physical inspections underway.", gate: null },
-  { id: "APPRAISAL_DONE", label: "Appraisal Complete", phase: "Preparation", color: "#1A8B7A", desc: "All 3 USPAP reports received. Variance analysis generated.", gate: null },
-  { id: "VALUATION_SET", label: "Valuation Set", phase: "Preparation", color: "#1A8B7A", desc: "2-lowest averaged. Offering value approved by Ops + Founder.", gate: "G3" },
-  { id: "CUSTODY_PENDING", label: "Custody Pending", phase: "Preparation", color: "#1A8B7A", desc: "Stone in transit to vault. Insurance active. Tracking confirmed.", gate: null },
-  { id: "IN_VAULT", label: "In Vault", phase: "Preparation", color: "#1A8B7A", desc: "Vault receipt confirmed. Segregated custody. PoR feed connecting.", gate: "G4" },
-  { id: "LEGAL_PENDING", label: "Legal Pending", phase: "Preparation", color: "#5B2D8E", desc: "SPV formed. PPM + agreements being drafted by securities counsel.", gate: null },
-  { id: "LEGAL_COMPLETE", label: "Legal Complete", phase: "Preparation", color: "#5B2D8E", desc: "All legal docs finalized. Compliance sign-off received.", gate: "G5" },
-  { id: "MINT_AUTH", label: "Mint Authorized", phase: "Tokenization", color: "#1E3A6E", desc: "MULTI-SIG: Legal + Ops + Founder all approved. Token ready to deploy.", gate: null },
-  { id: "MINTED", label: "Minted", phase: "Tokenization", color: "#1E3A6E", desc: "Security token (ERC-3643 or ERC-7518) live on Polygon mainnet. PoR gate verified.", gate: "G6" },
-  { id: "OFFERING_OPEN", label: "Offering Open", phase: "Distribution", color: "#C47A1A", desc: "Form D filed. Blue sky filed. Investors can purchase tokens.", gate: "G7" },
-  { id: "OFFERING_CLOSED", label: "Offering Closed", phase: "Distribution", color: "#C47A1A", desc: "Target raise met or period expired. All tokens distributed.", gate: null },
-  { id: "ACTIVE_MGMT", label: "Active Management", phase: "Distribution", color: "#C47A1A", desc: "Ongoing: PoR monitoring, quarterly reports, compliance, annual reappraisal.", gate: null },
-];
+// assetStates is now derived from the shared data layer (see state machine section below)
 
 const exceptionStates = [
   { id: "HOLD", label: "HOLD", color: "#A61D3A", desc: "Workflow frozen. A discrepancy, gap, or anomaly has been detected. Requires manual resolution by Compliance + Founder." },
@@ -67,13 +51,14 @@ const aiFeatures = [
   { name: "Sanctions Re-screening", trigger: "Quarterly", action: "Re-run all parties against updated OFAC/EU/UN lists. Flag new matches.", icon: "globe" },
   { name: "Reconciliation Engine", trigger: "Every state change", action: "Cross-check ALL document fields: weight, description, value across every source. Any mismatch = auto-HOLD.", icon: "check" },
   { name: "Compliance Calendar", trigger: "Daily", action: "Alert upcoming deadlines: Form D amendments, insurance renewals, annual audits, K-1 due dates.", icon: "calendar" },
+  { name: "Loan Payment Monitoring", trigger: "Monthly", action: "Track payment schedule, flag late payments (30+ days), trigger default procedures.", icon: "dollar" },
 ];
 
 const mvpPhases = [
   { phase: "Phase 1", weeks: "Weeks 1-3", title: "Foundation", items: ["Database schema + RLS policies", "Auth with roles (6 roles)", "Asset registry CRUD", "State machine logic (gate enforcement)", "Audit trail logging (append-only)"], color: "#1B6B4A" },
   { phase: "Phase 2", weeks: "Weeks 3-5", title: "Evidence Layer", items: ["Document upload + storage", "Document taxonomy per state", "Hash verification on upload", "Basic reconciliation (weight/desc matching)"], color: "#1A8B7A" },
   { phase: "Phase 3", weeks: "Weeks 5-7", title: "Workflow UI", items: ["Asset pipeline view (Kanban by state)", "Single-asset detail (timeline + docs + approvals)", "Multi-sig approval flow", "Alert dashboard"], color: "#1E3A6E" },
-  { phase: "Phase 4", weeks: "Weeks 7-9", title: "Partner APIs", items: ["KYC webhook (Sumsub/Veriff)", "Vault status integration", "Tokenization platform API (Brickken or Zoniqx)", "Chainlink PoR monitoring"], color: "#5B2D8E" },
+  { phase: "Phase 4", weeks: "Weeks 7-9", title: "Platform Integration", items: ["KYC webhook (Sumsub/Veriff)", "Vault status integration", "Value path APIs (Rialto full-stack | Brickken/Zoniqx tokenization | lending partners)", "Chainlink PoR monitoring"], color: "#5B2D8E" },
   { phase: "Phase 5", weeks: "Weeks 9-12", title: "AI + Polish", items: ["Document OCR/extraction (Claude API)", "Automated reconciliation engine", "Compliance calendar + alerts", "Insurance gap monitoring", "Investor onboarding flow"], color: "#C47A1A" },
 ];
 
@@ -105,6 +90,10 @@ export default function ArchitecturePage() {
   const [activeState, setActiveState] = useState<string | null>(null);
   const [activeRole, setActiveRole] = useState<string | null>(null);
   const [openSections, setOpenSections] = useState<Set<string>>(new Set(["states"]));
+  const [selectedPath, setSelectedPath] = useState<ValuePath>("tokenization");
+
+  const pathStates = getPathStates(selectedPath);
+  const assetStates = [...SHARED_STATES, ...pathStates];
 
   useState(() => {
     if (typeof window !== "undefined") {
@@ -128,9 +117,9 @@ export default function ArchitecturePage() {
   const hv = dark ? "hover:bg-white/[0.02]" : "hover:bg-gray-50";
 
   const sectionData = [
-    { id: "states", title: "State Machine — The Gated Corridor", subtitle: "18 asset states + 3 exception states. No step can be skipped.", color: "#1A8B7A" },
+    { id: "states", title: "State Machine — The Gated Corridor", subtitle: `${SHARED_STATES.length} shared states + path-specific states + 3 exception states. No step can be skipped.`, color: "#1A8B7A" },
     { id: "rbac", title: "Role-Based Access Control", subtitle: "6 roles with granular permissions. Multi-signature for critical actions.", color: "#5B2D8E" },
-    { id: "ai", title: "AI Automation Layer", subtitle: "8 AI-powered functions for redundancy, verification, and monitoring.", color: "#1E3A6E" },
+    { id: "ai", title: "AI Automation Layer", subtitle: "9 AI-powered functions for redundancy, verification, and monitoring.", color: "#1E3A6E" },
     { id: "mvp", title: "MVP Build Phases", subtitle: "12-week roadmap from database to AI-powered governance.", color: "#C47A1A" },
   ];
 
@@ -192,12 +181,14 @@ export default function ArchitecturePage() {
                     <>
                       <p className={`text-[10px] sm:text-xs ${s2} leading-relaxed mb-4`}>
                         Every asset exists in exactly ONE state at any time. Transitions are programmatically blocked
-                        until binary gate conditions are met. Click any state to see details.
+                        until binary gate conditions are met. After LEGAL_COMPLETE, the pipeline branches based on the
+                        chosen value creation path. Click any state to see details.
                       </p>
 
-                      {/* Visual Pipeline */}
+                      {/* Shared States Pipeline */}
+                      <p className={`text-[10px] tracking-wider uppercase ${s1} mb-2 font-semibold`}>Shared Pipeline (All Paths)</p>
                       <div className="flex flex-wrap gap-1.5 mb-4">
-                        {assetStates.map(st => (
+                        {SHARED_STATES.map(st => (
                           <button key={st.id} onClick={() => setActiveState(activeState === st.id ? null : st.id)}
                             className={`relative px-2.5 py-1.5 rounded-lg text-[9px] sm:text-[10px] font-medium transition-all border ${activeState === st.id
                               ? "text-white border-transparent scale-105"
@@ -208,6 +199,58 @@ export default function ArchitecturePage() {
                           </button>
                         ))}
                       </div>
+
+                      {/* Branch Point Indicator */}
+                      <div className={`relative my-5 flex items-center gap-3`}>
+                        <div className={`flex-1 h-px ${dark ? "bg-white/[0.08]" : "bg-gray-200"}`} />
+                        <div className={`flex items-center gap-2 px-4 py-2 rounded-full border ${dark ? "border-white/[0.1] bg-white/[0.04]" : "border-gray-200 bg-gray-50"}`}>
+                          <svg className={`w-3.5 h-3.5 ${dark ? "text-white/40" : "text-gray-400"}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                            <path d="M6 3v12" /><path d="M18 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" /><path d="M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" /><path d="M18 9c0 6-6 9-12 9" />
+                          </svg>
+                          <span className={`text-[9px] sm:text-[10px] tracking-[0.15em] uppercase font-semibold ${dark ? "text-white/50" : "text-gray-500"}`}>
+                            {BRANCH_LABEL}
+                          </span>
+                        </div>
+                        <div className={`flex-1 h-px ${dark ? "bg-white/[0.08]" : "bg-gray-200"}`} />
+                      </div>
+
+                      {/* Path Selector */}
+                      <PathSelector
+                        selected={selectedPath}
+                        onChange={(p) => { setSelectedPath(p); setActiveState(null); }}
+                        dark={dark}
+                        className="mb-4"
+                        layoutId="archPathPill"
+                      />
+
+                      {/* Path-Specific States */}
+                      <p className={`text-[10px] tracking-wider uppercase ${s1} mb-2 font-semibold`}>
+                        {VALUE_PATHS[selectedPath].label} States
+                      </p>
+                      <AnimatePresence mode="wait">
+                        <motion.div
+                          key={selectedPath}
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -8 }}
+                          transition={{ duration: 0.25 }}
+                          className="flex flex-wrap gap-1.5 mb-4"
+                        >
+                          {pathStates.map(st => {
+                            const accentColor = VALUE_PATHS[selectedPath].color;
+                            return (
+                              <button key={st.id} onClick={() => setActiveState(activeState === st.id ? null : st.id)}
+                                className={`relative px-2.5 py-1.5 rounded-lg text-[9px] sm:text-[10px] font-medium transition-all border ${activeState === st.id
+                                  ? "text-white border-transparent scale-105"
+                                  : `${dark ? "border-white/[0.06] text-white/40 hover:text-white/60" : "border-gray-200 text-gray-500 hover:text-gray-700"}`}`}
+                                style={activeState === st.id ? { background: accentColor, borderColor: accentColor } : { borderColor: `${accentColor}30` }}>
+                                {st.gate && <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-[#A61D3A] text-white text-[7px] font-bold flex items-center justify-center">{st.gate}</span>}
+                                {st.label}
+                              </button>
+                            );
+                          })}
+                        </motion.div>
+                      </AnimatePresence>
 
                       {/* Active state detail */}
                       {activeState && (() => {
