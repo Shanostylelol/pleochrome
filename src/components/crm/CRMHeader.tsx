@@ -1,16 +1,28 @@
 'use client'
 
-import { useState } from 'react'
-import { Sun, Moon, Menu, X } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { useState, useEffect } from 'react'
+import { Sun, Moon, Menu, Search } from 'lucide-react'
 import { NeuButton } from '@/components/ui/NeuButton'
 import { NeuAvatar } from '@/components/ui/NeuAvatar'
 import { useTheme } from './ThemeProvider'
 import { MobileDrawer } from './MobileDrawer'
+import { CommandPalette } from './CommandPalette'
 
 export function CRMHeader() {
   const { theme, toggleTheme } = useTheme()
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        setSearchOpen(true)
+      }
+    }
+    document.addEventListener('keydown', handleKey)
+    return () => document.removeEventListener('keydown', handleKey)
+  }, [])
 
   return (
     <>
@@ -34,6 +46,19 @@ export function CRMHeader() {
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => setSearchOpen(true)}
+            className="hidden sm:flex items-center gap-2 h-8 px-3 rounded-[var(--radius-md)] bg-[var(--bg-input)] shadow-[var(--shadow-pressed)] text-sm text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
+          >
+            <Search className="h-3.5 w-3.5" />
+            <span>Search...</span>
+            <kbd className="text-[10px] bg-[var(--bg-body)] px-1 py-0.5 rounded" style={{ fontFamily: 'var(--font-mono)' }}>
+              ⌘K
+            </kbd>
+          </button>
+          <NeuButton variant="ghost" size="sm" className="sm:hidden" onClick={() => setSearchOpen(true)} aria-label="Search">
+            <Search className="h-4 w-4" />
+          </NeuButton>
           <NeuButton
             variant="ghost"
             size="sm"
@@ -47,6 +72,7 @@ export function CRMHeader() {
       </header>
 
       <MobileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
+      <CommandPalette open={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   )
 }
