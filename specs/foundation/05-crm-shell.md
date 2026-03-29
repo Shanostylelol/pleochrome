@@ -375,6 +375,7 @@ Add the following CSS to the END of `src/styles/neumorphic.css` (created in spec
 import type { Metadata } from 'next'
 import { CRMProviders } from './providers'
 import { ThemeProvider } from '@/components/crm/ThemeProvider'
+import { ToastProvider } from '@/components/ui/NeuToast'
 import { CRMSidebar } from '@/components/crm/CRMSidebar'
 import { CRMHeader } from '@/components/crm/CRMHeader'
 
@@ -387,15 +388,17 @@ export default function CRMLayout({ children }: { children: React.ReactNode }) {
   return (
     <CRMProviders>
       <ThemeProvider>
-        <div className="crm-shell">
-          <CRMHeader />
-          <div className="crm-body">
-            <CRMSidebar />
-            <main className="crm-content">
-              {children}
-            </main>
+        <ToastProvider>
+          <div className="crm-shell">
+            <CRMHeader />
+            <div className="crm-body">
+              <CRMSidebar />
+              <main className="crm-content">
+                {children}
+              </main>
+            </div>
           </div>
-        </div>
+        </ToastProvider>
       </ThemeProvider>
     </CRMProviders>
   )
