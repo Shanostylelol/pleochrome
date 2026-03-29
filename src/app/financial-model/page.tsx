@@ -184,7 +184,7 @@ function Donut({ segments, size = 160 }: { segments: { label: string; value: num
     <div className="flex flex-col items-center gap-3">
       <div style={{ width: size, height: size, borderRadius: "50%", background: `conic-gradient(${gradientStops})`, position: "relative" }}>
         <div className="absolute inset-[25%] rounded-full bg-inherit" style={{ background: "inherit" }} />
-        <div className="absolute inset-[28%] rounded-full flex items-center justify-center" style={{ background: "var(--donut-bg, #030712)" }}>
+        <div className="absolute inset-[28%] rounded-full flex items-center justify-center" style={{ background: "var(--donut-bg)" }}>
           <span className="text-[10px] font-mono opacity-60">{fmtFull(total)}</span>
         </div>
       </div>

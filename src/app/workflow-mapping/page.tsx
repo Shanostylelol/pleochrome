@@ -129,6 +129,17 @@ export default function WorkflowMapping() {
     return <PasswordGate onUnlock={() => setUnlocked(true)} />;
   }
 
+  // Theme tokens
+  const bg = dark ? "bg-[#030712]" : "bg-[#F8F9FA]";
+  const tx = dark ? "text-[#FAFBFC]" : "text-[#1a1a1a]";
+  const cd = dark ? "bg-[rgba(10,17,32,0.92)] border-white/[0.04]" : "bg-white border-gray-200 shadow-sm";
+  const s1 = dark ? "text-white/25" : "text-gray-400";
+  const s2 = dark ? "text-white/50" : "text-gray-600";
+  const s3 = dark ? "text-white/70" : "text-gray-800";
+  const dv = dark ? "divide-white/[0.04]" : "divide-gray-200";
+  const hv = dark ? "hover:bg-white/[0.02]" : "hover:bg-gray-50";
+  const borderV = dark ? "border-white/[0.04]" : "border-gray-200";
+
   const handlePathChange = (path: ValuePath) => {
     setSelectedPath(path);
     setActivePhase(null);
@@ -150,7 +161,7 @@ export default function WorkflowMapping() {
   };
 
   return (
-    <div className={`min-h-screen ${dark ? "bg-[#030712] text-[#FAFBFC]" : "bg-[#F8F9FA] text-[#1a1a1a]"} transition-colors duration-300`}>
+    <div className={`min-h-screen ${bg} ${tx} transition-colors duration-300`}>
       {/* Header */}
       <header className="text-center pt-8 pb-6 sm:pt-12 sm:pb-8 relative px-4">
         <div className="flex items-center justify-center gap-2 mb-3">
@@ -167,7 +178,7 @@ export default function WorkflowMapping() {
         <h1 className="font-[family-name:var(--font-cormorant)] text-xl sm:text-2xl font-light tracking-wider">
           Master Workflow Map
         </h1>
-        <p className={`mt-1 text-[10px] sm:text-xs tracking-[0.25em] uppercase ${dark ? "text-white/25" : "text-gray-400"}`}>
+        <p className={`mt-1 text-[10px] sm:text-xs tracking-[0.25em] uppercase ${s1}`}>
           Value from Every Angle
         </p>
         {/* Gem bar */}
@@ -176,7 +187,7 @@ export default function WorkflowMapping() {
             <span key={c} className="h-[2px] w-4 sm:w-5 rounded-sm" style={{ background: c }} />
           ))}
         </div>
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[70%] max-w-md h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
+        <div className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-[70%] max-w-md h-px bg-gradient-to-r from-transparent ${dark ? "via-white/[0.06]" : "via-gray-200"} to-transparent`} />
       </header>
 
       {/* Legend */}
@@ -227,10 +238,10 @@ export default function WorkflowMapping() {
                 >
                   <GemSVG fills={phase.gemFills} />
                 </div>
-                <span className={`text-[10px] sm:text-xs tracking-[0.18em] uppercase transition-colors duration-300 ${isActive ? "text-white/70" : "text-white/25"}`}>
+                <span className={`text-[10px] sm:text-xs tracking-[0.18em] uppercase transition-colors duration-300 ${isActive ? s3 : s1}`}>
                   {phase.title}
                 </span>
-                <span className={`font-mono text-[9px] -mt-1 transition-colors duration-300 ${isActive ? "text-white/30" : "text-white/10"}`}>
+                <span className={`font-mono text-[9px] -mt-1 transition-colors duration-300 ${isActive ? s1 : (dark ? "text-white/10" : "text-gray-300")}`}>
                   Phase {String(phase.id).padStart(2, "0")} &middot; {phase.steps.length} Steps
                 </span>
               </button>
@@ -261,7 +272,7 @@ export default function WorkflowMapping() {
                   margin: isOpen ? "16px 0 40px" : "0",
                 }}
               >
-                <div className="bg-[rgba(10,17,32,0.92)] border border-white/[0.04] rounded-2xl p-5 sm:p-7 backdrop-blur-sm">
+                <div className={`${cd} border rounded-2xl p-5 sm:p-7 backdrop-blur-sm`}>
                   {/* Phase header */}
                   <div className="flex items-center gap-3 mb-1">
                     <div
@@ -274,17 +285,17 @@ export default function WorkflowMapping() {
                       <h2 className="font-[family-name:var(--font-cormorant)] text-lg sm:text-xl font-normal tracking-wide">
                         {phase.title}
                       </h2>
-                      <p className="text-[10px] tracking-[0.18em] uppercase text-white/25 mt-[1px]">
+                      <p className={`text-[10px] tracking-[0.18em] uppercase ${s1} mt-[1px]`}>
                         {phase.subtitle}
                       </p>
                     </div>
                   </div>
-                  <p className="text-xs sm:text-sm text-white/25 leading-relaxed mt-2 mb-5 max-w-xl">
+                  <p className={`text-xs sm:text-sm ${s1} leading-relaxed mt-2 mb-5 max-w-xl`}>
                     {phase.desc}
                   </p>
 
                   {/* Steps */}
-                  <div className="divide-y divide-white/[0.04]">
+                  <div className={`divide-y ${dv}`}>
                     {phase.steps.map((step) => {
                       const key = step.num;
                       const stepOpen = openSteps.has(key);
@@ -292,9 +303,9 @@ export default function WorkflowMapping() {
                         <div key={key}>
                           <button
                             onClick={() => toggleStep(key)}
-                            className="w-full flex items-center gap-2 sm:gap-3 py-3 sm:py-3.5 px-2 sm:px-3 text-left hover:bg-white/[0.02] transition-colors"
+                            className={`w-full flex items-center gap-2 sm:gap-3 py-3 sm:py-3.5 px-2 sm:px-3 text-left ${hv} transition-colors`}
                           >
-                            <span className="font-mono text-[10px] text-white/10 w-6 shrink-0">{step.num}</span>
+                            <span className={`font-mono text-[10px] ${dark ? "text-white/10" : "text-gray-300"} w-6 shrink-0`}>{step.num}</span>
                             <span
                               className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full border-2 shrink-0 transition-all duration-300"
                               style={{
@@ -302,14 +313,14 @@ export default function WorkflowMapping() {
                                 background: stepOpen ? phase.color : "transparent",
                               }}
                             />
-                            <span className={`text-xs sm:text-sm font-semibold flex-1 transition-colors duration-200 ${stepOpen ? "text-white/70" : "text-white/40"}`}>
+                            <span className={`text-xs sm:text-sm font-semibold flex-1 transition-colors duration-200 ${stepOpen ? s3 : s2}`}>
                               {step.title}
                             </span>
                             <div className="hidden sm:flex gap-1 shrink-0">
                               {step.tags.map((t) => <TagBadge key={t} tag={t} />)}
                             </div>
                             <svg
-                              className={`w-3.5 h-3.5 shrink-0 transition-transform duration-300 ${stepOpen ? "rotate-180 text-white/25" : "text-white/10"}`}
+                              className={`w-3.5 h-3.5 shrink-0 transition-transform duration-300 ${stepOpen ? `rotate-180 ${s1}` : (dark ? "text-white/10" : "text-gray-300")}`}
                               viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}
                             >
                               <path d="M6 9l6 6 6-6" />
@@ -326,7 +337,7 @@ export default function WorkflowMapping() {
                               <div className="flex gap-1 mb-2 sm:hidden">
                                 {step.tags.map((t) => <TagBadge key={t} tag={t} />)}
                               </div>
-                              <p className="text-xs sm:text-[13px] text-white/30 leading-[1.7]">
+                              <p className={`text-xs sm:text-[13px] ${s2} leading-[1.7]`}>
                                 {step.detail}
                               </p>
                             </div>
@@ -347,8 +358,8 @@ export default function WorkflowMapping() {
                         <span className="w-7 h-7 rounded-md bg-[#A61D3A] flex items-center justify-center font-mono text-[10px] font-bold text-white shrink-0">
                           {gate.id}
                         </span>
-                        <span className="text-xs sm:text-sm font-semibold text-white/50">{gate.name}</span>
-                        <span className="hidden sm:block ml-auto text-[11px] text-white/25 text-right max-w-[320px]">{gate.desc}</span>
+                        <span className={`text-xs sm:text-sm font-semibold ${s2}`}>{gate.name}</span>
+                        <span className={`hidden sm:block ml-auto text-[11px] ${s1} text-right max-w-[320px]`}>{gate.desc}</span>
                       </div>
                     ))}
                   </div>
@@ -360,13 +371,13 @@ export default function WorkflowMapping() {
       </AnimatePresence>
 
       {/* Footer */}
-      <footer className="text-center py-8 mt-8 border-t border-white/[0.03]">
+      <footer className={`text-center py-8 mt-8 border-t ${borderV}`}>
         <div className="flex gap-[2px] justify-center mb-2">
           {["#1B6B4A","#1A8B7A","#1E3A6E","#5B2D8E","#A61D3A","#C47A1A","#7BA31E"].map((c) => (
             <span key={c} className="h-[2px] w-4 rounded-sm" style={{ background: c }} />
           ))}
         </div>
-        <p className="text-[10px] tracking-[0.15em] text-white/10">
+        <p className={`text-[10px] tracking-[0.15em] ${dark ? "text-white/10" : "text-gray-300"}`}>
           PleoChrome &mdash; Confidential &mdash; Florida
         </p>
       </footer>
