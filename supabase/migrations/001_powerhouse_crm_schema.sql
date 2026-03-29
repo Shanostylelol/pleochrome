@@ -18,7 +18,7 @@
 --
 -- Naming Conventions:
 --   - snake_case for all identifiers
---   - Plural table names (stones, documents, partners)
+--   - Plural table names (assets, documents, partners)
 --   - Foreign keys: <referenced_table_singular>_id
 --   - Indexes: idx_<table>_<column(s)>
 --   - Constraints: chk_<table>_<description>
@@ -70,7 +70,7 @@ create type step_status as enum (
 );
 
 -- Stone lifecycle status
-create type stone_status as enum (
+create type asset_status as enum (
   'prospect',       -- Initial inquiry, not yet engaged
   'screening',      -- In intake/due diligence
   'active',         -- Actively being processed through pipeline
@@ -247,12 +247,12 @@ comment on table team_members is
 -- --------------------------------------------------------------------------
 -- 2.2 STONES — Master asset record (one row per gemstone/barrel)
 -- --------------------------------------------------------------------------
--- This is the central entity. Everything in the CRM revolves around a stone.
--- The name "stone" is PleoChrome's internal term for any asset being processed,
+-- This is the central entity. Everything in the CRM revolves around an asset.
+-- Each row represents one real-world asset being processed through the pipeline,
 -- whether it is a single gemstone, a barrel of emeralds, or a future
 -- non-gemstone real-world asset.
 
-create table stones (
+create table assets (
   id              uuid primary key default uuid_generate_v4(),
 
   -- Identity
@@ -263,7 +263,7 @@ create table stones (
 
   -- Physical attributes
   carat_weight    decimal(12,2),                     -- Total carat weight
-  stone_count     integer,                           -- Number of individual stones (for barrels)
+  asset_count     integer,                           -- Number of individual items (for barrels/lots)
   origin          text,                              -- Geographic origin (Colombia, Myanmar, etc.)
   current_location text,                             -- Physical location description
 
@@ -276,7 +276,7 @@ create table stones (
   value_path      value_path not null default 'evaluating',
   current_phase   workflow_phase not null default 'phase_0_foundation',
   current_step    text,                              -- e.g., "2.3" for Step 2.3
-  status          stone_status not null default 'prospect',
+  status          asset_status not null default 'prospect',
 
   -- Ownership / counterparty
   asset_holder_contact_id  uuid,                     -- FK to contacts (set after contact created)
@@ -306,16 +306,16 @@ create index idx_stones_current_phase on assets(current_phase);
 create index idx_stones_value_path on assets(value_path);
 create index idx_stones_reference_code on assets(reference_code);
 create index idx_stones_lead_team_member on assets(lead_team_member_id);
-create index idx_stones_metadata on stones using gin(metadata);
+create index idx_stones_metadata on assets using gin(metadata);
 
-comment on table stones is
+comment on table assets is
   'Master asset record. One row per gemstone/barrel being processed through PleoChrome pipeline.';
 
 
 -- --------------------------------------------------------------------------
--- 2.3 STONE STEPS — Tracking completion of each workflow step per stone
+-- 2.3 ASSET STEPS — Tracking completion of each workflow step per asset
 -- --------------------------------------------------------------------------
--- Pre-populated when a stone is created, based on its value_path.
+-- Pre-populated when an asset is created, based on its value_path.
 -- Each row represents one step from the TOKENIZATION-WORKFLOW-COMPLETE.md
 -- (or equivalent workflow for fractional/debt paths).
 
@@ -338,7 +338,7 @@ create table asset_steps (
   blocked_at      timestamptz,
 
   -- Dependencies
-  depends_on      uuid[],                            -- Array of stone_step IDs this depends on
+  depends_on      uuid[],                            -- Array of asset_step IDs this depends on
   is_gate         boolean not null default false,     -- Is this a gate check?
 
   -- Evidence and notes
@@ -361,7 +361,7 @@ create table asset_steps (
   created_at      timestamptz not null default now(),
   updated_at      timestamptz not null default now(),
 
-  -- Prevent duplicate steps per stone
+  -- Prevent duplicate steps per asset
   unique(asset_id, step_number)
 );
 
@@ -371,7 +371,7 @@ create index idx_asset_steps_phase on asset_steps(phase);
 create index idx_asset_steps_is_gate on asset_steps(is_gate) where is_gate = true;
 
 comment on table asset_steps is
-  'Tracks completion of each workflow step per stone. Pre-populated from workflow template.';
+  'Tracks completion of each workflow step per asset. Pre-populated from workflow template.';
 
 
 -- --------------------------------------------------------------------------
@@ -424,7 +424,7 @@ comment on table partners is
 
 
 -- --------------------------------------------------------------------------
--- 2.5 CONTACTS — People associated with stones, partners, or investors
+-- 2.5 CONTACTS — People associated with assets, partners, or investors
 -- --------------------------------------------------------------------------
 
 create table contacts (
@@ -461,8 +461,8 @@ create table contacts (
   updated_at      timestamptz not null default now()
 );
 
--- Now add the FK from stones to contacts
-alter table stones
+-- Now add the FK from assets to contacts
+alter table assets
   add constraint fk_stones_asset_holder
   foreign key (asset_holder_contact_id)
   references contacts(id) on delete set null;
@@ -473,11 +473,11 @@ create index idx_contacts_partner on contacts(partner_id);
 create index idx_contacts_email on contacts(email);
 
 comment on table contacts is
-  'People associated with stones, partners, or as investors. Tracks KYC/OFAC/PEP status.';
+  'People associated with assets, partners, or as investors. Tracks KYC/OFAC/PEP status.';
 
 
 -- --------------------------------------------------------------------------
--- 2.6 DOCUMENTS — Files attached to stones, steps, partners, or meetings
+-- 2.6 DOCUMENTS — Files attached to assets, steps, partners, or meetings
 -- --------------------------------------------------------------------------
 -- Metadata about files stored in Supabase Storage buckets.
 -- Supports versioning: same logical document can have multiple versions.
@@ -747,7 +747,7 @@ comment on table gate_checks is
 
 
 -- --------------------------------------------------------------------------
--- 2.11 STONE PARTNERS — Junction table: which partners are involved per stone
+-- 2.11 ASSET PARTNERS — Junction table: which partners are involved per asset
 -- --------------------------------------------------------------------------
 
 create table asset_partners (
@@ -766,7 +766,7 @@ create index idx_asset_partners_stone on asset_partners(asset_id);
 create index idx_asset_partners_partner on asset_partners(partner_id);
 
 comment on table asset_partners is
-  'Junction table mapping partners to specific stones with role context.';
+  'Junction table mapping partners to specific assets with role context.';
 
 
 -- --------------------------------------------------------------------------
@@ -852,7 +852,7 @@ comment on table comments is
 -- --------------------------------------------------------------------------
 
 create trigger trg_stones_updated_at
-  before update on stones
+  before update on assets
   for each row execute function moddatetime(updated_at);
 
 create trigger trg_asset_steps_updated_at
@@ -954,7 +954,7 @@ create trigger trg_documents_protect_lock
 -- --------------------------------------------------------------------------
 -- 3.4 AUTO-LOG STONE STATUS CHANGES
 -- --------------------------------------------------------------------------
--- Automatically creates an activity_log entry whenever a stone's status,
+-- Automatically creates an activity_log entry whenever an asset's status,
 -- phase, or step changes.
 
 create or replace function log_stone_changes()
@@ -1004,7 +1004,7 @@ end;
 $$ language plpgsql;
 
 create trigger trg_stones_log_changes
-  after update on stones
+  after update on assets
   for each row execute function log_stone_changes();
 
 
@@ -1064,7 +1064,7 @@ create trigger trg_asset_steps_log_completion
 
 -- Enable RLS on ALL tables
 alter table team_members enable row level security;
-alter table stones enable row level security;
+alter table assets enable row level security;
 alter table asset_steps enable row level security;
 alter table partners enable row level security;
 alter table contacts enable row level security;
@@ -1120,19 +1120,19 @@ create policy "Team members can update own profile"
 -- 4.2 STONES policies
 -- --------------------------------------------------------------------------
 
--- All team members can view all stones
-create policy "Team members can view all stones"
-  on stones for select
+-- All team members can view all assets
+create policy "Team members can view all assets"
+  on assets for select
   using (is_team_member());
 
--- All team members can insert stones
-create policy "Team members can create stones"
-  on stones for insert
+-- All team members can insert assets
+create policy "Team members can create assets"
+  on assets for insert
   with check (is_team_member());
 
--- All team members can update stones
-create policy "Team members can update stones"
-  on stones for update
+-- All team members can update assets
+create policy "Team members can update assets"
+  on assets for update
   using (is_team_member())
   with check (is_team_member());
 
@@ -1141,7 +1141,7 @@ create policy "Team members can update stones"
 
 
 -- --------------------------------------------------------------------------
--- 4.3 STONE STEPS policies
+-- 4.3 ASSET STEPS policies
 -- --------------------------------------------------------------------------
 
 create policy "Team members can view all steps"
@@ -1290,23 +1290,23 @@ create policy "Team members can create gate checks"
 
 
 -- --------------------------------------------------------------------------
--- 4.11 STONE PARTNERS policies
+-- 4.11 ASSET PARTNERS policies
 -- --------------------------------------------------------------------------
 
-create policy "Team members can view stone partners"
+create policy "Team members can view asset partners"
   on asset_partners for select
   using (is_team_member());
 
-create policy "Team members can manage stone partners"
+create policy "Team members can manage asset partners"
   on asset_partners for insert
   with check (is_team_member());
 
-create policy "Team members can update stone partners"
+create policy "Team members can update asset partners"
   on asset_partners for update
   using (is_team_member())
   with check (is_team_member());
 
-create policy "Team members can remove stone partners"
+create policy "Team members can remove asset partners"
   on asset_partners for delete
   using (is_team_member());
 
@@ -1356,7 +1356,7 @@ create policy "Authors can delete own comments"
 -- ============================================================================
 
 -- --------------------------------------------------------------------------
--- 5.1 Pipeline board view — one row per stone with progress summary
+-- 5.1 Pipeline board view — one row per asset with progress summary
 -- --------------------------------------------------------------------------
 
 create or replace view v_pipeline_board as
@@ -1399,13 +1399,13 @@ select
     s.created_at
   ))::integer as days_in_phase
 
-from stones s
+from assets s
 left join team_members tm on tm.id = s.lead_team_member_id
 where s.status not in ('archived');
 
 
 -- --------------------------------------------------------------------------
--- 5.2 Task dashboard — open tasks across all stones
+-- 5.2 Task dashboard — open tasks across all assets
 -- --------------------------------------------------------------------------
 
 create or replace view v_task_dashboard as
@@ -1417,7 +1417,7 @@ select
   t.status,
   t.due_date,
   t.asset_id,
-  s.name as stone_name,
+  s.name as asset_name,
   s.reference_code as asset_reference,
   t.step_id,
   ss.step_number,
@@ -1435,7 +1435,7 @@ select
     else null
   end as days_until_due
 from tasks t
-left join stones s on s.id = t.asset_id
+left join assets s on s.id = t.asset_id
 left join asset_steps ss on ss.id = t.step_id
 left join team_members tm on tm.id = t.assigned_to
 where t.status not in ('done', 'cancelled');
@@ -1453,10 +1453,10 @@ select
   d.document_type::text as detail,
   d.expires_at as deadline,
   d.asset_id,
-  s.name as stone_name,
+  s.name as asset_name,
   extract(day from d.expires_at - now())::integer as days_remaining
 from documents d
-left join stones s on s.id = d.asset_id
+left join assets s on s.id = d.asset_id
 where d.expires_at is not null
   and d.expires_at < now() + interval '90 days'
   and d.is_current = true
@@ -1499,7 +1499,7 @@ order by days_remaining asc;
 -- ============================================================================
 
 -- --------------------------------------------------------------------------
--- 6.1 Generate a reference code for a new stone
+-- 6.1 Generate a reference code for a new asset
 -- --------------------------------------------------------------------------
 
 create or replace function generate_asset_reference()
@@ -1512,7 +1512,7 @@ begin
     nullif(regexp_replace(reference_code, '^PC-' || year_part || '-', ''), reference_code)::integer
   ), 0) + 1
   into seq
-  from stones
+  from assets
   where reference_code like 'PC-' || year_part || '-%';
 
   return 'PC-' || year_part || '-' || lpad(seq::text, 3, '0');
@@ -1521,9 +1521,9 @@ $$ language plpgsql;
 
 
 -- --------------------------------------------------------------------------
--- 6.2 Populate workflow steps for a new stone
+-- 6.2 Populate workflow steps for a new asset
 -- --------------------------------------------------------------------------
--- Call this after inserting a stone to pre-populate all workflow steps.
+-- Call this after inserting an asset to pre-populate all workflow steps.
 -- The step template is based on TOKENIZATION-WORKFLOW-COMPLETE.md.
 -- Different value_paths can have different step templates.
 
@@ -1625,7 +1625,7 @@ insert into partners (name, type, engagement_status, website, notes) values
   ('Chainlink', 'oracle_provider', 'evaluating', 'https://chain.link', 'Proof of Reserve oracle integration.'),
   ('GIA', 'gemological_lab', 'evaluating', 'https://gia.edu', 'Global standard for gemstone certification.'),
   ('Brinks', 'vault_custodian', 'evaluating', 'https://brinks.com', 'Institutional-grade vault custody. Evaluating alongside Malca-Amit.'),
-  ('Malca-Amit', 'vault_custodian', 'evaluating', 'https://malca-amit.com', 'Precious stones specialty custody. Evaluating alongside Brinks.'),
+  ('Malca-Amit', 'vault_custodian', 'evaluating', 'https://malca-amit.com', 'Precious asset specialty custody. Evaluating alongside Brinks.'),
   ('Bull Blockchain Law', 'securities_counsel', 'evaluating', 'https://bullblockchainlaw.com', 'Consultation call to be scheduled.'),
   ('Dilendorf Law Firm', 'securities_counsel', 'evaluating', 'https://dilendorf.com', 'Backup securities counsel. Pioneer in RWA tokenization.'),
   ('Dalmore Group', 'broker_dealer', 'evaluating', 'https://dalmoregroup.com', 'Recommended BD. Not yet engaged.');
