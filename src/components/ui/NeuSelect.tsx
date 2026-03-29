@@ -7,12 +7,12 @@ import { ChevronDown } from 'lucide-react'
 export interface NeuSelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label?: string
   error?: string
-  options: { value: string; label: string }[]
+  options?: { value: string; label: string }[]
   placeholder?: string
 }
 
 export const NeuSelect = forwardRef<HTMLSelectElement, NeuSelectProps>(
-  ({ label, error, options, placeholder, className, id, ...props }, ref) => {
+  ({ label, error, options, placeholder, className, id, children, ...props }, ref) => {
     const selectId = id || label?.toLowerCase().replace(/\s+/g, '-')
     return (
       <div className="flex flex-col gap-1.5">
@@ -42,11 +42,13 @@ export const NeuSelect = forwardRef<HTMLSelectElement, NeuSelectProps>(
                 {placeholder}
               </option>
             )}
-            {options.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
+            {options
+              ? options.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))
+              : children}
           </select>
           <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-muted)] pointer-events-none" />
         </div>

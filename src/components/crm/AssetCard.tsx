@@ -19,6 +19,22 @@ const pathLabelMap: Record<string, string> = {
   evaluating: 'Evaluating',
 }
 
+const phaseLabelMap: Record<string, string> = {
+  phase_0_foundation: 'Foundation',
+  phase_1_intake: 'Intake',
+  phase_2_certification: 'Certification',
+  phase_3_custody: 'Custody',
+  phase_4_legal: 'Legal',
+  phase_5_tokenization: 'Execution',
+  phase_6_regulatory: 'Regulatory',
+  phase_7_distribution: 'Distribution',
+  phase_8_ongoing: 'Ongoing',
+}
+
+function formatAssetType(type: string): string {
+  return type.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
 function formatCurrency(value: number | null): string {
   if (!value) return 'TBD'
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value)
@@ -59,7 +75,7 @@ export function AssetCard({ asset }: { asset: PipelineBoard }) {
 
       <div className="flex flex-wrap gap-1 mt-2">
         <NeuBadge color="gray" size="sm">
-          {asset.asset_type}
+          {formatAssetType(asset.asset_type ?? 'other')}
         </NeuBadge>
         {asset.value_path && (
           <NeuBadge color={pathColorMap[asset.value_path] ?? 'gray'} size="sm">
@@ -82,7 +98,7 @@ export function AssetCard({ asset }: { asset: PipelineBoard }) {
       <div className="flex items-center gap-1.5 mt-2 text-xs text-[var(--text-secondary)]">
         <Clock className="h-3 w-3" />
         <span>
-          {asset.current_step ?? asset.current_phase} &middot; {asset.days_in_phase ?? 0}d
+          {phaseLabelMap[asset.current_phase as string] ?? asset.current_phase} &middot; {asset.days_in_phase ?? 0}d
         </span>
       </div>
 

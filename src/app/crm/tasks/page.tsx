@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { CheckSquare, Plus, Check } from 'lucide-react'
-import { NeuCard, NeuBadge, NeuButton, NeuTabs } from '@/components/ui'
+import { CheckSquare, Plus, Check, X } from 'lucide-react'
+import { NeuCard, NeuBadge, NeuButton, NeuTabs, NeuInput, NeuTextarea, NeuSelect } from '@/components/ui'
 import { trpc } from '@/lib/trpc'
 
 const priorityMap: Record<string, 'ruby' | 'amber' | 'teal' | 'gray'> = {
@@ -18,6 +18,7 @@ const TABS = [
 
 export default function TasksPage() {
   const [filter, setFilter] = useState('all')
+  const [showCreateModal, setShowCreateModal] = useState(false)
   const { data: tasks = [], isLoading } = trpc.tasks.list.useQuery(
     filter !== 'all' ? { status: filter } : undefined
   )
@@ -35,7 +36,7 @@ export default function TasksPage() {
           </h1>
           <p className="text-sm text-[var(--text-muted)] mt-1">{tasks.length} tasks</p>
         </div>
-        <NeuButton icon={<Plus className="h-4 w-4" />}>
+        <NeuButton icon={<Plus className="h-4 w-4" />} onClick={() => setShowCreateModal(true)}>
           <span className="hidden sm:inline">New Task</span>
         </NeuButton>
       </div>
@@ -79,6 +80,84 @@ export default function TasksPage() {
           ))}
         </div>
       )}
+
+      {showCreateModal && <TaskCreateModal onClose={() => setShowCreateModal(false)} />}
+    </div>
+  )
+}
+
+function TaskCreateModal({ onClose }: { onClose: () => void }) {
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [priority, setPriority] = useState('medium')
+  const [dueDate, setDueDate] = useState('')
+  const utils = trpc.useUtils()
+
+  const mutation = trpc.tasks.create.useMutation({
+    onSuccess: () => {
+      utils.tasks.list.invalidate()
+      onClose()
+    },
+  })
+
+  const handleSubmit = () => {
+    mutation.mutate({
+      title,
+      priority: priority as 'low' | 'medium' | 'high' | 'urgent' | 'blocker',
+      description: description || undefined,
+      dueDate: dueDate || undefined,
+    })
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-[var(--overlay)]" onClick={onClose} />
+      <NeuCard variant="raised" padding="lg" className="relative w-full max-w-md z-10 space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-[var(--text-primary)]" style={{ fontFamily: 'var(--font-display)' }}>New Task</h2>
+          <button onClick={onClose} className="p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)]"><X className="h-5 w-5" /></button>
+        </div>
+
+        <div className="space-y-3">
+          <NeuInput
+            label="Title"
+            placeholder="Task title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+          />
+          <NeuTextarea
+            label="Description"
+            placeholder="Optional description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={3}
+          />
+          <NeuSelect
+            label="Priority"
+            value={priority}
+            onChange={(e) => setPriority(e.target.value)}
+          >
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="urgent">Urgent</option>
+            <option value="blocker">Blocker</option>
+          </NeuSelect>
+          <NeuInput
+            label="Due Date"
+            type="date"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+          />
+        </div>
+
+        <div className="flex gap-3 pt-2">
+          <NeuButton variant="ghost" onClick={onClose} fullWidth>Cancel</NeuButton>
+          <NeuButton onClick={handleSubmit} loading={mutation.isPending} disabled={!title.trim()} fullWidth>Create Task</NeuButton>
+        </div>
+        {mutation.error && <p className="text-sm text-[var(--ruby)]">{mutation.error.message}</p>}
+      </NeuCard>
     </div>
   )
 }

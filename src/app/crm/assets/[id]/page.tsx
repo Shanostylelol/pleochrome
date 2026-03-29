@@ -33,6 +33,10 @@ const statusColorMap: Record<string, 'emerald' | 'teal' | 'amber' | 'chartreuse'
   terminated: 'ruby',
 }
 
+function formatAssetType(type: string): string {
+  return type.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
 function fmt(val: number | null | undefined): string {
   if (!val) return 'TBD'
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val)
@@ -109,7 +113,7 @@ export default function AssetDetailPage() {
                   {pathLabels[asset.value_path] ?? asset.value_path}
                 </NeuBadge>
               )}
-              <NeuBadge color="gray">{asset.asset_type}</NeuBadge>
+              <NeuBadge color="gray">{formatAssetType(asset.asset_type)}</NeuBadge>
             </div>
 
             {asset.asset_holder_entity && (

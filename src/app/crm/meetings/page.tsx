@@ -1,10 +1,12 @@
 'use client'
 
-import { Calendar, Plus } from 'lucide-react'
-import { NeuCard, NeuBadge, NeuButton } from '@/components/ui'
+import { useState } from 'react'
+import { Calendar, Plus, X } from 'lucide-react'
+import { NeuCard, NeuBadge, NeuButton, NeuInput, NeuTextarea } from '@/components/ui'
 import { trpc } from '@/lib/trpc'
 
 export default function MeetingsPage() {
+  const [showCreateModal, setShowCreateModal] = useState(false)
   const { data: meetings = [], isLoading } = trpc.meetings.list.useQuery()
 
   return (
@@ -16,7 +18,7 @@ export default function MeetingsPage() {
           </h1>
           <p className="text-sm text-[var(--text-muted)] mt-1">{meetings.length} meetings</p>
         </div>
-        <NeuButton icon={<Plus className="h-4 w-4" />}>
+        <NeuButton icon={<Plus className="h-4 w-4" />} onClick={() => setShowCreateModal(true)}>
           <span className="hidden sm:inline">New Meeting</span>
         </NeuButton>
       </div>
@@ -54,6 +56,80 @@ export default function MeetingsPage() {
           ))}
         </div>
       )}
+      {showCreateModal && <MeetingCreateModal onClose={() => setShowCreateModal(false)} />}
+    </div>
+  )
+}
+
+function MeetingCreateModal({ onClose }: { onClose: () => void }) {
+  const [title, setTitle] = useState('')
+  const [meetingDate, setMeetingDate] = useState('')
+  const [notes, setNotes] = useState('')
+  const [actionItems, setActionItems] = useState('')
+  const utils = trpc.useUtils()
+
+  const mutation = trpc.meetings.create.useMutation({
+    onSuccess: () => {
+      utils.meetings.list.invalidate()
+      onClose()
+    },
+  })
+
+  const handleSubmit = () => {
+    mutation.mutate({
+      title,
+      meetingDate,
+      notes: notes || undefined,
+      actionItems: actionItems || undefined,
+    })
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-[var(--overlay)]" onClick={onClose} />
+      <NeuCard variant="raised" padding="lg" className="relative w-full max-w-md z-10 space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-[var(--text-primary)]" style={{ fontFamily: 'var(--font-display)' }}>New Meeting</h2>
+          <button onClick={onClose} className="p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)]"><X className="h-5 w-5" /></button>
+        </div>
+
+        <div className="space-y-3">
+          <NeuInput
+            label="Title"
+            placeholder="Meeting title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+          />
+          <NeuInput
+            label="Date"
+            type="date"
+            value={meetingDate}
+            onChange={(e) => setMeetingDate(e.target.value)}
+            required
+          />
+          <NeuTextarea
+            label="Notes"
+            placeholder="Meeting notes"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            rows={3}
+          />
+          <NeuTextarea
+            label="Action Items"
+            placeholder="Action items from this meeting"
+            value={actionItems}
+            onChange={(e) => setActionItems(e.target.value)}
+            rows={3}
+          />
+        </div>
+
+        <div className="flex gap-3 pt-2">
+          <NeuButton variant="ghost" onClick={onClose} fullWidth>Cancel</NeuButton>
+          <NeuButton onClick={handleSubmit} loading={mutation.isPending} disabled={!title.trim() || !meetingDate} fullWidth>Create Meeting</NeuButton>
+        </div>
+        {mutation.error && <p className="text-sm text-[var(--ruby)]">{mutation.error.message}</p>}
+      </NeuCard>
     </div>
   )
 }

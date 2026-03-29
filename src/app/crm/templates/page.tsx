@@ -15,11 +15,23 @@ export default function TemplatesPage() {
   const { data: requirements = [], isLoading } = trpc.governance.listRequirements.useQuery()
   const { data: modules = [] } = trpc.governance.listModules.useQuery()
 
+  const phaseLabels: Record<string, string> = {
+    phase_0_foundation: 'Phase 0 — Foundation',
+    phase_1_intake: 'Phase 1 — Intake & Acquisition',
+    phase_2_certification: 'Phase 2 — Certification',
+    phase_3_custody: 'Phase 3 — Custody',
+    phase_4_legal: 'Phase 4 — Legal',
+    phase_5_tokenization: 'Phase 5 — Execution',
+    phase_6_regulatory: 'Phase 6 — Regulatory',
+    phase_7_distribution: 'Phase 7 — Distribution',
+    phase_8_ongoing: 'Phase 8 — Ongoing',
+  }
+
   const grouped: Record<string, typeof requirements> = {}
   requirements.forEach((r) => {
-    const phase = r.phase ?? 'Other'
-    if (!grouped[phase]) grouped[phase] = []
-    grouped[phase].push(r)
+    const label = phaseLabels[r.phase] ?? r.phase ?? 'Other'
+    if (!grouped[label]) grouped[label] = []
+    grouped[label].push(r)
   })
 
   return (
@@ -100,7 +112,10 @@ function PhaseGroup({ phase, requirements }: { phase: string; requirements: Arra
                 <div className="w-1.5 h-1.5 rounded-full bg-[var(--text-muted)] shrink-0" />
               )}
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-[var(--text-primary)] truncate">{r.title as string}</p>
+                <p className="text-sm text-[var(--text-primary)] truncate">
+                  <span className="text-[var(--text-muted)]" style={{ fontFamily: 'var(--font-mono)' }}>{r.step_number as string}</span>{' '}
+                  {r.title as string}
+                </p>
                 {(r.regulatory_citation as string) && (
                   <p className="text-[10px] text-[var(--text-muted)]" style={{ fontFamily: 'var(--font-mono)' }}>
                     {r.regulatory_citation as string}

@@ -16,10 +16,9 @@ export const governanceRouter = createRouter({
         .from('governance_requirements')
         .select('*')
         .eq('is_active', true)
-        .order('phase_number', { ascending: true })
-        .order('step_number', { ascending: true })
+        .order('sort_order', { ascending: true })
 
-      if (input?.valuePath) query = query.or(`value_path_scope.is.null,value_path_scope.eq.${input.valuePath}`)
+      if (input?.valuePath) query = query.or(`value_path.is.null,value_path.eq.${input.valuePath}`)
       if (input?.phase) query = query.eq('phase', input.phase as never)
       if (input?.isGate !== undefined) query = query.eq('is_gate', input.isGate)
 
