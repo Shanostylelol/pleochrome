@@ -108,7 +108,7 @@ ORDER BY table_name;
 "
 ```
 
-**Expected tables (18 total):**
+**Expected tables (19 total):**
 ```
 activity_log
 asset_partners
@@ -366,7 +366,7 @@ ON CONFLICT (email) DO NOTHING;
 
 | Check | Command | Expected |
 |-------|---------|----------|
-| Tables exist | `SELECT count(*) FROM information_schema.tables WHERE table_schema='public'` | 18+ |
+| Tables exist | `SELECT count(*) FROM information_schema.tables WHERE table_schema='public'` | 19+ |
 | Governance requirements seeded | `SELECT count(*) FROM governance_requirements` | 25+ |
 | Views work | `SELECT * FROM v_pipeline_board LIMIT 1` | 0 rows, no error |
 | Activity log immutable | Check triggers on `activity_log` | 2 triggers (no_update, no_delete) |

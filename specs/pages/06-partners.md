@@ -25,12 +25,12 @@ PleoChrome is **partner-agnostic** — the CRM must never imply commitment to an
 |-------|---------|-------------|
 | `partners` | Partner records | `id`, `name`, `type`, `website`, `dd_status`, `dd_score`, `risk_level`, `functions_covered` (text[]), `last_contact_date`, `notes`, `metadata` (JSONB), `created_at` |
 | `contacts` | People at partner orgs | `id`, `partner_id`, `full_name`, `title`, `email`, `phone`, `is_primary`, `notes` |
-| `asset_partners` | Junction: assets <-> partners | `id`, `stone_id`, `partner_id`, `role`, `module_id`, `assigned_at` |
+| `asset_partners` | Junction: assets <-> partners | `id`, `asset_id`, `partner_id`, `role_on_stone`, `engagement_date` |
 | `partner_modules` | Partner task modules (Layer 2) | `id`, `partner_id`, `name`, `description`, `functions_covered`, `value_paths`, `version`, `is_active` |
 | `module_tasks` | Tasks within partner modules | `id`, `module_id`, `governance_requirement_id`, `title`, `description`, `type`, `sort_order` |
-| `meeting_notes` | Meeting records associated with partner | `id`, `partner_id`, `stone_id`, `title`, `date`, `summary`, `action_items` |
+| `meeting_notes` | Meeting records associated with partner | `id`, `partner_id`, `asset_id`, `title`, `meeting_date`, `summary`, `action_items` |
 | `documents` | DD reports, contracts, NDAs | `id`, `partner_id`, `document_type`, `filename` |
-| `stones` | Assets associated with partner | `id`, `name`, `reference_code`, `current_phase` |
+| `assets` | Assets associated with partner | `id`, `name`, `reference_code`, `current_phase` |
 | `activity_log` | Activity entries related to partner | `entity_type='partner'`, `entity_id=partner_id` |
 | `team_members` | Uploader/assignee info | `id`, `full_name`, `avatar_url` |
 

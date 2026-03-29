@@ -27,8 +27,8 @@ Manage the two configuration layers of the CRM: **Governance Requirements** (Lay
 | `partner_modules` | Layer 2 — partner task modules | `id`, `partner_id`, `name`, `description`, `functions_covered` (text[]), `value_paths` (text[]), `version`, `is_active`, `created_by`, `created_at` |
 | `module_tasks` | Tasks within a module | `id`, `module_id`, `governance_requirement_id`, `title`, `description`, `type`, `replaces_default`, `sort_order` |
 | `partners` | Partner info for module grouping | `id`, `name`, `type` |
-| `stones` | Count of assets using each module | Via `asset_partners.module_id` |
-| `asset_partners` | Which assets use which modules | `stone_id`, `partner_id`, `module_id` |
+| `assets` | Count of assets using each module | Via `asset_partners` |
+| `asset_partners` | Which assets use which modules | `asset_id`, `partner_id`, `role_on_stone` |
 | `activity_log` | Audit trail for template changes | Immutable |
 
 ---

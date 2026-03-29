@@ -21,8 +21,8 @@ Meeting records with summaries, transcripts, action items, and partner/asset ass
 
 | Table | Purpose | Key Columns |
 |-------|---------|-------------|
-| `meeting_notes` | Meeting records | `id`, `title`, `date`, `duration_minutes`, `meeting_type`, `stone_id`, `partner_id`, `summary`, `transcript`, `ai_summary`, `recording_url`, `attendees` (JSONB), `action_items` (JSONB), `created_by`, `created_at`, `updated_at` |
-| `stones` | Asset association | `id`, `name`, `reference_code` |
+| `meeting_notes` | Meeting records | `id`, `title`, `meeting_date`, `duration_minutes`, `meeting_type`, `asset_id`, `partner_id`, `summary`, `transcript`, `ai_summary`, `recording_url`, `attendees` (JSONB), `action_items` (JSONB), `created_by`, `created_at`, `updated_at` |
+| `assets` | Asset association | `id`, `name`, `reference_code` |
 | `partners` | Partner association | `id`, `name`, `type` |
 | `team_members` | Attendee info | `id`, `full_name`, `avatar_url`, `role` |
 | `documents` | Meeting attachments | `id`, `meeting_id`, `filename`, `file_path` |
@@ -285,7 +285,7 @@ Footer: "Save Meeting" (NeuButton primary) + "Cancel" (NeuButton ghost)
 
 | Procedure | Type | Input | Output | Notes |
 |-----------|------|-------|--------|-------|
-| `meetings.list` | query | `{ search?, meetingType?, assetId?, partnerId?, dateFrom?, dateTo?, hasActionItems?, cursor?, limit? }` | `{ meetings: Meeting[], nextCursor: string \| null }` | Cursor-based pagination. JOINs with stones, partners for badge data. |
+| `meetings.list` | query | `{ search?, meetingType?, assetId?, partnerId?, dateFrom?, dateTo?, hasActionItems?, cursor?, limit? }` | `{ meetings: Meeting[], nextCursor: string \| null }` | Cursor-based pagination. JOINs with assets, partners for badge data. |
 | `meetings.getById` | query | `{ meetingId }` | `{ meeting: MeetingFull }` | Full meeting with attendees, action items, attachments, linked asset/partner. |
 | `meetings.create` | mutation | `{ title, date, meetingType?, attendees?, assetId?, partnerId?, durationMinutes?, summary?, transcript?, recordingUrl? }` | `{ meeting: Meeting }` | Activity logged. |
 | `meetings.update` | mutation | `{ meetingId, title?, date?, meetingType?, attendees?, assetId?, partnerId?, durationMinutes?, summary?, transcript?, aiSummary?, recordingUrl? }` | `{ meeting: Meeting }` | Activity logged with before/after diff. |
@@ -332,7 +332,7 @@ const MeetingCreateInput = z.object({
 ## MEETING-ASSET-PARTNER RELATIONSHIP
 
 Meetings are linked to **both** an asset AND a partner (both optional):
-- `meeting_notes.stone_id` — the asset discussed
+- `meeting_notes.asset_id` — the asset discussed
 - `meeting_notes.partner_id` — the partner present
 
 This triple relationship allows:
@@ -378,7 +378,7 @@ Both badges (AssetBadge and PartnerBadge) appear on meeting cards and detail pag
 - **Dark + light mode:** CSS custom properties throughout
 - **tRPC for mutations:** All meeting CRUD through tRPC
 - **Activity logging is automatic:** DB triggers handle audit trail
-- **"asset" not "stone":** UI says "Asset" (DB: `stone_id`)
+- **"asset" not "stone":** UI says "Asset" (DB: `asset_id`)
 - **Platform-agnostic:** Meeting notes may reference partners but never imply commitment
 
 ---

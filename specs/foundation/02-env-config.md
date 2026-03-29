@@ -19,35 +19,33 @@
 
 ## Step 1: Document .env.local
 
-Create or verify `.env.local` in the project root:
+Create or verify `.env.local` in the project root.
 
-**File: `~/Projects/pleochrome/.env.local`**
+**IMPORTANT:** The existing `.env.local` already has `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` set, plus `SUPABASE_PROJECT_REF`. You MUST add the three missing variables below. Do NOT overwrite the existing values.
+
+**Add these lines to the existing `~/Projects/pleochrome/.env.local`:**
 
 ```env
 # ─────────────────────────────────────────────────
-# Supabase Configuration
+# EXISTING (already in .env.local — DO NOT CHANGE)
 # ─────────────────────────────────────────────────
+# NEXT_PUBLIC_SUPABASE_URL=https://satrlfdnevquvnozhlvn.supabase.co
+# NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_az9w0Wo9UPOodH54Ky2AHA_qxy5UoN4
+# SUPABASE_PROJECT_REF=satrlfdnevquvnozhlvn
 
-# PUBLIC: Safe to expose in browser. Identifies the project.
-# Found at: Supabase Dashboard > Settings > API > Project URL
-NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
-
-# PUBLIC: Safe to expose in browser. Only works with RLS policies.
-# Found at: Supabase Dashboard > Settings > API > anon/public key
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIs...
+# ─────────────────────────────────────────────────
+# ADD THESE — Required by tRPC and Supabase admin client
+# ─────────────────────────────────────────────────
 
 # SECRET: Server-side only. Bypasses RLS. NEVER expose to browser.
 # Found at: Supabase Dashboard > Settings > API > service_role key
-SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIs...
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIs...REPLACE_ME
 
-# ─────────────────────────────────────────────────
-# App Configuration
-# ─────────────────────────────────────────────────
-
-# Base URL of the app (used for redirects, email links, etc.)
+# Base URL of the app (used for tRPC endpoint URL, auth redirects, email links)
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 # Environment indicator (development | staging | production)
+# CRITICAL: tRPC auth bypass depends on this being 'development'
 NEXT_PUBLIC_ENV=development
 ```
 
@@ -192,7 +190,7 @@ npx supabase gen types typescript --linked > src/lib/database.types.ts
 The generated `src/lib/database.types.ts` should contain:
 
 1. A top-level `Database` interface with a `public` property
-2. Inside `public.Tables`, definitions for all 18+ tables:
+2. Inside `public.Tables`, definitions for all 19+ tables:
    - `activity_log`, `asset_partners`, `asset_steps`, `asset_task_instances`, `assets`, `comments`, `contacts`, `default_tasks`, `documents`, `gate_checks`, `governance_documents`, `governance_requirements`, `meeting_notes`, `module_tasks`, `notifications`, `partner_modules`, `partners`, `tasks`, `team_members`
 3. Inside `public.Views`, definitions for:
    - `v_pipeline_board`, `v_task_dashboard`, `v_compliance_dashboard`

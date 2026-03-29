@@ -103,8 +103,10 @@ This file defines ALL CSS custom properties used by the design system. It is imp
   --header-height: 56px;
 
   /* ── Typography ──────────────────────────────── */
-  --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
-  --font-body: 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* Fonts loaded in layout.tsx as --font-cormorant and --font-dm-sans.
+     These aliases let design system components use semantic names. */
+  --font-display: var(--font-cormorant), Georgia, 'Times New Roman', serif;
+  --font-body: var(--font-dm-sans), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
 }
 
@@ -215,42 +217,44 @@ This file defines ALL CSS custom properties used by the design system. It is imp
 
 ### Integration with globals.css
 
-Add this import to the TOP of `src/styles/globals.css` (or `src/app/globals.css`):
+**NOTE:** The `src/styles/` directory does not yet exist. Create it first:
 
-```css
-@import './neumorphic.css';
+```bash
+mkdir -p ~/Projects/pleochrome/src/styles
 ```
 
-If `globals.css` is in `src/app/`, adjust the import path:
+Then move or keep `globals.css` in its current location (`src/app/globals.css`) and add this import to the TOP of `src/app/globals.css`, **before** the existing `@import "tailwindcss";` line:
 
 ```css
 @import '../styles/neumorphic.css';
+@import "tailwindcss";
 ```
+
+**IMPORTANT:** The neumorphic.css import must come BEFORE `@import "tailwindcss"` so that the CSS custom properties are available to Tailwind utility classes. The existing globals.css content (`:root` variables, animations, etc.) should remain intact. The neumorphic.css variables will supplement, not replace, the existing design tokens -- the CRM pages will use neumorphic.css while the landing page continues using the existing tokens.
 
 ### Google Fonts
 
-Add to `src/app/layout.tsx`:
+**IMPORTANT:** The existing `src/app/layout.tsx` already loads these fonts with the CSS variable names `--font-cormorant` and `--font-dm-sans`. The existing `globals.css` references these names. Do NOT change the variable names in `layout.tsx` — instead, the neumorphic.css typography section maps them:
+
+```css
+  /* ── Typography ──────────────────────────────── */
+  /* Fonts loaded in layout.tsx as --font-cormorant and --font-dm-sans */
+  --font-display: var(--font-cormorant), Georgia, 'Times New Roman', serif;
+  --font-body: var(--font-dm-sans), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+```
+
+This approach creates alias variables (`--font-display`, `--font-body`) that reference the actual font variables from `layout.tsx`. All design system components use the aliases.
+
+**Also update `layout.tsx`:** Add `data-theme="dark"` to the `<html>` tag so the neumorphic CSS variables activate:
 
 ```typescript
-import { Cormorant_Garamond, DM_Sans } from 'next/font/google'
-
-const cormorant = Cormorant_Garamond({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-display',
-  display: 'swap',
-})
-
-const dmSans = DM_Sans({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-body',
-  display: 'swap',
-})
-
-// In the <html> tag:
-// <html className={`${cormorant.variable} ${dmSans.variable}`} data-theme="dark">
+// Change: <html lang="en" className="dark">
+// To:     <html lang="en" className="dark" data-theme="dark">
+// Note: className="dark" can remain for Tailwind dark mode compat
 ```
+
+**Do NOT change the existing `300` weight inclusion** — the existing layout loads weight `300` which the spec's version omits. Keep all existing weights: `['300', '400', '500', '600', '700']`.
 
 ---
 

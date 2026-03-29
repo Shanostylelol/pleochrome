@@ -33,7 +33,7 @@ The wizard calls `assemble_asset_workflow()` which is the critical function that
 
 | Table | Operations |
 |-------|-----------|
-| `stones` | INSERT new asset record |
+| `assets` | INSERT new asset record |
 | `contacts` | INSERT new contact if holder is new |
 | `asset_steps` | INSERT steps from governance_requirements (via `assemble_asset_workflow()`) |
 | `asset_task_instances` | INSERT tasks from module_tasks (via `assemble_asset_workflow()`) |
@@ -285,7 +285,7 @@ Unselected cards: standard NeuCard raised
 
 1. Call `assets.create` tRPC mutation with all wizard data
 2. Server-side:
-   a. Insert into `stones` table
+   a. Insert into `assets` table
    b. Insert or link contact record
    c. Insert into `asset_partners` for each partner assignment
    d. Call `assemble_asset_workflow(asset_id, value_path, partner_assignments)`
@@ -435,7 +435,7 @@ const AssetCreateInput = z.object({
 
 - **Three-Layer Governance Model:** Wizard creates Layer 3 (instances) from Layer 1 (requirements) + Layer 2 (modules)
 - **`assemble_asset_workflow()` function:** Called on create, not manually assembling steps in frontend
-- **"asset" not "stone":** All UI text says "Asset" (DB column: `stones`)
+- **"asset" not "stone":** All UI text says "Asset" (DB table: `assets`)
 - **Neumorphic design system:** Path cards, form fields, summary card all use neumorphic components
 - **Platform-agnostic:** Value path descriptions from `portal-data.ts`, no partner commitment implied
 - **Activity logging is automatic:** DB triggers handle all entries on asset creation

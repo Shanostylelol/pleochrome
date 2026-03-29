@@ -319,13 +319,15 @@ export function useTheme() {
 }
 ```
 
-**Wire into CRM layout:** Wrap children with `<ThemeProvider>` inside `CRMProviders`.
+**Wire into CRM layout:** `ThemeProvider` is rendered inside the layout.tsx, wrapping children but itself wrapped by `CRMProviders`. The nesting order in layout.tsx is: `CRMProviders` (outermost) > `ThemeProvider` > shell UI + children. This is already shown in the "Updated Layout File" section below.
 
 ---
 
 ## CSS for the Shell
 
-### File: Add to `src/styles/neumorphic.css` (or a new `crm-shell.css`)
+### File: Append to `src/styles/neumorphic.css`
+
+Add the following CSS to the END of `src/styles/neumorphic.css` (created in spec 03). Do NOT create a separate file -- keeping all layout CSS in one file avoids import order issues.
 
 ```css
 /* ── CRM Shell Layout ──────────────────────────── */
@@ -370,12 +372,13 @@ export function useTheme() {
 ### File: `src/app/crm/layout.tsx` (final version)
 
 ```typescript
+import type { Metadata } from 'next'
 import { CRMProviders } from './providers'
 import { ThemeProvider } from '@/components/crm/ThemeProvider'
 import { CRMSidebar } from '@/components/crm/CRMSidebar'
 import { CRMHeader } from '@/components/crm/CRMHeader'
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Powerhouse CRM | PleoChrome',
   description: 'Real-world asset value orchestration platform',
 }
@@ -397,6 +400,9 @@ export default function CRMLayout({ children }: { children: React.ReactNode }) {
     </CRMProviders>
   )
 }
+```
+
+**NOTE:** This layout.tsx is a Server Component that renders client components as children. The `metadata` export works here because the file itself is NOT a client component -- `CRMProviders`, `ThemeProvider`, `CRMSidebar`, and `CRMHeader` are client components (they have `'use client'` directives), but they are imported and rendered inside a Server Component layout. This is the correct pattern. Do NOT add `'use client'` to layout.tsx.
 ```
 
 ---

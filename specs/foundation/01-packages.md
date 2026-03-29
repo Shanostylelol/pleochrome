@@ -53,18 +53,19 @@ npm install @supabase/supabase-js@^2.49.0 @supabase/ssr@^0.6.0
 ## Step 2: Install tRPC + TanStack Query
 
 ```bash
-npm install @trpc/server@^11 @trpc/client@^11 @trpc/next@^11 @trpc/react-query@^11 @tanstack/react-query@^5
+npm install @trpc/server@^11 @trpc/client@^11 @trpc/react-query@^11 @tanstack/react-query@^5
 ```
 
 | Package | Purpose |
 |---------|---------|
-| `@trpc/server` | Server-side tRPC router definitions, procedures, middleware |
-| `@trpc/client` | Client-side tRPC caller |
-| `@trpc/next` | Next.js integration (API route adapter) |
+| `@trpc/server` | Server-side tRPC router definitions, procedures, middleware. Includes `@trpc/server/adapters/fetch` for the Next.js App Router API route handler. |
+| `@trpc/client` | Client-side tRPC caller (httpBatchLink, superjson transformer) |
 | `@trpc/react-query` | React hooks that connect tRPC to TanStack Query |
 | `@tanstack/react-query` | Server state management. Caching, revalidation, optimistic updates. |
 
-**Note on tRPC v11:** tRPC v11 is the current major version as of 2026. It supports Next.js App Router natively. If v11 is not yet released on npm, use `@trpc/server@next` etc.
+**NOTE: `@trpc/next` is NOT installed.** That package is for the Next.js Pages Router. For the App Router (which this project uses), the `@trpc/server/adapters/fetch` adapter is used instead (see spec 04-trpc-setup.md). Installing `@trpc/next` would add unused code and potential confusion.
+
+**Note on tRPC v11:** tRPC v11 is the current major version as of 2026. It supports Next.js App Router via the fetch adapter. If v11 is not yet released on npm, use `@trpc/server@next` etc.
 
 ---
 
@@ -132,7 +133,6 @@ npm install \
   @supabase/ssr@^0.6.0 \
   @trpc/server@^11 \
   @trpc/client@^11 \
-  @trpc/next@^11 \
   @trpc/react-query@^11 \
   @tanstack/react-query@^5 \
   zod@^3.24.0 \
@@ -198,7 +198,7 @@ pkgs.forEach(p => {
 "
 ```
 
-**Expected:** All 12 packages show "OK".
+**Expected:** All 12 packages show "OK". Note: `@trpc/next` is intentionally NOT included (it is for the Pages Router, not App Router).
 
 ---
 
@@ -221,7 +221,6 @@ pkgs.forEach(p => {
     "@supabase/ssr": "^0.6.0",
     "@tanstack/react-query": "^5",
     "@trpc/client": "^11",
-    "@trpc/next": "^11",
     "@trpc/react-query": "^11",
     "@trpc/server": "^11",
     "@univerjs/preset-sheets-core": "^0.17.0",

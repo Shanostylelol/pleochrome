@@ -21,8 +21,8 @@ Global document management across all assets, partners, and governance steps. Th
 
 | Table | Purpose | Key Columns |
 |-------|---------|-------------|
-| `documents` | File metadata, versioning, lock status | `id`, `stone_id`, `step_id`, `partner_id`, `contact_id`, `meeting_id`, `document_type`, `filename`, `file_path`, `file_size`, `mime_type`, `version`, `parent_document_id`, `is_locked`, `uploaded_by`, `created_at`, `expires_at` |
-| `stones` | Asset reference for association | `id`, `name`, `reference_code` |
+| `documents` | File metadata, versioning, lock status | `id`, `asset_id`, `step_id`, `partner_id`, `contact_id`, `meeting_id`, `document_type`, `filename`, `storage_path`, `file_size_bytes`, `mime_type`, `version`, `parent_document_id`, `is_locked`, `uploaded_by`, `uploaded_at`, `expires_at` |
+| `assets` | Asset reference for association | `id`, `name`, `reference_code` |
 | `asset_steps` | Step reference for association | `id`, `step_number`, `title` |
 | `partners` | Partner reference for association | `id`, `name` |
 | `team_members` | Uploader info | `id`, `full_name`, `avatar_url` |
@@ -240,7 +240,7 @@ Gap: 16px
 
 | Procedure | Type | Input | Output | Notes |
 |-----------|------|-------|--------|-------|
-| `documents.list` | query | `{ search?, documentType?, assetId?, stepId?, uploadedBy?, dateFrom?, dateTo?, isLocked?, sortBy?, sortDir?, page?, pageSize? }` | `{ documents: Document[], total: number, page: number }` | Paginated, all filters optional. JOIN with stones, asset_steps, team_members for display data. |
+| `documents.list` | query | `{ search?, documentType?, assetId?, stepId?, uploadedBy?, dateFrom?, dateTo?, isLocked?, sortBy?, sortDir?, page?, pageSize? }` | `{ documents: Document[], total: number, page: number }` | Paginated, all filters optional. JOIN with assets, asset_steps, team_members for display data. |
 | `documents.upload` | mutation | `{ filename, fileSize, mimeType, documentType, assetId, stepId?, partnerId?, filePath }` | `{ document: Document }` | Validates MIME type. Inserts document record. Activity logged by DB trigger. |
 | `documents.getVersions` | query | `{ documentId }` | `{ versions: Document[] }` | Recursive CTE on `parent_document_id` to get full version chain, ordered newest first. |
 | `documents.lock` | mutation | `{ documentId }` | `{ document: Document }` | Sets `is_locked = true`. Once locked, cannot be unlocked except by admin. Activity logged. |
@@ -362,7 +362,7 @@ Reject all others with error: "File type not supported. Accepted: PDF, images, W
 - **Activity logging is automatic:** DB triggers handle audit trail, no manual frontend inserts
 - **Documents with `is_locked = true` cannot be deleted:** Enforced at DB trigger level
 - **MIME type validation:** Before storing in Supabase Storage
-- **"asset" not "stone":** In all UI text (DB columns may still say `stone_id` — display as "Asset")
+- **"asset" not "stone":** In all UI text. DB column is `asset_id`.
 - **Test after build:** `npm run build` must pass with zero errors
 
 ---

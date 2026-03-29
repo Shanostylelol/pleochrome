@@ -23,17 +23,17 @@ Global immutable audit trail across ALL assets, partners, and team actions. This
 
 | Table | Purpose | Key Columns |
 |-------|---------|-------------|
-| `activity_log` | Immutable audit trail | `id`, `stone_id`, `user_id`, `action_type`, `entity_type`, `entity_id`, `details` (JSONB), `created_at` |
-| `stones` | Asset reference for display | `id`, `name`, `reference_code` |
+| `activity_log` | Immutable audit trail | `id`, `asset_id`, `step_id`, `partner_id`, `entity_type`, `action`, `detail`, `changes` (JSONB), `performed_by`, `performed_at` |
+| `assets` | Asset reference for display | `id`, `name`, `reference_code` |
 | `partners` | Partner reference for display | `id`, `name` |
 | `team_members` | User info for display | `id`, `full_name`, `avatar_url` |
 
 ### Key Indexes (for performance)
 
-- `(created_at DESC)` — primary ordering
-- `(action_type, created_at DESC)` — type filter
-- `(user_id, created_at DESC)` — user filter
-- `(stone_id, created_at DESC)` — asset filter
+- `(performed_at DESC)` — primary ordering
+- `(entity_type, performed_at DESC)` — type filter
+- `(performed_by, performed_at DESC)` — user filter
+- `(asset_id, performed_at DESC)` — asset filter
 
 ---
 
@@ -177,7 +177,7 @@ Export generation:
 
 | Procedure | Type | Input | Output | Notes |
 |-----------|------|-------|--------|-------|
-| `activity.list` | query | `{ search?, assetId?, partnerId?, userId?, actionType?, dateFrom?, dateTo?, cursor?, limit? }` | `{ entries: ActivityEntry[], nextCursor: string \| null, stats: ActivityStats }` | Cursor-based pagination. Cursor = `created_at` ISO string of last entry. Default limit: 50. JOINs with stones, partners, team_members. |
+| `activity.list` | query | `{ search?, assetId?, partnerId?, userId?, actionType?, dateFrom?, dateTo?, cursor?, limit? }` | `{ entries: ActivityEntry[], nextCursor: string \| null, stats: ActivityStats }` | Cursor-based pagination. Cursor = `created_at` ISO string of last entry. Default limit: 50. JOINs with assets, partners, team_members. |
 | `activity.getStats` | query | `{}` | `{ total: number, today: number, thisWeek: number }` | Aggregation counts for stats bar. |
 | `activity.export` | mutation | `{ format: 'csv' \| 'pdf', assetId?, partnerId?, userId?, actionType?, dateFrom?, dateTo? }` | `{ downloadUrl: string }` | CSV: generates immediately, returns signed URL. PDF: calls Edge Function for formatted report. |
 
@@ -255,7 +255,7 @@ Display format: `YYYY-MM-DD HH:MM:SS UTC` — JetBrains Mono 11px
 - **Neumorphic design system:** All visual elements use CSS custom properties
 - **Dark + light mode:** CSS custom properties throughout
 - **tRPC for data access:** All queries go through tRPC, not direct Supabase client calls
-- **"asset" not "stone":** UI displays "Asset" even though DB column is `stone_id`
+- **"asset" not "stone":** UI displays "Asset" (DB column is `asset_id`)
 
 ---
 

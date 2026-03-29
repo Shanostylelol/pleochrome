@@ -40,6 +40,11 @@ import type { TeamMember } from '@/lib/types'
  *   ctx.user   — Authenticated team member (or mock user in dev)
  */
 export async function createTRPCContext() {
+  // CRITICAL: Uses createAdminClient() which bypasses RLS.
+  // This is intentional for server-side tRPC — all access control
+  // is enforced at the tRPC middleware level, not at the DB level.
+  // In dev mode, team_members have no auth_user_id, so RLS would
+  // block ALL queries. The admin client solves this.
   const db = createAdminClient()
 
   // --- AUTH: Development bypass ---
@@ -357,9 +362,9 @@ export function CRMProviders({ children }: { children: React.ReactNode }) {
 
 ## Step 7: Wire Up Providers in CRM Layout
 
-The `CRMProviders` component will be used in `src/app/crm/layout.tsx` (built in spec `05-crm-shell.md`). For now, ensure this placeholder layout exists:
+The `CRMProviders` component will be used in `src/app/crm/layout.tsx` (built in spec `05-crm-shell.md`). For now, create this **minimal** placeholder layout for testing. It will be **replaced entirely** by spec 05-crm-shell.md in the next step.
 
-### File: `src/app/crm/layout.tsx` (placeholder — replaced in 05-crm-shell.md)
+### File: `src/app/crm/layout.tsx` (PLACEHOLDER — replaced by 05-crm-shell.md)
 
 ```typescript
 import { CRMProviders } from './providers'
@@ -367,11 +372,15 @@ import { CRMProviders } from './providers'
 export default function CRMLayout({ children }: { children: React.ReactNode }) {
   return (
     <CRMProviders>
-      {children}
+      <div style={{ padding: '24px' }}>
+        {children}
+      </div>
     </CRMProviders>
   )
 }
 ```
+
+**WARNING:** This is a throwaway file. Spec 05-crm-shell.md replaces it completely. Do NOT add features to this placeholder.
 
 ---
 

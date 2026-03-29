@@ -56,12 +56,12 @@ LEAD (quick capture) → QUALIFIED (reviewed, worth pursuing) → ACTIVE (workfl
 **On Save:**
 1. Insert into `assets` table with:
    - status = 'prospect'
-   - current_phase = NULL (not in pipeline yet)
+   - current_phase = 'phase_0_foundation' (DB default — column is NOT NULL)
    - current_step = NULL
-   - value_path = NULL (not selected yet)
+   - value_path = 'evaluating' (DB default — column is NOT NULL)
    - metadata JSONB: `{ holder: { name, email, phone }, location, source, notes }`
-   - auto-generated asset_reference (e.g., "PC-2026-003")
-2. Insert into `activity_log`: "Lead asset created: [name]"
+   - auto-generated reference_code (e.g., "PC-2026-003") via `generate_asset_reference()`
+2. Activity log entry is created automatically by DB trigger (do NOT manually insert)
 3. Do NOT call `assemble_asset_workflow()` — no governance steps yet
 4. Show NeuToast: "Lead saved: [asset name]"
 5. Asset appears in Leads column on Pipeline Board

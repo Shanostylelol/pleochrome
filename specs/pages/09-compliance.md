@@ -24,7 +24,7 @@ For investors and regulators, this page demonstrates that PleoChrome has systema
 | Table | Purpose | Key Columns |
 |-------|---------|-------------|
 | `documents` | Document expiry tracking | `expires_at`, `is_locked`, `document_type` |
-| `stones` | Asset metadata (insurance, KYC, filing dates) | `metadata` JSONB (custody.insurance_expires, holder.kyc_verified_date, regulatory_filings.form_d, etc.) |
+| `assets` | Asset metadata (insurance, KYC, filing dates) | `metadata` JSONB (custody.insurance_expires, holder.kyc_verified_date, regulatory_filings.form_d, etc.) |
 | `tasks` | Overdue task tracking | `due_date`, `status`, `assigned_to` |
 | `asset_task_instances` | Governance task completion | `status`, `due_date` |
 | `asset_steps` | Step completion status | `status`, `phase_id` |

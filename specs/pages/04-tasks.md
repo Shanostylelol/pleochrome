@@ -21,9 +21,9 @@ Cross-asset task view showing all tasks from governance-generated `asset_task_in
 
 | Table | Purpose | Key Columns |
 |-------|---------|-------------|
-| `tasks` | Adhoc tasks (manually created) | `id`, `title`, `description`, `stone_id`, `step_id`, `assigned_to`, `priority`, `due_date`, `status`, `type`, `completed_by`, `completed_at`, `evidence_document_id`, `evidence_url` |
+| `tasks` | Adhoc tasks (manually created) | `id`, `title`, `description`, `asset_id`, `step_id`, `assigned_to`, `priority`, `due_date`, `status`, `completed_at` |
 | `asset_task_instances` | Governance-generated tasks from `002_modular_governance_schema.sql` | `id`, `asset_id`, `governance_requirement_id`, `module_task_id`, `title`, `description`, `assigned_to`, `status`, `priority`, `due_date`, `completed_by`, `completed_at` |
-| `stones` | Asset reference | `id`, `name`, `reference_code`, `current_phase` |
+| `assets` | Asset reference | `id`, `name`, `reference_code`, `current_phase` |
 | `asset_steps` | Step reference | `id`, `step_number`, `title`, `phase_id` |
 | `team_members` | Assignee info | `id`, `full_name`, `avatar_url`, `role` |
 | `activity_log` | Automatic audit entries | Immutable |
@@ -310,7 +310,7 @@ const TaskCreateInput = z.object({
 
 - **Neumorphic design system:** NeuCard raised for stat cards, NeuCard pressed for board columns
 - **Activity logging is automatic:** DB triggers on task status changes
-- **"asset" not "stone":** All UI labels say "Asset" even though DB column is `stone_id`
+- **"asset" not "stone":** All UI labels say "Asset" (DB column is `asset_id`)
 - **No prop drilling beyond 2 levels:** Use TanStack Query for task state
 - **Dark + light mode:** CSS custom properties throughout
 - **tRPC for mutations:** All task updates go through tRPC, not direct Supabase calls

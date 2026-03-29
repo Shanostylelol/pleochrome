@@ -21,7 +21,7 @@ A command palette that searches across all entity types — assets, partners, do
 
 | Entity | Table | Searchable Fields | Result Display |
 |--------|-------|-------------------|----------------|
-| Assets | `stones` | `name`, `reference_code`, `metadata->holder->name` | Name, reference code, type badge, phase |
+| Assets | `assets` | `name`, `reference_code`, `metadata->holder->name` | Name, reference code, type badge, phase |
 | Partners | `partners` | `name` | Name, type badge, DD status |
 | Documents | `documents` | `filename`, `document_type` | Filename, type badge, asset name |
 | Tasks | `tasks` + `asset_task_instances` | `title` | Title, asset name, assignee, status |
@@ -243,8 +243,8 @@ WITH
     SELECT id, name AS primary_text,
       reference_code || ' · ' || asset_type || ' · Phase ' || current_phase AS secondary_text,
       '/crm/assets/' || id AS url
-    FROM stones
-    WHERE is_active = true
+    FROM assets
+    WHERE status != 'archived'
       AND (name ILIKE $1 OR reference_code ILIKE $1)
     LIMIT $2
   ),
@@ -261,8 +261,8 @@ WITH
       d.document_type || ' · ' || COALESCE(s.name, '') AS secondary_text,
       '/crm/documents?preview=' || d.id AS url
     FROM documents d
-    LEFT JOIN stones s ON d.stone_id = s.id
-    WHERE d.filename ILIKE $1 OR d.document_type ILIKE $1
+    LEFT JOIN assets s ON d.asset_id = s.id
+    WHERE d.filename ILIKE $1 OR d.document_type::text ILIKE $1
     LIMIT $2
   ),
   task_matches AS (
@@ -270,7 +270,7 @@ WITH
       COALESCE(s.name, '') || ' · ' || COALESCE(t.step_number, '') AS secondary_text,
       '/crm/tasks?highlight=' || t.id AS url
     FROM tasks t
-    LEFT JOIN stones s ON t.stone_id = s.id
+    LEFT JOIN assets s ON t.asset_id = s.id
     WHERE t.title ILIKE $1
     LIMIT $2
   ),
@@ -356,7 +356,7 @@ The SearchTrigger in the header bar shows:
 - **Neumorphic design system:** Palette uses CSS custom properties for all colors and shadows
 - **Dark + light mode:** All palette elements use theme-aware CSS variables
 - **tRPC for data access:** Search query goes through tRPC, not direct Supabase
-- **"asset" not "stone":** Result display says "Asset", even though table is `stones`
+- **"asset" not "stone":** Result display says "Asset" (DB table: `assets`)
 - **No prop drilling:** CommandPalette manages its own state internally
 
 ---

@@ -181,6 +181,34 @@ Every build step follows this cycle:
 
 ---
 
+## MUTABILITY PRINCIPLE — Nothing is Hardcoded
+
+**CRITICAL:** The CRM is data-driven, not code-driven. All workflow content comes from the database.
+
+**What can be modified at any time without code changes:**
+- Governance requirements (add/deactivate/reorder via Templates page — CEO/CTO/Compliance only)
+- Default tasks per requirement (add/edit/remove via Templates page)
+- Partner modules and their tasks (add/swap/deactivate via Partners page)
+- Per-asset tasks (add ad-hoc tasks on any step at any time)
+- Per-asset step status (advance, block, or hold)
+- Documents (upload new versions, add new document types)
+- Comments and notes (add to any entity at any time)
+
+**What requires a code change:**
+- New PAGE (e.g., adding an Investor Portal page)
+- New COMPONENT (e.g., a chart type that doesn't exist)
+- New tRPC ROUTE (e.g., a new API endpoint)
+- Schema changes (new table or column — requires a migration)
+
+**When building:** Every list, workflow, and display must render from database queries, not from hardcoded arrays in the code. The `portal-data.ts` file is for the PUBLIC landing page only. The CRM reads from Supabase.
+
+**When the user discovers a new requirement mid-process:**
+1. If it's a task: add it ad-hoc on the relevant step (no code change)
+2. If it's a governance requirement: add it via Templates page (no code change, but new assets will auto-include it)
+3. If it's a new feature/page: that requires a code change — log it in the specs and build it
+
+---
+
 ## BUILD RULES (Cross-Referenced from CLAUDE.md)
 
 1. **Read CLAUDE.md before every build step** — pre-flight check is mandatory
