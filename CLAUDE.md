@@ -164,6 +164,49 @@ src/
 4. **File uploads must validate MIME type** before storing in Supabase Storage.
 5. **No secrets in client-side code.** All API keys go in `.env.local` and are only accessed in server-side code (tRPC routers, Edge Functions).
 
+### Progressive Web App (PWA)
+
+- The CRM MUST be installable as a PWA on mobile and desktop
+- Use `@serwist/next` for service worker integration (Turbopack-compatible, successor to next-pwa)
+- Service worker caches the app shell, static assets, and recent data for offline access
+- `manifest.webmanifest` with PleoChrome branding (name, icons, theme color, background color)
+- Add to Home Screen support on iOS and Android
+- Offline indicator banner when connection is lost
+- Background sync for mutations made while offline (queue and replay)
+- Push notification support (future — registered in manifest now)
+- Cache strategies: app shell = cache-first, API data = network-first, documents = stale-while-revalidate
+- iOS meta tags required: `apple-mobile-web-app-capable`, `apple-mobile-web-app-status-bar-style`
+
+### Data Validation
+
+- ALL form inputs validated on BOTH client-side (React Hook Form + Zod) AND server-side (Zod in tRPC)
+- Client-side: immediate inline error messages below each field
+- Server-side: Zod schemas on every tRPC mutation — reject invalid data before it hits the DB
+- Shared Zod schemas between client and server (single source of truth in `src/lib/validation/`)
+- Financial values: must be positive numbers, max 15 digits, 2 decimal places
+- Email: validated format (Zod `.email()`)
+- Phone: validated format (allow international with +country code, regex pattern)
+- Required fields: visually marked with asterisk, empty submission shows error state on all missing fields
+- Text fields: min/max length constraints appropriate to the field
+- Select/dropdown: must be a valid enum value from the DB schema
+- File uploads: validate MIME type AND file size (max 50MB per file, max 500MB per asset)
+- Date fields: must be valid date, cannot be in the future for historical events
+- Currency fields: formatted with $ prefix, commas, 2 decimal places on blur
+- Reference codes: auto-generated, read-only, unique (checked via `assets.checkReferenceUnique`)
+- Custom `.refine()` validators for cross-field rules (e.g., offering_value <= claimed_value)
+- Error messages MUST be user-friendly (not technical Zod internals)
+
+### Mobile-First Design
+
+- All pages MUST be designed mobile-first, then enhanced for larger screens
+- Minimum touch target: 44x44px for all interactive elements
+- Minimum 8px gap between adjacent touch targets
+- No horizontal scroll on any viewport
+- Below 768px: sidebar collapses to bottom navigation bar
+- Bottom nav: 5 items (Pipeline, Assets, Tasks, Activity, More)
+- "More" opens a slide-up sheet with remaining nav items
+- FAB (Floating Action Button) for Quick Add on Pipeline page
+
 ---
 
 ## Strategic Governance Rules

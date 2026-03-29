@@ -836,3 +836,140 @@ None. This spec is pure frontend.
 ## tRPC Routes Used
 
 None. This spec is pure frontend.
+
+---
+
+## Responsive Breakpoints
+
+All breakpoints use `min-width` (mobile-first). Components should be designed for the smallest viewport first, then enhanced at larger breakpoints.
+
+| Token | Range | Target Devices |
+|-------|-------|----------------|
+| `xs` | 0-479px | Small phones (iPhone SE) |
+| `sm` | 480-639px | Large phones (iPhone 14/15, Pixel) |
+| `md` | 640-767px | Small tablets (iPad Mini portrait) |
+| `lg` | 768-1023px | Tablets, small laptops (iPad, Surface) |
+| `xl` | 1024-1279px | Laptops |
+| `2xl` | 1280px+ | Desktops, external monitors |
+
+### CSS Custom Properties for Breakpoints
+
+Add to `:root` in `neumorphic.css`:
+
+```css
+:root {
+  /* ── Breakpoints (for JS access via getComputedStyle) ── */
+  --bp-sm: 480px;
+  --bp-md: 640px;
+  --bp-lg: 768px;
+  --bp-xl: 1024px;
+  --bp-2xl: 1280px;
+}
+```
+
+### Touch Targets
+
+- Minimum **44x44px** for all interactive elements on mobile (buttons, links, checkboxes, toggles)
+- Minimum **8px gap** between adjacent touch targets to prevent mis-taps
+- On mobile (`< lg`), increase default button size from `md` (40px) to `lg` (48px)
+- Inputs must be at least 48px tall on mobile to prevent iOS zoom-on-focus
+
+### Mobile Navigation
+
+- **Below `lg` (768px):** Sidebar collapses to a **bottom navigation bar**
+- Bottom nav: 5 items — Pipeline, Assets, Tasks, Activity, More
+- "More" opens a **slide-up sheet** with remaining nav items (Partners, Documents, Meetings, Team, Templates, Compliance, Settings)
+- FAB (Floating Action Button) for Quick Add on Pipeline page — positioned bottom-right, 56px diameter, `var(--teal)` background
+- Bottom nav height: 64px, with safe-area-inset-bottom padding for iOS notch devices
+
+### Bottom Navigation CSS
+
+```css
+/* ── Bottom Navigation (Mobile) ──────────────── */
+@media (max-width: 767px) {
+  .crm-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: calc(64px + env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    z-index: 40;
+  }
+
+  .crm-bottom-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 12px;
+    min-width: 44px;
+    min-height: 44px;
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 500;
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+  }
+
+  .crm-bottom-nav-item.active {
+    color: var(--teal);
+  }
+
+  .crm-content {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  }
+
+  .crm-fab {
+    position: fixed;
+    bottom: calc(80px + env(safe-area-inset-bottom));
+    right: 16px;
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-full);
+    background: var(--teal);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-raised);
+    z-index: 35;
+    cursor: pointer;
+  }
+}
+```
+
+### Responsive Grid Utilities
+
+Common responsive grid patterns used across pages:
+
+```css
+/* Stats ribbon: 4 across on desktop, 2x2 on mobile */
+.stats-ribbon {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-md);
+}
+@media (max-width: 767px) {
+  .stats-ribbon {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Overview cards: 2-col on desktop, 1-col on mobile */
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-md);
+}
+@media (max-width: 1023px) {
+  .overview-grid {
+    grid-template-columns: 1fr;
+  }
+}
+```

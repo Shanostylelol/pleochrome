@@ -66,6 +66,36 @@ LEAD (quick capture) → QUALIFIED (reviewed, worth pursuing) → ACTIVE (workfl
 4. Show NeuToast: "Lead saved: [asset name]"
 5. Asset appears in Leads column on Pipeline Board
 
+## Mobile Layout
+
+### Breakpoint Behavior
+
+**Below 768px (phones):**
+
+- **Quick Add trigger:** FAB (Floating Action Button) on Pipeline Board, bottom-right. Replaces the "+" button from desktop.
+- **Quick Add modal:** Opens as a **bottom sheet** instead of centered modal. Slides up from bottom, covers ~85% of viewport height. Drag handle at top to dismiss. Background dimmed.
+- **Form fields:** Full width, stacked vertically. All inputs 48px height minimum. Currency input uses `inputMode="decimal"` for numeric keyboard.
+- **Buttons:** "Save Lead" is full-width, 48px height, fixed to bottom of sheet. "Save & Add Another" is full-width below it. "Cancel" is replaced by drag-to-dismiss or X button in sheet header.
+- **Touch targets:** All interactive elements minimum 44x44px.
+
+**768px+ (tablets/desktop):**
+
+- Standard centered modal as designed.
+
+### Data Validation (Quick Add)
+
+| Field | Validation Rule | Error Message |
+|-------|----------------|---------------|
+| Asset Name | Required, 1-200 chars | "Asset name is required" / "Name must be under 200 characters" |
+| Asset Type | Required, valid enum | "Please select an asset type" |
+| Estimated Value | Required, positive number, max $10B | "Value must be a positive number" / "Value cannot exceed $10,000,000,000" |
+| Holder Name | Required, 1-200 chars | "Holder name is required" |
+| Holder Email | Optional, valid email format | "Please enter a valid email address" |
+| Holder Phone | Optional, international format | "Please enter a valid phone number (e.g., +1 555-000-0000)" |
+| Notes | Optional, max 5000 chars | "Notes cannot exceed 5,000 characters" |
+
+---
+
 ## UI: Leads Column on Pipeline Board
 
 **Option A (recommended):** Add a "Leads" column to the LEFT of the kanban board

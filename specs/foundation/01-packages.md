@@ -121,6 +121,34 @@ npm install superjson@^2
 
 ---
 
+## Step 7: Install PWA Library (Serwist)
+
+```bash
+npm install @serwist/next@^9 serwist@^9
+```
+
+| Package | Purpose |
+|---------|---------|
+| `@serwist/next` | Next.js integration for Serwist — the successor to next-pwa. Wraps `next.config.ts` to auto-generate a service worker from `src/app/sw.ts`. Turbopack-compatible (unlike next-pwa which requires webpack). |
+| `serwist` | Core service worker library built on Google Workbox. Provides precaching, runtime caching strategies (cache-first, network-first, stale-while-revalidate), background sync, and push notification registration. |
+
+**Why Serwist over next-pwa:** `next-pwa` has not been updated since 2024 and requires the `--webpack` flag with Next.js 16 (which defaults to Turbopack). `@serwist/next` is the officially recommended successor, actively maintained, and works with Turbopack out of the box.
+
+---
+
+## Step 8: Install Form Handling
+
+```bash
+npm install react-hook-form@^7 @hookform/resolvers@^5
+```
+
+| Package | Purpose |
+|---------|---------|
+| `react-hook-form` | Performant form library with minimal re-renders. Integrates with Zod via resolvers for client-side validation. Used by every form in the CRM (Quick Add, New Asset Wizard, task creation, document upload, meetings, settings). |
+| `@hookform/resolvers` | Connects Zod schemas to React Hook Form. Provides `zodResolver()` which validates form data against shared Zod schemas — the same schemas used server-side in tRPC. |
+
+---
+
 ## Complete Install Command (All at Once)
 
 If you prefer a single command:
@@ -140,7 +168,11 @@ npm install \
   recharts@^2.15.0 \
   file-saver@^2.0.5 \
   inngest@^3 \
-  superjson@^2
+  superjson@^2 \
+  @serwist/next@^9 \
+  serwist@^9 \
+  react-hook-form@^7 \
+  @hookform/resolvers@^5
 
 npm install -D @types/file-saver@^2.0.7
 ```
@@ -158,6 +190,7 @@ npm install -D @types/file-saver@^2.0.7
 | `react-beautiful-dnd` | Not needed. Kanban is read-only (click-to-navigate, no drag). |
 | `@tanstack/react-table` | Not needed for Phase 0/1. Add when building table views in Phase 3+. |
 | `framer-motion` | Already installed as `motion` (the renamed package). |
+| `next-pwa` | Deprecated, not updated since 2024, requires webpack. Use `@serwist/next` instead (Turbopack-compatible). |
 
 ---
 
@@ -189,7 +222,11 @@ const pkgs = [
   'recharts',
   'file-saver',
   'inngest',
-  'superjson'
+  'superjson',
+  '@serwist/next',
+  'serwist',
+  'react-hook-form',
+  '@hookform/resolvers'
 ];
 pkgs.forEach(p => {
   try { require.resolve(p); console.log('OK:', p); }
@@ -198,7 +235,7 @@ pkgs.forEach(p => {
 "
 ```
 
-**Expected:** All 12 packages show "OK". Note: `@trpc/next` is intentionally NOT included (it is for the Pages Router, not App Router).
+**Expected:** All 16 packages show "OK". Note: `@trpc/next` is intentionally NOT included (it is for the Pages Router, not App Router). `next-pwa` is NOT installed — `@serwist/next` replaces it.
 
 ---
 
@@ -236,6 +273,10 @@ pkgs.forEach(p => {
     "react-dom": "19.2.3",
     "recharts": "^2.15.0",
     "rxjs": "^7.8.2",
+    "react-hook-form": "^7",
+    "@hookform/resolvers": "^5",
+    "@serwist/next": "^9",
+    "serwist": "^9",
     "superjson": "^2",
     "tailwind-merge": "^3.5.0",
     "three": "^0.183.2",

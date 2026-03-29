@@ -387,6 +387,45 @@ const AssetCreateInput = z.object({
 
 ---
 
+## Mobile Layout
+
+### Breakpoint Behavior
+
+**Below 768px (phones):**
+
+- **Wizard shell:** Full-screen steps. No max-width constraint — content fills viewport with 16px horizontal padding.
+- **Step indicator:** Compact dots instead of labeled circles. Dots are 10px diameter with connecting lines. Current step dot is 14px with teal fill. Step labels hidden — only the step title in the content area identifies the current step.
+- **Navigation buttons:** Fixed to bottom of viewport. "Back" on left, "Next" on right, both 48px height. "Save Draft" is a text link above the buttons, not a full button.
+- **Form fields:** Stacked vertically, full width. All inputs minimum 48px height (prevents iOS zoom-on-focus).
+- **Path cards (Step 2):** Stack vertically, full width. Each card shows name + tagline only (description collapsed behind "Learn more" toggle).
+- **Holder form (Step 3):** Full-width fields. "Select Existing" / "Create New" toggle uses NeuTabs pill variant at full width.
+- **Partner assignment (Step 4):** Partner rows are full-width cards. "Add Partner" button is full-width.
+- **Review summary (Step 5):** Single column. "Edit" links become "Edit" buttons (larger touch targets). "Create Asset" button is full-width, 56px height, fixed to bottom.
+- **Currency input:** Native numeric keyboard triggered via `inputMode="decimal"`.
+
+**768px-1023px (tablets):**
+
+- Wizard max-width: 640px, centered.
+- Step indicator: labeled circles (same as desktop but smaller).
+- Path cards (Step 2): 3 cards in a row (narrower).
+
+**1024px+ (desktop):**
+
+- Full layout as designed (720px max-width, centered).
+
+### Touch Interactions
+
+| Interaction | Gesture | Result |
+|-------------|---------|--------|
+| Advance step | Tap "Next" button | Next step slides in from right |
+| Go back | Tap "Back" button | Previous step slides in from left |
+| Select path | Tap path card | Card highlights, selection stored |
+| Select existing holder | Tap contact in dropdown | Contact info populated |
+| Add partner | Tap "Add Partner" button | Partner selection bottom sheet |
+| Confirm creation | Tap "Create Asset" button | Loading state, then redirect |
+
+---
+
 ## STEP VALIDATION RULES
 
 | Step | Required Fields | Validation |

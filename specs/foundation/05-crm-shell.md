@@ -204,14 +204,40 @@ export default function CRMLayout({ children }: { children: React.ReactNode }) {
 ### Responsive Behavior
 
 - `>= 1024px`: Full sidebar (240px), labels visible
-- `< 1024px`: Collapsed sidebar (64px), only icons visible, labels hidden
-- `< 768px`: Sidebar hidden entirely, hamburger menu in header opens a slide-out drawer
+- `768px - 1023px`: Collapsed sidebar (64px), only icons visible, labels hidden
+- `< 768px`: Sidebar hidden entirely. Replaced by **bottom navigation bar** with 5 items: Pipeline, Assets, Tasks, Activity, More. "More" opens a slide-up sheet with remaining nav items (Partners, Documents, Meetings, Team, Templates, Compliance, Settings). Hamburger menu in header opens a slide-out drawer as secondary navigation.
 
 Implementation:
 - Use `useState` for collapsed state
 - Use a CSS media query or `useMediaQuery` hook to detect width
 - On collapse: width shrinks to 64px, labels get `display: none`, icons center
-- On mobile: sidebar is absolutely positioned, slides in from left with overlay
+- On mobile (`< 768px`):
+  - Sidebar is hidden (`display: none`)
+  - Bottom navigation bar renders (see `specs/foundation/03-design-system.md` for CSS)
+  - Content area gets `padding-bottom: calc(80px + env(safe-area-inset-bottom))` for bottom nav clearance
+  - FAB (Quick Add) renders on Pipeline page, positioned above bottom nav
+  - Hamburger menu in header opens a full slide-out drawer (overlay) with complete nav for edge cases
+
+### Bottom Navigation Component
+
+**File: `src/components/crm/CRMBottomNav.tsx`**
+
+**Type:** Client component (`'use client'`)
+
+| Item | Icon (Lucide) | Href |
+|------|---------------|------|
+| Pipeline | `LayoutDashboard` | `/crm` |
+| Assets | `Gem` | `/crm/assets` |
+| Tasks | `CheckSquare` | `/crm/tasks` |
+| Activity | `Activity` | `/crm/activity` |
+| More | `Menu` | (opens slide-up sheet) |
+
+- Only rendered when viewport is < 768px (use CSS media query or JS check)
+- Active state: `color: var(--teal)`, icon filled
+- Inactive state: `color: var(--text-muted)`
+- Touch targets: minimum 44x44px per item
+- Height: `calc(64px + env(safe-area-inset-bottom))`
+- Background: `var(--bg-surface)`, `border-top: 1px solid var(--border)`
 
 ---
 
@@ -436,6 +462,11 @@ export default function CRMLayout({ children }: { children: React.ReactNode }) {
 | Theme persists | Toggle, refresh page | Theme matches last selection |
 | Responsive collapse | Resize window to < 1024px | Sidebar shows icons only |
 | Mobile drawer | Resize to < 768px | Hamburger appears, opens drawer |
+| Bottom nav renders | Resize to < 768px | 5-item bottom nav bar visible |
+| Bottom nav active state | Tap nav items on mobile | Active item highlighted in teal |
+| "More" opens sheet | Tap "More" in bottom nav | Slide-up sheet with remaining items |
+| FAB renders (Pipeline) | Resize to < 768px on /crm | Teal FAB visible bottom-right |
+| Safe area padding | Test on iOS simulator | Bottom nav respects notch inset |
 | Content scrolls | Add tall content | Main area scrolls independently |
 | Fonts render | Inspect computed styles | Cormorant Garamond (headers), DM Sans (body) |
 | Dark mode correct | Set dark, inspect `--bg-body` | `#0A0F1A` |
@@ -461,6 +492,8 @@ export default function CRMLayout({ children }: { children: React.ReactNode }) {
 | `src/components/crm/CRMSidebar.tsx` | Left sidebar navigation |
 | `src/components/crm/CRMHeader.tsx` | Top header bar |
 | `src/components/crm/ThemeProvider.tsx` | Theme context + localStorage persistence |
+| `src/components/crm/CRMBottomNav.tsx` | Mobile bottom navigation bar (< 768px) |
+| `src/components/crm/MoreSheet.tsx` | Slide-up sheet for "More" nav items |
 
 ---
 

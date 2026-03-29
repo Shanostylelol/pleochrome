@@ -121,3 +121,8 @@ When the user says "Go", follow the MASTER-BUILD-PLAN phase sequence, executing 
 8. **Log after every step** — update BUILD-LOG.md
 9. **Google OAuth only** — no email/password auth, @pleochrome.com domain only
 10. **Test with 3 simulated users** — Shane (CEO), David (CTO), Chris (CRO)
+11. **Mobile-first design** — design for 375px first, test at 375px AND 1440px
+12. **PWA-ready** — Serwist service worker, manifest, offline banner (Phase 0.7)
+13. **Validate ALL inputs** — Zod on both client (React Hook Form) and server (tRPC), shared schemas
+14. **Touch targets 44x44px** — all interactive elements on mobile
+15. **Bottom nav on mobile** — sidebar hidden below 768px, bottom navigation bar replaces it

@@ -264,6 +264,45 @@ const TaskCreateInput = z.object({
 
 ---
 
+## Mobile Layout
+
+### Breakpoint Behavior
+
+**Below 768px (phones):**
+
+- **View mode:** List view only. Board view and Calendar view hidden (too complex for phone screens). A simplified "Board" option can show a single column at a time with swipeable tab navigation (like Pipeline Board mobile).
+- **Task rows:** Swipe-right gesture to complete a task (like iOS Mail). Swipe reveals green "Complete" action. Swipe-left reveals "Reassign" and "View" actions.
+- **Group-by:** Dropdown selector at top of page (not toggle buttons). Saves vertical space.
+- **Stats ribbon:** Horizontally scrollable row. Shows 2.5 cards visible at a time to hint at scrollability. `overflow-x: auto`, `scroll-snap-type: x mandatory`.
+- **Filter bar:** Single "Filter" button opens bottom sheet with all filter options.
+- **Task creation modal:** Full-screen page (not centered modal). Back arrow in top-left to cancel. "Create" button fixed to bottom.
+- **Quick-complete checkbox:** 44x44px minimum touch target.
+- **Task row height:** Minimum 56px for comfortable tapping.
+- **Quick actions:** No hover-revealed actions. Instead, tap the task row to expand inline detail with action buttons.
+
+**768px-1023px (tablets):**
+
+- All three views available (List, Board, Calendar).
+- Board view: 2 columns visible, horizontally scrollable.
+- Calendar view: Month view with compact task indicators.
+
+**1024px+ (desktop):**
+
+- Full layout as designed.
+
+### Touch Interactions
+
+| Interaction | Gesture | Result |
+|-------------|---------|--------|
+| Complete task | Swipe right on task row | Task marked done, row slides away |
+| View task detail | Tap task row | Inline expansion with full detail |
+| Reassign task | Swipe left, tap "Reassign" | Assignee picker opens |
+| Change group-by | Tap dropdown | Grouping changes, list re-renders |
+| Create task | Tap "New Task" button | Full-screen creation form |
+| Pull to refresh | Pull down on task list | Refetch all tasks |
+
+---
+
 ## DUE DATE FORMATTING RULES
 
 | Condition | Display | Color |

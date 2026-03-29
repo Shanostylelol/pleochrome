@@ -28,8 +28,8 @@ Every build step follows this cycle:
 
 ## PHASE 0: FOUNDATION
 
-**Goal:** Everything compiles, Supabase connected, design system works, component library ready.
-**Duration:** ~2-3 hours
+**Goal:** Everything compiles, Supabase connected, design system works, component library ready, PWA installable, mobile navigation operational.
+**Duration:** ~3-4 hours
 **Dependencies:** None (this IS the dependency for everything else)
 
 | Step | Spec File | What | Test |
@@ -40,6 +40,7 @@ Every build step follows this cycle:
 | 0.4 | `specs/foundation/03-design-system.md` | Extract neumorphic CSS + create atomic components (NeuCard, NeuButton, NeuInput, NeuBadge, NeuTabs, NeuCheckbox, NeuToggle, NeuProgress, NeuAvatar) | Components render in both dark/light mode |
 | 0.5 | `specs/foundation/04-trpc-setup.md` | tRPC initialization, auth context, router structure | tRPC endpoint responds |
 | 0.6 | `specs/foundation/05-crm-shell.md` | CRM layout (sidebar + header + theme toggle), auth bypass for dev | Shell renders at /crm |
+| 0.7 | `specs/foundation/06-pwa-setup.md` | PWA manifest, service worker (Serwist), offline banner, iOS meta tags | Lighthouse PWA > 90, app installable |
 
 ---
 
@@ -166,18 +167,80 @@ Every build step follows this cycle:
 
 ## PHASE 8: POLISH + DEPLOY
 
-**Goal:** Production-ready, deployed, error-free.
-**Duration:** ~2-3 hours
+**Goal:** Production-ready, deployed, error-free, PWA-installable, mobile-tested.
+**Duration:** ~3-4 hours
 **Dependencies:** All phases complete
 
 | Step | Spec File | What | Test |
 |------|-----------|------|------|
-| 8.1 | — | Responsive layout (tablet + mobile) | All pages work at 768px |
+| 8.1 | — | Responsive QA: test every page at 375px, 390px, 768px, 1024px, 1440px | No horizontal scroll, all touch targets 44x44px |
 | 8.2 | — | Loading states (skeleton screens) | Loading visible on slow connections |
 | 8.3 | — | Empty states (no data illustrations) | Empty pages show guidance |
-| 8.4 | — | Error states (failed loads, failed uploads) | Errors handled gracefully |
-| 8.5 | — | Final build + Vercel deploy | /crm accessible on pleochrome.com |
-| 8.6 | — | Seed production data (Emerald Barrel + partners) | Real data visible |
+| 8.4 | — | Error states (failed loads, failed uploads, validation errors) | Errors handled gracefully with user-friendly messages |
+| 8.5 | — | PWA final audit: Lighthouse PWA > 90, icon assets finalized, splash screens | App installable on Chrome + Safari |
+| 8.6 | — | Background sync implementation (offline mutation queue) | Mutations queue offline, replay on reconnect |
+| 8.7 | — | Final build + Vercel deploy | /crm accessible on pleochrome.com |
+| 8.8 | — | Seed production data (Emerald Barrel + partners) | Real data visible |
+| 8.9 | — | Cross-browser test: Chrome, Safari, Firefox, Edge (desktop + mobile) | No rendering issues |
+
+---
+
+## TESTING REQUIREMENTS (Every Build Step)
+
+Every page and feature MUST pass ALL of the following test categories before being marked complete. These are not optional polish — they are part of the build step.
+
+### Build Test
+
+- `npm run build` — zero TypeScript errors, zero warnings that would become errors
+
+### Visual Test (Desktop)
+
+- Page renders correctly at 1440px
+- Dark mode: all text readable, all shadows visible, no invisible elements
+- Light mode: all text readable, all shadows visible, no invisible elements
+- Neumorphic: buttons raised, inputs pressed, cards raised — visual hierarchy correct
+
+### Visual Test (Mobile)
+
+- Page renders correctly at **375px** (iPhone SE) and **390px** (iPhone 14)
+- No horizontal scroll on any viewport between 320px and 2560px
+- All touch targets minimum **44x44px** (inspect with DevTools element overlay)
+- Text readable without zooming (minimum 13px body text, 11px labels)
+- Navigation accessible (bottom bar visible on mobile, sidebar on desktop)
+- Forms: all inputs minimum 48px height (prevents iOS zoom-on-focus)
+- Modals: full-screen on mobile, centered on desktop
+
+### Data Validation Test
+
+- Submit empty required fields — inline errors shown immediately
+- Submit invalid email format — error shown below field
+- Submit negative currency value — error shown, submission blocked
+- Submit value exceeding max (e.g., > $10B) — error shown, submission blocked
+- Submit oversized file (> 50MB) — error shown, upload blocked before starting
+- Submit invalid file type — error shown, upload blocked
+- Valid submission — data saved correctly, toast confirmation shown
+- Server rejects invalid data even if client validation is bypassed (test via API directly)
+
+### PWA Test (Phase 0.7+)
+
+- Lighthouse PWA audit score > 90
+- App installable on Chrome (desktop + Android)
+- Manifest loads correctly in DevTools > Application
+- Service worker active and caching static assets
+- Offline: app shell loads, offline banner shown
+- Online recovery: banner disappears, data refreshes
+- Manifest icons display correctly (192x192 and 512x512)
+- iOS: apple-mobile-web-app-capable meta tag present
+
+### Responsive Test (Every Page)
+
+- **375px** (iPhone SE): layout correct, no overflow
+- **390px** (iPhone 14): layout correct
+- **768px** (iPad portrait): sidebar collapsed, content fills
+- **1024px** (laptop): full sidebar, standard layout
+- **1440px** (desktop): full layout, no excessive whitespace
+- Bottom navigation visible and functional below 768px
+- FAB visible on Pipeline page below 768px
 
 ---
 
@@ -221,6 +284,11 @@ Every build step follows this cycle:
 8. **"asset" not "stone"** — everywhere in code, UI, and comments
 9. **Platform-agnostic** — no Brickken/Zoniqx/Rialto commitment in UI
 10. **Test after every step** — `npm run build` must pass before commit
+11. **Mobile-first** — design for 375px first, enhance upward. Test at 375px AND 1440px.
+12. **PWA-ready** — service worker active, manifest valid, offline banner works
+13. **Validate all inputs** — Zod schemas on BOTH client (React Hook Form) and server (tRPC). Shared schemas from `src/lib/validation/`.
+14. **Touch targets** — minimum 44x44px on all interactive mobile elements, 8px gap between targets
+15. **Bottom navigation on mobile** — sidebar hidden below 768px, replaced by bottom nav bar
 
 ---
 
@@ -246,12 +314,13 @@ When the user says **"Go"**, Claude Code will:
 
 | Phase | Status | Notes |
 |-------|--------|-------|
-| 0: Foundation | NOT STARTED | Supabase project linked, .env.local created |
-| 1: Pipeline Board | NOT STARTED | |
-| 2: Asset Detail | NOT STARTED | |
-| 3: Documents | NOT STARTED | |
-| 4: Tasks + Activity | NOT STARTED | |
-| 5: Partners + Meetings | NOT STARTED | |
+| 0: Foundation (0.1-0.6) | NOT STARTED | Supabase project linked, .env.local created |
+| 0.7: PWA Setup | NOT STARTED | Serwist, manifest, service worker, offline banner |
+| 1: Pipeline Board | NOT STARTED | Includes mobile kanban (swipeable tabs) |
+| 2: Asset Detail | NOT STARTED | Includes mobile layout (stacked hero, scrollable tabs) |
+| 3: Documents | NOT STARTED | Includes mobile (list-only, tap-to-upload) |
+| 4: Tasks + Activity | NOT STARTED | Includes mobile (swipe-to-complete, grouped list) |
+| 5: Partners + Meetings | NOT STARTED | Includes mobile (card list, full-screen detail) |
 | 6: Search + Filters | NOT STARTED | |
-| 7: Templates + Compliance | NOT STARTED | |
-| 8: Polish + Deploy | NOT STARTED | |
+| 7: Templates + Compliance | NOT STARTED | Includes mobile wizard (full-screen steps, dot indicator) |
+| 8: Polish + Deploy | NOT STARTED | PWA audit, responsive QA, background sync |

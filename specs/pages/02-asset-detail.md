@@ -765,6 +765,44 @@ export const appRouter = createRouter({
 
 ---
 
+## Mobile Layout
+
+### Breakpoint Behavior
+
+**Below 768px (phones):**
+
+- **Hero section:** Stacks vertically — badges below name, metrics in 2x2 grid instead of 4-across. Action buttons ("Edit Asset", "Add Document", etc.) collapse into a single "..." overflow menu (NeuButton ghost with `MoreHorizontal` icon) that opens a bottom sheet with all actions.
+- **Phase timeline:** Horizontally scrollable with CSS `scroll-snap-type: x mandatory`. Each phase dot snaps to center. Current phase auto-scrolls into view on page load.
+- **Tab bar:** Horizontally scrollable (only 3-4 tabs visible at once). `overflow-x: auto`, `scroll-snap-type: x mandatory`, `-webkit-overflow-scrolling: touch`. Active tab has underline indicator.
+- **Governance steps:** Full width, tap to expand/collapse (no hover states — hover does not exist on touch). Expanded step detail is stacked vertically: Tasks section, then Documents section, then Approvals section, then Comments section, then Activity section.
+- **Gate check:** Opens as full-screen modal on mobile (not centered popup). "Pass Gate" button is full-width at bottom of modal with 48px height.
+- **Overview tab cards:** Single column (`grid-template-columns: 1fr`).
+- **Comment input:** Fixed to bottom of viewport when comments section is visible.
+- **Document upload in step:** Tap-to-upload button instead of drag-and-drop zone.
+
+**768px-1023px (tablets):**
+
+- **Hero section:** Two-column layout preserved, but metrics row becomes 2x2.
+- **Tab bar:** All tabs visible.
+- **Governance steps:** Same as desktop.
+
+**1024px+ (desktop):**
+
+- Full layout as designed.
+
+### Touch Interactions
+
+| Interaction | Gesture | Result |
+|-------------|---------|--------|
+| Expand/collapse step | Tap step row | Step detail slides open/closed |
+| Complete task | Tap checkbox (44x44px minimum) | Task marked done |
+| Scroll phase timeline | Horizontal swipe on timeline | Timeline scrolls with snap |
+| Switch tabs | Tap tab or swipe tab bar | Tab content changes |
+| Upload document | Tap upload button | Native file picker opens (with camera option on mobile) |
+| Pass gate | Tap "Pass Gate" in full-screen modal | Gate evaluates, phase advances |
+
+---
+
 ## User Interactions (Complete)
 
 | Interaction | What Happens |

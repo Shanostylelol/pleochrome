@@ -187,6 +187,41 @@ Gap: 16px
 
 ---
 
+## Mobile Layout
+
+### Breakpoint Behavior
+
+**Below 768px (phones):**
+
+- **View mode:** List view only (grid view hidden). Simplified columns — only Filename, Document Type badge, and Upload Date visible. All other columns hidden behind a tap-to-expand row detail.
+- **Upload zone:** Tap-to-upload button instead of drag-and-drop. Button includes camera icon option for taking photos of physical documents. Upload zone is always visible as a compact bar (not collapsible).
+- **Preview:** Full-screen modal (not 800px centered). Document fills viewport width. Pinch-to-zoom supported for images/PDFs.
+- **Batch select:** Long-press a document row to enter selection mode. Once in selection mode, tap to toggle selection. Batch action bar slides up from bottom.
+- **Filter bar:** Filters collapse into a single "Filter" button that opens a bottom sheet with all filter options stacked vertically.
+- **Search bar:** Full-width, sticky below header.
+- **Table rows:** Minimum 48px height for touch targets.
+- **Batch action bar:** Full-width bottom sheet with stacked action buttons (not inline row).
+
+**768px-1023px (tablets):**
+
+- **View mode:** Both grid and list available. Grid shows 2 columns.
+- **Upload zone:** Drag-and-drop supported.
+- **Preview:** 600px wide modal.
+
+**1024px+ (desktop):**
+
+- Full layout as designed.
+
+### Document Upload Validation (Mobile)
+
+- File size max: 50MB per file (show clear error if exceeded before upload starts)
+- Allowed MIME types: `application/pdf`, `image/jpeg`, `image/png`, `image/webp`, `application/vnd.openxmlformats-officedocument.*`, `text/csv`, `text/plain`
+- Camera capture: `accept="image/*;capture=camera"` attribute on mobile file input
+- Filename sanitization: strip special characters, limit to 255 characters
+- Duplicate filename check within the same asset+step (warn user, allow override)
+
+---
+
 ## DOCUMENT TYPE BADGES
 
 | Type | Color | Label |
@@ -250,6 +285,34 @@ Gap: 16px
 | `documents.replace` | mutation | `{ documentId, filename, fileSize, mimeType, filePath }` | `{ document: Document }` | Creates new version. Sets `parent_document_id` to previous document. Increments version. Old file preserved. |
 | `documents.getStats` | query | `{}` | `{ totalCount: number, totalSizeBytes: number, lockedCount: number }` | Storage stats for header display. |
 
+### Data Validation Rules
+
+All upload validation enforced on BOTH client and server:
+
+| Rule | Client-Side | Server-Side (tRPC) |
+|------|------------|-------------------|
+| File size max 50MB | Check `file.size` before upload starts, show error toast | `z.number().int().positive().max(52_428_800, "File size cannot exceed 50MB")` |
+| Allowed MIME types | Check `file.type` against allowlist | `z.enum([...ALLOWED_MIME_TYPES], { errorMap: () => ({ message: "File type not supported" }) })` |
+| Filename max 255 chars | Truncate on client | `z.string().min(1).max(255, "Filename too long")` |
+| Filename sanitization | Strip `< > : " / \\ | ? *` characters | Same regex on server |
+| Duplicate check | Warn user, allow override | Check `documents` table for same `asset_id + step_id + filename` |
+| Total asset storage max 500MB | Show running total in upload zone | Aggregate check before insert |
+
+**Allowed MIME types constant (shared):**
+```typescript
+export const ALLOWED_MIME_TYPES = [
+  'application/pdf',
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  'text/csv',
+  'text/plain',
+] as const
+```
+
 ### Zod Schemas
 
 ```typescript
@@ -270,14 +333,27 @@ const DocumentListInput = z.object({
 });
 
 const DocumentUploadInput = z.object({
-  filename: z.string().min(1).max(255),
-  fileSize: z.number().int().positive(),
-  mimeType: z.string().min(1),
+  filename: z.string()
+    .min(1, "Filename is required")
+    .max(255, "Filename too long")
+    .regex(/^[^<>:"/\\|?*]+$/, "Filename contains invalid characters"),
+  fileSize: z.number()
+    .int()
+    .positive("File size must be positive")
+    .max(52_428_800, "File size cannot exceed 50MB"),
+  mimeType: z.enum(
+    ['application/pdf', 'image/jpeg', 'image/png', 'image/webp',
+     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+     'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+     'text/csv', 'text/plain'],
+    { errorMap: () => ({ message: "File type not supported. Accepted: PDF, images, Word, Excel, CSV, text." }) }
+  ),
   documentType: z.enum(['GIA_REPORT', 'APPRAISAL', 'LEGAL', 'CUSTODY', 'KYC', 'OTHER', 'PPM', 'INSURANCE', 'DD_REPORT', 'CONTRACT', 'NDA']),
-  assetId: z.string().uuid(),
-  stepId: z.string().uuid().optional(),
-  partnerId: z.string().uuid().optional(),
-  filePath: z.string().min(1),
+  assetId: z.string().uuid("Invalid asset ID"),
+  stepId: z.string().uuid("Invalid step ID").optional(),
+  partnerId: z.string().uuid("Invalid partner ID").optional(),
+  filePath: z.string().min(1, "File path is required"),
 });
 ```
 

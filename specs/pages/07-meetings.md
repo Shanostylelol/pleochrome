@@ -329,6 +329,44 @@ const MeetingCreateInput = z.object({
 
 ---
 
+## Mobile Layout
+
+### Breakpoint Behavior
+
+**Below 768px (phones):**
+
+- **Meeting list:** Card list only (no table view). Full-width MeetingCards. Summary preview truncated to 1 line.
+- **Meeting detail:** Full-screen page (navigates to `/crm/meetings/[id]`), not a modal or side panel. Back arrow in header to return to list.
+- **Filter bar:** Single "Filter" button opens bottom sheet with all filter options stacked vertically.
+- **Action items:** Full-width list with 48px row height. Checkbox touch target 44x44px. "Convert to Task" button is full-width below each unconverted action item.
+- **New meeting form:** Full-screen page (not modal). Fields stacked vertically, full width. DateTime picker uses native mobile date/time input.
+- **Transcript section:** Collapsed by default. When expanded, uses full viewport width with horizontal scroll disabled. Font size increased to 14px for readability.
+- **Attachments:** Tap-to-upload button with camera option. No drag-and-drop on mobile.
+- **Association badges:** Stack vertically if both asset and partner are linked (not inline).
+- **Attendee avatars:** Max 3 visible in list view, "+X more" badge.
+
+**768px-1023px (tablets):**
+
+- Meeting list: full-width cards.
+- Meeting detail: page-based (not modal).
+- Filter bar: inline (same as desktop).
+
+**1024px+ (desktop):**
+
+- Full layout as designed.
+
+### Touch Interactions
+
+| Interaction | Gesture | Result |
+|-------------|---------|--------|
+| Open meeting detail | Tap meeting card | Navigate to `/crm/meetings/[id]` |
+| Complete action item | Tap checkbox | Action item marked done |
+| Convert to task | Tap "Convert to Task" button | Task creation flow opens |
+| Attach file | Tap "Attach" button | Native file picker (with camera) |
+| Edit summary | Tap "Edit" button | Textarea becomes editable |
+
+---
+
 ## MEETING-ASSET-PARTNER RELATIONSHIP
 
 Meetings are linked to **both** an asset AND a partner (both optional):

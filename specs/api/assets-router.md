@@ -459,6 +459,51 @@ Implementation: Supabase Realtime is handled at the database level via NOTIFY/LI
 
 ---
 
+## DATA VALIDATION RULES
+
+All Zod schemas in this router MUST enforce the following constraints. These same schemas are shared with the client-side forms (exported from `src/lib/validation/assets.ts`).
+
+### Field-Level Validation
+
+| Field | Constraint | Zod Expression | Error Message |
+|-------|-----------|---------------|---------------|
+| `name` | 1-200 characters | `z.string().min(1, "Asset name is required").max(200, "Name must be under 200 characters")` | User-friendly |
+| `description` | Max 5000 characters | `z.string().max(5000, "Description cannot exceed 5,000 characters").optional()` | User-friendly |
+| `estimatedValue` / `claimed_value` | Positive, max $10B | `z.number().positive("Value must be positive").max(10_000_000_000, "Value cannot exceed $10 billion").optional()` | User-friendly |
+| `offering_value` | Positive, max $10B | `z.number().positive("Value must be positive").max(10_000_000_000, "Value cannot exceed $10 billion").optional()` | User-friendly |
+| `assetType` | Valid enum | `z.enum(['gemstone', 'real_estate', 'precious_metal', 'mineral_rights', 'other'], { errorMap: () => ({ message: "Please select a valid asset type" }) })` | User-friendly |
+| `valuePath` | Valid enum | `z.enum(['fractional_securities', 'tokenization', 'debt_instruments', 'evaluating'])` | User-friendly |
+| `referenceCode` | 1-50 chars, unique | `z.string().min(1).max(50)` + uniqueness check via `assets.checkReferenceUnique` | "Reference code already exists" |
+| `holder.email` | Valid email if provided | `z.string().email("Please enter a valid email address").optional()` | User-friendly |
+| `holder.phone` | International format if provided | `z.string().regex(/^\+?[1-9]\d{1,14}$/, "Please enter a valid phone number (e.g., +1 555-000-0000)").optional()` | User-friendly |
+| `holder.name` | 1-200 chars | `z.string().min(1, "Holder name is required").max(200)` | User-friendly |
+| `partners[].role` | 1-100 chars | `z.string().min(1).max(100)` | Required |
+
+### Cross-Field Validation
+
+```typescript
+// Add to AssetCreateInput schema
+.refine(
+  (data) => {
+    if (data.estimatedValue && data.offeringValue) {
+      return data.offeringValue <= data.estimatedValue
+    }
+    return true
+  },
+  { message: "Offering value cannot exceed the estimated/appraised value", path: ['offeringValue'] }
+)
+```
+
+### Shared Schema Location
+
+All asset validation schemas MUST be exported from `src/lib/validation/assets.ts` so they can be imported by both:
+1. **Server-side:** `src/server/routers/assets.ts` (tRPC input validation)
+2. **Client-side:** Form components via `@hookform/resolvers/zod` (`zodResolver(assetCreateSchema)`)
+
+This ensures validation rules are defined ONCE and enforced in BOTH places.
+
+---
+
 ## CLAUDE.md RULES APPLIED
 
 - **tRPC for all mutations:** This IS the tRPC router — all asset operations funnel through here
@@ -467,3 +512,4 @@ Implementation: Supabase Realtime is handled at the database level via NOTIFY/LI
 - **Every mutation must invalidate affected queries:** Listed per procedure above
 - **Never modify migration files:** Schema is read-only from this router
 - **"asset" not "stone":** DB table is `assets`. Use "asset" naming consistently throughout.
+- **Data Validation:** All inputs validated with Zod on BOTH client and server. Schemas shared from `src/lib/validation/`. Error messages are user-friendly.

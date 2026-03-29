@@ -463,6 +463,44 @@ assets.create = protectedProcedure
 
 ---
 
+## Mobile Layout
+
+### Breakpoint Behavior
+
+**Below 768px (phones):**
+
+- **Kanban columns:** Stack vertically as **swipeable tabs** (not side-by-side columns). Each column is full-width. Tab bar at top shows: "Acquisition | Preparation | Execution | Distribution" — horizontally scrollable with active tab underline. Swipe left/right to switch columns.
+- **Stats ribbon:** 2x2 grid instead of 4-across. Each stat card takes 50% width.
+- **Asset cards:** Full width, no max-width constraint.
+- **Path filter pills:** Horizontally scrollable if they overflow. Container is full-width.
+- **Page header:** "Pipeline Board" title stacks above "New Asset" button (button becomes full-width).
+- **Sidebar:** Hidden. Replaced by bottom navigation bar (5 items: Pipeline, Assets, Tasks, Activity, More).
+- **Quick Add:** Floating action button (FAB) bottom-right, 56px diameter, `var(--teal)` background, `+` icon. Tapping opens Quick Add modal as a **bottom sheet** (slides up from bottom, not centered).
+- **"New Asset" button in header:** Hidden on mobile (FAB replaces it).
+- **Asset card click:** Same behavior — navigates to `/crm/assets/[id]`.
+
+**768px-1023px (tablets):**
+
+- **Kanban columns:** 2 columns visible at a time, horizontally scrollable with snap.
+- **Stats ribbon:** 4-across (same as desktop).
+- **Sidebar:** Collapsed to icon-only (64px).
+
+**1024px+ (desktop):**
+
+- Full kanban layout as designed.
+
+### Touch Interactions
+
+| Interaction | Gesture | Result |
+|-------------|---------|--------|
+| Switch kanban column (mobile) | Swipe left/right on cards area | Column changes with slide animation |
+| Open asset detail | Tap card | Navigate to `/crm/assets/[id]` |
+| Quick add | Tap FAB | Bottom sheet opens with Quick Add form |
+| Filter by path | Tap pill | Filter applied, cards update |
+| Pull to refresh | Pull down on card area | Refetch pipeline data |
+
+---
+
 ## Complete Component List
 
 | Component | File | Usage on This Page |
