@@ -100,6 +100,15 @@ When the user says "Go", follow the MASTER-BUILD-PLAN phase sequence, executing 
 
 ---
 
+## AUTHENTICATION
+
+- **Google OAuth** via Supabase Auth — users log in with @pleochrome.com Google Workspace accounts
+- **Three users (all Admin):** shane@pleochrome.com, david@pleochrome.com, chris@pleochrome.com
+- **Dev mode:** Auth bypass active when `NEXT_PUBLIC_ENV=development`. Use test users in team_members that simulate the 3 founders.
+- **Production:** Google OAuth enforced, only @pleochrome.com domain accepted
+- **Future:** Google Drive, Calendar, Gmail integration via expanded OAuth scopes
+- **Supabase Auth config needed:** Enable Google provider in Supabase dashboard with PleoChrome Google Workspace OAuth credentials
+
 ## CRITICAL REMINDERS
 
 1. **Pre-flight check is MANDATORY** — read CLAUDE.md before any code
@@ -110,3 +119,5 @@ When the user says "Go", follow the MASTER-BUILD-PLAN phase sequence, executing 
 6. **Immutable audit trail** — never write to activity_log from frontend
 7. **Test after every step** — `npm run build` must pass
 8. **Log after every step** — update BUILD-LOG.md
+9. **Google OAuth only** — no email/password auth, @pleochrome.com domain only
+10. **Test with 3 simulated users** — Shane (CEO), David (CTO), Chris (CRO)

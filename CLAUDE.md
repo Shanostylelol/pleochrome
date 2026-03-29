@@ -147,10 +147,19 @@ src/
 
 5. **Governance requirements can only be modified by CEO, CTO, or Compliance Officer.** Enforced by RLS.
 
+### Authentication
+
+- **Google OAuth via Supabase Auth** — all users authenticate with their @pleochrome.com Google Workspace accounts
+- **No email/password auth** — Google OAuth is the only login method
+- **Three users only** (all Admin): shane@pleochrome.com, david@pleochrome.com, chris@pleochrome.com
+- **Future Google integrations:** OAuth scope will expand to include Drive, Calendar, and Gmail when ready
+- **Dev/test mode:** Use Supabase test users that simulate Shane, Chris, and David for local development. Auth bypass in dev mode still applies, but test users should have realistic team_members rows.
+- **Production:** OAuth enforced, no bypass. Deploy to pleochrome.com/crm behind Google OAuth gate.
+
 ### Security Rules
 
-1. **All pages under `/crm/` require authentication.** Enforced in `crm/layout.tsx`.
-2. **MFA must be enabled for all team members.** Configured in Supabase Auth.
+1. **All pages under `/crm/` require Google OAuth authentication.** Enforced in `crm/layout.tsx`.
+2. **Only @pleochrome.com Google Workspace accounts are allowed.** Reject any other domain.
 3. **PII fields (SSN, financial data) must be encrypted** using pgcrypto before storage.
 4. **File uploads must validate MIME type** before storing in Supabase Storage.
 5. **No secrets in client-side code.** All API keys go in `.env.local` and are only accessed in server-side code (tRPC routers, Edge Functions).
