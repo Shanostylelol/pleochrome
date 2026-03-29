@@ -64,8 +64,7 @@ export const tasksRouter = createRouter({
           priority: input.priority,
           due_date: input.dueDate ?? null,
           status: 'todo',
-          task_type: 'ad_hoc',
-          created_by: ctx.user.id,
+          assigned_by: ctx.user.id,
         } as never)
         .select()
         .single()

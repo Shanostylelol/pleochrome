@@ -44,8 +44,8 @@ export const meetingsRouter = createRouter({
           meeting_date: input.meetingDate,
           asset_id: input.assetId ?? null,
           partner_id: input.partnerId ?? null,
-          notes: input.notes ?? null,
-          action_items: input.actionItems ?? null,
+          summary: input.notes ?? null,
+          action_items: input.actionItems ? JSON.parse(input.actionItems) : null,
           attendees: input.attendees ?? [],
           created_by: ctx.user.id,
         } as never)
