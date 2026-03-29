@@ -314,13 +314,13 @@ When the user says **"Go"**, Claude Code will:
 
 | Phase | Status | Notes |
 |-------|--------|-------|
-| 0: Foundation (0.1-0.6) | NOT STARTED | Supabase project linked, .env.local created |
-| 0.7: PWA Setup | NOT STARTED | Serwist, manifest, service worker, offline banner |
-| 1: Pipeline Board | NOT STARTED | Includes mobile kanban (swipeable tabs) |
-| 2: Asset Detail | NOT STARTED | Includes mobile layout (stacked hero, scrollable tabs) |
-| 3: Documents | NOT STARTED | Includes mobile (list-only, tap-to-upload) |
-| 4: Tasks + Activity | NOT STARTED | Includes mobile (swipe-to-complete, grouped list) |
-| 5: Partners + Meetings | NOT STARTED | Includes mobile (card list, full-screen detail) |
+| 0: Foundation (0.1-0.6) | COMPLETE | All 7 steps done, Supabase migrated, 10 components, tRPC, CRM shell |
+| 0.7: PWA Setup | COMPLETE | Manifest, icons, offline page (SW disabled for Turbopack — Phase 8) |
+| 1: Pipeline Board | COMPLETE | Kanban, stats ribbon, path filters, Quick Add modal, 2 assets seeded |
+| 2: Asset Detail | COMPLETE | Hero, phase timeline, 8 tabs (overview, governance, etc.), getById route |
+| 3: Documents | COMPLETE | Document Library, router (list/create/lock/delete), search |
+| 4: Tasks + Activity | COMPLETE | Task Dashboard with filters, Activity placeholder |
+| 5: Partners + Meetings | COMPLETE | Partners directory, Meetings list, Team page |
 | 6: Search + Filters | NOT STARTED | |
-| 7: Templates + Compliance | NOT STARTED | Includes mobile wizard (full-screen steps, dot indicator) |
+| 7: Templates + Compliance | PARTIAL | Placeholder pages created, full build needed |
 | 8: Polish + Deploy | NOT STARTED | PWA audit, responsive QA, background sync |

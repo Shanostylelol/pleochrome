@@ -53,4 +53,12 @@
 
 ## Build Errors
 
-*(No build errors yet — build has not started)*
+### ERR-004 — Serwist (PWA service worker) incompatible with Turbopack
+**Date:** 2026-03-29
+**Phase:** 0.7 (PWA Setup)
+**Severity:** WARNING
+**Description:** `@serwist/next` v9 does not support Next.js 16's default Turbopack bundler. Build fails with "This build is using Turbopack, with a webpack config and no turbopack config."
+**Root Cause:** Serwist wraps next.config.ts with a webpack plugin. Next.js 16 defaults to Turbopack, which doesn't support webpack plugins.
+**Resolution:** Set `disable: true` in Serwist config. All other PWA infrastructure (manifest, icons, offline page, meta tags) works without the service worker. The app is installable as a PWA but doesn't have offline caching yet.
+**Prevention:** In Phase 8, either: (1) Build with `--webpack` flag, (2) Migrate to `@serwist/turbopack` when stable, or (3) Use Serwist configurator mode. Track: https://github.com/serwist/serwist/issues/54
+**Related Files:** `next.config.ts`, `src/app/sw.ts`

@@ -30,8 +30,7 @@
 -- 0. EXTENSIONS
 -- ============================================================================
 
-create extension if not exists "uuid-ossp";      -- UUID generation
-create extension if not exists "pgcrypto";        -- Cryptographic functions
+create extension if not exists "pgcrypto";        -- Cryptographic functions (gen_random_uuid() is built-in PG13+)
 create extension if not exists "moddatetime";     -- Auto-update updated_at
 
 
@@ -223,7 +222,7 @@ create type contact_role as enum (
 -- do what inside Powerhouse.
 
 create table team_members (
-  id              uuid primary key default uuid_generate_v4(),
+  id              uuid primary key default gen_random_uuid(),
   auth_user_id    uuid unique references auth.users(id) on delete set null,
   full_name       text not null,
   email           text not null unique,
@@ -253,7 +252,7 @@ comment on table team_members is
 -- non-gemstone real-world asset.
 
 create table assets (
-  id              uuid primary key default uuid_generate_v4(),
+  id              uuid primary key default gen_random_uuid(),
 
   -- Identity
   name            text not null,                     -- Human-readable name ("Kandi Emerald Barrel")
@@ -320,7 +319,7 @@ comment on table assets is
 -- (or equivalent workflow for fractional/debt paths).
 
 create table asset_steps (
-  id              uuid primary key default uuid_generate_v4(),
+  id              uuid primary key default gen_random_uuid(),
   asset_id        uuid not null references assets(id) on delete cascade,
 
   -- Step identification
@@ -379,7 +378,7 @@ comment on table asset_steps is
 -- --------------------------------------------------------------------------
 
 create table partners (
-  id              uuid primary key default uuid_generate_v4(),
+  id              uuid primary key default gen_random_uuid(),
   name            text not null,
   type            partner_type not null,
   website         text,
@@ -428,7 +427,7 @@ comment on table partners is
 -- --------------------------------------------------------------------------
 
 create table contacts (
-  id              uuid primary key default uuid_generate_v4(),
+  id              uuid primary key default gen_random_uuid(),
   full_name       text not null,
   role            contact_role not null default 'other',
   title           text,
@@ -483,7 +482,7 @@ comment on table contacts is
 -- Supports versioning: same logical document can have multiple versions.
 
 create table documents (
-  id              uuid primary key default uuid_generate_v4(),
+  id              uuid primary key default gen_random_uuid(),
 
   -- Associations (polymorphic — at least one should be set)
   asset_id        uuid references assets(id) on delete cascade,
@@ -552,7 +551,7 @@ comment on table documents is
 -- database level as a defense-in-depth measure.
 
 create table activity_log (
-  id              uuid primary key default uuid_generate_v4(),
+  id              uuid primary key default gen_random_uuid(),
 
   -- What was affected
   asset_id        uuid references assets(id) on delete set null,
@@ -602,7 +601,7 @@ comment on table activity_log is
 -- --------------------------------------------------------------------------
 
 create table meeting_notes (
-  id              uuid primary key default uuid_generate_v4(),
+  id              uuid primary key default gen_random_uuid(),
 
   -- Associations
   asset_id        uuid references assets(id) on delete set null,
@@ -657,7 +656,7 @@ comment on table meeting_notes is
 -- --------------------------------------------------------------------------
 
 create table tasks (
-  id              uuid primary key default uuid_generate_v4(),
+  id              uuid primary key default gen_random_uuid(),
 
   -- Associations
   asset_id        uuid references assets(id) on delete cascade,
@@ -678,6 +677,7 @@ create table tasks (
   due_date        timestamptz,
   started_at      timestamptz,
   completed_at    timestamptz,
+  completed_by    uuid references team_members(id),
 
   -- Dependencies
   depends_on_task_id uuid references tasks(id),
@@ -710,7 +710,7 @@ comment on table tasks is
 -- (both passed and failed).
 
 create table gate_checks (
-  id              uuid primary key default uuid_generate_v4(),
+  id              uuid primary key default gen_random_uuid(),
   asset_id        uuid not null references assets(id) on delete cascade,
 
   -- Gate identification
@@ -751,10 +751,10 @@ comment on table gate_checks is
 -- --------------------------------------------------------------------------
 
 create table asset_partners (
-  id              uuid primary key default uuid_generate_v4(),
+  id              uuid primary key default gen_random_uuid(),
   asset_id        uuid not null references assets(id) on delete cascade,
   partner_id      uuid not null references partners(id) on delete cascade,
-  role_on_stone   text,                              -- "Primary Appraiser", "Vault Custodian", etc.
+  role_on_asset   text,                              -- "Primary Appraiser", "Vault Custodian", etc.
   engagement_date date,
   notes           text,
   created_at      timestamptz not null default now(),
@@ -774,7 +774,7 @@ comment on table asset_partners is
 -- --------------------------------------------------------------------------
 
 create table notifications (
-  id              uuid primary key default uuid_generate_v4(),
+  id              uuid primary key default gen_random_uuid(),
   recipient_id    uuid not null references team_members(id) on delete cascade,
 
   -- Content
@@ -811,7 +811,7 @@ comment on table notifications is
 -- --------------------------------------------------------------------------
 
 create table comments (
-  id              uuid primary key default uuid_generate_v4(),
+  id              uuid primary key default gen_random_uuid(),
 
   -- Polymorphic parent
   entity_type     text not null,                     -- 'stone', 'step', 'document', 'task', etc.

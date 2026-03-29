@@ -56,7 +56,7 @@ create type task_type as enum (
 -- to all paths (value_path IS NULL), others to specific paths.
 
 create table governance_requirements (
-  id                    uuid primary key default uuid_generate_v4(),
+  id                    uuid primary key default gen_random_uuid(),
 
   -- Scope
   value_path            value_path,                    -- NULL = applies to ALL paths (shared)
@@ -112,7 +112,7 @@ comment on table governance_requirements is
 -- --------------------------------------------------------------------------
 
 create table governance_documents (
-  id                        uuid primary key default uuid_generate_v4(),
+  id                        uuid primary key default gen_random_uuid(),
   governance_requirement_id uuid not null references governance_requirements(id) on delete cascade,
 
   document_type             text not null,              -- e.g., "gia_report", "ppm", "custody_receipt"
@@ -140,7 +140,7 @@ comment on table governance_documents is
 -- --------------------------------------------------------------------------
 
 create table partner_modules (
-  id                uuid primary key default uuid_generate_v4(),
+  id                uuid primary key default gen_random_uuid(),
   partner_id        uuid not null references partners(id) on delete cascade,
 
   module_name       text not null,                     -- e.g., "Rialto Full-Stack Module"
@@ -170,7 +170,7 @@ comment on table partner_modules is
 -- --------------------------------------------------------------------------
 
 create table module_tasks (
-  id                        uuid primary key default uuid_generate_v4(),
+  id                        uuid primary key default gen_random_uuid(),
   partner_module_id         uuid not null references partner_modules(id) on delete cascade,
   governance_requirement_id uuid not null references governance_requirements(id) on delete cascade,
 
@@ -204,7 +204,7 @@ comment on table module_tasks is
 -- --------------------------------------------------------------------------
 
 create table default_tasks (
-  id                        uuid primary key default uuid_generate_v4(),
+  id                        uuid primary key default gen_random_uuid(),
   governance_requirement_id uuid not null references governance_requirements(id) on delete cascade,
 
   task_title                text not null,
@@ -250,7 +250,7 @@ create index idx_asset_steps_partner_module on asset_steps(partner_module_id);
 -- --------------------------------------------------------------------------
 
 create table asset_task_instances (
-  id                uuid primary key default uuid_generate_v4(),
+  id                uuid primary key default gen_random_uuid(),
   asset_id          uuid not null references assets(id) on delete cascade,
   asset_step_id     uuid not null references asset_steps(id) on delete cascade,
 
@@ -1761,7 +1761,7 @@ select
   ast.step_number,
   ast.phase::text as phase,
   a.name as asset_name,
-  a.asset_reference
+  a.reference_code
 from asset_task_instances ati
 join asset_steps ast on ast.id = ati.asset_step_id
 join assets a on a.id = ati.asset_id
@@ -1786,7 +1786,7 @@ select
   null as step_number,
   null as phase,
   a.name as asset_name,
-  a.asset_reference
+  a.reference_code
 from tasks t
 left join assets a on a.id = t.asset_id;
 -- ============================================================================
