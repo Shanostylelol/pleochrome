@@ -176,7 +176,24 @@ export const assetsRouter = createRouter({
         .single()
 
       if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
-      return data
+
+      // Assemble governance workflow (skip if evaluating — no path yet)
+      let stepsCreated = 0
+      if (input.valuePath !== 'evaluating') {
+        try {
+          await ctx.db.rpc('assemble_asset_workflow', {
+            p_asset_id: data.id,
+            p_value_path: input.valuePath,
+            p_partner_module_ids: [],
+          })
+          const { count } = await ctx.db.from('asset_steps').select('*', { count: 'exact', head: true }).eq('asset_id', data.id)
+          stepsCreated = count ?? 0
+        } catch (e) {
+          console.error('[assets.create] Workflow assembly failed:', e)
+        }
+      }
+
+      return { ...data, stepsCreated }
     }),
 
   update: protectedProcedure
@@ -274,5 +291,30 @@ export const assetsRouter = createRouter({
         .single()
       if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
       return data
+    }),
+
+  assembleWorkflow: protectedProcedure
+    .input(z.object({
+      assetId: z.string().uuid(),
+      valuePath: z.enum(['fractional_securities', 'tokenization', 'debt_instruments']),
+      partnerModuleIds: z.array(z.string().uuid()).default([]),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      // Clear existing workflow
+      await ctx.db.from('asset_task_instances').delete().eq('asset_id', input.assetId)
+      await ctx.db.from('asset_steps').delete().eq('asset_id', input.assetId)
+
+      // Assemble new workflow from governance requirements + partner modules
+      const { error } = await ctx.db.rpc('assemble_asset_workflow', {
+        p_asset_id: input.assetId,
+        p_value_path: input.valuePath,
+        p_partner_module_ids: input.partnerModuleIds,
+      })
+      if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
+
+      const { count: stepsCount } = await ctx.db.from('asset_steps').select('*', { count: 'exact', head: true }).eq('asset_id', input.assetId)
+      const { count: tasksCount } = await ctx.db.from('asset_task_instances').select('*', { count: 'exact', head: true }).eq('asset_id', input.assetId)
+
+      return { stepsCreated: stepsCount ?? 0, tasksCreated: tasksCount ?? 0 }
     }),
 })

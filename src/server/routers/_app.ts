@@ -8,6 +8,8 @@ import { meetingsRouter } from './meetings'
 import { searchRouter } from './search'
 import { governanceRouter } from './governance'
 import { activityRouter } from './activity'
+import { assetTaskInstancesRouter } from './asset-task-instances'
+import { stepsRouter } from './steps'
 
 export const appRouter = createRouter({
   health: healthRouter,
@@ -19,6 +21,8 @@ export const appRouter = createRouter({
   search: searchRouter,
   governance: governanceRouter,
   activity: activityRouter,
+  assetTaskInstances: assetTaskInstancesRouter,
+  steps: stepsRouter,
 })
 
 export type AppRouter = typeof appRouter
