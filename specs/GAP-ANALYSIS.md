@@ -62,6 +62,17 @@ The document system needs a clear organizational model:
 6. **Lock audit** — Locked documents show who locked, when, and why. Cannot be deleted.
 7. **Expiry alerts** — Documents with `expires_at` should surface in compliance dashboard when approaching expiry
 
+## Data Integrity Issues (from audit)
+
+1. **Reference code collision** — `PC-YYYY-XXXX` uses last 4 digits of `Date.now()`. Needs retry loop.
+2. **No pagination** — All lists use LIMIT with no offset/cursor UI. Silent data loss at 200+ records.
+3. **Phase transition has zero validation** — `updatePhase` skips gate checks, required docs, required tasks.
+4. **`as never` type casts** — Suppress TS checking. Schema changes become silent runtime failures.
+5. **Storage path not cleaned on delete** — Orphaned files in Supabase Storage.
+6. **No soft delete** — Hard deletes destroy audit evidence on a regulated platform.
+7. **Activity log anonymous** — `performed_by` never resolved to a human name.
+8. **No drag-and-drop confirmation** — Accidental phase moves are immediate with no undo.
+
 ## Scaling Considerations
 
 1. **Pagination** — Asset list uses LIMIT 50 but no pagination UI. With 100+ assets, need infinite scroll or page controls.
@@ -69,3 +80,22 @@ The document system needs a clear organizational model:
 3. **Activity log performance** — Append-only table will grow large. Partitioning by month is defined in the schema but not enforced.
 4. **File storage limits** — 50MB per file, 500MB per asset. No UI enforcement of the per-asset limit.
 5. **Concurrent edits** — No optimistic locking or conflict resolution. Two users editing the same asset could overwrite each other.
+
+## Severity Summary
+
+| Category | Critical | High | Medium |
+|----------|----------|------|--------|
+| Missing from specs | 8 | 16 | 12 |
+| Workflow gaps | 6 | 5 | 3 |
+| Document management | 5 | 4 | 1 |
+| Cross-page connections | 3 | 5 | 2 |
+| Data integrity | 6 | 4 | 2 |
+| **Total** | **28** | **34** | **20** |
+
+## Top 5 Blockers for Production Use
+
+1. No gate validation on phase transitions (anyone can skip phases)
+2. No pagination (data silently lost at scale)
+3. No lead activation workflow (assemble_asset_workflow never called)
+4. No document download (metadata stored but files inaccessible)
+5. Phase transition has no confirmation dialog (accidental moves)
