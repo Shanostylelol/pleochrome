@@ -210,3 +210,46 @@
 **Files created:** `src/styles/neumorphic.css`, `src/lib/design-system.ts`, 10 component files in `src/components/ui/`, `src/components/ui/index.ts`
 **Files modified:** `src/app/globals.css`, `src/app/layout.tsx`
 **Tests passed:** `npm run build` — zero errors.
+
+---
+
+## PHASE 6: SEARCH + FILTERS
+
+### 6.1 — Global Search (Cmd+K)
+**Date:** 2026-03-29
+**Status:** COMPLETE
+**What was done:** Created search tRPC router with parallel queries across assets, partners, documents, tasks, meetings. Built CommandPalette component with keyboard shortcut (Cmd+K), real-time grouped results, click-to-navigate. Integrated search trigger in CRM header.
+**Files created:** `src/server/routers/search.ts`, `src/components/crm/CommandPalette.tsx`
+**Tests passed:** `npm run build` — zero errors. Search finds assets by name/reference.
+
+---
+
+## PHASE 7: TEMPLATES + COMPLIANCE + SETTINGS
+
+### 7.1-7.4 — Governance Templates, Compliance, Settings
+**Date:** 2026-03-29
+**Status:** COMPLETE
+**What was done:** Created governance tRPC router. Built Templates page (81 requirements, expandable phase groups, gate indicators, regulatory citations, path badges). Compliance Dashboard (score, alerts, per-asset progress). Settings page (theme toggle, notifications, system info). Fixed governance router column names.
+**Files created:** `src/server/routers/governance.ts`
+**Tests passed:** `npm run build` — zero errors. Templates shows all 81 requirements.
+
+---
+
+## PHASE 8: POLISH + TESTING
+
+### 8.1-8.4 — Browser Testing, Bug Fixes, Create Modals
+**Date:** 2026-03-29
+**Status:** COMPLETE
+**What was done:**
+- Seeded 8 additional test assets (11 total across all phases/paths/types)
+- Browser-tested all 11 CRM pages in Chrome with screenshots
+- Tested dark + light mode (both correct neumorphic shadows)
+- Tested Cmd+K search, Quick Add, Task creation, path filters, asset detail navigation
+- Bug fixes: phase labels, asset type badges, governance router columns, tasks/meetings router column mismatches, NeuSelect children support, admin client typing
+- Added: Task Create Modal, Partner Create Modal, Meeting Create Modal, Activity Feed (real Supabase query + Realtime)
+**Tests passed:** `npm run build` — zero errors. 22 routes. All pages verified in browser.
+
+### 8.5 — Drag-and-Drop, List View, Mobile QA, Lifecycle Test
+**Date:** 2026-03-29
+**Status:** IN PROGRESS
+**Remaining:** Kanban DnD, pipeline list view toggle, mobile responsive QA, wipe + zero-to-end test
