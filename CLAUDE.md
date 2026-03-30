@@ -4,10 +4,11 @@
 
 **BEFORE writing ANY code — even a single line, even a "quick fix" — you MUST:**
 
-1. **Read this entire CLAUDE.md file** to load project context
-2. **Read `DECISION-AUDIT-LOG.md`** to understand current strategic state
-3. **Read `src/lib/portal-data.ts`** if touching portal/CRM pages (for path/partner/workflow data)
-4. **Read `src/lib/design-system.ts`** if touching any UI (for neumorphic tokens — when it exists; until then, check `wireframe-prototype.html` CSS variables)
+1. **Read `specs/SESSION-HANDOFF.md`** FIRST — tells you current state + what phase to build
+2. **Read this entire CLAUDE.md file** to load project context
+3. **Read `specs/V2-MASTER-BUILD-PLAN.md`** — find your current phase section
+4. **Read `specs/V2-ARCHITECTURE-RULES.md`** — code standards, CSS rules, file limits
+5. **Read `src/lib/design-system.ts`** if touching any UI
 5. **Check `src/components/ui/`** for existing components before creating new ones
 
 **This applies to:**

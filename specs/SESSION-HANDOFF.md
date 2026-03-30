@@ -1,135 +1,143 @@
-# Session Handoff — PleoChrome Powerhouse CRM Build
+# Session Handoff — PleoChrome Powerhouse CRM V2
 
 **Last Updated:** 2026-03-30
-**Purpose:** This file ensures any new Claude Code session can pick up the build exactly where the last one left off. Read this FIRST in any new session.
+**Purpose:** Read this FIRST in any new session. Tells you exactly where to pick up.
 
 ---
 
-## CURRENT STATE (as of March 30, 2026)
+## QUICK START (New Session Protocol)
 
-### What's Built & Working
-- **24 Next.js routes** (15 CRM pages + API + manifest + landing + portals)
-- **13 tRPC routers:** health, assets, documents, tasks, partners, meetings, search, governance, activity, assetTaskInstances, steps, **dashboard** (NEW)
-- **Supabase fully deployed:** 19 tables, 81 governance requirements, 4 views, 5 storage buckets, 3 team members
-- **Governance engine CONNECTED:** `assemble_asset_workflow()` creates 53 governance steps per tokenization asset
-- **Neumorphic design system:** 10 atomic components, dark + light mode, responsive at 375/768/1440px
-- **Pipeline Board:** Kanban + list + **DASHBOARD** view toggle, DnD with confirmation, stats ribbon, path filters, Quick Add
-- **Asset Detail:** 8-tab interface, phase timeline, Edit modal, document upload, task create, financial cards
-- **INTERACTIVE Governance Tab:** expandable step accordions, Start/Complete/Block/Unblock, task instance checkboxes, progress summary
-- **Gates Tab:** 7 gate milestones with phase progress bars, Pass Gate button when ready
-- **Templates CRUD:** edit requirement modal, create module modal, module task mapping, coverage matrix
-- **Executive Dashboard:** pipeline funnel, value by path, risk indicators, compliance by asset
-- **Cross-page links:** partners→detail, activity→asset/partner, compliance→asset, all connected
-- **All sidebar pages render:** Pipeline, Assets, Partners, Documents, Tasks, Meetings, Activity, Team, Templates, Compliance, Settings
-- **11 test assets** across all phases/paths/types
+```
+Step 1: READ THIS FILE — know what phase you're on
+Step 2: READ specs/V2-MASTER-BUILD-PLAN.md — find your phase, read its section
+Step 3: READ specs/V2-ARCHITECTURE-RULES.md — code standards
+Step 4: READ CLAUDE.md — mandatory pre-flight
+Step 5: READ the specific spec files listed under your phase (below)
+Step 6: RUN `npm run build` — verify clean state before writing code
+Step 7: GO — execute the phase
+```
 
-### What Does NOT Work Yet (Remaining Gaps)
-1. **Partner modules table is EMPTY** — no modules configured for any partner
-2. **Default tasks table is EMPTY** — no fallback tasks when no partner module assigned
-3. **Older assets have ZERO governance steps** — only Lifecycle Test Asset has 53 steps
-4. **No comments system** on assets/steps
-5. **No document versioning or batch download**
-6. **No pagination** on any list
-7. **No comments system** on assets/steps
-8. **DnD kanban** — confirmation dialog works but actual drag visual may need testing
+**DO NOT re-read all 14 spec files.** Only read what your current phase needs.
 
 ---
 
-## TO RESUME BUILDING
+## CURRENT STATE
 
-### Step 1: Read governance documents
-```
-Read: CLAUDE.md (mandatory pre-flight)
-Read: specs/GAP-ANALYSIS.md (82 gaps with severity matrix)
-Read: specs/BUILD-LOG.md (build audit trail)
-Read: specs/MASTER-BUILD-PLAN.md (phase status)
-```
+### V2 Architecture: DESIGN COMPLETE, BUILD NOT STARTED
 
-### Step 2: Read the wireframe and specs
-```
-Read: wireframe-prototype.html (4,990-line interactive reference)
-Read: specs/pages/01-pipeline-board.md through specs/pages/11-new-asset-wizard.md
-Read: specs/api/assets-router.md
-Read: specs/features/quick-add-lead.md
-Read: specs/features/search.md
-```
+All seed data wiped. Only team_members remain (3 rows). V1 UI still exists but queries return empty.
 
-### Step 3: Priority work items
-1. **Make governance steps interactive** — add completion controls, task instance display, status changes
-2. **Build templates CRUD UI** — edit requirements, create modules, map tasks
-3. **Executive dashboard** — AUM trend chart, pipeline funnel, compliance trend, risk heatmap (use recharts, already installed)
-4. **Cross-page connections** — link everything together
-5. **End-to-end lifecycle test** — create asset → complete all steps → advance phases → verify
+| What | Status |
+|------|--------|
+| V2 Spec documents | 14 files, ~10,000 lines, ALL committed |
+| V2 Database migration | NOT YET WRITTEN (spec complete) |
+| V2 tRPC routers | NOT YET WRITTEN (spec complete) |
+| V2 UI pages | NOT YET WRITTEN (spec complete) |
+| V1 code | Still in place (will be overwritten phase-by-phase) |
+| Database | EMPTY except team_members. RLS disabled. V1 tables still exist (will be dropped in Phase 1) |
 
-### Step 4: User's specific requests
-- Every template should be editable (task wording, requirements, partner-specific)
-- Documents organized at task/step level with upload/download
-- DnD kanban needs to work properly
-- Partner modules need to connect to live asset lifecycle
-- Audit every page/tab/button for missing wiring
+### Current Phase: **PHASE 0 — NOT STARTED**
 
 ---
 
-## KEY FILES
+## PHASE → SPEC FILE MAP
 
-| File | Purpose |
-|------|---------|
-| `CLAUDE.md` | Governance rules — read before ANY code change |
-| `specs/GAP-ANALYSIS.md` | 82 gaps across P0-P3 with severity matrix |
-| `specs/BUILD-LOG.md` | What was built and when |
-| `specs/MASTER-BUILD-PLAN.md` | Build sequence (8 phases) |
-| `specs/ERROR-LOG.md` | Issues and resolutions |
-| `wireframe-prototype.html` | Visual reference for all pages |
-| `.env.local` | Supabase credentials (NOT in git) |
+When you start a phase, read ONLY the specs listed for that phase:
+
+| Phase | Specs to Read |
+|-------|--------------|
+| **0: Design System** | V2-ARCHITECTURE-RULES.md (Section 3-4) |
+| **1: Database** | V2-POWERHOUSE-BLUEPRINT.md (Sections 2-8), V2-MIGRATION-ADDENDUM.md (ALL), V2-COMPLETE-TASK-DENSITY.md (for template seeding) |
+| **2: Core Routers** | V2-POWERHOUSE-BLUEPRINT.md (Section 10.1-10.4), V2-BUILD-READINESS-AUDIT.md (Gap 1: task/subtask wiring) |
+| **3: Supporting Routers** | V2-POWERHOUSE-BLUEPRINT.md (Section 10.5-10.8), V2-BUILD-READINESS-AUDIT.md (Gaps 2-4: comments, approvals, notifications) |
+| **4: All Other Routers** | V2-BUILD-READINESS-AUDIT.md (Gaps 5-11), V2-PARTNER-AND-CUSTOMER-DESIGN.md, V2-OWNERSHIP-AND-KYC-DESIGN.md, V2-FEATURES-AND-WORKFLOWS-ADDENDUM.md |
+| **5: Pipeline + Asset Detail** | V2-POWERHOUSE-BLUEPRINT.md (Section 11), V2-UNIFIED-PHASE-MAPPING.md, V2-BUILD-READINESS-AUDIT.md (Gap 12-13) |
+| **6: Remaining Pages** | V2-POWERHOUSE-BLUEPRINT.md (Section 11), V2-BUILD-READINESS-AUDIT.md (all gaps) |
+| **7: Polish + PWA** | V2-FEATURES-AND-WORKFLOWS-ADDENDUM.md (SOPs, reminders, notifications) |
+| **8: E2E Test** | V2-MASTER-BUILD-PLAN.md (Phase 8 section) |
 
 ---
 
-## SUPABASE PROJECT
+## SUPABASE
 
 - **URL:** https://satrlfdnevquvnozhlvn.supabase.co
 - **Project Ref:** satrlfdnevquvnozhlvn
 - **Credentials:** In `.env.local`
-- **Status:** Fully deployed. 19 tables, 81 governance requirements, 4 views, 5 storage buckets.
-- **assemble_asset_workflow()** function is deployed and working
+- **Current state:** V1 tables exist but ALL DATA WIPED (except team_members). RLS disabled.
+- **Team members:** Shane/CEO, David/CTO, Chris/CRO (3 rows)
 
 ---
 
-## DATABASE STATE
+## STACK
 
-- **11 test assets** across all phases and value paths
-- **81 governance requirements** (32 shared + 21 tokenization + 15 fractional + 13 debt)
-- **53 asset_steps** on the Lifecycle Test Asset (ID: 80695eea-2b03-4cd8-9660-bafb099b9f35)
-- **1 partner** (Rialto Markets, broker_dealer)
-- **3 team members** (Shane/CEO, David/CTO, Chris/CRO)
-- **Path-specific step numbers:** Tokenization=3.T1-4.T21, Fractional=3.F1-4.F15, Debt=3.D1-4.D13
-
----
-
-## BUILD PHASE STATUS
-
-| Phase | Status | Notes |
-|-------|--------|-------|
-| 0: Foundation | COMPLETE | Supabase, components, tRPC, CRM shell, PWA |
-| 1: Pipeline Board | COMPLETE | Kanban + list + DnD + stats + filters |
-| 2: Asset Detail | COMPLETE | 8 tabs, governance shows 53 steps |
-| 3: Documents | COMPLETE | Upload, download, lock, delete |
-| 4: Tasks + Activity | COMPLETE | Dashboard, create, activity feed |
-| 5: Partners + Meetings | COMPLETE | Directory, detail, create |
-| 6: Search + Filters | COMPLETE | Cmd+K cross-entity search |
-| 7: Templates + Compliance | PARTIAL | Read-only templates, compliance dashboard |
-| 8: Polish + Deploy | PARTIAL | Testing done, many gaps remaining |
+- Next.js 16 + React 19 + TypeScript strict + Tailwind v4
+- tRPC (fetch adapter, NOT @trpc/next) + TanStack Query v5
+- Supabase (PostgreSQL + Auth + Storage + Realtime)
+- @dnd-kit for drag-and-drop
+- recharts for charts (already installed)
+- jszip + file-saver for batch downloads (already installed)
+- Serwist for PWA (currently disabled for Turbopack)
 
 ---
 
-## CRITICAL REMINDERS
+## V2 ARCHITECTURE SUMMARY (Don't re-read specs — this is the cheat sheet)
 
-1. **Pre-flight check is MANDATORY** — read CLAUDE.md before any code
-2. **"asset" not "stone"** — everywhere in code
-3. **Platform-agnostic** — no Brickken/Zoniqx commitment
-4. **Neumorphic design system** — raised buttons, pressed inputs, CSS variables only
-5. **Dark + light mode** — every component must support both
-6. **Immutable audit trail** — never write to activity_log from frontend
-7. **Test after every step** — `npm run build` must pass
-8. **Mobile-first design** — design for 375px first, test at 375px AND 1440px
-9. **Validate ALL inputs** — Zod on both client and server
-10. **assemble_asset_workflow()** — MUST be called when creating non-evaluating assets
+**6 Phases:** Lead → Intake → Asset Maturity → Security → Value Creation → Distribution
+
+**5 Value Models:** Tokenization, Fractional Securities, Debt Instrument, Broker Sale, Barter
+
+**Hierarchy:** Phase → Stage → Task → Subtask → (Comments + Documents)
+
+**28 Tables:** assets, asset_stages, tasks, subtasks, documents, comments, approvals, notifications, activity_log, workflow_templates, template_stages, template_tasks, template_subtasks, partners, partner_onboarding_items, partner_credentials, contacts, ownership_links, asset_owners, kyc_records, communication_log, meetings, sops, reminders, asset_partners, gate_checks, meeting_notes, team_members
+
+**11 Task Types:** document_upload, meeting, physical_action, payment_outgoing, payment_incoming, approval, review, due_diligence, filing, communication, automated
+
+**Key Features:** Drag-and-drop reorder (stages + tasks), hide/unhide (stages + tasks + subtasks), soft/advisory gates, save-as-template, partner auto-linking, ownership hierarchy with KYC, comment threads with @mentions, multi-level approvals, notification system, meeting transcripts, SOPs, reminders, batch document download, printable reports
+
+**Gates are ADVISORY** — warnings displayed, user can always "Proceed Anyway", override logged.
+
+---
+
+## CRITICAL RULES (Always Follow)
+
+1. `npm run build` after EVERY file change — zero errors
+2. Neumorphic design system — CSS variables only, no hardcoded colors
+3. Dark + light mode — every component
+4. Mobile-first — test at 375px after every UI change
+5. "asset" not "stone" — everywhere
+6. File size limits — 300 max for pages, 250 for components
+7. No inline components in pages — extract to components/crm/
+8. Shared NeuModal for all modals
+9. constants.ts for all phase/status/task-type labels and colors
+10. Activity log is IMMUTABLE — never write from frontend
+11. Tailwind v4: use `var()` explicitly — `w-[var(--x)]` not `w-[--x]`
+
+---
+
+## GIT STATE
+
+- **Branch:** main
+- **Remote:** origin (Shanostylelol/pleochrome)
+- **Last commit:** V2 MASTER BUILD PLAN
+- **All spec files committed and pushed**
+
+---
+
+## SPEC FILE INVENTORY (14 files, ~10,000 lines)
+
+| # | File | Lines | What |
+|---|------|-------|------|
+| 1 | V2-MASTER-BUILD-PLAN.md | 458 | THE build sequence — 9 phases with tests |
+| 2 | V2-POWERHOUSE-BLUEPRINT.md | 2,569 | SQL schema, routers, pages |
+| 3 | V2-COMPLETE-TASK-DENSITY.md | 2,617 | 175 tasks, 656 subtasks for template seeding |
+| 4 | V2-MIGRATION-ADDENDUM.md | 330 | Schema fixes (enums, columns, 6 extra tables) |
+| 5 | V2-ARCHITECTURE-RULES.md | 380 | Code standards, CSS rules, testing rules |
+| 6 | V2-BUILD-READINESS-AUDIT.md | 607 | Wiring details for 14 features |
+| 7 | V2-UNIFIED-PHASE-MAPPING.md | 361 | 6 phases × 5 models = all stages |
+| 8 | V2-RETROFIT-ANALYSIS.md | 291 | File-by-file KEEP/REWRITE/DELETE |
+| 9 | V2-PARTNER-AND-CUSTOMER-DESIGN.md | 251 | Partner onboarding, credentials, comms |
+| 10 | V2-OWNERSHIP-AND-KYC-DESIGN.md | 336 | Entity look-through, KYC records |
+| 11 | V2-FEATURES-AND-WORKFLOWS-ADDENDUM.md | 468 | Meetings, SOPs, reminders, timeline, exports |
+| 12 | V2-REGULATORY-VALIDATION-REPORT.md | 22 | 48 citations verified, 0 fabricated |
+| 13 | DEBT-INSTRUMENT-WORKFLOW-COMPLETE.md | 796 | Debt/Broker/Barter full spec |
+| 14 | BUILD-LOG.md | ~350 | Build audit trail (update after every phase) |
