@@ -277,6 +277,47 @@
 - 768px: sidebar icon-only, bottom nav hidden, content fills, kanban scrollable
 - 1440px: full sidebar with labels, all columns visible, list view full table
 
-### 8.7 — Remaining
+---
+
+## SPRINT 2: PRODUCTION BLOCKERS
+
+### S2.1 — Gate Validation + Phase Transition Confirmation
+**Date:** 2026-03-30
+**Status:** COMPLETE
+**What was done:**
+- updatePhase validates sequential transitions (no phase skipping)
+- Checks all steps in current phase completed before advancing
+- Returns blockers list when validation fails
+- Supports force:true admin override
+- Pipeline DnD shows confirmation dialog before moving assets
+**Tests passed:** `npm run build` — zero errors.
+
+### S2.2 — Document Download + Storage Cleanup
+**Date:** 2026-03-30
+**Status:** COMPLETE
+**What was done:**
+- getDownloadUrl route generates signed Supabase Storage URLs (1hr expiry)
+- Download button on every document in the library
+- Storage file cleanup on document deletion
+- assets.archive mutation for soft-deleting assets
+**Files created:** None (modifications to existing routers)
+
+### S2.3 — Activity Feed Router
+**Date:** 2026-03-30
+**Status:** COMPLETE
+**What was done:**
+- New activity tRPC router replaces direct Supabase client calls
+- Resolves performed_by to team member names via FK join
+- Shows avatars for attributed actions
+- Fixed performed_at column reference
+
+### S2.4 — Reference Code Fix
+**Date:** 2026-03-30
+**Status:** COMPLETE
+**What was done:**
+- Reference code uses random 4-digit + retry loop (5 attempts)
+- Eliminates Date.now() collision risk
+
+### Remaining
 **Status:** PENDING
-**Remaining:** Wipe test data + zero-to-end asset lifecycle test (user requested)
+**Items:** Wipe test data + zero-to-end asset lifecycle test

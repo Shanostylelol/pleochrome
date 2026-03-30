@@ -323,4 +323,4 @@ When the user says **"Go"**, Claude Code will:
 | 5: Partners + Meetings | COMPLETE | Partners directory, Meetings list, Team page |
 | 6: Search + Filters | COMPLETE | Cmd+K command palette, cross-entity search |
 | 7: Templates + Compliance | COMPLETE | Governance templates, compliance dashboard, settings |
-| 8: Polish + Deploy | NEAR COMPLETE | DnD kanban, list view, mobile QA done. Wipe + lifecycle test remaining. |
+| 8: Polish + Deploy | NEAR COMPLETE | Gate validation, DnD confirm, doc download, activity router. Lifecycle test remaining. |
