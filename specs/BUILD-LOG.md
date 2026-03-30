@@ -249,7 +249,34 @@
 - Added: Task Create Modal, Partner Create Modal, Meeting Create Modal, Activity Feed (real Supabase query + Realtime)
 **Tests passed:** `npm run build` — zero errors. 22 routes. All pages verified in browser.
 
-### 8.5 — Drag-and-Drop, List View, Mobile QA, Lifecycle Test
+### 8.5 — Drag-and-Drop + List View Toggle
 **Date:** 2026-03-29
-**Status:** IN PROGRESS
-**Remaining:** Kanban DnD, pipeline list view toggle, mobile responsive QA, wipe + zero-to-end test
+**Status:** COMPLETE
+**What was done:**
+- Installed @dnd-kit/core, @dnd-kit/sortable, @dnd-kit/utilities
+- Kanban cards show grip handle on hover, draggable between columns
+- DragOverlay shows card preview while dragging
+- Dropping on a different column triggers updatePhase mutation
+- View toggle (kanban/list) with neumorphic pressed container
+- List view: full table (Reference, Name, Type, Path, Phase, Value, Status) with color-coded badges
+- Rows clickable to navigate to asset detail
+- Responsive table: Type hidden < md, Path/Status hidden < lg
+**Tests passed:** `npm run build` — zero errors. Kanban and list toggle verified in browser.
+
+### 8.6 — Mobile Responsive QA
+**Date:** 2026-03-29
+**Status:** COMPLETE
+**What was done:**
+- Tested at 375px (iPhone SE): Pipeline Board, Asset Detail, bottom nav, hamburger drawer, More sheet, FAB
+- Tested at 768px (iPad portrait): sidebar icon-only, bottom nav hidden, kanban scrollable
+- Tested at 1440px (desktop): full sidebar with labels, all content visible
+- All pages pass: no horizontal overflow, touch targets adequate, text readable
+**Breakpoints verified:** 375px, 768px, 1440px
+**Results:**
+- 375px: sidebar hidden, bottom nav visible, FAB visible, hamburger drawer slides in, More sheet slides up, kanban scrollable, asset detail stacks vertically
+- 768px: sidebar icon-only, bottom nav hidden, content fills, kanban scrollable
+- 1440px: full sidebar with labels, all columns visible, list view full table
+
+### 8.7 — Remaining
+**Status:** PENDING
+**Remaining:** Wipe test data + zero-to-end asset lifecycle test (user requested)
