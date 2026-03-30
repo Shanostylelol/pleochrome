@@ -1,0 +1,2163 @@
+{
+  "_meta": {
+    "title": "RWA Tokenization Workflow Template — Complete Governance Framework",
+    "version": "1.0.0",
+    "created": "2026-03-29",
+    "author": "PleoChrome Operations",
+    "description": "Exhaustive stage/task/subtask breakdown for tokenizing real-world assets across four asset classes: gemstones, precious metals, real estate, and mineral rights. US regulatory framework. Designed to seed governance_requirements, default_tasks, and governance_documents tables.",
+    "asset_classes": ["gemstones", "precious_metals", "real_estate", "mineral_rights"],
+    "regulatory_framework": "United States (SEC, FINRA, FinCEN, state blue sky laws)",
+    "value_paths": ["fractional_securities", "tokenization", "debt_instruments"],
+    "notes": [
+      "Each stage maps to a workflow_phase enum in the PleoChrome schema.",
+      "Tasks map to governance_requirements rows; subtasks map to default_tasks rows.",
+      "Documents map to governance_documents rows.",
+      "Regulatory citations reference specific US federal and state laws.",
+      "Duration estimates assume a single asset with no blocking issues.",
+      "All three value paths share Stages 1-4; Stages 5-6 diverge by path."
+    ]
+  },
+
+  "stages": [
+    {
+      "stage_number": 1,
+      "stage_name": "Lead",
+      "display_name": "Lead Generation & Qualification",
+      "workflow_phase": "phase_1_intake",
+      "description": "Initial outreach, qualification, and pipeline entry. The goal is to identify high-value assets, verify holder identity, assess feasibility, and decide whether to engage.",
+      "estimated_duration": "2-6 weeks",
+      "responsible_teams": ["business_development", "compliance"],
+      "gate_at_end": {
+        "gate_id": "G1",
+        "gate_name": "SOURCE GATE",
+        "gate_description": "Asset holder verified. KYC/KYB passed. Provenance (or title/assay) documented. Engagement agreement signed. Deal committee Go decision.",
+        "required_to_pass": [
+          "KYC/KYB clearance on asset holder",
+          "Signed NDA",
+          "Preliminary provenance/title/assay documentation collected",
+          "Preliminary valuation within target range",
+          "Internal deal committee Go decision"
+        ]
+      },
+
+      "tasks": [
+        {
+          "step_number": "1.1",
+          "title": "Identify Target Asset",
+          "description": "Source asset from dealer networks, vault inventories, broker introductions, direct holder outreach, or inbound inquiries. Confirm minimum value threshold, asset type eligibility, and holder willingness to engage.",
+          "task_type": "action",
+          "assigned_role": "cro",
+          "estimated_duration": "1-5 days",
+          "regulatory_basis": "Securities offerings require sufficient asset value to justify compliance costs. Minimum thresholds ensure economic viability of the offering structure.",
+          "regulatory_citation": null,
+          "asset_class_variations": {
+            "gemstones": "Source from vault inventories, dealer networks, auction houses, private collections. Minimum $1M. Verify species, origin, and existing certifications.",
+            "precious_metals": "Source LBMA Good Delivery bars, allocated bullion, coin collections, or mining output. Minimum $500K. Verify purity, weight, hallmarks, and LBMA chain of custody.",
+            "real_estate": "Source commercial/residential properties, land parcels, development projects. Minimum $1M. Verify clear title, zoning, existing encumbrances, and cash flow history.",
+            "mineral_rights": "Source producing or proven mineral interests (oil, gas, hard minerals). Minimum $500K. Verify lease status, production history, reserve estimates, and operator relationships."
+          },
+          "subtasks": [
+            {
+              "title": "Research asset pipeline sources",
+              "task_type": "action",
+              "description": "Identify and catalog potential asset sources: broker networks, vault inventories, auction records, direct holder outreach lists, inbound lead forms."
+            },
+            {
+              "title": "Screen for minimum value threshold",
+              "task_type": "review",
+              "description": "Validate that the asset meets minimum value requirements ($500K-$1M+ depending on class) to justify compliance expenditure."
+            },
+            {
+              "title": "Assess asset type eligibility",
+              "task_type": "review",
+              "description": "Confirm the asset class is within PleoChrome's scope and does not present unresolvable regulatory barriers (e.g., sanctioned origin, contested title)."
+            },
+            {
+              "title": "Log lead in CRM pipeline",
+              "task_type": "action",
+              "description": "Create asset record in CRM with status 'prospect'. Assign reference code. Tag asset class and preliminary value path."
+            }
+          ],
+          "required_documents": []
+        },
+        {
+          "step_number": "1.2",
+          "title": "Holder Introduction & NDA",
+          "description": "First contact with asset holder or their representative. Execute mutual NDA to protect confidential information. Share platform overview and assess holder sophistication and expectations.",
+          "task_type": "action",
+          "assigned_role": "cro",
+          "estimated_duration": "2-5 days",
+          "regulatory_basis": "NDAs protect trade secrets and material non-public information during evaluation. Required under Defend Trade Secrets Act and to preserve confidentiality of offering structure details.",
+          "regulatory_citation": "Defend Trade Secrets Act, 18 U.S.C. 1836",
+          "source_url": "https://www.law.cornell.edu/uscode/text/18/1836",
+          "subtasks": [
+            {
+              "title": "Schedule introductory meeting/call",
+              "task_type": "action",
+              "description": "Arrange first contact with asset holder. In-person preferred for high-value assets; video for initial screen."
+            },
+            {
+              "title": "Prepare and send mutual NDA",
+              "task_type": "upload",
+              "description": "Draft or customize mutual NDA from template. Send to holder for review and execution."
+            },
+            {
+              "title": "Execute NDA (both parties sign)",
+              "task_type": "approval",
+              "description": "Obtain fully executed NDA with wet or electronic signatures from both parties."
+            },
+            {
+              "title": "Deliver platform overview deck",
+              "task_type": "action",
+              "description": "Share PleoChrome overview deck covering value paths, process, timeline, fees, and competitive advantages."
+            },
+            {
+              "title": "Assess holder sophistication",
+              "task_type": "review",
+              "description": "Evaluate holder's understanding of securities, tokenization, timelines, and fee structures. Note any red flags or education needs."
+            }
+          ],
+          "required_documents": ["nda"]
+        },
+        {
+          "step_number": "1.3",
+          "title": "KYC / KYB on Asset Holder",
+          "description": "Full identity verification on the individual or entity. OFAC/SDN screening. PEP check. Adverse media scan. For entities: verify beneficial ownership (all owners >25%).",
+          "task_type": "action",
+          "assigned_role": "compliance_officer",
+          "estimated_duration": "3-7 days",
+          "regulatory_basis": "Bank Secrecy Act and FinCEN regulations require identification and verification of all parties in financial transactions. OFAC sanctions compliance is mandatory — transacting with SDN-listed persons is a federal crime. Dealers in Precious Metals, Stones, or Jewels (DPMS) have heightened AML obligations under FinCEN.",
+          "regulatory_citation": "BSA 31 USC 5311-5332; FinCEN 31 CFR Part 1027; OFAC 31 CFR Part 501; CDD Rule 31 CFR 1010.230",
+          "source_url": "https://www.fincen.gov/news/news-releases/dealers-precious-metals-stones-or-jewels-required-establish-anti-money-0",
+          "subtasks": [
+            {
+              "title": "Collect government-issued ID (individuals)",
+              "task_type": "upload",
+              "description": "Obtain passport or driver's license. Verify identity against government databases."
+            },
+            {
+              "title": "Collect entity formation documents (entities)",
+              "task_type": "upload",
+              "description": "Obtain articles of incorporation/organization, operating agreement, certificate of good standing."
+            },
+            {
+              "title": "Verify beneficial ownership (>25% owners)",
+              "task_type": "review",
+              "description": "Identify all beneficial owners per CDD Rule. Collect ID for each. Verify against corporate records."
+            },
+            {
+              "title": "Run OFAC/SDN screening",
+              "task_type": "automated",
+              "description": "Screen all individuals and entities against OFAC Specially Designated Nationals list, EU sanctions lists, and other applicable sanctions databases."
+            },
+            {
+              "title": "Run PEP (Politically Exposed Person) check",
+              "task_type": "automated",
+              "description": "Screen against global PEP databases. Flag any matches for enhanced due diligence."
+            },
+            {
+              "title": "Run adverse media scan",
+              "task_type": "automated",
+              "description": "Search news databases and public records for negative coverage, litigation, fraud allegations, or regulatory actions."
+            },
+            {
+              "title": "Compliance officer review and sign-off",
+              "task_type": "approval",
+              "description": "Compliance officer reviews all KYC/KYB results and issues clearance or flags for enhanced review."
+            }
+          ],
+          "required_documents": ["kyc_report", "ofac_screening", "pep_screening"]
+        },
+        {
+          "step_number": "1.4",
+          "title": "Provenance / Title / Rights Verification",
+          "description": "Collect and verify the complete chain of custody, ownership history, or rights documentation for the asset. This is the foundational evidence that the holder has clear, unencumbered rights to the asset.",
+          "task_type": "action",
+          "assigned_role": "cro",
+          "estimated_duration": "1-3 weeks",
+          "regulatory_basis": "Provenance establishes clean title and regulatory compliance. Required to protect against stolen property claims, title disputes, and fraud. For gemstones, Kimberley Process Certification is required for diamond trade. For real estate, clear title is a precondition to any securities offering.",
+          "regulatory_citation": "Clean Diamond Trade Act 19 U.S.C. 3901-3913; UCC 2-403 (good faith purchaser); State recording statutes",
+          "source_url": "https://www.law.cornell.edu/uscode/text/19/3901",
+          "asset_class_variations": {
+            "gemstones": {
+              "description": "Collect complete chain of custody: mine/origin to dealer to current holder. Verify Kimberley Process compliance if applicable (diamonds). Flag any gaps in provenance chain.",
+              "specific_subtasks": [
+                "Collect mine-of-origin documentation or dealer acquisition records",
+                "Verify Kimberley Process Certificate (diamonds only)",
+                "Trace chain of custody through each dealer/auction/private sale",
+                "Identify and document any provenance gaps",
+                "Verify no theft reports or restitution claims exist"
+              ]
+            },
+            "precious_metals": {
+              "description": "Verify LBMA chain of custody for gold/silver bars. Confirm hallmarks, refiner marks, and serial numbers. For coins, verify mint records and collector provenance.",
+              "specific_subtasks": [
+                "Verify LBMA Good Delivery status and refiner hallmarks",
+                "Confirm bar serial numbers against refiner records",
+                "Obtain assay certificates from LBMA-accredited assayer",
+                "Verify chain of custody from refiner to current holder",
+                "Check against stolen bullion databases"
+              ]
+            },
+            "real_estate": {
+              "description": "Order preliminary title report. Verify ownership chain. Identify all liens, encumbrances, easements, and restrictions. Confirm zoning and permitted use.",
+              "specific_subtasks": [
+                "Order preliminary title report from title company",
+                "Review title chain for completeness and gaps",
+                "Identify all liens, mortgages, and encumbrances",
+                "Review easements, covenants, and use restrictions",
+                "Verify zoning classification and permitted use",
+                "Obtain survey (ALTA/NSPS if available)",
+                "Check for environmental liens or contamination (Phase I ESA reference)",
+                "Verify property tax status (current, delinquent, or tax sale)"
+              ]
+            },
+            "mineral_rights": {
+              "description": "Verify mineral rights ownership separate from surface rights. Confirm lease status, royalty obligations, and operator agreements. Run title opinion.",
+              "specific_subtasks": [
+                "Obtain mineral rights title opinion from landman or attorney",
+                "Verify severance of mineral rights from surface estate",
+                "Review all active leases and royalty agreements",
+                "Confirm operator agreements and working interest percentages",
+                "Verify no outstanding disputes or litigation on mineral rights",
+                "Obtain production history from state oil/gas commission",
+                "Review division orders for accuracy",
+                "Check for overriding royalty interests (ORRI) or net profits interests"
+              ]
+            }
+          },
+          "required_documents": ["correspondence"]
+        },
+        {
+          "step_number": "1.5",
+          "title": "Existing Certification / Appraisal Review",
+          "description": "Collect and verify any existing certifications, appraisals, inspections, or valuation reports. Assess whether re-certification or new appraisals are needed based on report age, scope, and credibility.",
+          "task_type": "review",
+          "assigned_role": "cro",
+          "estimated_duration": "3-7 days",
+          "regulatory_basis": "Independent certification establishes the physical properties and value basis of the asset. Stale or unverified reports cannot support an offering valuation. Verification against issuing authority databases prevents fraud.",
+          "regulatory_citation": null,
+          "asset_class_variations": {
+            "gemstones": "Collect prior GIA/SSEF/Gubelin reports. Verify report numbers via GIA Report Check. Assess if re-certification needed (reports >2 years old or incomplete scope).",
+            "precious_metals": "Collect assay certificates, refiner certificates, LBMA Good Delivery certificates. Verify serial numbers and hallmarks against refiner databases.",
+            "real_estate": "Collect prior appraisals (MAI/SRA designated). Collect recent inspection reports, environmental assessments (Phase I ESA), and any engineering studies. Assess staleness (>6 months may require update).",
+            "mineral_rights": "Collect reserve reports (SEC-compliant or PRMS-standard), decline curve analyses, production data from state agencies. Assess report currency and whether reserve estimates need updating."
+          },
+          "required_documents": ["gia_report", "ssef_report", "appraisal_report"]
+        },
+        {
+          "step_number": "1.6",
+          "title": "Preliminary Valuation Estimate",
+          "description": "Desktop valuation using comparable sales, market data, and existing appraisals. This is an internal screening tool — NOT the offering value. Used to assess whether the asset justifies compliance expenditure.",
+          "task_type": "review",
+          "assigned_role": "cro",
+          "estimated_duration": "3-5 days",
+          "regulatory_basis": "Preliminary valuation is required for internal deal committee review and to establish whether the asset justifies the compliance expenditure. Must be clearly distinguished from formal USPAP/independent appraisal process.",
+          "regulatory_citation": null,
+          "subtasks": [
+            {
+              "title": "Gather comparable market data",
+              "task_type": "action",
+              "description": "Research recent comparable sales, auction results, market indices, and dealer price lists relevant to the asset class."
+            },
+            {
+              "title": "Prepare preliminary valuation memo",
+              "task_type": "action",
+              "description": "Draft internal memo with valuation range, methodology, comparables used, and confidence level. Include asset class-specific considerations."
+            },
+            {
+              "title": "Calculate estimated offering economics",
+              "task_type": "action",
+              "description": "Model projected offering size, fee revenue, compliance costs, and timeline to assess deal viability."
+            }
+          ],
+          "asset_class_variations": {
+            "gemstones": "Use auction records (Christie's, Sotheby's), dealer price lists (Rapaport for diamonds), and prior appraisals. Account for rarity premiums and market trends.",
+            "precious_metals": "Use LBMA fix prices, COMEX futures, numismatic premium guides (for coins). Straightforward for standard bullion; complex for rare coins or historical pieces.",
+            "real_estate": "Use comparable sales (MLS data, CoStar), cap rate analysis, income approach (NOI/cap rate), and replacement cost approach. Account for location, condition, and market trends.",
+            "mineral_rights": "Use production data, commodity price forecasts, decline curve analysis, PV-10 calculation, and comparable mineral rights transactions. Account for reserve risk and commodity price volatility."
+          },
+          "required_documents": []
+        },
+        {
+          "step_number": "1.7",
+          "title": "Engagement Agreement",
+          "description": "Execute formal engagement agreement with the asset holder. Defines fee structure, timeline expectations, mutual obligations, representations and warranties regarding asset title and encumbrances, and termination provisions.",
+          "task_type": "action",
+          "assigned_role": "ceo",
+          "estimated_duration": "3-7 days",
+          "regulatory_basis": "Written engagement agreement establishes the legal relationship, defines scope, allocates risk, and provides contractual basis for fee collection. Required for professional liability insurance and investor confidence.",
+          "regulatory_citation": null,
+          "subtasks": [
+            {
+              "title": "Draft engagement agreement from template",
+              "task_type": "action",
+              "description": "Customize engagement agreement template for asset class, value path, and deal-specific terms."
+            },
+            {
+              "title": "Internal legal review",
+              "task_type": "review",
+              "description": "General counsel reviews engagement terms, fee structure, indemnification provisions, and termination clauses."
+            },
+            {
+              "title": "Negotiate terms with holder",
+              "task_type": "action",
+              "description": "Address holder feedback on fees, timeline, exclusivity, and other material terms."
+            },
+            {
+              "title": "Execute engagement agreement (both parties sign)",
+              "task_type": "approval",
+              "description": "Obtain fully executed agreement with wet or electronic signatures from both parties."
+            }
+          ],
+          "required_documents": ["engagement_agreement"]
+        },
+        {
+          "step_number": "1.8",
+          "title": "Internal Deal Committee Review",
+          "description": "Founders and senior team review the complete deal package. Go/No-Go decision based on provenance quality, valuation potential, holder reliability, regulatory risk, compliance cost estimate, and strategic fit.",
+          "task_type": "approval",
+          "assigned_role": "ceo",
+          "estimated_duration": "1-3 days",
+          "regulatory_basis": "Internal deal committee review is a SOC 2 processing integrity control and securities compliance best practice. Documented decision-making provides evidence of reasonable judgment and protects against liability.",
+          "regulatory_citation": null,
+          "subtasks": [
+            {
+              "title": "Prepare deal committee package",
+              "task_type": "action",
+              "description": "Compile all intake documents: KYC results, provenance docs, preliminary valuation, engagement terms, risk assessment, and recommended value path."
+            },
+            {
+              "title": "Schedule and conduct deal committee meeting",
+              "task_type": "action",
+              "description": "Present deal to CEO, CTO, and CRO. Discuss risks, economics, timeline, and strategic fit."
+            },
+            {
+              "title": "Record Go/No-Go decision with rationale",
+              "task_type": "approval",
+              "description": "Document the decision, rationale, conditions (if any), and dissenting views in the decision audit log."
+            },
+            {
+              "title": "Notify holder of decision",
+              "task_type": "action",
+              "description": "Communicate Go decision and next steps to holder, or gracefully decline with No-Go rationale."
+            }
+          ],
+          "required_documents": [],
+          "required_approvals": {"internal": ["ceo", "cto", "cro"]}
+        }
+      ]
+    },
+
+    {
+      "stage_number": 2,
+      "stage_name": "Intake",
+      "display_name": "Full Intake & Due Diligence",
+      "workflow_phase": "phase_2_certification",
+      "description": "Comprehensive asset due diligence, independent certification, and formal valuation. The goal is to establish an independently verified, defensible asset value that can support a securities offering.",
+      "estimated_duration": "6-14 weeks",
+      "responsible_teams": ["operations", "compliance", "legal"],
+      "gate_at_end": {
+        "gate_id": "G2",
+        "gate_name": "EVIDENCE GATE",
+        "gate_description": "All independent certifications received. Formal appraisals complete. Variance within threshold. Offering value locked. No unresolved red flags.",
+        "required_to_pass": [
+          "Independent lab/inspection reports received and verified",
+          "All formal appraisals complete (minimum 2, target 3)",
+          "Appraisal variance within 15-20% threshold",
+          "Offering value determined and locked",
+          "All provenance/title/rights issues resolved or documented"
+        ]
+      },
+
+      "tasks": [
+        {
+          "step_number": "2.1",
+          "title": "Independent Lab Certification / Inspection",
+          "description": "Submit asset for independent verification by a recognized authority. This establishes the physical properties, authenticity, and condition of the asset independent of any party's claims.",
+          "task_type": "action",
+          "assigned_role": "cro",
+          "estimated_duration": "2-6 weeks",
+          "regulatory_basis": "Independent certification from a recognized authority is essential for establishing the physical characteristics and authenticity of the asset. Required for institutional investor confidence, insurance underwriting, and regulatory defensibility.",
+          "regulatory_citation": null,
+          "asset_class_variations": {
+            "gemstones": {
+              "description": "Submit to GIA laboratory for grading: species identification, color grade, clarity, cut, carat weight, and origin determination.",
+              "cost": "$5,000-$20,000",
+              "timeline": "2-4 weeks",
+              "specific_subtasks": [
+                "Package stone per GIA submission requirements",
+                "Arrange insured transit to GIA laboratory (Carlsbad or New York)",
+                "Track submission and respond to any lab queries",
+                "Receive and verify GIA report",
+                "Verify report number via GIA Report Check online",
+                "If needed: submit to SSEF or Gubelin for supplemental origin determination ($0-5K, 2 weeks additional)"
+              ]
+            },
+            "precious_metals": {
+              "description": "Submit to LBMA-accredited assayer for purity testing, weight verification, and hallmark confirmation. For coins: submit to PCGS or NGC for grading and authentication.",
+              "cost": "$500-$5,000",
+              "timeline": "1-3 weeks",
+              "specific_subtasks": [
+                "Select LBMA-accredited assayer or numismatic grading service",
+                "Arrange insured transit to assay facility",
+                "Conduct XRF or fire assay for purity verification",
+                "Verify weight against hallmark/documentation",
+                "Receive assay certificate with serial number cross-reference",
+                "For coins: obtain PCGS/NGC grading and encapsulation"
+              ]
+            },
+            "real_estate": {
+              "description": "Order Phase I Environmental Site Assessment (ESA), property condition report, ALTA survey, and any specialized inspections (structural, MEP, roof, seismic).",
+              "cost": "$5,000-$25,000",
+              "timeline": "3-6 weeks",
+              "specific_subtasks": [
+                "Engage environmental consultant for Phase I ESA (ASTM E1527-21)",
+                "Engage property inspector for condition assessment",
+                "Order ALTA/NSPS land survey",
+                "Order specialized inspections as needed (structural, seismic, roof, MEP, ADA)",
+                "Review inspection reports and identify deficiencies",
+                "Determine if Phase II ESA is warranted based on Phase I findings",
+                "Compile inspection summary with cost-to-cure estimates"
+              ]
+            },
+            "mineral_rights": {
+              "description": "Commission independent reserve report from qualified petroleum engineer or geologist. Verify production data against state agency records. Assess remaining productive life.",
+              "cost": "$10,000-$50,000",
+              "timeline": "4-8 weeks",
+              "specific_subtasks": [
+                "Engage qualified reserve engineer (SPE-certified)",
+                "Obtain production data from state oil/gas commission (Railroad Commission of Texas, COGCC, etc.)",
+                "Commission reserve estimate (SEC-compliant or PRMS methodology)",
+                "Review decline curve analysis and projected remaining reserves",
+                "Assess well condition and workover/recompletion needs",
+                "Verify lease expiration dates and continuous production requirements",
+                "Confirm operator financial stability and operational competence"
+              ]
+            }
+          },
+          "required_documents": ["gia_report", "ssef_report"]
+        },
+        {
+          "step_number": "2.2",
+          "title": "Appraiser Panel Selection",
+          "description": "Identify, vet, and engage independent appraisers with appropriate credentials for the asset class. Verify independence, credentials, insurance, and absence of conflicts of interest.",
+          "task_type": "action",
+          "assigned_role": "cro",
+          "estimated_duration": "1-2 weeks",
+          "regulatory_basis": "USPAP (Uniform Standards of Professional Appraisal Practice) is the recognized standard for professional appraisers in the United States. Using multiple independent appraisers provides institutional-grade valuation confidence and regulatory defensibility.",
+          "regulatory_citation": "USPAP Standards Rule 7 (Personal Property); Standards Rule 1-2 (Real Property); ASA Business Valuation Standards",
+          "source_url": "https://www.appraisalfoundation.org/imis/TAF/Standards/Appraisal_Standards/Uniform_Standards_of_Professional_Appraisal_Practice/TAF/USPAP.aspx",
+          "subtasks": [
+            {
+              "title": "Identify candidate appraisers (minimum 3)",
+              "task_type": "action",
+              "description": "Research and identify qualified appraisers with relevant credentials (CGA/MGA for gems, MAI/SRA for real estate, SPE for minerals, ASA for metals)."
+            },
+            {
+              "title": "Verify credentials and independence",
+              "task_type": "review",
+              "description": "Confirm active certification/designation, E&O insurance coverage, and no conflicts of interest with any parties to the transaction."
+            },
+            {
+              "title": "Execute appraiser engagement letters",
+              "task_type": "action",
+              "description": "Formalize engagement with each appraiser. Define scope, methodology requirements, timeline, and fee (must NOT be percentage-based per USPAP Ethics Rule)."
+            }
+          ],
+          "cost": "$1,500 (engagement fees)",
+          "required_documents": []
+        },
+        {
+          "step_number": "2.3",
+          "title": "Formal Independent Appraisal Process",
+          "description": "Conduct sequential independent appraisals with sealed prior values to prevent anchoring bias. Each appraiser works independently. Minimum 2 appraisals required; 3 recommended for assets >$5M.",
+          "task_type": "action",
+          "assigned_role": "cro",
+          "estimated_duration": "3-8 weeks",
+          "regulatory_basis": "The sequential sealed-value methodology prevents anchoring bias and ensures independent valuation. USPAP Ethics Rule prohibits percentage-based fees. Multiple independent appraisals exceed industry standard (1-2) and provide institutional-grade confidence.",
+          "regulatory_citation": "USPAP Ethics Rule; USPAP Standards Rules 7-8 (Personal Property) or 1-2 (Real Property)",
+          "cost": "$9,000-$50,000 (varies by asset class and complexity)",
+          "asset_class_variations": {
+            "gemstones": {
+              "cost": "$9,000-$18,000",
+              "methodology": "Sequential 3-appraisal process. Stone moves physically between appraisers. Each works with sealed prior values. USPAP Standards Rule 7 (Personal Property).",
+              "specific_subtasks": [
+                "Arrange insured transport from vault to Appraiser 1",
+                "Appraiser 1 completes USPAP-compliant appraisal",
+                "Seal Appraiser 1 value; transport stone to Appraiser 2",
+                "Appraiser 2 completes independent appraisal",
+                "Seal Appraiser 2 value; transport stone to Appraiser 3",
+                "Appraiser 3 completes independent appraisal",
+                "Return stone to vault with chain-of-custody documentation"
+              ]
+            },
+            "precious_metals": {
+              "cost": "$3,000-$10,000",
+              "methodology": "For standard bullion, market value is straightforward (weight x spot price x purity). For numismatic items, minimum 2 independent appraisals required.",
+              "specific_subtasks": [
+                "For bullion: calculate market value from assay weight, purity, and LBMA fix",
+                "For numismatic: engage 2-3 independent numismatic appraisers",
+                "Verify premium-over-spot calculations for rare items",
+                "Document methodology and market data sources"
+              ]
+            },
+            "real_estate": {
+              "cost": "$5,000-$25,000",
+              "methodology": "Minimum 2 MAI-designated appraisers. Income approach (DCF), sales comparison, and cost approach per USPAP Standards Rules 1-2.",
+              "specific_subtasks": [
+                "Appraiser 1 conducts site inspection and market research",
+                "Appraiser 1 delivers USPAP-compliant appraisal (all 3 approaches)",
+                "Appraiser 2 conducts independent inspection and analysis",
+                "Appraiser 2 delivers USPAP-compliant appraisal",
+                "Optional: Appraiser 3 for assets >$10M",
+                "Review and compare all approaches (income, sales comparison, cost)"
+              ]
+            },
+            "mineral_rights": {
+              "cost": "$15,000-$50,000",
+              "methodology": "Reserve-based valuation using SEC-compliant methodology. PV-10 (present value at 10% discount) is industry standard. Income approach based on projected production and commodity prices.",
+              "specific_subtasks": [
+                "Reserve engineer completes independent reserve estimate",
+                "Calculate PV-10 using SEC pricing (12-month average) and NYMEX strip pricing",
+                "Apply appropriate risk factors for reserve category (proved, probable, possible)",
+                "Engage second independent evaluator for cross-check",
+                "Compare reserve-based valuation with comparable mineral rights transactions"
+              ]
+            }
+          },
+          "required_documents": ["appraisal_report"]
+        },
+        {
+          "step_number": "2.4",
+          "title": "Variance Analysis & Offering Value Determination",
+          "description": "Compare all independent appraisals. If variance exceeds 15-20%, trigger review or additional appraisal. Offering value is determined conservatively — typically the average of the two lowest appraisals.",
+          "task_type": "review",
+          "assigned_role": "ceo",
+          "estimated_duration": "2-5 days",
+          "regulatory_basis": "Variance analysis is a statistical due diligence control. Conservative valuation methodology (not using the highest appraisal) demonstrates investor protection and regulatory defensibility. Required for PPM disclosure accuracy.",
+          "regulatory_citation": null,
+          "subtasks": [
+            {
+              "title": "Compile appraisal comparison matrix",
+              "task_type": "action",
+              "description": "Create side-by-side comparison of all appraisals: values, methodologies used, assumptions, and key differences."
+            },
+            {
+              "title": "Calculate variance percentage",
+              "task_type": "automated",
+              "description": "Compute variance between highest and lowest appraisals. Flag if exceeds 15-20% threshold."
+            },
+            {
+              "title": "Trigger resolution process if variance exceeds threshold",
+              "task_type": "review",
+              "description": "If variance is excessive: request appraiser clarification, commission 4th appraisal, or document material reasons for divergence."
+            },
+            {
+              "title": "Determine and lock offering value",
+              "task_type": "approval",
+              "description": "Set offering value using conservative methodology (average of two lowest). Document rationale. Lock value — no changes without re-appraisal."
+            },
+            {
+              "title": "CEO + CRO sign-off on offering value",
+              "task_type": "approval",
+              "description": "Formal sign-off on the offering value that will appear in the PPM."
+            }
+          ],
+          "required_approvals": {"internal": ["ceo", "cro"]},
+          "required_documents": []
+        },
+        {
+          "step_number": "2.5",
+          "title": "Environmental & Regulatory Due Diligence (Asset-Specific)",
+          "description": "Conduct any additional regulatory due diligence specific to the asset class that was not covered in the certification and appraisal stages.",
+          "task_type": "action",
+          "assigned_role": "compliance_officer",
+          "estimated_duration": "1-4 weeks",
+          "regulatory_basis": "Asset-specific regulatory requirements vary by class. Failure to identify regulatory barriers before structuring the offering wastes significant legal and compliance expenditure.",
+          "regulatory_citation": null,
+          "asset_class_variations": {
+            "gemstones": {
+              "description": "Verify compliance with Kimberley Process (diamonds). Check import/export restrictions. Verify no cultural heritage claims (antiquities).",
+              "specific_subtasks": [
+                "Confirm Kimberley Process Certificate validity (diamonds)",
+                "Verify no CITES restrictions (certain coral, tortoiseshell, ivory)",
+                "Check for cultural heritage or restitution claims",
+                "Verify import documentation and customs records"
+              ]
+            },
+            "precious_metals": {
+              "description": "Verify compliance with LBMA Responsible Sourcing requirements. Check conflict minerals regulations. Verify no FinCEN suspicious activity.",
+              "specific_subtasks": [
+                "Verify LBMA Responsible Sourcing compliance for gold/silver",
+                "Check Dodd-Frank Section 1502 conflict minerals compliance",
+                "Verify no FinCEN Suspicious Activity Report (SAR) history",
+                "Confirm no IRS seizure risk (structured transactions)"
+              ]
+            },
+            "real_estate": {
+              "description": "Complete environmental due diligence. Verify zoning and entitlements. Check for rent control, historic preservation, or FIRPTA implications.",
+              "specific_subtasks": [
+                "Review Phase I ESA results; commission Phase II if indicated",
+                "Verify zoning compliance and entitlements",
+                "Check for rent control or tenant protection ordinances",
+                "Assess FIRPTA (Foreign Investment in Real Property Tax Act) implications",
+                "Review any pending eminent domain or condemnation actions",
+                "Verify compliance with ADA (Americans with Disabilities Act)",
+                "Check flood zone designation (FEMA maps) and insurance requirements"
+              ]
+            },
+            "mineral_rights": {
+              "description": "Verify environmental compliance, well plugging obligations, and regulatory permits. Check for state-specific bonding requirements.",
+              "specific_subtasks": [
+                "Verify all environmental permits are current (EPA, state agencies)",
+                "Assess orphan well and plugging liability obligations",
+                "Review bond or financial assurance requirements",
+                "Check for any outstanding regulatory violations or NOVs",
+                "Verify NORM (Naturally Occurring Radioactive Material) compliance",
+                "Review water disposal and injection well permits",
+                "Assess regulatory risk of changing environmental regulations"
+              ]
+            }
+          },
+          "required_documents": []
+        }
+      ]
+    },
+
+    {
+      "stage_number": 3,
+      "stage_name": "Asset Maturity",
+      "display_name": "Custody, Insurance & Asset Securitization",
+      "workflow_phase": "phase_3_custody",
+      "description": "Secure the asset in institutional custody, obtain adequate insurance coverage, and prepare the asset for the securities offering structure. This stage ensures the physical asset is protected, verified, and legally ready for investor capital.",
+      "estimated_duration": "3-8 weeks",
+      "responsible_teams": ["operations", "legal", "compliance"],
+      "gate_at_end": {
+        "gate_id": "G3",
+        "gate_name": "CUSTODY GATE",
+        "gate_description": "Asset in institutional custody. Insurance verified at offering value. Custody receipt issued. Proof of Reserve (if tokenization path) configured. All custody agreements executed.",
+        "required_to_pass": [
+          "Asset physically in institutional custody (or title recorded to SPV for real estate)",
+          "Insurance coverage at or above offering value",
+          "Custody receipt or title deed issued",
+          "All custody/insurance agreements fully executed",
+          "Proof of Reserve oracle configured (tokenization path only)"
+        ]
+      },
+
+      "tasks": [
+        {
+          "step_number": "3.1",
+          "title": "Custody Facility Selection & Agreement",
+          "description": "Select an institutional-grade custody facility appropriate for the asset class. Execute custody agreement with segregated storage provisions. Ensure facility can support Proof of Reserve verification.",
+          "task_type": "action",
+          "assigned_role": "coo",
+          "estimated_duration": "1-3 weeks",
+          "regulatory_basis": "Institutional custody is required for investor protection and regulatory compliance. Segregated storage ensures the asset is not commingled with other assets. SEC Rule 15c3-3 requires certain custody standards for securities-related assets.",
+          "regulatory_citation": "SEC Rule 15c3-3 (Customer Protection); UCC 9-313 (perfection by possession)",
+          "cost": "$20,000-$100,000/year (varies by asset class)",
+          "asset_class_variations": {
+            "gemstones": {
+              "custody_providers": ["Brink's", "Malca-Amit", "Loomis", "G4S"],
+              "requirements": "Segregated safe deposit. Bonded and insured facility. API access for Proof of Reserve. Camera/sensor monitoring. Dual-control access.",
+              "specific_subtasks": [
+                "Request proposals from 2-3 institutional vault providers",
+                "Evaluate facility security, insurance, API capability, and costs",
+                "Negotiate custody agreement terms",
+                "Execute custody agreement with segregated storage provision",
+                "Arrange insured transport from current location to vault",
+                "Verify segregated allocation and obtain custody receipt",
+                "Test API access for Proof of Reserve integration (if tokenization path)"
+              ]
+            },
+            "precious_metals": {
+              "custody_providers": ["Brink's", "Loomis", "HSBC Vault", "JP Morgan Vault", "Royal Canadian Mint"],
+              "requirements": "LBMA-approved vault for Good Delivery bars. Segregated (not pooled) allocation. Regular independent audit. API access.",
+              "specific_subtasks": [
+                "Select LBMA-approved vault facility",
+                "Negotiate allocated (not unallocated) storage agreement",
+                "Execute custody agreement with segregated allocation",
+                "Arrange bonded courier transport (Brink's, Loomis, Malca-Amit)",
+                "Verify bar serial numbers upon vault receipt",
+                "Obtain vault custody receipt with bar list",
+                "Arrange independent annual audit of holdings"
+              ]
+            },
+            "real_estate": {
+              "custody_providers": ["Title Company / Escrow Agent", "Trust Company"],
+              "requirements": "Title held by SPV. Title insurance policy. Recorded deed. No physical vault needed — custody is via legal title.",
+              "specific_subtasks": [
+                "Engage title company for closing/recording services",
+                "Transfer deed to SPV (or confirm SPV already holds title)",
+                "Obtain owner's title insurance policy at offering value",
+                "Record deed with county recorder's office",
+                "Verify no intervening liens were filed between title search and recording",
+                "Obtain recorded deed and title policy copies",
+                "If existing property: assign property management agreement to SPV"
+              ]
+            },
+            "mineral_rights": {
+              "custody_providers": ["County Recorder (deed recording)", "Escrow Agent"],
+              "requirements": "Mineral deed recorded with county. Title opinion updated post-transfer. No physical custody needed — rights are documented via deed.",
+              "specific_subtasks": [
+                "Prepare mineral deed conveying rights to SPV",
+                "Execute mineral deed (grantor signature + notarization)",
+                "Record mineral deed with county recorder",
+                "Obtain updated title opinion reflecting SPV ownership",
+                "Notify operator of ownership transfer and update division orders",
+                "Update royalty payment instructions to SPV bank account",
+                "File assignments of any associated leases or contracts"
+              ]
+            }
+          },
+          "required_documents": ["custody_receipt", "vault_agreement"]
+        },
+        {
+          "step_number": "3.2",
+          "title": "Insurance Coverage & Verification",
+          "description": "Obtain and verify insurance coverage at or above the offering value. Coverage must protect against loss, theft, damage, and (for real estate) liability. SPV must be named as insured or additional insured.",
+          "task_type": "action",
+          "assigned_role": "coo",
+          "estimated_duration": "1-2 weeks",
+          "regulatory_basis": "Insurance protects investor capital against physical loss. Coverage certificates naming the SPV as insured are standard institutional practice and may be required by the PPM and custody agreements.",
+          "regulatory_citation": null,
+          "cost": "Varies by asset class and value (typically 0.1-2% of insured value annually)",
+          "asset_class_variations": {
+            "gemstones": {
+              "insurance_types": ["Specie insurance (vault)", "Transit insurance (door-to-door)", "Bailee's coverage"],
+              "specific_subtasks": [
+                "Verify vault specie insurance covers full offering value",
+                "Confirm transit insurance for all movements (appraisal chain, vault transfers)",
+                "Obtain certificate of insurance naming SPV as additional insured",
+                "Verify policy covers theft, loss, damage, and mysterious disappearance",
+                "Confirm deductible amounts and exclusions"
+              ]
+            },
+            "precious_metals": {
+              "insurance_types": ["Specie insurance (vault)", "Transit insurance", "Allocated storage insurance"],
+              "specific_subtasks": [
+                "Verify LBMA vault insurance covers full allocated value",
+                "Confirm transit insurance for all physical movements",
+                "Obtain certificate of insurance naming SPV as additional insured",
+                "Verify coverage for full replacement value (not market value at time of loss)"
+              ]
+            },
+            "real_estate": {
+              "insurance_types": ["Property insurance (hazard/fire)", "General liability", "Umbrella/excess", "Flood (if in flood zone)", "Earthquake (if applicable)", "Title insurance"],
+              "specific_subtasks": [
+                "Obtain property/hazard insurance at replacement cost value",
+                "Obtain general liability insurance ($1M-$5M per occurrence)",
+                "Obtain flood insurance if property is in FEMA-designated flood zone",
+                "Obtain earthquake insurance if in seismic zone (California, etc.)",
+                "Verify title insurance policy covers offering value",
+                "Obtain umbrella/excess liability policy",
+                "Name SPV as named insured on all policies",
+                "Verify all lender requirements are met (if existing mortgage)"
+              ]
+            },
+            "mineral_rights": {
+              "insurance_types": ["Operators' Extra Expense (OEE)", "Control of Well", "Environmental liability", "Title insurance (mineral)"],
+              "specific_subtasks": [
+                "Verify operator carries adequate OEE and well control insurance",
+                "Obtain environmental liability coverage for potential contamination",
+                "Consider mineral title insurance for high-value rights",
+                "Verify coverage for well blowout, pollution, and cleanup",
+                "Confirm SPV is named as additional insured on operator policies"
+              ]
+            }
+          },
+          "required_documents": ["insurance_certificate"]
+        },
+        {
+          "step_number": "3.3",
+          "title": "Proof of Reserve / Asset Verification Oracle Setup",
+          "description": "Configure cryptographic or independent verification mechanism that allows investors and smart contracts to verify the asset exists and is in custody. Required for tokenization path; recommended for all paths.",
+          "task_type": "action",
+          "assigned_role": "cto",
+          "estimated_duration": "2-4 weeks",
+          "regulatory_basis": "Proof of Reserve provides cryptographic verification that physical assets backing the tokens exist in custody. This is an investor protection mechanism enabling real-time verification without trusting the issuer alone.",
+          "regulatory_citation": null,
+          "source_url": "https://docs.chain.link/data-feeds/proof-of-reserve",
+          "cost": "$5,000-$12,000 (initial setup)",
+          "asset_class_variations": {
+            "gemstones": "Chainlink PoR oracle connected to vault API. Custom external adapter translates vault inventory data into on-chain attestation. Testnet verification before mainnet.",
+            "precious_metals": "Chainlink PoR oracle connected to LBMA vault reporting or custodian API. Can leverage existing LBMA audit framework. Cross-reference with independent audit reports.",
+            "real_estate": "On-chain attestation linked to recorded deed, title insurance, and property management reporting. Less automated — may rely on periodic manual attestation by auditor or title company.",
+            "mineral_rights": "On-chain attestation linked to state production reporting APIs, operator reports, and independent reserve estimates. Can automate production data feeds from state agencies."
+          },
+          "subtasks": [
+            {
+              "title": "Design PoR architecture for asset class",
+              "task_type": "action",
+              "description": "Determine data sources, oracle configuration, update frequency, and fallback mechanisms."
+            },
+            {
+              "title": "Develop custom external adapter (if needed)",
+              "task_type": "action",
+              "description": "Build adapter to translate custodian/vault/registry API data into Chainlink-compatible format."
+            },
+            {
+              "title": "Deploy and test on testnet",
+              "task_type": "action",
+              "description": "Deploy PoR feed on testnet. Test all scenarios: normal operation, API failure, custody change, emergency pause."
+            },
+            {
+              "title": "Verify oracle-gated minting blocks unauthorized tokens",
+              "task_type": "review",
+              "description": "Confirm that tokens cannot be minted if PoR verification fails."
+            }
+          ],
+          "required_documents": ["chainlink_por_config"]
+        }
+      ]
+    },
+
+    {
+      "stage_number": 4,
+      "stage_name": "Security",
+      "display_name": "Legal Structuring & Regulatory Compliance",
+      "workflow_phase": "phase_4_legal",
+      "description": "Form the SPV, draft all legal documents, select the regulatory exemption, prepare SEC filings, and obtain all legal and compliance sign-offs. This is the most document-intensive stage.",
+      "estimated_duration": "6-12 weeks",
+      "responsible_teams": ["legal", "compliance", "operations"],
+      "gate_at_end": {
+        "gate_id": "G4",
+        "gate_name": "LEGAL GATE",
+        "gate_description": "SPV formed. PPM finalized. All legal documents reviewed by securities counsel. Compliance sign-off obtained. SEC filing prepared (not yet filed). Blue sky strategy determined.",
+        "required_to_pass": [
+          "SPV (Series LLC) formed with EIN and bank account",
+          "PPM, Subscription Agreement, and Investor Questionnaire finalized",
+          "Securities counsel opinion letter obtained",
+          "Compliance officer sign-off on all offering documents",
+          "Form D or Form 1-A prepared and ready for filing",
+          "Blue sky filing strategy documented"
+        ]
+      },
+
+      "tasks": [
+        {
+          "step_number": "4.1",
+          "title": "SPV Formation",
+          "description": "Form a dedicated Special Purpose Vehicle (typically a Series LLC) to hold the asset and issue securities. The SPV isolates liability from the parent company and from other assets.",
+          "task_type": "action",
+          "assigned_role": "legal_counsel",
+          "estimated_duration": "1-2 weeks",
+          "regulatory_basis": "SPV formation is required to isolate asset risk from the parent company and from other assets. Series LLC structure (typically Wyoming or Delaware) allows multiple series with separate liability without forming separate entities.",
+          "regulatory_citation": "Wyoming LLC Act 17-29-211 (Series LLC); Delaware LLC Act 6 Del. C. 18-215",
+          "source_url": "https://sos.wyo.gov/Business/docs/LLC_General_Info.pdf",
+          "cost": "$8,000-$15,000",
+          "subtasks": [
+            {
+              "title": "Select formation jurisdiction",
+              "task_type": "review",
+              "description": "Choose Wyoming (Series LLC favorable) or Delaware (most established LLC law) based on counsel recommendation and asset location."
+            },
+            {
+              "title": "File articles of organization",
+              "task_type": "action",
+              "description": "Prepare and file articles with the Secretary of State. Include series provisions if using Series LLC structure."
+            },
+            {
+              "title": "Draft operating agreement",
+              "task_type": "action",
+              "description": "Draft comprehensive operating agreement covering: management authority, capital contributions, profit distributions (waterfall), investor rights, transfer restrictions, dissolution, and regulatory compliance provisions."
+            },
+            {
+              "title": "Obtain EIN from IRS",
+              "task_type": "action",
+              "description": "Apply for Employer Identification Number (EIN) via IRS Form SS-4 or online application."
+            },
+            {
+              "title": "Open SPV bank account",
+              "task_type": "action",
+              "description": "Open dedicated bank account for the SPV at a regulated financial institution. Wire and ACH capabilities required."
+            },
+            {
+              "title": "Appoint registered agent",
+              "task_type": "action",
+              "description": "Engage registered agent in the formation state for service of process and annual report filings."
+            },
+            {
+              "title": "Execute board/manager resolutions",
+              "task_type": "approval",
+              "description": "Adopt resolutions authorizing the securities offering, appointment of officers, engagement of service providers, and bank account opening."
+            }
+          ],
+          "required_documents": ["articles_of_organization", "operating_agreement", "board_resolution"]
+        },
+        {
+          "step_number": "4.2",
+          "title": "Regulatory Exemption Selection",
+          "description": "Determine the optimal SEC exemption for the offering based on target investor base, maximum raise amount, general solicitation needs, and ongoing reporting tolerance.",
+          "task_type": "review",
+          "assigned_role": "legal_counsel",
+          "estimated_duration": "3-5 days",
+          "regulatory_basis": "All securities offerings must either be registered with the SEC or qualify for an exemption. The choice of exemption determines investor eligibility, marketing restrictions, filing requirements, and ongoing obligations.",
+          "regulatory_citation": "Securities Act of 1933, Sections 3-5; Regulation D (17 CFR 230.500-508); Regulation A (17 CFR 230.251-263); Regulation S (17 CFR 230.901-905); Regulation CF (17 CFR 227)",
+          "subtasks": [
+            {
+              "title": "Analyze exemption options",
+              "task_type": "review",
+              "description": "Compare Reg D 506(b), Reg D 506(c), Reg A+ Tier 1, Reg A+ Tier 2, Reg CF, and Reg S based on deal parameters."
+            },
+            {
+              "title": "Document exemption selection rationale",
+              "task_type": "action",
+              "description": "Prepare memo documenting chosen exemption, rationale, limitations, and compliance requirements."
+            },
+            {
+              "title": "Counsel sign-off on exemption choice",
+              "task_type": "approval",
+              "description": "Securities counsel confirms the selected exemption is appropriate and defensible."
+            }
+          ],
+          "exemption_comparison": {
+            "reg_d_506b": {
+              "description": "Private placement. No general solicitation. Up to 35 non-accredited investors (sophisticated). Unlimited accredited. No SEC qualification needed.",
+              "max_raise": "Unlimited",
+              "investor_type": "Accredited + up to 35 sophisticated non-accredited",
+              "general_solicitation": false,
+              "sec_filing": "Form D within 15 days of first sale",
+              "ongoing_reporting": "None (SEC level)",
+              "state_preemption": true,
+              "holding_period": "12 months (Rule 144)",
+              "timeline": "2-4 weeks to prepare"
+            },
+            "reg_d_506c": {
+              "description": "Private placement with general solicitation. All purchasers must be accredited. Issuer must take 'reasonable steps' to verify accreditation.",
+              "max_raise": "Unlimited",
+              "investor_type": "Accredited only (verified)",
+              "general_solicitation": true,
+              "sec_filing": "Form D within 15 days of first sale",
+              "ongoing_reporting": "None (SEC level)",
+              "state_preemption": true,
+              "holding_period": "12 months (Rule 144)",
+              "timeline": "2-4 weeks to prepare",
+              "verification_methods": [
+                "Review tax returns (2 most recent years showing income >$200K/$300K joint)",
+                "Review bank/brokerage statements showing net worth >$1M",
+                "Written confirmation from CPA, attorney, RIA, or broker-dealer",
+                "Third-party verification service (Verify Investor, Parallel Markets, etc.)",
+                "For investments >$200K: minimum investment amount may serve as verification factor"
+              ]
+            },
+            "reg_a_plus_tier_1": {
+              "description": "Mini-IPO. Both accredited and non-accredited. State blue sky qualification required.",
+              "max_raise": "$20M per 12 months",
+              "investor_type": "All investors (no accreditation required)",
+              "general_solicitation": true,
+              "sec_filing": "Form 1-A (SEC qualification required — 60-90 day review)",
+              "ongoing_reporting": "None at SEC level (state reporting may apply)",
+              "state_preemption": false,
+              "holding_period": "None (freely tradeable)",
+              "timeline": "3-6 months (SEC qualification + state filings)",
+              "cost": "$100,000-$250,000 (legal + audit + state filings)"
+            },
+            "reg_a_plus_tier_2": {
+              "description": "Larger mini-IPO. Both accredited and non-accredited. State preempted. Annual/semi-annual reporting required.",
+              "max_raise": "$75M per 12 months",
+              "investor_type": "All investors (non-accredited limited to 10% of income/net worth per offering)",
+              "general_solicitation": true,
+              "sec_filing": "Form 1-A (SEC qualification required — 60-90 day review)",
+              "ongoing_reporting": "Annual (1-K), Semi-annual (1-SA), Current (1-U)",
+              "state_preemption": true,
+              "holding_period": "None (freely tradeable)",
+              "timeline": "3-6 months (SEC qualification + 2-year audit)",
+              "cost": "$150,000-$350,000 (legal + audit)",
+              "requires_audited_financials": true
+            },
+            "reg_s": {
+              "description": "Offshore offering to non-US persons. No SEC registration. Can be combined with Reg D for dual US/international offering.",
+              "max_raise": "Unlimited",
+              "investor_type": "Non-US persons only",
+              "general_solicitation": "Outside US only",
+              "sec_filing": "None",
+              "ongoing_reporting": "None (SEC level)",
+              "state_preemption": "N/A (non-US)",
+              "holding_period": "40-day distribution compliance period (Category 1) or 1 year (Category 3)",
+              "timeline": "2-4 weeks"
+            },
+            "reg_cf": {
+              "description": "Crowdfunding via registered intermediary (funding portal or broker-dealer). Low barrier.",
+              "max_raise": "$5M per 12 months",
+              "investor_type": "All investors (investment limits based on income/net worth)",
+              "general_solicitation": true,
+              "sec_filing": "Form C",
+              "ongoing_reporting": "Annual (Form C-AR)",
+              "state_preemption": true,
+              "holding_period": "12 months (with exceptions)",
+              "timeline": "4-8 weeks"
+            }
+          },
+          "required_documents": []
+        },
+        {
+          "step_number": "4.3",
+          "title": "PPM & Offering Document Drafting",
+          "description": "Securities counsel drafts the Private Placement Memorandum (PPM), Subscription Agreement, Investor Questionnaire, and all path-specific offering documents. This is the primary disclosure document for the offering.",
+          "task_type": "action",
+          "assigned_role": "legal_counsel",
+          "estimated_duration": "4-8 weeks",
+          "regulatory_basis": "The PPM is the primary disclosure document for Regulation D offerings. It must disclose all material risks, conflicts of interest, fee structures, and use of proceeds. Inadequate disclosure exposes the issuer to Section 12(a)(2) rescission liability and potential SEC enforcement.",
+          "regulatory_citation": "Securities Act Section 12(a)(2), 15 U.S.C. 77l; SEC Rule 502(b); SEC Rule 10b-5 (anti-fraud)",
+          "source_url": "https://www.law.cornell.edu/uscode/text/15/77l",
+          "cost": "$55,000-$150,000",
+          "subtasks": [
+            {
+              "title": "Draft PPM (Private Placement Memorandum)",
+              "task_type": "action",
+              "description": "Comprehensive disclosure document including: executive summary, risk factors (min 20-30 specific risks), use of proceeds, fee structure, management team, asset description, valuation methodology, custody arrangements, exit strategy, and subscription instructions.",
+              "ppm_sections": [
+                "Cover page and table of contents",
+                "Executive Summary / Offering Summary",
+                "Risk Factors (asset-specific, market, regulatory, operational, liquidity, technology)",
+                "Description of the Asset (based on certifications and appraisals)",
+                "Valuation Methodology and Offering Value",
+                "Custody and Insurance Arrangements",
+                "Use of Proceeds",
+                "Fee Structure and Compensation",
+                "Management and Key Personnel",
+                "Conflicts of Interest",
+                "Tax Considerations (K-1 distribution, depreciation, depletion for minerals)",
+                "ERISA Considerations",
+                "Transfer Restrictions and Resale Limitations",
+                "Subscription Instructions and Procedures",
+                "Legal Proceedings",
+                "Financial Statements (if Reg A+)",
+                "Exhibits (Operating Agreement, Subscription Agreement, etc.)"
+              ]
+            },
+            {
+              "title": "Draft Subscription Agreement",
+              "task_type": "action",
+              "description": "Investor subscription document including: investor representations, accreditation certification, investment amount, signature blocks, wire instructions, and suitability acknowledgments."
+            },
+            {
+              "title": "Draft Investor Questionnaire",
+              "task_type": "action",
+              "description": "Accredited investor verification questionnaire. Collects income, net worth, investment experience, and accreditation basis per SEC standards."
+            },
+            {
+              "title": "Draft path-specific supplemental documents",
+              "task_type": "action",
+              "description": "Tokenization: Token Purchase Agreement, Wallet Requirements. Fractional: Unit Purchase Agreement. Debt: Promissory Note, Security Agreement, Guaranty."
+            },
+            {
+              "title": "Internal compliance review of all documents",
+              "task_type": "review",
+              "description": "Compliance officer reviews all offering documents for accuracy, completeness, and regulatory compliance."
+            },
+            {
+              "title": "Securities counsel final review and opinion letter",
+              "task_type": "approval",
+              "description": "Securities counsel conducts final review and issues opinion letter confirming the offering qualifies for the selected exemption."
+            }
+          ],
+          "required_documents": ["ppm", "subscription_agreement", "investor_questionnaire", "legal_opinion"]
+        },
+        {
+          "step_number": "4.4",
+          "title": "Transfer Agent & Broker-Dealer Engagement",
+          "description": "Engage SEC-registered transfer agent for cap table management and FINRA-registered broker-dealer for primary distribution and/or secondary trading.",
+          "task_type": "action",
+          "assigned_role": "coo",
+          "estimated_duration": "2-6 weeks",
+          "regulatory_basis": "Transfer agents maintain the official shareholder registry and must be SEC-registered. Broker-dealers facilitate securities transactions and must be FINRA-registered. ATS operators must file Form ATS with the SEC and comply with Regulation ATS.",
+          "regulatory_citation": "Securities Exchange Act Section 17A (transfer agents); Regulation ATS (17 CFR 242.300-303); FINRA Rules 5110-5123 (private placements)",
+          "subtasks": [
+            {
+              "title": "Select and engage transfer agent",
+              "task_type": "action",
+              "description": "Choose SEC-registered transfer agent capable of handling the offering structure (tokenized shares, fractional units, or debt participations). Options: Rialto Transfer Services, Vertalo, Securitize, Tokeny."
+            },
+            {
+              "title": "Select and engage broker-dealer",
+              "task_type": "action",
+              "description": "Choose FINRA-registered broker-dealer for primary distribution. Options: Rialto Markets, Dalmore Group, North Capital. Negotiate placement terms."
+            },
+            {
+              "title": "FINRA private placement filing (if required)",
+              "task_type": "action",
+              "description": "Broker-dealer files private placement materials with FINRA per FINRA Rule 5123. Materials include PPM, subscription agreement, and term sheet."
+            },
+            {
+              "title": "ATS registration confirmation (for secondary trading)",
+              "task_type": "review",
+              "description": "If secondary trading is planned: confirm ATS is registered with SEC (Form ATS filed) and FINRA-approved for tokenized securities."
+            },
+            {
+              "title": "Negotiate and execute placement agreements",
+              "task_type": "action",
+              "description": "Finalize terms with BD: placement fee (typically 1-7%), expense reimbursement, exclusivity, and termination provisions."
+            }
+          ],
+          "required_documents": ["partner_agreement"]
+        },
+        {
+          "step_number": "4.5",
+          "title": "SEC Filing Preparation",
+          "description": "Prepare all SEC filings required for the chosen exemption. This includes Form D (Reg D), Form 1-A (Reg A+), or Form C (Reg CF). Prepare but do NOT file until distribution stage.",
+          "task_type": "action",
+          "assigned_role": "compliance_officer",
+          "estimated_duration": "1-2 weeks",
+          "regulatory_basis": "SEC filings are required for most securities exemptions. Form D must be filed within 15 calendar days of the first sale. Form 1-A requires SEC qualification before any sales can occur.",
+          "regulatory_citation": "SEC Rule 503 (Form D filing); Regulation A Rule 251-263 (Form 1-A); 17 CFR 227.203 (Form C)",
+          "subtasks": [
+            {
+              "title": "Obtain EDGAR access codes (if not already registered)",
+              "task_type": "action",
+              "description": "Register entity with SEC EDGAR system. Obtain CIK number (48 hours), then generate EDGAR access codes."
+            },
+            {
+              "title": "Prepare Form D (Reg D offerings)",
+              "task_type": "action",
+              "description": "Complete Form D with: issuer information, related persons, offering details (type, amount, exemption claimed), sales compensation, and offering recipients. NOTE: Do not file until first sale."
+            },
+            {
+              "title": "Prepare Form 1-A (Reg A+ offerings)",
+              "task_type": "action",
+              "description": "Complete Form 1-A Parts I-III: notification, offering circular, and exhibits. Submit to SEC for qualification review. Budget 60-90 days for SEC review."
+            },
+            {
+              "title": "Prepare Blue Sky filing strategy",
+              "task_type": "action",
+              "description": "Document state-by-state blue sky filing requirements. For 506(c): notice filing only in states where securities will be sold (46 states require it). For Reg A+ Tier 1: state qualification required."
+            }
+          ],
+          "blue_sky_requirements": {
+            "reg_d_506": {
+              "description": "Covered securities — state registration preempted. Notice filing required in most states.",
+              "filing_deadline": "Generally within 15-30 days of first sale in that state",
+              "fees_range": "$0-$600 per state (New York up to $1,900 for large offerings)",
+              "total_all_states": "$1,500-$10,000",
+              "key_states": {
+                "new_york": "Must file BEFORE first sale to NY residents. Fee: $300-$1,900 based on amount.",
+                "california": "File within 15 days of first sale. Fee: $300 (offerings <$500K) to $2,500 (>$5M).",
+                "texas": "File within 15 days. Fee: $500.",
+                "florida": "File within 15 days. Fee: $0-$1,000.",
+                "illinois": "File within 15 days. Fee: $100."
+              }
+            }
+          },
+          "required_documents": ["form_d_filing", "blue_sky_filing"]
+        },
+        {
+          "step_number": "4.6",
+          "title": "AML/BSA Compliance Program Setup",
+          "description": "Establish or verify the Anti-Money Laundering (AML) and Bank Secrecy Act (BSA) compliance program for the offering entity. This includes written AML policies, designated compliance officer, ongoing monitoring procedures, and SAR/CTR filing protocols.",
+          "task_type": "action",
+          "assigned_role": "compliance_officer",
+          "estimated_duration": "1-3 weeks",
+          "regulatory_basis": "The Bank Secrecy Act requires financial institutions to establish AML programs. While SPVs may not be directly subject to BSA, broker-dealer partners are, and the issuer should maintain its own AML program as a best practice and to satisfy institutional investor due diligence.",
+          "regulatory_citation": "BSA 31 USC 5318(h); FinCEN 31 CFR 1010; USA PATRIOT Act Section 326",
+          "subtasks": [
+            {
+              "title": "Draft written AML/BSA policy",
+              "task_type": "action",
+              "description": "Create or update written AML policy covering: customer identification program (CIP), enhanced due diligence (EDD), sanctions screening, suspicious activity monitoring, and record retention."
+            },
+            {
+              "title": "Designate AML compliance officer",
+              "task_type": "action",
+              "description": "Formally designate the person responsible for AML compliance. Document in corporate records."
+            },
+            {
+              "title": "Implement ongoing monitoring procedures",
+              "task_type": "action",
+              "description": "Establish procedures for ongoing transaction monitoring, periodic re-screening against sanctions lists, and suspicious activity escalation protocols."
+            },
+            {
+              "title": "Establish SAR/CTR filing procedures",
+              "task_type": "action",
+              "description": "Document procedures for filing Suspicious Activity Reports (SARs) and Currency Transaction Reports (CTRs) if applicable. Train relevant staff."
+            }
+          ],
+          "required_documents": ["aml_policy"]
+        }
+      ]
+    },
+
+    {
+      "stage_number": 5,
+      "stage_name": "Value Creation",
+      "display_name": "Tokenization / Securities Issuance",
+      "workflow_phase": "phase_5_tokenization",
+      "description": "This stage diverges significantly by value path. For tokenization: smart contract development, audit, and deployment. For fractional securities: unit structuring and transfer agent configuration. For debt instruments: loan structuring and UCC filings.",
+      "estimated_duration": "4-12 weeks (varies by path)",
+      "responsible_teams": ["technology", "legal", "compliance"],
+      "gate_at_end": {
+        "gate_id": "G5",
+        "gate_name": "ISSUANCE GATE",
+        "gate_description": "Securities structure deployed and tested. Smart contracts audited (if tokenization). Units configured (if fractional). Loan documents executed (if debt). Ready for investor onboarding.",
+        "required_to_pass": [
+          "Smart contract deployed and audited (tokenization) OR units configured in transfer agent (fractional) OR loan documents executed (debt)",
+          "All compliance rules programmed and tested",
+          "Testnet/sandbox testing complete with no critical issues",
+          "Legal counsel sign-off on technical implementation",
+          "PoR oracle verified on mainnet (tokenization)"
+        ]
+      },
+
+      "path_specific_tasks": {
+        "tokenization": [
+          {
+            "step_number": "5.T1",
+            "title": "Token Platform Configuration",
+            "description": "Configure token parameters on the selected tokenization platform. Set symbol, total supply, compliance rules, jurisdiction restrictions, and wallet whitelisting requirements.",
+            "task_type": "action",
+            "assigned_role": "cto",
+            "estimated_duration": "1 week",
+            "cost": "$2,000-$5,000",
+            "subtasks": [
+              {
+                "title": "Select token standard (ERC-3643 or ERC-7518)",
+                "task_type": "review",
+                "description": "ERC-3643 (T-REX): identity-based compliance, widely adopted. ERC-7518 (Zoniqx): dynamic compliance with on-chain rulesets. Select based on partner capabilities."
+              },
+              {
+                "title": "Configure token parameters",
+                "task_type": "action",
+                "description": "Set: token name, symbol, total supply, decimals, and metadata URI. Map to SPV legal structure."
+              },
+              {
+                "title": "Define compliance rule set",
+                "task_type": "action",
+                "description": "Program: accredited investor whitelist, jurisdiction blocks (OFAC countries), transfer restrictions, holding period enforcement (Rule 144 — 12 months), and maximum holder limits."
+              }
+            ],
+            "required_documents": []
+          },
+          {
+            "step_number": "5.T2",
+            "title": "Smart Contract Development",
+            "description": "Develop or configure the security token smart contract with embedded compliance rules. Includes identity registry, compliance module, token contract, and oracle integration.",
+            "task_type": "action",
+            "assigned_role": "cto",
+            "estimated_duration": "2-4 weeks",
+            "subtasks": [
+              {
+                "title": "Develop identity registry contract",
+                "task_type": "action",
+                "description": "Whitelist contract storing verified investor wallet addresses. Only whitelisted addresses can hold or receive tokens."
+              },
+              {
+                "title": "Develop compliance module",
+                "task_type": "action",
+                "description": "On-chain rules engine enforcing: accreditation verification, jurisdiction restrictions, transfer limits, holding periods, and maximum investor count."
+              },
+              {
+                "title": "Integrate Chainlink PoR oracle",
+                "task_type": "action",
+                "description": "Connect PoR feed to minting function. Tokens can only be minted when oracle confirms reserves are verified."
+              },
+              {
+                "title": "Implement pause and emergency functions",
+                "task_type": "action",
+                "description": "Admin functions for emergency pause, token freeze (per address), and clawback (regulatory compliance requirement)."
+              }
+            ],
+            "required_documents": []
+          },
+          {
+            "step_number": "5.T3",
+            "title": "Testnet Deployment & Testing",
+            "description": "Deploy all contracts to Polygon testnet (Amoy). Comprehensive testing of all functions, compliance rules, edge cases, and oracle integration.",
+            "task_type": "action",
+            "assigned_role": "cto",
+            "estimated_duration": "1-2 weeks",
+            "subtasks": [
+              {
+                "title": "Deploy contracts to testnet",
+                "task_type": "action",
+                "description": "Deploy identity registry, compliance module, token contract, and PoR integration to Polygon Amoy testnet."
+              },
+              {
+                "title": "Test compliance rules",
+                "task_type": "action",
+                "description": "Test: non-whitelisted transfer blocked, sanctioned jurisdiction blocked, holding period enforced, maximum holder count enforced."
+              },
+              {
+                "title": "Test oracle-gated minting",
+                "task_type": "action",
+                "description": "Test: minting succeeds when PoR confirms reserves, minting fails when PoR is stale or negative."
+              },
+              {
+                "title": "Test emergency functions",
+                "task_type": "action",
+                "description": "Test: pause halts all transfers, freeze locks specific address, clawback returns tokens to treasury."
+              },
+              {
+                "title": "Document test results",
+                "task_type": "upload",
+                "description": "Compile test report with all scenarios tested, results, and any issues found."
+              }
+            ],
+            "required_documents": []
+          },
+          {
+            "step_number": "5.T4",
+            "title": "Smart Contract Security Audit",
+            "description": "Independent security audit of all deployed contracts by a recognized audit firm. Remediate all findings before mainnet deployment.",
+            "task_type": "action",
+            "assigned_role": "cto",
+            "estimated_duration": "2-4 weeks",
+            "cost": "$15,000-$50,000",
+            "subtasks": [
+              {
+                "title": "Engage audit firm",
+                "task_type": "action",
+                "description": "Select recognized audit firm (Trail of Bits, OpenZeppelin, Certik, Hacken, etc.). Provide codebase and documentation."
+              },
+              {
+                "title": "Conduct audit",
+                "task_type": "action",
+                "description": "Audit firm reviews all contracts for: reentrancy, access control, integer overflow, logic errors, gas optimization, and compliance gaps."
+              },
+              {
+                "title": "Remediate findings",
+                "task_type": "action",
+                "description": "Fix all critical, high, and medium severity findings. Document mitigation for any accepted risks."
+              },
+              {
+                "title": "Obtain clean audit report",
+                "task_type": "upload",
+                "description": "Receive final audit report confirming all critical issues resolved. This is a PPM disclosure item."
+              }
+            ],
+            "required_documents": ["smart_contract_audit"]
+          },
+          {
+            "step_number": "5.T5",
+            "title": "Mainnet Deployment",
+            "description": "Deploy security token contracts to Polygon mainnet. Final configuration review by counsel. Activate PoR oracle. Token contract is live and immutable.",
+            "task_type": "action",
+            "assigned_role": "cto",
+            "estimated_duration": "1-2 days",
+            "subtasks": [
+              {
+                "title": "Final pre-deployment review",
+                "task_type": "review",
+                "description": "CTO and legal counsel review all contract parameters match PPM disclosure. Verify gas settings and deployment wallet security."
+              },
+              {
+                "title": "Deploy to Polygon mainnet",
+                "task_type": "action",
+                "description": "Deploy all contracts using hardware wallet. Verify deployment transactions on Polygonscan."
+              },
+              {
+                "title": "Activate PoR oracle on mainnet",
+                "task_type": "action",
+                "description": "Activate Chainlink PoR feed. Verify first mainnet attestation is successful."
+              },
+              {
+                "title": "Verify contract on block explorer",
+                "task_type": "action",
+                "description": "Verify and publish contract source code on Polygonscan for transparency."
+              },
+              {
+                "title": "Document deployment record",
+                "task_type": "upload",
+                "description": "Record all contract addresses, transaction hashes, deployment parameters, and admin wallet addresses."
+              }
+            ],
+            "required_documents": ["token_deployment_record"]
+          }
+        ],
+
+        "fractional_securities": [
+          {
+            "step_number": "5.F1",
+            "title": "Unit Structure Configuration",
+            "description": "Define fractional unit parameters: total units, minimum investment, unit price, investor rights, voting provisions, and distribution waterfall.",
+            "task_type": "action",
+            "assigned_role": "legal_counsel",
+            "estimated_duration": "1-2 weeks",
+            "subtasks": [
+              {
+                "title": "Calculate unit structure",
+                "task_type": "action",
+                "description": "Determine: total units = offering value / unit price. Set minimum investment ($10K-$100K). Define investor rights per unit."
+              },
+              {
+                "title": "Define distribution waterfall",
+                "task_type": "action",
+                "description": "Structure profit/loss distribution: preferred return (if any), return of capital, profit split. Document in operating agreement."
+              },
+              {
+                "title": "Configure transfer agent cap table",
+                "task_type": "action",
+                "description": "Set up cap table in transfer agent system (Vertalo, Carta, etc.) reflecting unit structure, authorized units, and restriction legend."
+              }
+            ],
+            "required_documents": []
+          },
+          {
+            "step_number": "5.F2",
+            "title": "Transfer Agent Configuration",
+            "description": "Configure the SEC-registered transfer agent to manage the cap table, process subscriptions, handle transfers, and maintain the official shareholder registry.",
+            "task_type": "action",
+            "assigned_role": "coo",
+            "estimated_duration": "1-2 weeks",
+            "subtasks": [
+              {
+                "title": "Configure unit classes and restrictions",
+                "task_type": "action",
+                "description": "Set up unit classes, transfer restrictions (12-month holding period), and legend requirements in transfer agent system."
+              },
+              {
+                "title": "Set up subscription processing workflow",
+                "task_type": "action",
+                "description": "Configure automated subscription acceptance: document collection, accreditation verification, payment confirmation, unit issuance."
+              },
+              {
+                "title": "Test end-to-end subscription flow",
+                "task_type": "action",
+                "description": "Process test subscription through entire workflow: application, verification, payment, issuance, cap table update."
+              }
+            ],
+            "required_documents": []
+          }
+        ],
+
+        "debt_instruments": [
+          {
+            "step_number": "5.D1",
+            "title": "Loan Terms Structuring",
+            "description": "Define loan parameters: principal, interest rate (12-18% APR for alternative lending), LTV ratio (50-70%), term (12-36 months), payment schedule, covenants, and default triggers.",
+            "task_type": "action",
+            "assigned_role": "legal_counsel",
+            "estimated_duration": "1-2 weeks",
+            "cost": "$5,000-$10,000",
+            "subtasks": [
+              {
+                "title": "Structure loan terms",
+                "task_type": "action",
+                "description": "Define: principal amount, interest rate, LTV ratio, term, amortization schedule, prepayment provisions, covenants, and default triggers."
+              },
+              {
+                "title": "Draft promissory note",
+                "task_type": "action",
+                "description": "Legal drafting of promissory note with all terms, payment schedule, default provisions, and remedies."
+              },
+              {
+                "title": "Draft security agreement",
+                "task_type": "action",
+                "description": "Grant security interest in the asset to lender. Define collateral description, perfection methods, and foreclosure procedures."
+              },
+              {
+                "title": "Draft personal guaranty (if applicable)",
+                "task_type": "action",
+                "description": "If borrower is an entity: draft personal guaranty from principals if required by lender."
+              }
+            ],
+            "required_documents": []
+          },
+          {
+            "step_number": "5.D2",
+            "title": "UCC Filing & Security Interest Perfection",
+            "description": "Perfect the security interest in the collateral via UCC Article 9 filing and/or possession. File UCC-1 financing statement with the appropriate Secretary of State.",
+            "task_type": "action",
+            "assigned_role": "legal_counsel",
+            "estimated_duration": "1-2 weeks",
+            "regulatory_basis": "UCC Article 9 governs secured transactions in personal property. For tangible assets (gems, metals), perfection requires filing + possession. For mineral rights (as-extracted collateral), file in the state where the minerals are located. New UCC Article 12 (adopted in 30+ states by 2026) governs controllable electronic records including security tokens.",
+            "regulatory_citation": "UCC 9-310 (filing); UCC 9-313 (possession); UCC 9-102(a)(6) (as-extracted collateral); UCC Article 12 (controllable electronic records)",
+            "cost": "$50-$500 per state filing",
+            "subtasks": [
+              {
+                "title": "Prepare UCC-1 financing statement",
+                "task_type": "action",
+                "description": "Complete UCC-1 form with: debtor name/address (exact legal name), secured party, and collateral description."
+              },
+              {
+                "title": "File UCC-1 with Secretary of State",
+                "task_type": "action",
+                "description": "File in debtor's state of organization (entities) or state of residence (individuals). For as-extracted collateral (minerals): file in state where minerals are located + record with county."
+              },
+              {
+                "title": "Obtain filed UCC-1 confirmation",
+                "task_type": "upload",
+                "description": "Receive filed copy with filing number and timestamp from Secretary of State."
+              },
+              {
+                "title": "Verify priority (lien search)",
+                "task_type": "review",
+                "description": "Run UCC lien search to verify no prior security interests in the same collateral. Address any existing liens."
+              },
+              {
+                "title": "Perfect by possession (tangible assets)",
+                "task_type": "action",
+                "description": "For gems/metals: vault custodian holds collateral as bailee for the lender. Execute bailee letter / tripartite custody agreement."
+              }
+            ],
+            "required_documents": []
+          },
+          {
+            "step_number": "5.D3",
+            "title": "Lender Identification & Engagement",
+            "description": "Source lending capital from institutional lenders, alternative credit funds, family offices, or syndication partners. Match lender requirements with deal parameters.",
+            "task_type": "action",
+            "assigned_role": "cro",
+            "estimated_duration": "2-4 weeks",
+            "subtasks": [
+              {
+                "title": "Prepare loan package for lender presentation",
+                "task_type": "action",
+                "description": "Compile: asset description, appraisal reports, custody verification, borrower financials, proposed terms, and exit strategy."
+              },
+              {
+                "title": "Present to target lenders",
+                "task_type": "action",
+                "description": "Distribute loan package to pre-qualified lenders. Conduct presentations and answer due diligence questions."
+              },
+              {
+                "title": "Negotiate final terms",
+                "task_type": "action",
+                "description": "Negotiate interest rate, LTV, covenants, fees, and other material terms with selected lender."
+              },
+              {
+                "title": "Execute commitment letter",
+                "task_type": "approval",
+                "description": "Obtain lender commitment letter with final terms, conditions precedent, and closing timeline."
+              }
+            ],
+            "required_documents": []
+          },
+          {
+            "step_number": "5.D4",
+            "title": "Collateral Custody Agreement (Tripartite)",
+            "description": "Execute three-party agreement between borrower, lender, and vault custodian. Defines release conditions, reappraisal triggers, default procedures, and custodian obligations.",
+            "task_type": "action",
+            "assigned_role": "legal_counsel",
+            "estimated_duration": "1 week",
+            "cost": "$3,000",
+            "subtasks": [
+              {
+                "title": "Draft tripartite custody agreement",
+                "task_type": "action",
+                "description": "Define: custodian duties, release authorization (lender must consent), reappraisal triggers (if collateral value drops >15%), and default procedures."
+              },
+              {
+                "title": "Execute agreement (all three parties)",
+                "task_type": "approval",
+                "description": "Obtain signatures from borrower, lender, and vault custodian."
+              },
+              {
+                "title": "Verify lender named as loss payee on insurance",
+                "task_type": "review",
+                "description": "Confirm insurance certificate names lender as loss payee. Lender must receive direct notice of any coverage changes."
+              }
+            ],
+            "required_documents": []
+          }
+        ]
+      }
+    },
+
+    {
+      "stage_number": 6,
+      "stage_name": "Distribution",
+      "display_name": "Investor Placement & Ongoing Management",
+      "workflow_phase": "phase_7_distribution",
+      "description": "File regulatory documents, onboard investors, process subscriptions, issue securities/tokens, and manage the offering through its lifecycle. Includes ongoing compliance, reporting, secondary trading facilitation, and eventual exit/liquidation.",
+      "estimated_duration": "Ongoing (initial placement: 3-12 months; lifecycle: 1-10+ years)",
+      "responsible_teams": ["operations", "compliance", "legal", "technology"],
+      "gate_at_end": {
+        "gate_id": "G6",
+        "gate_name": "OFFERING GATE",
+        "gate_description": "SEC filing submitted. First subscription processed and funded. Cap table/token ledger active. Ongoing reporting operational.",
+        "required_to_pass": [
+          "Form D filed with SEC (within 15 days of first sale)",
+          "Blue sky filings submitted in applicable states",
+          "At least one subscription processed and funded",
+          "Cap table or token ledger updated",
+          "Ongoing reporting schedule established"
+        ]
+      },
+
+      "tasks": [
+        {
+          "step_number": "6.1",
+          "title": "SEC Filing Submission",
+          "description": "File Form D (Reg D) or Form 1-A (Reg A+) with the SEC via EDGAR. For Reg D: file within 15 calendar days of first sale. For Reg A+: file before any sales and await qualification.",
+          "task_type": "action",
+          "assigned_role": "compliance_officer",
+          "estimated_duration": "1-2 days (Reg D) or 60-90 days (Reg A+ qualification)",
+          "regulatory_basis": "SEC Rule 503 requires Form D filing within 15 calendar days of first sale for Reg D offerings. Regulation A requires SEC qualification of Form 1-A before any sales. Failure to file does not void the exemption for Reg D but may result in SEC enforcement action.",
+          "regulatory_citation": "SEC Rule 503 (17 CFR 230.503); Regulation A Rule 252 (17 CFR 230.252)",
+          "subtasks": [
+            {
+              "title": "File Form D via EDGAR (Reg D)",
+              "task_type": "action",
+              "description": "Submit completed Form D through SEC EDGAR system. Confirm successful filing and retain confirmation."
+            },
+            {
+              "title": "Submit Form 1-A via EDGAR (Reg A+)",
+              "task_type": "action",
+              "description": "Submit Form 1-A with offering circular and exhibits. Respond to SEC staff comments during qualification review."
+            },
+            {
+              "title": "File Form D amendments (as needed)",
+              "task_type": "action",
+              "description": "File amendments annually if offering continues, or when material changes occur (e.g., offering amount increase, new executive officers)."
+            }
+          ],
+          "required_documents": ["form_d_filing"]
+        },
+        {
+          "step_number": "6.2",
+          "title": "Blue Sky State Filings",
+          "description": "Submit state securities notice filings in all jurisdictions where securities will be sold. Required even for Reg D 506(c) offerings despite federal preemption.",
+          "task_type": "action",
+          "assigned_role": "compliance_officer",
+          "estimated_duration": "1-2 weeks",
+          "cost": "$1,500-$10,000 (total across all states)",
+          "regulatory_basis": "While Reg D 506 offerings are federal 'covered securities' preempted from state registration, 46 states still require notice filings and fees. New York requires pre-filing before first sale to NY residents.",
+          "regulatory_citation": "NSMIA Section 18 (15 U.S.C. 77r); Individual state securities statutes",
+          "subtasks": [
+            {
+              "title": "Determine filing jurisdictions",
+              "task_type": "review",
+              "description": "Identify all states where securities will be offered or sold. Include state of incorporation and states where investors reside."
+            },
+            {
+              "title": "Prepare state notice filings",
+              "task_type": "action",
+              "description": "Complete each state's notice filing form. Attach Form D, PPM cover page, and required fees."
+            },
+            {
+              "title": "Submit filings (New York FIRST — pre-sale requirement)",
+              "task_type": "action",
+              "description": "Submit New York filing before any sales to NY residents. Submit all other states within 15-30 days of first sale."
+            },
+            {
+              "title": "Track and confirm all filings",
+              "task_type": "action",
+              "description": "Maintain filing log with: state, date filed, fee paid, confirmation number, and renewal date."
+            }
+          ],
+          "required_documents": ["blue_sky_filing"]
+        },
+        {
+          "step_number": "6.3",
+          "title": "Investor Marketing & Outreach",
+          "description": "Execute investor marketing campaign within the boundaries of the chosen exemption. For 506(c): general solicitation is permitted. For 506(b): no general solicitation — pre-existing relationships only.",
+          "task_type": "action",
+          "assigned_role": "cro",
+          "estimated_duration": "Ongoing (3-12 months for initial placement)",
+          "cost": "$5,000-$50,000",
+          "regulatory_basis": "Reg D 506(c) permits general solicitation and advertising. Reg D 506(b) prohibits general solicitation — all investors must come from pre-existing substantive relationships. Marketing materials must be consistent with PPM disclosures.",
+          "regulatory_citation": "SEC Rule 506(c)(2); SEC Rule 502(c) (general solicitation prohibition for 506(b)); SEC Rule 156 (investment company advertising)",
+          "subtasks": [
+            {
+              "title": "Develop investor marketing materials",
+              "task_type": "action",
+              "description": "Create pitch deck, one-pager, website content, and digital marketing assets. All must be consistent with PPM risk disclosures."
+            },
+            {
+              "title": "Compliance review of all marketing materials",
+              "task_type": "review",
+              "description": "Securities counsel and compliance officer review all marketing materials for accuracy, risk disclosure adequacy, and exemption compliance."
+            },
+            {
+              "title": "Execute outreach campaign",
+              "task_type": "action",
+              "description": "Targeted outreach via: broker-dealer networks, accredited investor platforms (AngelList, Republic, etc.), industry events, digital advertising (506(c) only), and referral networks."
+            },
+            {
+              "title": "Track investor pipeline and interest",
+              "task_type": "action",
+              "description": "Maintain CRM log of all investor contacts, interest level, qualification status, and follow-up actions."
+            }
+          ],
+          "required_documents": []
+        },
+        {
+          "step_number": "6.4",
+          "title": "Investor KYC & Accreditation Verification",
+          "description": "Each investor completes KYC identity verification, sanctions screening, and accredited investor verification. For 506(c): issuer must take 'reasonable steps' to verify accreditation — self-certification alone is insufficient.",
+          "task_type": "action",
+          "assigned_role": "compliance_officer",
+          "estimated_duration": "3-7 days per investor",
+          "regulatory_basis": "Rule 506(c)(2)(ii) requires issuers to take 'reasonable steps to verify' accredited investor status. The SEC has provided non-exclusive safe harbor verification methods. FinCEN CIP rules require identity verification for all financial transactions.",
+          "regulatory_citation": "SEC Rule 506(c)(2)(ii) (17 CFR 230.506(c)(2)(ii)); SEC guidance on verification methods; FinCEN 31 CFR 1010.220 (CIP)",
+          "source_url": "https://www.sec.gov/resources-small-businesses/capital-raising-building-blocks/assessing-accredited-investors-under-regulation-d",
+          "subtasks": [
+            {
+              "title": "Collect investor identity documents",
+              "task_type": "upload",
+              "description": "Government-issued photo ID, proof of address. For entities: formation documents, beneficial ownership information."
+            },
+            {
+              "title": "Run KYC/AML screening",
+              "task_type": "automated",
+              "description": "Screen against OFAC/SDN, PEP databases, adverse media, and global sanctions lists."
+            },
+            {
+              "title": "Verify accredited investor status",
+              "task_type": "review",
+              "description": "Apply SEC safe harbor methods: review tax returns (income >$200K/$300K joint for 2 years), bank/brokerage statements (net worth >$1M excluding primary residence), or obtain third-party verification letter from CPA/attorney/RIA/BD."
+            },
+            {
+              "title": "Issue accreditation clearance",
+              "task_type": "approval",
+              "description": "Compliance officer confirms investor passes KYC and accreditation. Investor is cleared to subscribe."
+            }
+          ],
+          "required_documents": ["accreditation_verification", "kyc_report"]
+        },
+        {
+          "step_number": "6.5",
+          "title": "Subscription Processing",
+          "description": "Investor signs subscription agreement, wires funds, and receives securities (tokens, units, or note participations). Compliance review on each subscription before acceptance.",
+          "task_type": "action",
+          "assigned_role": "coo",
+          "estimated_duration": "3-10 days per investor (wire clearing + review)",
+          "subtasks": [
+            {
+              "title": "Investor completes subscription agreement",
+              "task_type": "upload",
+              "description": "Investor signs subscription agreement and investor questionnaire. Includes representations, risk acknowledgments, and accreditation certification."
+            },
+            {
+              "title": "Investor wires subscription funds",
+              "task_type": "action",
+              "description": "Investor wires investment amount to SPV bank account. Obtain wire receipt and bank confirmation."
+            },
+            {
+              "title": "Compliance review of subscription",
+              "task_type": "review",
+              "description": "Compliance officer reviews: subscription completeness, accreditation verification, suitability, investment amount within limits, and no red flags."
+            },
+            {
+              "title": "Accept or reject subscription",
+              "task_type": "approval",
+              "description": "Issue formal acceptance or rejection. If rejected: return funds within required timeframe."
+            },
+            {
+              "title": "Issue securities (tokens, units, or note participations)",
+              "task_type": "action",
+              "description": "Tokenization: mint tokens to investor's whitelisted wallet. Fractional: transfer agent issues units. Debt: issue participation certificates."
+            },
+            {
+              "title": "Update cap table / token ledger",
+              "task_type": "action",
+              "description": "Record new investor in cap table. Reconcile on-chain and off-chain records (if tokenized)."
+            },
+            {
+              "title": "Send investor confirmation",
+              "task_type": "action",
+              "description": "Send written confirmation of investment including: amount, units/tokens received, wallet address (if tokenized), and next steps."
+            }
+          ],
+          "required_documents": ["subscription_agreement"]
+        },
+        {
+          "step_number": "6.6",
+          "title": "Ongoing Reporting & Compliance",
+          "description": "Maintain ongoing reporting obligations, compliance monitoring, and investor communications throughout the offering lifecycle.",
+          "task_type": "action",
+          "assigned_role": "compliance_officer",
+          "estimated_duration": "Ongoing (lifetime of offering)",
+          "regulatory_basis": "Reg D offerings have limited federal reporting requirements but may have contractual obligations per the PPM. Reg A+ Tier 2 requires annual (1-K), semi-annual (1-SA), and current (1-U) reports. All offerings require Form D amendments annually.",
+          "regulatory_citation": "SEC Rule 503 (Form D amendments); Regulation A Rules 257-259 (ongoing reporting); IRC Section 6031 (partnership returns)",
+          "subtasks": [
+            {
+              "title": "Quarterly NAV / valuation updates",
+              "task_type": "action",
+              "description": "Prepare and distribute quarterly Net Asset Value updates to investors. Include market conditions, asset status, and any material developments."
+            },
+            {
+              "title": "Annual independent re-appraisal",
+              "task_type": "action",
+              "description": "Commission annual independent appraisal to verify/update asset value. Required for NAV accuracy and insurance adequacy."
+            },
+            {
+              "title": "Annual K-1 tax distribution",
+              "task_type": "action",
+              "description": "Prepare and distribute Schedule K-1 to all investors by March 15 (or extended deadline). SPV files Form 1065 (partnership return).",
+              "deadline": "March 15 annually"
+            },
+            {
+              "title": "Form D annual amendment",
+              "task_type": "action",
+              "description": "File Form D amendment with SEC if offering continues past 12 months. Update total amount sold and investor count."
+            },
+            {
+              "title": "Blue sky renewals",
+              "task_type": "action",
+              "description": "Renew state blue sky notice filings as required (varies by state — some annual, some upon amendment)."
+            },
+            {
+              "title": "Compliance monitoring and audit",
+              "task_type": "review",
+              "description": "Annual compliance audit: verify all investor records, accreditation documentation, AML screening, and filing status are current."
+            },
+            {
+              "title": "Custody verification",
+              "task_type": "review",
+              "description": "Verify asset remains in custody: inspect vault records, PoR oracle attestation (if tokenized), or title verification (real estate)."
+            },
+            {
+              "title": "Investor communications",
+              "task_type": "action",
+              "description": "Regular investor updates: market commentary, asset updates, distribution notices, and material event notifications."
+            }
+          ],
+          "required_documents": ["investor_report", "tax_document", "form_d_amendment"]
+        },
+        {
+          "step_number": "6.7",
+          "title": "Secondary Transfer Facilitation",
+          "description": "Facilitate compliant secondary transfers between investors via ATS (if available) or manual transfer agent processing. All transfers must comply with holding period restrictions and exemption requirements.",
+          "task_type": "action",
+          "assigned_role": "coo",
+          "estimated_duration": "Ongoing",
+          "regulatory_basis": "Rule 144 imposes a 12-month holding period for securities acquired in Reg D offerings. After the holding period, transfers must still comply with securities laws. ATS trading requires compliance checks on every trade.",
+          "regulatory_citation": "SEC Rule 144 (17 CFR 230.144); Regulation ATS (17 CFR 242.300-303); Securities Act Section 4(a)(1) (ordinary trading); Section 4(a)(1-1/2) (section 4(a)(7) exemption)",
+          "subtasks": [
+            {
+              "title": "Verify holding period compliance (12 months for Reg D)",
+              "task_type": "automated",
+              "description": "Confirm seller has held securities for minimum holding period. For tokenized securities: enforced automatically by smart contract."
+            },
+            {
+              "title": "Verify buyer accreditation (if required)",
+              "task_type": "review",
+              "description": "Confirm buyer meets accreditation requirements. For ERC-3643 tokens: verified by on-chain identity registry."
+            },
+            {
+              "title": "Process transfer",
+              "task_type": "action",
+              "description": "Tokenization: buyer/seller trade via ATS with automatic compliance checks. Fractional: transfer agent processes unit transfer. Debt: assignment of participation interest."
+            },
+            {
+              "title": "Update cap table / token ledger",
+              "task_type": "action",
+              "description": "Record transfer in official registry. Reconcile on-chain and off-chain records."
+            }
+          ],
+          "required_documents": []
+        },
+        {
+          "step_number": "6.8",
+          "title": "Exit / Liquidation / Redemption",
+          "description": "Upon asset sale, offering close, loan maturity, or redemption event: distribute proceeds, burn tokens (if applicable), dissolve SPV, and file all final regulatory documents.",
+          "task_type": "action",
+          "assigned_role": "ceo",
+          "estimated_duration": "4-12 weeks",
+          "regulatory_basis": "SPV dissolution must follow state LLC dissolution procedures. Final K-1 must be distributed. Form D termination should be filed. UCC-3 termination statement required for debt instruments. Token burn removes securities from circulation.",
+          "regulatory_citation": "State LLC dissolution statutes; IRC Section 6031 (final return); UCC 9-513 (termination statement)",
+          "subtasks": [
+            {
+              "title": "Execute asset sale or disposition",
+              "task_type": "action",
+              "description": "Sell asset at market value. For real estate: standard closing process. For gems/metals: dealer sale or auction. For minerals: lease assignment or mineral deed sale."
+            },
+            {
+              "title": "Calculate and distribute proceeds",
+              "task_type": "action",
+              "description": "Apply distribution waterfall per operating agreement: return of capital, preferred return, profit split. Calculate and withhold any taxes."
+            },
+            {
+              "title": "Burn tokens (tokenization path)",
+              "task_type": "action",
+              "description": "Execute token burn for all outstanding tokens. Verify total supply equals zero on blockchain."
+            },
+            {
+              "title": "Cancel units (fractional path)",
+              "task_type": "action",
+              "description": "Transfer agent cancels all outstanding units. Cap table shows zero outstanding."
+            },
+            {
+              "title": "File UCC-3 termination statement (debt path)",
+              "task_type": "action",
+              "description": "File UCC-3 with Secretary of State to terminate the security interest upon loan payoff."
+            },
+            {
+              "title": "Distribute final K-1",
+              "task_type": "action",
+              "description": "Prepare and distribute final Schedule K-1 to all investors reflecting their share of gains/losses from the disposition."
+            },
+            {
+              "title": "File Form D termination / final Form 1-K",
+              "task_type": "action",
+              "description": "File final SEC documents: Form D termination amendment or final Form 1-K (Reg A+)."
+            },
+            {
+              "title": "Dissolve SPV",
+              "task_type": "action",
+              "description": "File articles of dissolution with Secretary of State. Close bank accounts. Cancel registered agent. Retain records per retention schedule (minimum 7 years)."
+            },
+            {
+              "title": "Final audit and record retention",
+              "task_type": "action",
+              "description": "Conduct final audit of all records. Archive per regulatory retention requirements (SEC: 7 years; IRS: 7 years; BSA/AML: 5 years)."
+            }
+          ],
+          "required_documents": ["tax_document"]
+        }
+      ]
+    }
+  ],
+
+  "cross_cutting_requirements": {
+    "record_retention": {
+      "description": "All records must be retained per applicable regulatory requirements.",
+      "sec_records": "7 years (broker-dealer books and records under Rule 17a-4)",
+      "tax_records": "7 years (IRS general statute of limitations + buffer)",
+      "aml_records": "5 years from date of creation or date of last transaction (BSA 31 CFR 1010.430)",
+      "corporate_records": "Permanent (articles, operating agreements, resolutions)",
+      "investor_records": "7 years after investor exits"
+    },
+    "data_privacy": {
+      "description": "PII must be encrypted at rest and in transit. Comply with applicable state privacy laws.",
+      "california": "CCPA/CPRA (Cal. Civ. Code 1798.100 et seq.)",
+      "new_york": "NY SHIELD Act (Gen. Bus. Law 899-aa)",
+      "general": "Encrypt SSN, financial data, and government ID numbers using AES-256 or equivalent"
+    },
+    "audit_trail": {
+      "description": "Every action in the workflow must produce an immutable audit trail entry.",
+      "requirements": [
+        "Timestamp (UTC)",
+        "Actor (who performed the action)",
+        "Action type (create, update, approve, upload, etc.)",
+        "Target entity (asset, document, task, investor, etc.)",
+        "Before/after values for changes",
+        "IP address and user agent"
+      ]
+    },
+    "conflict_of_interest": {
+      "description": "All parties in the workflow must disclose conflicts of interest. Conflicts must be documented and disclosed in the PPM.",
+      "regulatory_citation": "SEC Rule 10b-5 (anti-fraud); Investment Advisers Act Section 206"
+    }
+  },
+
+  "cost_summary_by_asset_class": {
+    "gemstones": {
+      "stage_1_lead": "$0-$2,000 (KYC screening, NDA drafting)",
+      "stage_2_intake": "$15,000-$45,000 (GIA certification + 3 appraisals + variance analysis)",
+      "stage_3_custody": "$50,000-$100,000/yr (institutional vault + insurance + PoR setup)",
+      "stage_4_legal": "$75,000-$200,000 (SPV + PPM + securities counsel + BD engagement)",
+      "stage_5_tokenization": "$20,000-$60,000 (smart contract dev + audit + deployment)",
+      "stage_5_fractional": "$15,000-$45,000 (transfer agent + cap table setup)",
+      "stage_5_debt": "$8,000-$15,000 (UCC filing + loan docs)",
+      "stage_6_distribution": "$5,000-$50,000 (marketing + ongoing compliance)",
+      "total_range": "$165,000-$460,000+ (tokenization path, excluding vault annual costs)"
+    },
+    "precious_metals": {
+      "stage_1_lead": "$0-$2,000",
+      "stage_2_intake": "$5,000-$15,000 (assay + appraisals — simpler for standard bullion)",
+      "stage_3_custody": "$20,000-$75,000/yr (LBMA vault + insurance)",
+      "stage_4_legal": "$75,000-$200,000",
+      "stage_5_tokenization": "$20,000-$60,000",
+      "stage_6_distribution": "$5,000-$50,000",
+      "total_range": "$125,000-$400,000+"
+    },
+    "real_estate": {
+      "stage_1_lead": "$0-$5,000 (title search + preliminary due diligence)",
+      "stage_2_intake": "$15,000-$55,000 (Phase I ESA + appraisals + inspections + survey)",
+      "stage_3_custody": "$5,000-$25,000/yr (title insurance + property insurance + management)",
+      "stage_4_legal": "$100,000-$250,000 (SPV + PPM + title work + securities counsel)",
+      "stage_5_tokenization": "$20,000-$60,000",
+      "stage_6_distribution": "$5,000-$50,000",
+      "total_range": "$145,000-$445,000+"
+    },
+    "mineral_rights": {
+      "stage_1_lead": "$0-$10,000 (title opinion + production data research)",
+      "stage_2_intake": "$25,000-$100,000 (reserve report + appraisals + environmental review)",
+      "stage_3_custody": "$2,000-$10,000/yr (deed recording + insurance — lower since no physical custody)",
+      "stage_4_legal": "$100,000-$250,000 (SPV + PPM + mineral-specific counsel)",
+      "stage_5_tokenization": "$20,000-$60,000",
+      "stage_6_distribution": "$5,000-$50,000",
+      "total_range": "$152,000-$480,000+"
+    }
+  },
+
+  "timeline_summary": {
+    "description": "Typical end-to-end timeline from lead identification to first investor subscription.",
+    "reg_d_506c": {
+      "stage_1": "2-6 weeks",
+      "stage_2": "6-14 weeks",
+      "stage_3": "3-8 weeks",
+      "stage_4": "6-12 weeks",
+      "stage_5": "4-12 weeks",
+      "stage_6_first_subscription": "2-4 weeks after Stage 5",
+      "total": "6-12 months"
+    },
+    "reg_a_plus": {
+      "stage_1": "2-6 weeks",
+      "stage_2": "6-14 weeks",
+      "stage_3": "3-8 weeks",
+      "stage_4": "10-18 weeks (includes SEC qualification + audit)",
+      "stage_5": "4-12 weeks",
+      "stage_6_first_subscription": "4-8 weeks after qualification",
+      "total": "9-18 months"
+    },
+    "debt_path": {
+      "stage_1": "2-6 weeks",
+      "stage_2": "6-14 weeks",
+      "stage_3": "3-8 weeks",
+      "stage_4": "4-8 weeks (simpler legal structure for pure lending)",
+      "stage_5": "2-4 weeks",
+      "stage_6_closing": "2-4 weeks after lender commitment",
+      "total": "4-9 months"
+    }
+  },
+
+  "regulatory_citation_index": {
+    "securities_act_1933": {
+      "description": "Federal securities registration and exemption framework",
+      "key_sections": [
+        {"section": "Section 5", "topic": "Registration requirement for securities offerings"},
+        {"section": "Section 12(a)(2)", "topic": "Rescission liability for material misstatements in offerings"},
+        {"section": "Regulation D (Rules 500-508)", "topic": "Private placement exemptions"},
+        {"section": "Rule 506(b)", "topic": "Private placement without general solicitation"},
+        {"section": "Rule 506(c)", "topic": "Private placement with general solicitation (accredited only)"},
+        {"section": "Regulation A (Rules 251-263)", "topic": "Mini-IPO exemption (up to $75M Tier 2)"},
+        {"section": "Regulation S (Rules 901-905)", "topic": "Offshore offering exemption"},
+        {"section": "Regulation CF (Rules 100-303)", "topic": "Crowdfunding exemption (up to $5M)"},
+        {"section": "Rule 144", "topic": "Resale of restricted securities (12-month holding period)"}
+      ]
+    },
+    "securities_exchange_act_1934": {
+      "description": "Secondary market regulation, broker-dealer registration, transfer agents",
+      "key_sections": [
+        {"section": "Section 12(g)", "topic": "Registration of securities with 2,000+ holders"},
+        {"section": "Section 15(a)", "topic": "Broker-dealer registration requirement"},
+        {"section": "Section 17A", "topic": "Transfer agent registration and regulation"},
+        {"section": "Regulation ATS (Rules 300-303)", "topic": "Alternative Trading System regulation"},
+        {"section": "Rule 10b-5", "topic": "Anti-fraud provision (material misstatements/omissions)"},
+        {"section": "Rule 15c3-3", "topic": "Customer protection / custody requirements for BDs"},
+        {"section": "Rule 17a-4", "topic": "Broker-dealer record retention (7 years)"}
+      ]
+    },
+    "bank_secrecy_act": {
+      "description": "Anti-money laundering framework",
+      "key_sections": [
+        {"section": "31 USC 5311-5332", "topic": "BSA core provisions"},
+        {"section": "31 CFR Part 1010", "topic": "General FinCEN rules"},
+        {"section": "31 CFR Part 1027", "topic": "Dealers in Precious Metals, Stones, or Jewels (DPMS)"},
+        {"section": "31 CFR 1010.230", "topic": "Customer Due Diligence (CDD) Rule — beneficial ownership"},
+        {"section": "USA PATRIOT Act Section 326", "topic": "Customer Identification Program (CIP)"}
+      ]
+    },
+    "ucc": {
+      "description": "Uniform Commercial Code — secured transactions and digital assets",
+      "key_sections": [
+        {"section": "Article 8", "topic": "Investment securities (traditional and book-entry)"},
+        {"section": "Article 9", "topic": "Secured transactions in personal property"},
+        {"section": "9-102(a)(6)", "topic": "Definition of as-extracted collateral (oil, gas, minerals)"},
+        {"section": "9-310", "topic": "Perfection by filing financing statement"},
+        {"section": "9-313", "topic": "Perfection by possession (tangible assets)"},
+        {"section": "9-513", "topic": "UCC-3 termination statement"},
+        {"section": "9-610", "topic": "Commercially reasonable disposition of collateral upon default"},
+        {"section": "Article 12 (2022 Amendments)", "topic": "Controllable electronic records (including security tokens)"}
+      ]
+    },
+    "state_laws": {
+      "description": "Key state-level regulatory frameworks",
+      "key_provisions": [
+        {"law": "Wyoming LLC Act 17-29-211", "topic": "Series LLC formation"},
+        {"law": "Delaware LLC Act 6 Del. C. 18-215", "topic": "Series LLC alternative formation"},
+        {"law": "Clean Diamond Trade Act 19 U.S.C. 3901-3913", "topic": "Kimberley Process compliance for diamonds"},
+        {"law": "NSMIA Section 18 (15 U.S.C. 77r)", "topic": "Federal preemption of state registration for covered securities"},
+        {"law": "Blue Sky Laws (all 50 states + DC)", "topic": "State securities registration/notice filing requirements"}
+      ]
+    },
+    "finra_rules": {
+      "description": "FINRA rules applicable to broker-dealers in private placements",
+      "key_rules": [
+        {"rule": "FINRA Rule 5110", "topic": "Underwriting terms and compensation"},
+        {"rule": "FINRA Rule 5121", "topic": "Public offerings of securities with conflicts of interest"},
+        {"rule": "FINRA Rule 5123", "topic": "Private placement filing with FINRA"},
+        {"rule": "FINRA Rule 2111", "topic": "Suitability (legacy) / Reg BI for retail investors"},
+        {"rule": "FINRA Rule 3110", "topic": "Supervision and supervisory procedures"}
+      ]
+    },
+    "tax_code": {
+      "description": "Internal Revenue Code provisions for pass-through entities and asset-specific deductions",
+      "key_sections": [
+        {"section": "IRC Section 6031", "topic": "Partnership return (Form 1065) filing requirement"},
+        {"section": "IRC Section 704(b)", "topic": "Partnership allocation rules"},
+        {"section": "IRC Section 1031", "topic": "Like-kind exchange (real estate only — NOT personal property post-TCJA)"},
+        {"section": "IRC Section 611-613A", "topic": "Depletion deductions (mineral rights)"},
+        {"section": "IRC Section 167-168", "topic": "Depreciation (real estate improvements)"},
+        {"section": "IRC Section 1250", "topic": "Depreciation recapture on sale of real estate"},
+        {"section": "FIRPTA (IRC 897)", "topic": "Foreign investment in Real Property Tax Act"}
+      ]
+    },
+    "recent_developments_2025_2026": [
+      {
+        "date": "2025-12-11",
+        "event": "SEC issues no-action letter to DTC for tokenization services",
+        "impact": "Three-year pilot for DTC to tokenize certain custodied securities. Expected launch H2 2026."
+      },
+      {
+        "date": "2026-01-28",
+        "event": "SEC Divisions jointly issue guidance on tokenized securities",
+        "impact": "Clarified how existing federal securities laws apply to various tokenization structures. Addresses Article 8 vs Article 12 UCC treatment."
+      },
+      {
+        "date": "2026-01",
+        "event": "30+ states adopt UCC Article 12 (2022 Amendments)",
+        "impact": "New legal framework for controllable electronic records including security tokens. Perfection by control available."
+      },
+      {
+        "date": "2025-12-17",
+        "event": "SEC Division of Trading and Markets statement on broker-dealer custody of crypto asset securities",
+        "impact": "Clarified that broker-dealers can take 'physical possession' of crypto asset securities by maintaining private key controls consistent with industry best practices."
+      },
+      {
+        "date": "2025-10",
+        "event": "Ironlight Markets receives FINRA approval for first US ATS with on-chain atomic settlement",
+        "impact": "First FINRA-approved ATS supporting atomic settlement for tokenized securities and RWAs."
+      }
+    ]
+  },
+
+  "database_seeding_notes": {
+    "governance_requirements_mapping": {
+      "description": "Each task in stages 1-4 maps to a governance_requirements row (shared across all paths). Tasks in stages 5-6 may be path-specific.",
+      "fields": {
+        "value_path": "NULL for shared stages (1-4); specific path for stage 5-6 tasks",
+        "phase": "Maps to workflow_phase enum",
+        "step_number": "Use the step_number field from each task",
+        "title": "Use the title field",
+        "description": "Use the description field",
+        "regulatory_basis": "Use the regulatory_basis field",
+        "regulatory_citation": "Use the regulatory_citation field",
+        "source_url": "Use the source_url field where provided",
+        "is_gate": "true for gate definitions",
+        "gate_id": "G1-G6 as defined in each stage",
+        "required_documents": "Array of document_type enum values",
+        "required_approvals": "JSONB with internal/external approval requirements"
+      }
+    },
+    "default_tasks_mapping": {
+      "description": "Each subtask maps to a default_tasks row, linked to its parent governance_requirement.",
+      "fields": {
+        "governance_requirement_id": "FK to parent governance_requirements row",
+        "task_title": "Use the subtask title",
+        "task_description": "Use the subtask description",
+        "task_type": "action | upload | review | approval | automated",
+        "assigned_role": "compliance_officer | ceo | cto | cro | coo | legal_counsel",
+        "estimated_duration": "Text string with duration estimate",
+        "sort_order": "Sequential within parent requirement"
+      }
+    },
+    "governance_documents_mapping": {
+      "description": "Each required_documents entry maps to a governance_documents row.",
+      "fields": {
+        "governance_requirement_id": "FK to parent governance_requirements row",
+        "document_type": "Must match document_type enum in schema",
+        "description": "What this document proves or contains",
+        "is_required": "true for required; false for recommended"
+      }
+    },
+    "asset_class_extension": {
+      "description": "The existing schema uses value_path for path-specific variations. For asset class variations, consider adding an asset_class column to governance_requirements or creating asset_class_overrides table.",
+      "recommendation": "Add asset_class enum (gemstones, precious_metals, real_estate, mineral_rights) to the schema. Allow governance_requirements to be filtered by both value_path AND asset_class. Most requirements are shared across classes; only intake/certification/custody steps differ significantly."
+    }
+  }
+}
