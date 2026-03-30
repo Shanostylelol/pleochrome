@@ -178,6 +178,32 @@ export const assetsRouter = createRouter({
       return data
     }),
 
+  update: protectedProcedure
+    .input(z.object({
+      assetId: z.string().uuid(),
+      name: z.string().min(1).max(255).optional(),
+      description: z.string().max(2000).optional(),
+      claimedValue: z.number().positive().optional(),
+      offeringValue: z.number().positive().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const updates: Record<string, unknown> = {}
+      if (input.name !== undefined) updates.name = input.name
+      if (input.description !== undefined) updates.description = input.description
+      if (input.claimedValue !== undefined) updates.claimed_value = input.claimedValue
+      if (input.offeringValue !== undefined) updates.offering_value = input.offeringValue
+
+      const { data, error } = await ctx.db
+        .from('assets')
+        .update(updates as never)
+        .eq('id', input.assetId)
+        .select()
+        .single()
+
+      if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
+      return data
+    }),
+
   updatePhase: protectedProcedure
     .input(
       z.object({

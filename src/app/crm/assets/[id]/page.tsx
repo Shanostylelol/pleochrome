@@ -1,15 +1,15 @@
 'use client'
 
 import { useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { trpc } from '@/lib/trpc'
-import { NeuCard, NeuBadge, NeuButton, NeuTabs, NeuAvatar } from '@/components/ui'
+import { NeuCard, NeuBadge, NeuButton, NeuTabs, NeuAvatar, NeuInput, NeuTextarea } from '@/components/ui'
 import { PhaseTimeline } from '@/components/crm/PhaseTimeline'
 import {
   ChevronRight, Edit3, FileUp, MessageSquare, Download,
   LayoutGrid, Shield, FileText, CheckSquare, Activity,
-  Lock, DollarSign, Handshake, Clock,
+  Lock, DollarSign, Handshake, Clock, X,
 } from 'lucide-react'
 
 const pathColorMap: Record<string, 'emerald' | 'teal' | 'sapphire' | 'amber' | 'gray'> = {
@@ -55,7 +55,13 @@ const TABS = [
 
 export default function AssetDetailPage() {
   const params = useParams<{ id: string }>()
-  const [activeTab, setActiveTab] = useState('overview')
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const activeTab = searchParams.get('tab') ?? 'overview'
+  const setActiveTab = (tab: string) => {
+    router.replace(`/crm/assets/${params.id}?tab=${tab}`, { scroll: false })
+  }
+  const [showEdit, setShowEdit] = useState(false)
   const { data, isLoading, error } = trpc.assets.getById.useQuery({ assetId: params.id })
 
   if (isLoading) {
@@ -150,9 +156,9 @@ export default function AssetDetailPage() {
           </div>
 
           <div className="flex lg:flex-col gap-2 flex-wrap lg:w-44 shrink-0">
-            <NeuButton icon={<Edit3 className="h-4 w-4" />} size="sm" fullWidth>Edit</NeuButton>
-            <NeuButton variant="ghost" icon={<FileUp className="h-4 w-4" />} size="sm" fullWidth>Add Doc</NeuButton>
-            <NeuButton variant="ghost" icon={<MessageSquare className="h-4 w-4" />} size="sm" fullWidth>Note</NeuButton>
+            <NeuButton icon={<Edit3 className="h-4 w-4" />} size="sm" fullWidth onClick={() => setShowEdit(true)}>Edit</NeuButton>
+            <NeuButton variant="ghost" icon={<FileUp className="h-4 w-4" />} size="sm" fullWidth onClick={() => setActiveTab('documents')}>Add Doc</NeuButton>
+            <NeuButton variant="ghost" icon={<MessageSquare className="h-4 w-4" />} size="sm" fullWidth onClick={() => setActiveTab('activity')}>Note</NeuButton>
             <NeuButton variant="ghost" icon={<Download className="h-4 w-4" />} size="sm" fullWidth disabled>Export</NeuButton>
           </div>
         </div>
@@ -193,6 +199,8 @@ export default function AssetDetailPage() {
           <PartnersTab partners={partners} />
         )}
       </div>
+
+      {showEdit && <EditAssetModal asset={asset} assetId={params.id} onClose={() => setShowEdit(false)} />}
     </div>
   )
 }
@@ -546,6 +554,81 @@ function FinancialsTab({ asset }: { asset: Record<string, unknown> }) {
             <dd className="text-[var(--text-primary)]">{(meta.investor_count as number) ?? 0}</dd>
           </div>
         </dl>
+      </NeuCard>
+    </div>
+  )
+}
+
+// ─── Edit Asset Modal ───────────────────────────────────
+function EditAssetModal({ asset, assetId, onClose }: { asset: Record<string, unknown>; assetId: string; onClose: () => void }) {
+  const [name, setName] = useState((asset.name as string) ?? '')
+  const [description, setDescription] = useState((asset.description as string) ?? '')
+  const [claimedValue, setClaimedValue] = useState((asset.claimed_value as number)?.toString() ?? '')
+  const [offeringValue, setOfferingValue] = useState((asset.offering_value as number)?.toString() ?? '')
+
+  const utils = trpc.useUtils()
+  const updateMutation = trpc.assets.update.useMutation({
+    onSuccess: () => {
+      utils.assets.getById.invalidate({ assetId })
+      onClose()
+    },
+  })
+
+  const handleSubmit = () => {
+    if (!name.trim()) return
+    updateMutation.mutate({
+      assetId,
+      name: name.trim(),
+      description: description.trim() || undefined,
+      claimedValue: claimedValue ? parseFloat(claimedValue) : undefined,
+      offeringValue: offeringValue ? parseFloat(offeringValue) : undefined,
+    })
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-[var(--overlay)]" onClick={onClose} />
+      <NeuCard variant="raised" padding="lg" className="relative w-full max-w-md z-10 space-y-4 max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-[var(--text-primary)]" style={{ fontFamily: 'var(--font-display)' }}>Edit Asset</h2>
+          <button onClick={onClose} className="p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)]"><X className="h-5 w-5" /></button>
+        </div>
+
+        <div className="space-y-3">
+          <NeuInput
+            label="Name *"
+            placeholder="Asset name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <NeuTextarea
+            label="Description"
+            placeholder="Asset description..."
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={3}
+          />
+          <NeuInput
+            label="Claimed Value"
+            placeholder="e.g., 15400000"
+            type="number"
+            value={claimedValue}
+            onChange={(e) => setClaimedValue(e.target.value)}
+          />
+          <NeuInput
+            label="Offering Value"
+            placeholder="e.g., 12000000"
+            type="number"
+            value={offeringValue}
+            onChange={(e) => setOfferingValue(e.target.value)}
+          />
+        </div>
+
+        <div className="flex gap-3 pt-2">
+          <NeuButton variant="ghost" onClick={onClose} fullWidth>Cancel</NeuButton>
+          <NeuButton onClick={handleSubmit} loading={updateMutation.isPending} disabled={!name.trim()} fullWidth>Save Changes</NeuButton>
+        </div>
+        {updateMutation.error && <p className="text-sm text-[var(--ruby)]">{updateMutation.error.message}</p>}
       </NeuCard>
     </div>
   )

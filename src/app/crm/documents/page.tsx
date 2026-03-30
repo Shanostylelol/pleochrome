@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { trpc } from '@/lib/trpc'
-import { NeuCard, NeuBadge, NeuButton, NeuInput } from '@/components/ui'
-import { FileText, Upload, Lock, Unlock, Search, Trash2 } from 'lucide-react'
+import { createClient } from '@/lib/supabase'
+import { NeuCard, NeuBadge, NeuButton, NeuInput, NeuSelect } from '@/components/ui'
+import { FileText, Upload, Lock, Unlock, Search, Trash2, X, UploadCloud } from 'lucide-react'
 
 function formatBytes(bytes: number): string {
   if (bytes === 0) return '0 B'
@@ -19,6 +20,11 @@ function formatDate(date: string): string {
 
 export default function DocumentsPage() {
   const [search, setSearch] = useState('')
+  const [showUpload, setShowUpload] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [docType, setDocType] = useState('other')
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const { data: documents = [], isLoading } = trpc.documents.list.useQuery(
     search ? { search } : undefined
   )
@@ -39,6 +45,44 @@ export default function DocumentsPage() {
     },
   })
 
+  const createDoc = trpc.documents.create.useMutation({
+    onSuccess: () => {
+      utils.documents.list.invalidate()
+      utils.documents.getStats.invalidate()
+      setShowUpload(false)
+      setSelectedFile(null)
+      setDocType('other')
+    },
+  })
+
+  const handleFileSelect = (file: File | null) => {
+    if (!file) return
+    setSelectedFile(file)
+  }
+
+  const handleUpload = async () => {
+    if (!selectedFile) return
+    setUploading(true)
+    try {
+      const supabase = createClient()
+      const path = `global/${Date.now()}-${selectedFile.name}`
+      const { error } = await supabase.storage.from('asset-documents').upload(path, selectedFile)
+      if (error) throw error
+      await createDoc.mutateAsync({
+        title: selectedFile.name.replace(/\.[^.]+$/, ''),
+        filename: selectedFile.name,
+        storagePath: path,
+        storageBucket: 'asset-documents',
+        mimeType: selectedFile.type,
+        fileSizeBytes: selectedFile.size,
+        documentType: docType,
+      })
+    } catch (err) {
+      console.error('Upload failed:', err)
+    }
+    setUploading(false)
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
@@ -50,7 +94,7 @@ export default function DocumentsPage() {
             {stats ? `${stats.totalDocuments} documents | ${formatBytes(stats.totalSizeBytes)} used | ${stats.lockedCount} locked` : 'Loading...'}
           </p>
         </div>
-        <NeuButton icon={<Upload className="h-4 w-4" />}>
+        <NeuButton icon={<Upload className="h-4 w-4" />} onClick={() => setShowUpload(!showUpload)}>
           <span className="hidden sm:inline">Upload</span>
         </NeuButton>
       </div>
@@ -61,6 +105,71 @@ export default function DocumentsPage() {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
+
+      {showUpload && (
+        <NeuCard variant="pressed" padding="md" className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-[var(--text-primary)]">Upload Document</h3>
+            <button onClick={() => { setShowUpload(false); setSelectedFile(null) }} className="p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)]">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          {!selectedFile ? (
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              onDragOver={(e) => { e.preventDefault(); e.stopPropagation() }}
+              onDrop={(e) => { e.preventDefault(); e.stopPropagation(); handleFileSelect(e.dataTransfer.files?.[0] ?? null) }}
+              className="flex flex-col items-center justify-center gap-2 py-8 rounded-[var(--radius-md)] border-2 border-dashed border-[var(--border)] cursor-pointer hover:border-[var(--teal)] transition-colors"
+            >
+              <UploadCloud className="h-8 w-8 text-[var(--text-placeholder)]" />
+              <p className="text-sm text-[var(--text-muted)]">Drag files here or click to browse</p>
+              <p className="text-xs text-[var(--text-placeholder)]">PDF, DOC, XLS, CSV, PNG, JPG up to 50MB</p>
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.png,.jpg,.jpeg,.webp"
+                onChange={(e) => handleFileSelect(e.target.files?.[0] ?? null)}
+              />
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 p-3 rounded-[var(--radius-md)] bg-[var(--bg-body)]">
+                <FileText className="h-5 w-5 text-[var(--teal)] shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-[var(--text-primary)] truncate">{selectedFile.name}</p>
+                  <p className="text-xs text-[var(--text-muted)]">{formatBytes(selectedFile.size)}</p>
+                </div>
+                <button onClick={() => setSelectedFile(null)} className="p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)]">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <NeuSelect
+                label="Document Type"
+                value={docType}
+                onChange={(e) => setDocType(e.target.value)}
+                options={[
+                  { value: 'appraisal', label: 'Appraisal' },
+                  { value: 'certificate', label: 'Certificate' },
+                  { value: 'legal', label: 'Legal' },
+                  { value: 'financial', label: 'Financial' },
+                  { value: 'insurance', label: 'Insurance' },
+                  { value: 'custody', label: 'Custody' },
+                  { value: 'compliance', label: 'Compliance' },
+                  { value: 'other', label: 'Other' },
+                ]}
+              />
+              <div className="flex gap-3">
+                <NeuButton variant="ghost" onClick={() => { setSelectedFile(null) }} fullWidth>Cancel</NeuButton>
+                <NeuButton onClick={handleUpload} loading={uploading} fullWidth>Upload</NeuButton>
+              </div>
+            </div>
+          )}
+
+          {createDoc.error && <p className="text-sm text-[var(--ruby)]">{createDoc.error.message}</p>}
+        </NeuCard>
+      )}
 
       {isLoading ? (
         <div className="flex items-center justify-center py-20">
