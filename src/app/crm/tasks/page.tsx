@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { CheckSquare, Plus, Check, X } from 'lucide-react'
 import { NeuCard, NeuBadge, NeuButton, NeuTabs, NeuInput, NeuTextarea, NeuSelect } from '@/components/ui'
 import { trpc } from '@/lib/trpc'
@@ -70,8 +71,10 @@ export default function TasksPage() {
                 </p>
                 <div className="flex items-center gap-2 text-xs text-[var(--text-muted)] mt-0.5">
                   {task.due_date && <span>Due {new Date(task.due_date).toLocaleDateString()}</span>}
-                  {(task.assets as { name: string } | null)?.name && (
-                    <span>&middot; {(task.assets as { name: string }).name}</span>
+                  {task.asset_id && (task.assets as { name: string } | null)?.name && (
+                    <Link href={`/crm/assets/${task.asset_id}`} className="hover:text-[var(--teal)] transition-colors" onClick={(e) => e.stopPropagation()}>
+                      &middot; {(task.assets as { name: string }).name}
+                    </Link>
                   )}
                 </div>
               </div>

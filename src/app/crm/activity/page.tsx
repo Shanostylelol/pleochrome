@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { Activity, Clock } from 'lucide-react'
 import { NeuCard, NeuBadge, NeuTabs, NeuAvatar } from '@/components/ui'
 import { trpc } from '@/lib/trpc'

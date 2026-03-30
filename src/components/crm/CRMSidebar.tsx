@@ -27,7 +27,8 @@ const adminNav = [
 ]
 
 function isActive(pathname: string, href: string) {
-  if (href === '/crm') return pathname === '/crm' || pathname.startsWith('/crm/assets/')
+  if (href === '/crm') return pathname === '/crm'
+  if (href === '/crm/assets') return pathname === '/crm/assets' || pathname.startsWith('/crm/assets/')
   return pathname.startsWith(href)
 }
 

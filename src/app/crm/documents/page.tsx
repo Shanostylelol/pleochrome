@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import Link from 'next/link'
 import { trpc } from '@/lib/trpc'
 import { createClient } from '@/lib/supabase'
 import { NeuCard, NeuBadge, NeuButton, NeuInput, NeuSelect } from '@/components/ui'
@@ -201,8 +202,10 @@ export default function DocumentsPage() {
               <div className="flex items-center gap-2">
                 <NeuBadge color="gray" size="sm">{doc.document_type}</NeuBadge>
                 {doc.is_locked && <NeuBadge color="ruby" size="sm">Locked</NeuBadge>}
-                {(doc.assets as { name: string } | null)?.name && (
-                  <NeuBadge color="teal" size="sm">{(doc.assets as { name: string }).name}</NeuBadge>
+                {doc.asset_id && (doc.assets as { name: string } | null)?.name && (
+                  <Link href={`/crm/assets/${doc.asset_id}`} onClick={(e) => e.stopPropagation()}>
+                    <NeuBadge color="teal" size="sm">{(doc.assets as { name: string }).name}</NeuBadge>
+                  </Link>
                 )}
               </div>
               <div className="flex gap-1 shrink-0">
