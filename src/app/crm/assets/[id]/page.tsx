@@ -175,19 +175,19 @@ export default function AssetDetailPage() {
           <GovernanceTab steps={steps} />
         )}
         {activeTab === 'documents' && (
-          <PlaceholderTab label="Documents" count={documents.length} description="Document management will be built in Phase 3" />
+          <DocumentsTab assetId={params.id} documents={documents} />
         )}
         {activeTab === 'tasks' && (
-          <PlaceholderTab label="Tasks" count={tasks.length} description="Task dashboard will be built in Phase 4" />
+          <TasksTab assetId={params.id} tasks={tasks} />
         )}
         {activeTab === 'activity' && (
           <ActivityTab activity={activity} />
         )}
         {activeTab === 'gates' && (
-          <PlaceholderTab label="Gates" description="Gate checks will be built in Phase 2.6" />
+          <GatesTab />
         )}
         {activeTab === 'financials' && (
-          <PlaceholderTab label="Financials" description="Financial tracking will be built in Phase 7" />
+          <FinancialsTab asset={asset} />
         )}
         {activeTab === 'partners' && (
           <PartnersTab partners={partners} />
@@ -373,12 +373,180 @@ function PartnersTab({ partners }: { partners: Array<Record<string, unknown>> })
   )
 }
 
-function PlaceholderTab({ label, count, description }: { label: string; count?: number; description: string }) {
+function DocumentsTab({ assetId, documents }: { assetId: string; documents: Array<Record<string, unknown>> }) {
+  const [uploading, setUploading] = useState(false)
+  const utils = trpc.useUtils()
+  const createDoc = trpc.documents.create.useMutation({
+    onSuccess: () => utils.assets.getById.invalidate({ assetId }),
+  })
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    try {
+      const { createClient: createBrowser } = await import('@/lib/supabase')
+      const supabase = createBrowser()
+      const path = `${assetId}/${Date.now()}-${file.name}`
+      const { error } = await supabase.storage.from('asset-documents').upload(path, file)
+      if (error) throw error
+      await createDoc.mutateAsync({
+        title: file.name.replace(/\.[^.]+$/, ''),
+        filename: file.name,
+        storagePath: path,
+        storageBucket: 'asset-documents',
+        mimeType: file.type,
+        fileSizeBytes: file.size,
+        documentType: 'other',
+        assetId,
+      })
+    } catch (err) {
+      console.error('Upload failed:', err)
+    }
+    setUploading(false)
+    e.target.value = ''
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-[var(--text-secondary)]">{documents.length} documents</p>
+        <label className="cursor-pointer inline-block">
+          <span className="inline-flex items-center justify-center gap-2 h-8 px-3 text-xs font-medium rounded-[var(--radius-md)] bg-[var(--teal)] text-white shadow-[var(--shadow-raised-sm)] hover:bg-[var(--teal-light)] transition-all neu-btn-press">
+            <FileUp className="h-4 w-4" />
+            {uploading ? 'Uploading...' : 'Upload'}
+          </span>
+          <input type="file" className="hidden" onChange={handleUpload} accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.png,.jpg,.jpeg,.webp" />
+        </label>
+      </div>
+      {documents.length === 0 ? (
+        <NeuCard variant="pressed" padding="lg" className="text-center">
+          <FileText className="h-10 w-10 text-[var(--text-placeholder)] mx-auto mb-3" />
+          <p className="text-sm text-[var(--text-muted)]">No documents attached</p>
+          <p className="text-xs text-[var(--text-placeholder)] mt-1">Upload documents for this asset</p>
+        </NeuCard>
+      ) : (
+        <div className="space-y-2">
+          {documents.map((doc) => (
+            <NeuCard key={doc.id as string} variant="raised-sm" padding="sm" className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-[var(--radius-md)] bg-[var(--teal-bg)] text-[var(--teal)] flex items-center justify-center shrink-0">
+                <FileText className="h-5 w-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-[var(--text-primary)] truncate">{(doc.title ?? doc.filename) as string}</p>
+                <p className="text-xs text-[var(--text-muted)]">
+                  {doc.document_type as string} · {((doc.file_size_bytes as number) / 1024).toFixed(0)} KB
+                </p>
+              </div>
+              <NeuBadge color="gray" size="sm">{doc.document_type as string}</NeuBadge>
+            </NeuCard>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function TasksTab({ assetId, tasks }: { assetId: string; tasks: Array<Record<string, unknown>> }) {
+  const [showCreate, setShowCreate] = useState(false)
+  const [title, setTitle] = useState('')
+  const utils = trpc.useUtils()
+  const createTask = trpc.tasks.create.useMutation({
+    onSuccess: () => { utils.assets.getById.invalidate({ assetId }); setShowCreate(false); setTitle('') },
+  })
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-[var(--text-secondary)]">{tasks.length} tasks</p>
+        <NeuButton icon={<CheckSquare className="h-4 w-4" />} size="sm" onClick={() => setShowCreate(!showCreate)}>Add Task</NeuButton>
+      </div>
+      {showCreate && (
+        <NeuCard variant="pressed" padding="md" className="flex gap-2">
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="New task title..."
+            className="flex-1 bg-transparent text-sm text-[var(--text-primary)] placeholder:text-[var(--text-placeholder)] outline-none"
+            onKeyDown={(e) => e.key === 'Enter' && title.trim() && createTask.mutate({ title, assetId })}
+          />
+          <NeuButton size="sm" onClick={() => createTask.mutate({ title, assetId })} disabled={!title.trim()} loading={createTask.isPending}>
+            Create
+          </NeuButton>
+        </NeuCard>
+      )}
+      {tasks.length === 0 && !showCreate ? (
+        <NeuCard variant="pressed" padding="lg" className="text-center">
+          <CheckSquare className="h-10 w-10 text-[var(--text-placeholder)] mx-auto mb-3" />
+          <p className="text-sm text-[var(--text-muted)]">No tasks for this asset</p>
+        </NeuCard>
+      ) : (
+        <div className="space-y-2">
+          {tasks.map((task) => (
+            <NeuCard key={task.id as string} variant="raised-sm" padding="sm" className="flex items-center gap-3">
+              <div className={`w-2.5 h-2.5 rounded-full ${(task.status as string) === 'done' ? 'bg-[var(--chartreuse)]' : 'bg-[var(--teal)]'}`} />
+              <p className={`text-sm flex-1 ${(task.status as string) === 'done' ? 'line-through text-[var(--text-muted)]' : 'text-[var(--text-primary)]'}`}>
+                {task.title as string}
+              </p>
+              <NeuBadge color={(task.status as string) === 'done' ? 'chartreuse' : 'gray'} size="sm">{task.status as string}</NeuBadge>
+            </NeuCard>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function GatesTab() {
   return (
     <NeuCard variant="pressed" padding="lg" className="text-center">
-      <p className="text-sm text-[var(--text-muted)]">
-        {label}{count !== undefined ? ` (${count} items)` : ''} — {description}
-      </p>
+      <Lock className="h-10 w-10 text-[var(--text-placeholder)] mx-auto mb-3" />
+      <p className="text-sm text-[var(--text-muted)]">Gate checks track governance milestone approvals</p>
+      <p className="text-xs text-[var(--text-placeholder)] mt-1">Gates are evaluated when all step requirements in a phase are complete</p>
     </NeuCard>
+  )
+}
+
+function FinancialsTab({ asset }: { asset: Record<string, unknown> }) {
+  const meta = (asset.metadata ?? {}) as Record<string, unknown>
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <NeuCard variant="raised" padding="md">
+        <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Valuation</h3>
+        <dl className="space-y-2 text-sm">
+          <div className="flex justify-between">
+            <dt className="text-[var(--text-muted)]">Claimed Value</dt>
+            <dd className="text-[var(--text-primary)] font-semibold">{fmt(asset.claimed_value as number | null)}</dd>
+          </div>
+          <div className="flex justify-between">
+            <dt className="text-[var(--text-muted)]">Offering Value</dt>
+            <dd className="text-[var(--text-primary)] font-semibold">{fmt(asset.offering_value as number | null)}</dd>
+          </div>
+          <div className="flex justify-between">
+            <dt className="text-[var(--text-muted)]">Capital Raised</dt>
+            <dd className="text-[var(--text-primary)] font-semibold">{fmt(meta.capital_raised as number | null)}</dd>
+          </div>
+        </dl>
+      </NeuCard>
+      <NeuCard variant="raised" padding="md">
+        <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Structure</h3>
+        <dl className="space-y-2 text-sm">
+          <div className="flex justify-between">
+            <dt className="text-[var(--text-muted)]">SPV Name</dt>
+            <dd className="text-[var(--text-primary)]">{(asset.spv_name as string) ?? '—'}</dd>
+          </div>
+          <div className="flex justify-between">
+            <dt className="text-[var(--text-muted)]">Value Path</dt>
+            <dd className="text-[var(--text-primary)]">
+              {pathLabels[asset.value_path as string] ?? (asset.value_path as string) ?? '—'}
+            </dd>
+          </div>
+          <div className="flex justify-between">
+            <dt className="text-[var(--text-muted)]">Investors</dt>
+            <dd className="text-[var(--text-primary)]">{(meta.investor_count as number) ?? 0}</dd>
+          </div>
+        </dl>
+      </NeuCard>
+    </div>
   )
 }
