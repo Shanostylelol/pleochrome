@@ -318,6 +318,86 @@
 - Reference code uses random 4-digit + retry loop (5 attempts)
 - Eliminates Date.now() collision risk
 
+---
+
+## SPRINT 3: INTERACTIVE GOVERNANCE + DASHBOARD + CONNECTIONS
+
+### S3.1 — Interactive Governance Tab
+**Date:** 2026-03-30
+**Status:** COMPLETE
+**What was done:**
+- Governance tab rewritten with expandable step accordions
+- Each step shows: description, status controls (Start/Complete/Block/Unblock/Reopen), task instances with completion checkboxes, metadata (dates)
+- Progress summary: 4 stat cards (Total/Completed/In Progress/Blocked) + progress bar
+- Phase groups collapsible with completion counts (e.g., "3/10 done")
+- Block reason input + blocked state display with warning
+- Task instance status toggles (todo ↔ done) with real-time badge updates
+**Files modified:** `src/app/crm/assets/[id]/page.tsx`
+**Tests passed:** `npm run build` — zero errors. Step mutations (start/complete/block/unblock) verified via API. Browser test: expansion, buttons, task completion all functional.
+
+### S3.2 — Gates Tab with Evaluation
+**Date:** 2026-03-30
+**Status:** COMPLETE
+**What was done:**
+- Gates tab shows all gate milestone steps across the workflow
+- Each gate shows: step number, title, phase, progress bar for phase completion, status badge (Pending/Ready/Passed)
+- "Pass Gate" button appears when all non-gate phase steps are completed
+- Gate passage triggers step.updateStatus(completed) mutation
+**Files modified:** `src/app/crm/assets/[id]/page.tsx`
+**Tests passed:** `npm run build` — zero errors. 7 gates displayed for Lifecycle Test Asset. Browser verified.
+
+### S3.3 — Templates CRUD UI
+**Date:** 2026-03-30
+**Status:** COMPLETE
+**What was done:**
+- Requirements tab: each requirement is now clickable → Edit Requirement modal
+- Edit modal: title, description, regulatory basis, regulatory citation, gate checkbox
+- Warning: "Changes affect NEW assets only"
+- Partner Modules tab: module cards with partner badge, function tags, clickable to expand tasks panel
+- Module Tasks panel: view tasks, add task form (select requirement, title, description, type)
+- Create Module modal: select partner, module name, description, functions covered
+- Coverage Matrix tab: stats cards, per-phase coverage visualization
+**Files modified:** `src/app/crm/templates/page.tsx`
+**Tests passed:** `npm run build` — zero errors. Edit modal verified in browser with pre-filled data. Create module wizard functional.
+
+### S3.4 — Executive Dashboard
+**Date:** 2026-03-30
+**Status:** COMPLETE
+**What was done:**
+- New dashboard router with 5 queries: getPipelineFunnel, getAssetsByPath, getComplianceSummary, getRiskIndicators, getRecentActivity
+- Dashboard view mode added to Pipeline Board (3-way toggle: Dashboard/Kanban/List)
+- Pipeline Funnel: horizontal bar chart showing asset count per phase
+- Value by Path: color-coded bars for Tokenization/Fractional/Debt/Evaluating with totals
+- Risk Indicators: blocked steps, stale assets (14d), overdue tasks with severity badges
+- Compliance by Asset: per-asset progress bars with clickable drill-through to governance tab
+**Files created:** `src/server/routers/dashboard.ts`
+**Files modified:** `src/app/crm/page.tsx`, `src/server/routers/_app.ts`
+**Tests passed:** `npm run build` — zero errors. API returns real data ($109.6M AUM, 11 assets across 4 paths). Browser verified with charts.
+
+### S3.5 — Cross-Page Connections
+**Date:** 2026-03-30
+**Status:** COMPLETE
+**What was done:**
+- Partners page: cards wrapped in Link → partner detail
+- Activity page: asset_id → "View Asset" badge link, partner_id → "View Partner" badge link
+- Compliance page: alerts wrapped in Link → asset detail
+- Asset Detail Partners tab: partner cards → partner detail page
+**Files modified:** `src/app/crm/partners/page.tsx`, `src/app/crm/activity/page.tsx`, `src/app/crm/compliance/page.tsx`, `src/app/crm/assets/[id]/page.tsx`
+**Tests passed:** `npm run build` — zero errors. All links verified in browser (partner card → detail page navigates correctly).
+
+### S3.6 — Full Integration Test
+**Date:** 2026-03-30
+**Status:** COMPLETE
+**What was done:**
+- All 15 CRM pages return HTTP 200
+- Dynamic pages (asset detail, partner detail) return 200 with real data
+- Pipeline funnel shows 4 Intake, 1 each in other phases
+- Asset path distribution: Tokenization 5/$48.7M, Fractional 4/$19.7M, Debt 1/$40M, Evaluating 1/$1.2M
+- Step mutations tested: not_started → in_progress → completed → not_started (all work with timestamps)
+- Step blocking tested with reason text (blocked_at, blocked_reason saved)
+- Governance requirement update mutation verified
+- 13 tRPC routers, 24 routes, zero build errors
+
 ### Remaining
 **Status:** PENDING
 **Items:** Wipe test data + zero-to-end asset lifecycle test

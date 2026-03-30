@@ -9,28 +9,29 @@
 
 ### What's Built & Working
 - **24 Next.js routes** (15 CRM pages + API + manifest + landing + portals)
-- **11 tRPC routers:** health, assets, documents, tasks, partners, meetings, search, governance, activity, assetTaskInstances, steps
+- **13 tRPC routers:** health, assets, documents, tasks, partners, meetings, search, governance, activity, assetTaskInstances, steps, **dashboard** (NEW)
 - **Supabase fully deployed:** 19 tables, 81 governance requirements, 4 views, 5 storage buckets, 3 team members
 - **Governance engine CONNECTED:** `assemble_asset_workflow()` creates 53 governance steps per tokenization asset
 - **Neumorphic design system:** 10 atomic components, dark + light mode, responsive at 375/768/1440px
-- **Pipeline Board:** Kanban + list view toggle, DnD with confirmation, stats ribbon, path filters, Quick Add
+- **Pipeline Board:** Kanban + list + **DASHBOARD** view toggle, DnD with confirmation, stats ribbon, path filters, Quick Add
 - **Asset Detail:** 8-tab interface, phase timeline, Edit modal, document upload, task create, financial cards
+- **INTERACTIVE Governance Tab:** expandable step accordions, Start/Complete/Block/Unblock, task instance checkboxes, progress summary
+- **Gates Tab:** 7 gate milestones with phase progress bars, Pass Gate button when ready
+- **Templates CRUD:** edit requirement modal, create module modal, module task mapping, coverage matrix
+- **Executive Dashboard:** pipeline funnel, value by path, risk indicators, compliance by asset
+- **Cross-page links:** partners→detail, activity→asset/partner, compliance→asset, all connected
 - **All sidebar pages render:** Pipeline, Assets, Partners, Documents, Tasks, Meetings, Activity, Team, Templates, Compliance, Settings
 - **11 test assets** across all phases/paths/types
 
-### What Does NOT Work Yet (Critical Gaps)
-1. **Governance steps are NOT interactive** — can't complete, block, or assign tasks on steps
-2. **Templates page is READ-ONLY** — no create/edit modals (CRUD mutations exist but no UI)
-3. **Partner modules table is EMPTY** — no modules configured for any partner
-4. **Default tasks table is EMPTY** — no fallback tasks when no partner module assigned
-5. **asset_task_instances NOT displayed** — getById reads old `tasks` table, not Layer 3 instances
-6. **No executive dashboard** — just 4-stat ribbon, no charts/funnel/trends
-7. **Older assets have ZERO governance steps** — only Lifecycle Test Asset has 53 steps
-8. **Cross-page links incomplete** — many pages are still silos
-9. **No comments system** on assets/steps
-10. **No document versioning or batch download**
-11. **No pagination** on any list
-12. **DnD kanban** — confirmation dialog works but actual drag visual may need testing
+### What Does NOT Work Yet (Remaining Gaps)
+1. **Partner modules table is EMPTY** — no modules configured for any partner
+2. **Default tasks table is EMPTY** — no fallback tasks when no partner module assigned
+3. **Older assets have ZERO governance steps** — only Lifecycle Test Asset has 53 steps
+4. **No comments system** on assets/steps
+5. **No document versioning or batch download**
+6. **No pagination** on any list
+7. **No comments system** on assets/steps
+8. **DnD kanban** — confirmation dialog works but actual drag visual may need testing
 
 ---
 
