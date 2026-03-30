@@ -7,6 +7,7 @@ import { partnersRouter } from './partners'
 import { meetingsRouter } from './meetings'
 import { searchRouter } from './search'
 import { governanceRouter } from './governance'
+import { activityRouter } from './activity'
 
 export const appRouter = createRouter({
   health: healthRouter,
@@ -17,6 +18,7 @@ export const appRouter = createRouter({
   meetings: meetingsRouter,
   search: searchRouter,
   governance: governanceRouter,
+  activity: activityRouter,
 })
 
 export type AppRouter = typeof appRouter

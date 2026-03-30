@@ -107,6 +107,7 @@ export default function PipelineBoardPage() {
   const [showQuickAdd, setShowQuickAdd] = useState(false)
   const [viewMode, setViewMode] = useState<ViewMode>('kanban')
   const [activeId, setActiveId] = useState<string | null>(null)
+  const [pendingMove, setPendingMove] = useState<{ assetId: string; assetName: string; fromPhase: string; toPhase: string; newPhase: string } | null>(null)
   const router = useRouter()
 
   const utils = trpc.useUtils()
@@ -155,9 +156,11 @@ export default function PipelineBoardPage() {
     const currentCol = getColumnForPhase(currentAsset.current_phase as string)
     if (currentCol === targetColId) return
 
-    const newPhase = targetCol.phases[0] as 'phase_0_foundation' | 'phase_1_intake' | 'phase_2_certification' | 'phase_3_custody' | 'phase_4_legal' | 'phase_5_tokenization' | 'phase_6_regulatory' | 'phase_7_distribution' | 'phase_8_ongoing'
-    updatePhase.mutate({ assetId, newPhase })
-  }, [assets, updatePhase])
+    const newPhase = targetCol.phases[0]
+    const fromLabel = PHASE_LABEL[currentAsset.current_phase as string] ?? currentAsset.current_phase
+    const toLabel = PHASE_LABEL[newPhase] ?? newPhase
+    setPendingMove({ assetId, assetName: currentAsset.name ?? 'Asset', fromPhase: fromLabel as string, toPhase: toLabel as string, newPhase })
+  }, [assets])
 
   const activeAsset = activeId ? assets.find((a) => a.id === activeId) : null
 
@@ -342,6 +345,40 @@ export default function PipelineBoardPage() {
       >
         <Plus className="h-6 w-6" />
       </button>
+
+      {/* Phase Move Confirmation */}
+      {pendingMove && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-[var(--overlay)]" onClick={() => setPendingMove(null)} />
+          <NeuCard variant="raised" padding="lg" className="relative w-full max-w-sm z-10 space-y-4">
+            <h2 className="text-lg font-semibold text-[var(--text-primary)]" style={{ fontFamily: 'var(--font-display)' }}>
+              Confirm Phase Change
+            </h2>
+            <p className="text-sm text-[var(--text-secondary)]">
+              Move <strong>{pendingMove.assetName}</strong> from <NeuBadge color="gray" size="sm">{pendingMove.fromPhase}</NeuBadge> to <NeuBadge color="teal" size="sm">{pendingMove.toPhase}</NeuBadge>?
+            </p>
+            <p className="text-xs text-[var(--text-muted)]">
+              This will update the asset&apos;s governance phase. Gate checks will be validated.
+            </p>
+            <div className="flex gap-3 pt-2">
+              <NeuButton variant="ghost" onClick={() => setPendingMove(null)} fullWidth>Cancel</NeuButton>
+              <NeuButton
+                onClick={() => {
+                  updatePhase.mutate({
+                    assetId: pendingMove.assetId,
+                    newPhase: pendingMove.newPhase as 'phase_0_foundation' | 'phase_1_intake' | 'phase_2_certification' | 'phase_3_custody' | 'phase_4_legal' | 'phase_5_tokenization' | 'phase_6_regulatory' | 'phase_7_distribution' | 'phase_8_ongoing',
+                  })
+                  setPendingMove(null)
+                }}
+                loading={updatePhase.isPending}
+                fullWidth
+              >
+                Confirm Move
+              </NeuButton>
+            </div>
+          </NeuCard>
+        </div>
+      )}
 
       {showQuickAdd && <QuickAddModal onClose={() => setShowQuickAdd(false)} />}
     </div>

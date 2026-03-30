@@ -44,6 +44,24 @@ export const documentsRouter = createRouter({
     }
   }),
 
+  getDownloadUrl: protectedProcedure
+    .input(z.object({ documentId: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      const { data: doc } = await ctx.db
+        .from('documents')
+        .select('storage_bucket, storage_path, filename')
+        .eq('id', input.documentId)
+        .single()
+      if (!doc) throw new TRPCError({ code: 'NOT_FOUND', message: 'Document not found' })
+
+      const { data } = await ctx.db.storage
+        .from(doc.storage_bucket)
+        .createSignedUrl(doc.storage_path, 3600) // 1 hour expiry
+
+      if (!data?.signedUrl) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Could not generate download URL' })
+      return { url: data.signedUrl, filename: doc.filename }
+    }),
+
   create: protectedProcedure
     .input(
       z.object({
@@ -120,6 +138,9 @@ export const documentsRouter = createRouter({
 
       if (!doc) throw new TRPCError({ code: 'NOT_FOUND', message: 'Document not found' })
       if (doc.is_locked) throw new TRPCError({ code: 'FORBIDDEN', message: 'Cannot delete a locked document' })
+
+      // Remove file from storage
+      await ctx.db.storage.from('asset-documents').remove([doc.storage_path])
 
       const { error } = await ctx.db
         .from('documents')

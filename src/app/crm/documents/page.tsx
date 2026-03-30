@@ -4,7 +4,7 @@ import { useState, useRef } from 'react'
 import { trpc } from '@/lib/trpc'
 import { createClient } from '@/lib/supabase'
 import { NeuCard, NeuBadge, NeuButton, NeuInput, NeuSelect } from '@/components/ui'
-import { FileText, Upload, Lock, Unlock, Search, Trash2, X, UploadCloud } from 'lucide-react'
+import { FileText, Upload, Lock, Unlock, Search, Trash2, X, UploadCloud, Download } from 'lucide-react'
 
 function formatBytes(bytes: number): string {
   if (bytes === 0) return '0 B'
@@ -206,6 +206,19 @@ export default function DocumentsPage() {
                 )}
               </div>
               <div className="flex gap-1 shrink-0">
+                <NeuButton
+                  variant="ghost"
+                  size="sm"
+                  onClick={async () => {
+                    try {
+                      const result = await utils.client.documents.getDownloadUrl.query({ documentId: doc.id })
+                      window.open(result.url, '_blank')
+                    } catch { /* no file in storage yet */ }
+                  }}
+                  aria-label="Download"
+                >
+                  <Download className="h-4 w-4" />
+                </NeuButton>
                 <NeuButton
                   variant="ghost"
                   size="sm"

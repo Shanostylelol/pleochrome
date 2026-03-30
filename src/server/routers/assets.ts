@@ -145,16 +145,17 @@ export const assetsRouter = createRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const refCode = `PC-${new Date().getFullYear()}-${String(Date.now()).slice(-4)}`
-
-      const { data: existing } = await ctx.db
-        .from('assets')
-        .select('id')
-        .eq('reference_code', refCode)
-        .maybeSingle()
-
-      if (existing) {
-        throw new TRPCError({ code: 'CONFLICT', message: 'Reference code already exists. Please try again.' })
+      // Generate unique reference code with retry
+      let refCode = ''
+      for (let attempt = 0; attempt < 5; attempt++) {
+        refCode = `PC-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 9000) + 1000)}`
+        const { data: existing } = await ctx.db
+          .from('assets')
+          .select('id')
+          .eq('reference_code', refCode)
+          .maybeSingle()
+        if (!existing) break
+        if (attempt === 4) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Could not generate unique reference code after 5 attempts' })
       }
 
       const { data, error } = await ctx.db
@@ -205,24 +206,72 @@ export const assetsRouter = createRouter({
     }),
 
   updatePhase: protectedProcedure
-    .input(
-      z.object({
-        assetId: z.string().uuid(),
-        newPhase: z.enum([
-          'phase_0_foundation', 'phase_1_intake', 'phase_2_certification',
-          'phase_3_custody', 'phase_4_legal', 'phase_5_tokenization',
-          'phase_6_regulatory', 'phase_7_distribution', 'phase_8_ongoing',
-        ]),
-      })
-    )
+    .input(z.object({
+      assetId: z.string().uuid(),
+      newPhase: z.enum([
+        'phase_0_foundation', 'phase_1_intake', 'phase_2_certification',
+        'phase_3_custody', 'phase_4_legal', 'phase_5_tokenization',
+        'phase_6_regulatory', 'phase_7_distribution', 'phase_8_ongoing',
+      ]),
+      reason: z.string().optional(),
+      force: z.boolean().default(false),
+    }))
     .mutation(async ({ ctx, input }) => {
+      // 1. Get current asset
+      const { data: asset } = await ctx.db.from('assets').select('current_phase, status, name').eq('id', input.assetId).single()
+      if (!asset) throw new TRPCError({ code: 'NOT_FOUND', message: 'Asset not found' })
+
+      // 2. Validate sequential transition (unless force)
+      const phaseOrder = ['phase_0_foundation', 'phase_1_intake', 'phase_2_certification', 'phase_3_custody', 'phase_4_legal', 'phase_5_tokenization', 'phase_6_regulatory', 'phase_7_distribution', 'phase_8_ongoing']
+      const currentIdx = phaseOrder.indexOf(asset.current_phase)
+      const newIdx = phaseOrder.indexOf(input.newPhase)
+
+      if (!input.force && Math.abs(newIdx - currentIdx) > 1) {
+        return { asset: null, gatesPassed: false, blockers: [`Cannot skip from ${asset.current_phase} to ${input.newPhase}. Transitions must be sequential.`] }
+      }
+
+      // 3. Check incomplete steps in current phase (only for forward transitions)
+      if (!input.force && newIdx > currentIdx) {
+        const { data: incompleteSteps } = await ctx.db
+          .from('asset_steps')
+          .select('name, status')
+          .eq('asset_id', input.assetId)
+          .eq('phase', asset.current_phase as never)
+          .in('status', ['not_started', 'in_progress'] as never[])
+
+        if (incompleteSteps && incompleteSteps.length > 0) {
+          return {
+            asset: null,
+            gatesPassed: false,
+            blockers: incompleteSteps.map((s: any) => `Step "${s.name}" is ${s.status}`)
+          }
+        }
+      }
+
+      // 4. Update phase
       const { data, error } = await ctx.db
         .from('assets')
-        .update({ current_phase: input.newPhase })
+        .update({ current_phase: input.newPhase } as never)
         .eq('id', input.assetId)
         .select()
         .single()
 
+      if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
+      return { asset: data, gatesPassed: true, blockers: [] }
+    }),
+
+  archive: protectedProcedure
+    .input(z.object({
+      assetId: z.string().uuid(),
+      reason: z.string().min(1).max(1000),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const { data, error } = await ctx.db
+        .from('assets')
+        .update({ status: 'archived', termination_reason: input.reason } as never)
+        .eq('id', input.assetId)
+        .select()
+        .single()
       if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
       return data
     }),
