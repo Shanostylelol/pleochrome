@@ -272,6 +272,18 @@ function OverviewTab({ asset, meta }: { asset: Record<string, unknown>; meta: Re
 }
 
 function GovernanceTab({ steps }: { steps: Array<Record<string, unknown>> }) {
+  const phaseLabelMap: Record<string, string> = {
+    phase_0_foundation: 'Phase 0 — Foundation',
+    phase_1_intake: 'Phase 1 — Intake & Acquisition',
+    phase_2_certification: 'Phase 2 — Certification',
+    phase_3_custody: 'Phase 3 — Custody',
+    phase_4_legal: 'Phase 4 — Legal',
+    phase_5_tokenization: 'Phase 5 — Execution',
+    phase_6_regulatory: 'Phase 6 — Regulatory',
+    phase_7_distribution: 'Phase 7 — Distribution',
+    phase_8_ongoing: 'Phase 8 — Ongoing',
+  }
+
   if (steps.length === 0) {
     return (
       <NeuCard variant="pressed" padding="lg" className="text-center">
@@ -284,7 +296,7 @@ function GovernanceTab({ steps }: { steps: Array<Record<string, unknown>> }) {
 
   const grouped: Record<string, Array<Record<string, unknown>>> = {}
   steps.forEach((s) => {
-    const phase = (s.phase_name as string) ?? `Phase ${s.phase_number}`
+    const phase = phaseLabelMap[s.phase as string] ?? (s.phase as string) ?? 'Other'
     if (!grouped[phase]) grouped[phase] = []
     grouped[phase].push(s)
   })
@@ -301,14 +313,26 @@ function GovernanceTab({ steps }: { steps: Array<Record<string, unknown>> }) {
     <div className="space-y-4">
       {Object.entries(grouped).map(([phaseName, phaseSteps]) => (
         <NeuCard key={phaseName} variant="raised" padding="md">
-          <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">{phaseName}</h3>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-[var(--text-primary)]">{phaseName}</h3>
+            <span className="text-xs text-[var(--text-muted)]">{phaseSteps.length} steps</span>
+          </div>
           <div className="space-y-2">
             {phaseSteps.map((step) => (
-              <div key={step.id as string} className="flex items-center gap-3 px-3 py-2 rounded-[var(--radius-md)] bg-[var(--bg-body)] shadow-[var(--shadow-pressed)]">
-                <NeuBadge color={stepStatusColor[(step.status as string) ?? 'not_started'] ?? 'gray'} dot />
+              <div key={step.id as string} className="flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-md)] bg-[var(--bg-body)] shadow-[var(--shadow-pressed)]">
+                {step.is_gate ? (
+                  <Shield className="h-4 w-4 text-[var(--amber)] shrink-0" />
+                ) : (
+                  <NeuBadge color={stepStatusColor[(step.status as string) ?? 'not_started'] ?? 'gray'} dot />
+                )}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[var(--text-primary)] truncate">{step.name as string}</p>
-                  <p className="text-xs text-[var(--text-muted)]">Step {step.phase_number as number}.{step.step_number as number}</p>
+                  <p className="text-sm font-medium text-[var(--text-primary)] truncate">
+                    <span className="text-[var(--text-muted)]" style={{ fontFamily: 'var(--font-mono)' }}>{step.step_number as string}</span>
+                    {' '}{step.step_title as string}
+                  </p>
+                  {(step.step_description as string | null) && (
+                    <p className="text-xs text-[var(--text-muted)] mt-0.5 truncate">{step.step_description as string}</p>
+                  )}
                 </div>
                 <NeuBadge color={stepStatusColor[(step.status as string) ?? 'not_started'] ?? 'gray'} size="sm">
                   {(step.status as string) ?? 'not_started'}

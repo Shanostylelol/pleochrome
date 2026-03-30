@@ -40,8 +40,7 @@ export const assetsRouter = createRouter({
         .from('asset_steps')
         .select('*')
         .eq('asset_id', input.assetId)
-        .order('phase_number', { ascending: true })
-        .order('step_number', { ascending: true })
+        .order('sort_order', { ascending: true })
 
       const { data: documents } = await ctx.db
         .from('documents')
