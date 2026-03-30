@@ -36,7 +36,8 @@ All seed data wiped. Only team_members remain (3 rows). V1 UI still exists but q
 | V1 code | Still in place (will be overwritten phase-by-phase) |
 | Database | EMPTY except team_members. RLS disabled. V1 tables still exist (will be dropped in Phase 1) |
 
-### Current Phase: **PHASE 0 — NOT STARTED**
+### Current Phase: **PHASE 0 — STARTING NOW**
+### Next Action: Execute Phase 0 from V2-MASTER-BUILD-PLAN.md, then immediately proceed to Phase 1
 
 ---
 
