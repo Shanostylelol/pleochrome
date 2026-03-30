@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { Handshake, Plus, Mail, Phone, ExternalLink, X } from 'lucide-react'
 import { NeuCard, NeuBadge, NeuButton, NeuAvatar, NeuInput, NeuTextarea, NeuSelect } from '@/components/ui'
 import { trpc } from '@/lib/trpc'
@@ -37,34 +38,31 @@ export default function PartnersPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {partners.map((p) => (
-            <NeuCard key={p.id} variant="raised" padding="md" hoverable>
-              <div className="flex items-center gap-3 mb-3">
-                <NeuAvatar name={p.name} />
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{p.name}</p>
-                  <NeuBadge color="amethyst" size="sm">{p.type}</NeuBadge>
+            <Link key={p.id} href={`/crm/partners/${p.id}`}>
+              <NeuCard variant="raised" padding="md" hoverable>
+                <div className="flex items-center gap-3 mb-3">
+                  <NeuAvatar name={p.name} />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{p.name}</p>
+                    <NeuBadge color="amethyst" size="sm">{p.type}</NeuBadge>
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-1.5 text-xs text-[var(--text-secondary)]">
-                {p.contact_name && <p>{p.contact_name}</p>}
-                {p.contact_email && (
-                  <a href={`mailto:${p.contact_email}`} className="flex items-center gap-1 hover:text-[var(--teal)]">
-                    <Mail className="h-3 w-3" />{p.contact_email}
-                  </a>
-                )}
-                {p.contact_phone && (
-                  <p className="flex items-center gap-1"><Phone className="h-3 w-3" />{p.contact_phone}</p>
-                )}
-                {p.website && (
-                  <a href={p.website} target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:text-[var(--teal)]">
-                    <ExternalLink className="h-3 w-3" />{p.website}
-                  </a>
-                )}
-              </div>
-              <div className="mt-3 pt-2 border-t border-[var(--border)]">
-                <NeuBadge color={ddColorMap[p.dd_status] ?? 'gray'} size="sm">DD: {p.dd_status}</NeuBadge>
-              </div>
-            </NeuCard>
+                <div className="space-y-1.5 text-xs text-[var(--text-secondary)]">
+                  {p.contact_name && <p>{p.contact_name}</p>}
+                  {p.contact_email && (
+                    <span className="flex items-center gap-1">
+                      <Mail className="h-3 w-3" />{p.contact_email}
+                    </span>
+                  )}
+                  {p.contact_phone && (
+                    <p className="flex items-center gap-1"><Phone className="h-3 w-3" />{p.contact_phone}</p>
+                  )}
+                </div>
+                <div className="mt-3 pt-2 border-t border-[var(--border)]">
+                  <NeuBadge color={ddColorMap[p.dd_status] ?? 'gray'} size="sm">DD: {p.dd_status}</NeuBadge>
+                </div>
+              </NeuCard>
+            </Link>
           ))}
         </div>
       )}

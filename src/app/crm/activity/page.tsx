@@ -96,7 +96,19 @@ export default function ActivityPage() {
                   </p>
                 </div>
                 <div className="flex gap-1 shrink-0">
-                  {entry.entity_type && <NeuBadge color="gray" size="sm">{entry.entity_type}</NeuBadge>}
+                  {entry.asset_id && (
+                    <Link href={`/crm/assets/${entry.asset_id}`}>
+                      <NeuBadge color="teal" size="sm">View Asset</NeuBadge>
+                    </Link>
+                  )}
+                  {entry.partner_id && (
+                    <Link href={`/crm/partners/${entry.partner_id}`}>
+                      <NeuBadge color="amethyst" size="sm">View Partner</NeuBadge>
+                    </Link>
+                  )}
+                  {entry.entity_type && !entry.asset_id && !entry.partner_id && (
+                    <NeuBadge color="gray" size="sm">{entry.entity_type}</NeuBadge>
+                  )}
                   {entry.category && <NeuBadge color={categoryColors[entry.category] ?? 'gray'} size="sm">{entry.category}</NeuBadge>}
                 </div>
               </NeuCard>

@@ -10,6 +10,7 @@ import { governanceRouter } from './governance'
 import { activityRouter } from './activity'
 import { assetTaskInstancesRouter } from './asset-task-instances'
 import { stepsRouter } from './steps'
+import { dashboardRouter } from './dashboard'
 
 export const appRouter = createRouter({
   health: healthRouter,
@@ -23,6 +24,7 @@ export const appRouter = createRouter({
   activity: activityRouter,
   assetTaskInstances: assetTaskInstancesRouter,
   steps: stepsRouter,
+  dashboard: dashboardRouter,
 })
 
 export type AppRouter = typeof appRouter

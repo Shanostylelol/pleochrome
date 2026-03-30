@@ -5,7 +5,7 @@ import { trpc } from '@/lib/trpc'
 import { createClient } from '@/lib/supabase'
 import { NeuCard, NeuButton, NeuProgress, NeuInput, NeuBadge } from '@/components/ui'
 import { AssetCard } from '@/components/crm/AssetCard'
-import { Plus, DollarSign, Gem, Clock, Shield, Inbox, X, LayoutGrid, List, GripVertical } from 'lucide-react'
+import { Plus, DollarSign, Gem, Clock, Shield, Inbox, X, LayoutGrid, List, GripVertical, BarChart3, AlertTriangle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors,
@@ -17,7 +17,7 @@ import { useRouter } from 'next/navigation'
 import type { PipelineBoard } from '@/lib/types'
 
 type PathFilter = 'fractional_securities' | 'tokenization' | 'debt_instruments'
-type ViewMode = 'kanban' | 'list'
+type ViewMode = 'kanban' | 'list' | 'dashboard'
 
 const PATH_FILTERS: { label: string; value: PathFilter | null; color: string }[] = [
   { label: 'All', value: null, color: 'var(--text-muted)' },
@@ -178,6 +178,18 @@ export default function PipelineBoardPage() {
           {/* View Toggle */}
           <div className="p-0.5 rounded-[var(--radius-md)] bg-[var(--bg-body)] shadow-[var(--shadow-pressed)] hidden sm:flex">
             <button
+              onClick={() => setViewMode('dashboard')}
+              className={cn(
+                'p-2 rounded-[var(--radius-sm)] transition-all',
+                viewMode === 'dashboard'
+                  ? 'bg-[var(--bg-surface)] shadow-[var(--shadow-raised-sm)] text-[var(--text-primary)]'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
+              )}
+              aria-label="Dashboard view"
+            >
+              <BarChart3 className="h-4 w-4" />
+            </button>
+            <button
               onClick={() => setViewMode('kanban')}
               className={cn(
                 'p-2 rounded-[var(--radius-sm)] transition-all',
@@ -271,6 +283,9 @@ export default function PipelineBoardPage() {
         <div className="flex items-center justify-center py-20">
           <p className="text-[var(--text-muted)]">Loading pipeline...</p>
         </div>
+      ) : viewMode === 'dashboard' ? (
+        /* ─── Dashboard View ─── */
+        <DashboardView />
       ) : viewMode === 'kanban' ? (
         /* ─── Kanban View ─── */
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
@@ -410,6 +425,139 @@ function DroppableColumn({ col, assets }: { col: KanbanColumn; assets: PipelineB
           </div>
         )}
       </div>
+    </div>
+  )
+}
+
+// ─── Dashboard View ──────────────────────────────────
+function DashboardView() {
+  const { data: funnel = [] } = trpc.dashboard.getPipelineFunnel.useQuery()
+  const { data: pathData = [] } = trpc.dashboard.getAssetsByPath.useQuery()
+  const { data: compliance = [] } = trpc.dashboard.getComplianceSummary.useQuery()
+  const { data: risks = [] } = trpc.dashboard.getRiskIndicators.useQuery()
+
+  const maxFunnel = Math.max(...funnel.map((f) => f.count), 1)
+  const totalValue = pathData.reduce((s, p) => s + p.value, 0)
+  const totalAssets = pathData.reduce((s, p) => s + p.count, 0)
+
+  const pathColors: Record<string, string> = {
+    fractional_securities: 'var(--emerald)',
+    tokenization: 'var(--teal)',
+    debt_instruments: 'var(--sapphire)',
+    evaluating: 'var(--amber)',
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Pipeline Funnel */}
+      <NeuCard variant="raised" padding="md">
+        <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-4">Pipeline Funnel</h3>
+        <div className="space-y-2">
+          {funnel.map((f) => (
+            <div key={f.phase} className="flex items-center gap-3">
+              <span className="text-xs text-[var(--text-muted)] w-24 text-right truncate">{f.phase}</span>
+              <div className="flex-1 h-7 rounded-[var(--radius-sm)] bg-[var(--bg-body)] shadow-[var(--shadow-pressed)] overflow-hidden">
+                <div
+                  className="h-full rounded-[var(--radius-sm)] bg-[var(--teal)] transition-all"
+                  style={{ width: `${Math.max((f.count / maxFunnel) * 100, f.count > 0 ? 8 : 0)}%` }}
+                />
+              </div>
+              <span className="text-sm font-bold text-[var(--text-primary)] w-8 text-right">{f.count}</span>
+            </div>
+          ))}
+        </div>
+      </NeuCard>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Path Distribution */}
+        <NeuCard variant="raised" padding="md">
+          <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-4">Value by Path</h3>
+          {pathData.length === 0 ? (
+            <p className="text-sm text-[var(--text-muted)] text-center py-6">No assets yet</p>
+          ) : (
+            <div className="space-y-3">
+              {pathData.map((p) => {
+                const pct = totalValue > 0 ? (p.value / totalValue) * 100 : 0
+                return (
+                  <div key={p.path}>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-medium text-[var(--text-secondary)]">{p.name}</span>
+                      <span className="text-xs text-[var(--text-muted)]">{p.count} assets · {formatCurrency(p.value)}</span>
+                    </div>
+                    <div className="h-3 rounded-full bg-[var(--bg-body)] shadow-[var(--shadow-pressed)] overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all"
+                        style={{
+                          width: `${Math.max(pct, p.value > 0 ? 5 : 0)}%`,
+                          backgroundColor: pathColors[p.path] ?? 'var(--teal)',
+                        }}
+                      />
+                    </div>
+                  </div>
+                )
+              })}
+              <div className="pt-2 border-t border-[var(--border)] flex justify-between">
+                <span className="text-xs font-semibold text-[var(--text-primary)]">{totalAssets} total assets</span>
+                <span className="text-xs font-semibold text-[var(--text-primary)]">{formatCurrency(totalValue)} AUM</span>
+              </div>
+            </div>
+          )}
+        </NeuCard>
+
+        {/* Risk Indicators */}
+        <NeuCard variant="raised" padding="md">
+          <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-4">Risk Indicators</h3>
+          <div className="space-y-2">
+            {risks.map((risk, i) => (
+              <div key={i} className="flex items-start gap-3 px-3 py-2 rounded-[var(--radius-md)] bg-[var(--bg-body)] shadow-[var(--shadow-pressed)]">
+                <AlertTriangle className={`h-4 w-4 shrink-0 mt-0.5 ${
+                  risk.severity === 'high' ? 'text-[var(--ruby)]' : risk.severity === 'medium' ? 'text-[var(--amber)]' : 'text-[var(--chartreuse)]'
+                }`} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-[var(--text-primary)]">{risk.label}</p>
+                  <p className="text-xs text-[var(--text-muted)] truncate">{risk.detail}</p>
+                </div>
+                <NeuBadge color={risk.severity === 'high' ? 'ruby' : risk.severity === 'medium' ? 'amber' : 'chartreuse'} size="sm">
+                  {risk.severity}
+                </NeuBadge>
+              </div>
+            ))}
+          </div>
+        </NeuCard>
+      </div>
+
+      {/* Compliance by Asset */}
+      <NeuCard variant="raised" padding="md">
+        <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-4">Compliance by Asset</h3>
+        {compliance.length === 0 ? (
+          <p className="text-sm text-[var(--text-muted)] text-center py-6">No assets with governance steps</p>
+        ) : (
+          <div className="space-y-2">
+            {compliance.map((a) => (
+              <div key={a.id} className="flex items-center gap-3 cursor-pointer hover:bg-[var(--bg-elevated)] px-3 py-2 rounded-[var(--radius-md)] transition-colors"
+                onClick={() => window.location.href = `/crm/assets/${a.id}?tab=governance`}
+              >
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-[var(--text-primary)] truncate">{a.name}</p>
+                  <p className="text-xs text-[var(--text-muted)]">{a.completedSteps}/{a.totalSteps} steps</p>
+                </div>
+                <div className="w-32">
+                  <div className="h-2.5 rounded-full bg-[var(--bg-body)] shadow-[var(--shadow-pressed)] overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all"
+                      style={{
+                        width: `${a.score}%`,
+                        backgroundColor: a.score >= 80 ? 'var(--chartreuse)' : a.score >= 40 ? 'var(--amber)' : 'var(--ruby)',
+                      }}
+                    />
+                  </div>
+                </div>
+                <span className="text-sm font-bold text-[var(--text-primary)] w-10 text-right">{a.score}%</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </NeuCard>
     </div>
   )
 }

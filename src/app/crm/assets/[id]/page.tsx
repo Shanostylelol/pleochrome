@@ -4,12 +4,14 @@ import { useState } from 'react'
 import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { trpc } from '@/lib/trpc'
-import { NeuCard, NeuBadge, NeuButton, NeuTabs, NeuAvatar, NeuInput, NeuTextarea } from '@/components/ui'
+import { NeuCard, NeuBadge, NeuButton, NeuTabs, NeuAvatar, NeuInput, NeuTextarea, NeuProgress } from '@/components/ui'
 import { PhaseTimeline } from '@/components/crm/PhaseTimeline'
 import {
   ChevronRight, Edit3, FileUp, MessageSquare, Download,
   LayoutGrid, Shield, FileText, CheckSquare, Activity,
   Lock, DollarSign, Handshake, Clock, X,
+  ChevronDown, Play, CheckCircle2, Ban, AlertTriangle, Circle,
+  Upload, Eye, Clipboard, Plus,
 } from 'lucide-react'
 
 const pathColorMap: Record<string, 'emerald' | 'teal' | 'sapphire' | 'amber' | 'gray'> = {
@@ -178,7 +180,7 @@ export default function AssetDetailPage() {
           <OverviewTab asset={asset} meta={meta} />
         )}
         {activeTab === 'governance' && (
-          <GovernanceTab steps={steps} />
+          <GovernanceTab steps={steps} assetId={params.id} documents={documents} />
         )}
         {activeTab === 'documents' && (
           <DocumentsTab assetId={params.id} documents={documents} />
@@ -190,7 +192,7 @@ export default function AssetDetailPage() {
           <ActivityTab activity={activity} />
         )}
         {activeTab === 'gates' && (
-          <GatesTab />
+          <GatesTab steps={steps} assetId={params.id} />
         )}
         {activeTab === 'financials' && (
           <FinancialsTab asset={asset} />
@@ -271,7 +273,7 @@ function OverviewTab({ asset, meta }: { asset: Record<string, unknown>; meta: Re
   )
 }
 
-function GovernanceTab({ steps }: { steps: Array<Record<string, unknown>> }) {
+function GovernanceTab({ steps, assetId, documents }: { steps: Array<Record<string, unknown>>; assetId: string; documents: Array<Record<string, unknown>> }) {
   const phaseLabelMap: Record<string, string> = {
     phase_0_foundation: 'Phase 0 — Foundation',
     phase_1_intake: 'Phase 1 — Intake & Acquisition',
@@ -283,6 +285,21 @@ function GovernanceTab({ steps }: { steps: Array<Record<string, unknown>> }) {
     phase_7_distribution: 'Phase 7 — Distribution',
     phase_8_ongoing: 'Phase 8 — Ongoing',
   }
+
+  const utils = trpc.useUtils()
+  const updateStep = trpc.steps.updateStatus.useMutation({
+    onSuccess: () => utils.assets.getById.invalidate({ assetId }),
+  })
+  const completeTask = trpc.assetTaskInstances.complete.useMutation({
+    onSuccess: () => {
+      utils.assets.getById.invalidate({ assetId })
+      utils.assetTaskInstances.listByAsset.invalidate({ assetId })
+    },
+  })
+  const updateTaskStatus = trpc.assetTaskInstances.updateStatus.useMutation({
+    onSuccess: () => utils.assetTaskInstances.listByAsset.invalidate({ assetId }),
+  })
+  const { data: taskInstances = [] } = trpc.assetTaskInstances.listByAsset.useQuery({ assetId })
 
   if (steps.length === 0) {
     return (
@@ -301,47 +318,272 @@ function GovernanceTab({ steps }: { steps: Array<Record<string, unknown>> }) {
     grouped[phase].push(s)
   })
 
-  const stepStatusColor: Record<string, 'teal' | 'chartreuse' | 'ruby' | 'gray'> = {
-    not_started: 'gray',
-    in_progress: 'teal',
-    blocked: 'ruby',
-    completed: 'chartreuse',
-    skipped: 'gray',
-  }
+  const completedCount = steps.filter((s) => s.status === 'completed').length
+  const blockedCount = steps.filter((s) => s.status === 'blocked').length
+  const inProgressCount = steps.filter((s) => s.status === 'in_progress').length
 
   return (
     <div className="space-y-4">
-      {Object.entries(grouped).map(([phaseName, phaseSteps]) => (
-        <NeuCard key={phaseName} variant="raised" padding="md">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-[var(--text-primary)]">{phaseName}</h3>
-            <span className="text-xs text-[var(--text-muted)]">{phaseSteps.length} steps</span>
-          </div>
-          <div className="space-y-2">
-            {phaseSteps.map((step) => (
-              <div key={step.id as string} className="flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-md)] bg-[var(--bg-body)] shadow-[var(--shadow-pressed)]">
-                {step.is_gate ? (
-                  <Shield className="h-4 w-4 text-[var(--amber)] shrink-0" />
-                ) : (
-                  <NeuBadge color={stepStatusColor[(step.status as string) ?? 'not_started'] ?? 'gray'} dot />
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[var(--text-primary)] truncate">
-                    <span className="text-[var(--text-muted)]" style={{ fontFamily: 'var(--font-mono)' }}>{step.step_number as string}</span>
-                    {' '}{step.step_title as string}
-                  </p>
-                  {(step.step_description as string | null) && (
-                    <p className="text-xs text-[var(--text-muted)] mt-0.5 truncate">{step.step_description as string}</p>
-                  )}
-                </div>
-                <NeuBadge color={stepStatusColor[(step.status as string) ?? 'not_started'] ?? 'gray'} size="sm">
-                  {(step.status as string) ?? 'not_started'}
-                </NeuBadge>
-              </div>
-            ))}
-          </div>
+      {/* Progress Summary */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <NeuCard variant="raised-sm" padding="sm">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Total</p>
+          <p className="text-lg font-bold text-[var(--text-primary)]">{steps.length}</p>
         </NeuCard>
-      ))}
+        <NeuCard variant="raised-sm" padding="sm">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--chartreuse)]">Completed</p>
+          <p className="text-lg font-bold text-[var(--chartreuse)]">{completedCount}</p>
+        </NeuCard>
+        <NeuCard variant="raised-sm" padding="sm">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--teal)]">In Progress</p>
+          <p className="text-lg font-bold text-[var(--teal)]">{inProgressCount}</p>
+        </NeuCard>
+        <NeuCard variant="raised-sm" padding="sm">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ruby)]">Blocked</p>
+          <p className="text-lg font-bold text-[var(--ruby)]">{blockedCount}</p>
+        </NeuCard>
+      </div>
+
+      <NeuProgress value={completedCount} max={steps.length} color="chartreuse" />
+
+      {Object.entries(grouped).map(([phaseName, phaseSteps]) => {
+        const phaseCompleted = phaseSteps.filter((s) => s.status === 'completed').length
+        return (
+          <PhaseStepGroup
+            key={phaseName}
+            phaseName={phaseName}
+            phaseSteps={phaseSteps}
+            phaseCompleted={phaseCompleted}
+            taskInstances={taskInstances}
+            documents={documents}
+            onUpdateStep={(stepId, status, blockedReason) => updateStep.mutate({ stepId, status: status as 'not_started' | 'in_progress' | 'blocked' | 'completed' | 'skipped', blockedReason })}
+            onCompleteTask={(taskId) => completeTask.mutate({ taskId })}
+            onUpdateTaskStatus={(taskId, status) => updateTaskStatus.mutate({ taskId, status: status as 'todo' | 'in_progress' | 'review' | 'done' | 'cancelled' })}
+          />
+        )
+      })}
+    </div>
+  )
+}
+
+function PhaseStepGroup({
+  phaseName, phaseSteps, phaseCompleted, taskInstances, documents,
+  onUpdateStep, onCompleteTask, onUpdateTaskStatus,
+}: {
+  phaseName: string
+  phaseSteps: Array<Record<string, unknown>>
+  phaseCompleted: number
+  taskInstances: Array<Record<string, unknown>>
+  documents: Array<Record<string, unknown>>
+  onUpdateStep: (stepId: string, status: string, blockedReason?: string) => void
+  onCompleteTask: (taskId: string) => void
+  onUpdateTaskStatus: (taskId: string, status: string) => void
+}) {
+  const [expanded, setExpanded] = useState(true)
+
+  return (
+    <NeuCard variant="raised" padding="none">
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-[var(--bg-elevated)] transition-colors rounded-t-[var(--radius-md)]"
+      >
+        {expanded ? <ChevronDown className="h-4 w-4 text-[var(--text-muted)]" /> : <ChevronRight className="h-4 w-4 text-[var(--text-muted)]" />}
+        <span className="text-sm font-semibold text-[var(--text-primary)] flex-1">{phaseName}</span>
+        <span className="text-xs text-[var(--text-muted)]">{phaseCompleted}/{phaseSteps.length} done</span>
+      </button>
+      {expanded && (
+        <div className="px-3 pb-3 space-y-2">
+          {phaseSteps.map((step) => (
+            <StepAccordion
+              key={step.id as string}
+              step={step}
+              taskInstances={taskInstances.filter((t) => t.asset_step_id === step.id)}
+              documents={documents}
+              onUpdateStep={onUpdateStep}
+              onCompleteTask={onCompleteTask}
+              onUpdateTaskStatus={onUpdateTaskStatus}
+            />
+          ))}
+        </div>
+      )}
+    </NeuCard>
+  )
+}
+
+const STEP_STATUS_COLOR: Record<string, 'teal' | 'chartreuse' | 'ruby' | 'amber' | 'gray'> = {
+  not_started: 'gray',
+  in_progress: 'teal',
+  blocked: 'ruby',
+  completed: 'chartreuse',
+  skipped: 'gray',
+}
+
+const STEP_STATUS_ICON: Record<string, React.ReactNode> = {
+  not_started: <Circle className="h-4 w-4 text-[var(--text-muted)]" />,
+  in_progress: <Play className="h-4 w-4 text-[var(--teal)]" />,
+  blocked: <Ban className="h-4 w-4 text-[var(--ruby)]" />,
+  completed: <CheckCircle2 className="h-4 w-4 text-[var(--chartreuse)]" />,
+  skipped: <Circle className="h-4 w-4 text-[var(--text-placeholder)]" />,
+}
+
+function StepAccordion({
+  step, taskInstances, documents, onUpdateStep, onCompleteTask, onUpdateTaskStatus,
+}: {
+  step: Record<string, unknown>
+  taskInstances: Array<Record<string, unknown>>
+  documents: Array<Record<string, unknown>>
+  onUpdateStep: (stepId: string, status: string, blockedReason?: string) => void
+  onCompleteTask: (taskId: string) => void
+  onUpdateTaskStatus: (taskId: string, status: string) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const [blockReason, setBlockReason] = useState('')
+  const [showBlockInput, setShowBlockInput] = useState(false)
+  const status = (step.status as string) ?? 'not_started'
+  const stepId = step.id as string
+
+  const taskTypeIcon: Record<string, React.ReactNode> = {
+    action: <Clipboard className="h-3.5 w-3.5" />,
+    upload: <Upload className="h-3.5 w-3.5" />,
+    review: <Eye className="h-3.5 w-3.5" />,
+    approval: <CheckCircle2 className="h-3.5 w-3.5" />,
+    automated: <Activity className="h-3.5 w-3.5" />,
+  }
+
+  return (
+    <div className="rounded-[var(--radius-md)] bg-[var(--bg-body)] shadow-[var(--shadow-pressed)] overflow-hidden">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-3 w-full px-3 py-2.5 text-left hover:bg-[var(--bg-elevated)] transition-colors"
+      >
+        {step.is_gate ? (
+          <Shield className="h-4 w-4 text-[var(--amber)] shrink-0" />
+        ) : (
+          STEP_STATUS_ICON[status] ?? <Circle className="h-4 w-4 text-[var(--text-muted)]" />
+        )}
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-[var(--text-primary)] truncate">
+            <span className="text-[var(--text-muted)]" style={{ fontFamily: 'var(--font-mono)' }}>{step.step_number as string}</span>
+            {' '}{step.step_title as string}
+          </p>
+        </div>
+        {taskInstances.length > 0 && (
+          <span className="text-[10px] text-[var(--text-muted)]">{taskInstances.filter((t) => t.status === 'done').length}/{taskInstances.length} tasks</span>
+        )}
+        <NeuBadge color={STEP_STATUS_COLOR[status] ?? 'gray'} size="sm">{status.replace(/_/g, ' ')}</NeuBadge>
+        {open ? <ChevronDown className="h-3.5 w-3.5 text-[var(--text-muted)] shrink-0" /> : <ChevronRight className="h-3.5 w-3.5 text-[var(--text-muted)] shrink-0" />}
+      </button>
+
+      {open && (
+        <div className="px-3 pb-3 pt-1 border-t border-[var(--border)] space-y-3">
+          {/* Description */}
+          {(step.step_description as string | null) && (
+            <p className="text-xs text-[var(--text-muted)]">{step.step_description as string}</p>
+          )}
+
+          {/* Step Actions */}
+          <div className="flex flex-wrap gap-2">
+            {status === 'not_started' && (
+              <NeuButton size="sm" icon={<Play className="h-3.5 w-3.5" />} onClick={() => onUpdateStep(stepId, 'in_progress')}>
+                Start
+              </NeuButton>
+            )}
+            {status === 'in_progress' && (
+              <>
+                <NeuButton size="sm" icon={<CheckCircle2 className="h-3.5 w-3.5" />} onClick={() => onUpdateStep(stepId, 'completed')}>
+                  Complete
+                </NeuButton>
+                <NeuButton size="sm" variant="ghost" icon={<Ban className="h-3.5 w-3.5" />} onClick={() => setShowBlockInput(!showBlockInput)}>
+                  Block
+                </NeuButton>
+              </>
+            )}
+            {status === 'blocked' && (
+              <NeuButton size="sm" icon={<Play className="h-3.5 w-3.5" />} onClick={() => onUpdateStep(stepId, 'in_progress')}>
+                Unblock
+              </NeuButton>
+            )}
+            {status === 'completed' && (
+              <NeuButton size="sm" variant="ghost" icon={<Play className="h-3.5 w-3.5" />} onClick={() => onUpdateStep(stepId, 'in_progress')}>
+                Reopen
+              </NeuButton>
+            )}
+          </div>
+
+          {showBlockInput && (
+            <div className="flex gap-2">
+              <input
+                value={blockReason}
+                onChange={(e) => setBlockReason(e.target.value)}
+                placeholder="Block reason..."
+                className="flex-1 h-8 rounded-[var(--radius-md)] bg-[var(--bg-input)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-placeholder)] px-3 shadow-[var(--shadow-pressed)] border border-[var(--border)] outline-none focus:border-[var(--teal)]"
+              />
+              <NeuButton size="sm" onClick={() => { onUpdateStep(stepId, 'blocked', blockReason); setShowBlockInput(false); setBlockReason('') }}>
+                Confirm
+              </NeuButton>
+            </div>
+          )}
+
+          {/* Blocked reason display */}
+          {status === 'blocked' && (step.blocked_reason as string | null) && (
+            <div className="flex items-start gap-2 px-3 py-2 rounded-[var(--radius-sm)] bg-[var(--ruby-bg)]">
+              <AlertTriangle className="h-4 w-4 text-[var(--ruby)] shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-medium text-[var(--ruby)]">Blocked</p>
+                <p className="text-xs text-[var(--text-secondary)]">{step.blocked_reason as string}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Task Instances */}
+          {taskInstances.length > 0 && (
+            <div className="space-y-1.5">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Tasks</p>
+              {taskInstances.map((task) => {
+                const taskStatus = task.status as string
+                const isDone = taskStatus === 'done'
+                return (
+                  <div key={task.id as string} className="flex items-center gap-2 px-2 py-1.5 rounded-[var(--radius-sm)] bg-[var(--bg-surface)]">
+                    <button
+                      onClick={() => isDone ? onUpdateTaskStatus(task.id as string, 'todo') : onCompleteTask(task.id as string)}
+                      className="shrink-0"
+                    >
+                      {isDone ? (
+                        <CheckCircle2 className="h-4 w-4 text-[var(--chartreuse)]" />
+                      ) : (
+                        <Circle className="h-4 w-4 text-[var(--text-muted)] hover:text-[var(--teal)]" />
+                      )}
+                    </button>
+                    <span className="text-xs text-[var(--text-muted)]">{taskTypeIcon[task.task_type as string] ?? taskTypeIcon.action}</span>
+                    <span className={`text-sm flex-1 truncate ${isDone ? 'line-through text-[var(--text-muted)]' : 'text-[var(--text-primary)]'}`}>
+                      {task.title as string}
+                    </span>
+                    <NeuBadge color={isDone ? 'chartreuse' : taskStatus === 'in_progress' ? 'teal' : 'gray'} size="sm">
+                      {taskStatus.replace(/_/g, ' ')}
+                    </NeuBadge>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+
+          {/* Step metadata */}
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-[var(--text-muted)]">
+            {(step.estimated_duration_days as number | null) && (
+              <span>Est: {step.estimated_duration_days as number}d</span>
+            )}
+            {(step.started_at as string | null) && (
+              <span>Started: {new Date(step.started_at as string).toLocaleDateString()}</span>
+            )}
+            {(step.completed_at as string | null) && (
+              <span>Done: {new Date(step.completed_at as string).toLocaleDateString()}</span>
+            )}
+            {(step.due_date as string | null) && (
+              <span>Due: {new Date(step.due_date as string).toLocaleDateString()}</span>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -389,16 +631,19 @@ function PartnersTab({ partners }: { partners: Array<Record<string, unknown>> })
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {partners.map((ap) => {
         const partner = ap.partners as Record<string, unknown> | null
+        const partnerId = partner?.id as string | null
         return (
-          <NeuCard key={ap.id as string} variant="raised" padding="md" hoverable>
-            <div className="flex items-center gap-3">
-              <NeuAvatar name={(partner?.name as string) ?? 'Partner'} />
-              <div>
-                <p className="text-sm font-semibold text-[var(--text-primary)]">{(partner?.name as string) ?? 'Unknown'}</p>
-                <p className="text-xs text-[var(--text-muted)]">{(ap.role_on_asset as string) ?? 'Partner'}</p>
+          <Link key={ap.id as string} href={partnerId ? `/crm/partners/${partnerId}` : '#'}>
+            <NeuCard variant="raised" padding="md" hoverable>
+              <div className="flex items-center gap-3">
+                <NeuAvatar name={(partner?.name as string) ?? 'Partner'} />
+                <div>
+                  <p className="text-sm font-semibold text-[var(--text-primary)]">{(partner?.name as string) ?? 'Unknown'}</p>
+                  <p className="text-xs text-[var(--text-muted)]">{(ap.role_on_asset as string) ?? 'Partner'}</p>
+                </div>
               </div>
-            </div>
-          </NeuCard>
+            </NeuCard>
+          </Link>
         )
       })}
     </div>
@@ -529,13 +774,83 @@ function TasksTab({ assetId, tasks }: { assetId: string; tasks: Array<Record<str
   )
 }
 
-function GatesTab() {
+function GatesTab({ steps, assetId }: { steps: Array<Record<string, unknown>>; assetId: string }) {
+  const phaseLabelMap: Record<string, string> = {
+    phase_0_foundation: 'Phase 0 — Foundation',
+    phase_1_intake: 'Phase 1 — Intake',
+    phase_2_certification: 'Phase 2 — Certification',
+    phase_3_custody: 'Phase 3 — Custody',
+    phase_4_legal: 'Phase 4 — Legal',
+    phase_5_tokenization: 'Phase 5 — Execution',
+    phase_6_regulatory: 'Phase 6 — Regulatory',
+    phase_7_distribution: 'Phase 7 — Distribution',
+    phase_8_ongoing: 'Phase 8 — Ongoing',
+  }
+
+  const utils = trpc.useUtils()
+  const updateStep = trpc.steps.updateStatus.useMutation({
+    onSuccess: () => utils.assets.getById.invalidate({ assetId }),
+  })
+
+  const gateSteps = steps.filter((s) => s.is_gate)
+  if (gateSteps.length === 0) {
+    return (
+      <NeuCard variant="pressed" padding="lg" className="text-center">
+        <Lock className="h-10 w-10 text-[var(--text-placeholder)] mx-auto mb-3" />
+        <p className="text-sm text-[var(--text-muted)]">No gate milestones in this workflow</p>
+      </NeuCard>
+    )
+  }
+
   return (
-    <NeuCard variant="pressed" padding="lg" className="text-center">
-      <Lock className="h-10 w-10 text-[var(--text-placeholder)] mx-auto mb-3" />
-      <p className="text-sm text-[var(--text-muted)]">Gate checks track governance milestone approvals</p>
-      <p className="text-xs text-[var(--text-placeholder)] mt-1">Gates are evaluated when all step requirements in a phase are complete</p>
-    </NeuCard>
+    <div className="space-y-3">
+      <p className="text-sm text-[var(--text-muted)]">{gateSteps.length} gate milestones across the governance workflow</p>
+      {gateSteps.map((gate) => {
+        const status = (gate.status as string) ?? 'not_started'
+        const phase = gate.phase as string
+        const phaseSteps = steps.filter((s) => s.phase === phase && !s.is_gate)
+        const phaseCompleted = phaseSteps.filter((s) => s.status === 'completed').length
+        const phaseTotal = phaseSteps.length
+        const allPhaseComplete = phaseTotal > 0 && phaseCompleted === phaseTotal
+        const gateReady = allPhaseComplete && status !== 'completed'
+
+        return (
+          <NeuCard key={gate.id as string} variant="raised" padding="md">
+            <div className="flex items-start gap-3">
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${status === 'completed' ? 'bg-[var(--chartreuse-bg)] text-[var(--chartreuse)]' : gateReady ? 'bg-[var(--amber-bg)] text-[var(--amber)]' : 'bg-[var(--bg-body)] text-[var(--text-muted)]'}`}>
+                {status === 'completed' ? <CheckCircle2 className="h-5 w-5" /> : <Shield className="h-5 w-5" />}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-[var(--text-primary)]">
+                  <span className="text-[var(--text-muted)]" style={{ fontFamily: 'var(--font-mono)' }}>{gate.step_number as string}</span>
+                  {' '}{gate.step_title as string}
+                </p>
+                <p className="text-xs text-[var(--text-muted)] mt-0.5">{phaseLabelMap[phase] ?? phase}</p>
+                <div className="mt-2">
+                  <NeuProgress value={phaseCompleted} max={phaseTotal || 1} color={allPhaseComplete ? 'chartreuse' : 'teal'} />
+                  <p className="text-[10px] text-[var(--text-muted)] mt-1">{phaseCompleted}/{phaseTotal} phase steps completed</p>
+                </div>
+              </div>
+              <div className="flex flex-col items-end gap-2">
+                <NeuBadge color={status === 'completed' ? 'chartreuse' : gateReady ? 'amber' : 'gray'} size="sm">
+                  {status === 'completed' ? 'Passed' : gateReady ? 'Ready' : 'Pending'}
+                </NeuBadge>
+                {gateReady && (
+                  <NeuButton
+                    size="sm"
+                    icon={<CheckCircle2 className="h-3.5 w-3.5" />}
+                    onClick={() => updateStep.mutate({ stepId: gate.id as string, status: 'completed' })}
+                    loading={updateStep.isPending}
+                  >
+                    Pass Gate
+                  </NeuButton>
+                )}
+              </div>
+            </div>
+          </NeuCard>
+        )
+      })}
+    </div>
   )
 }
 

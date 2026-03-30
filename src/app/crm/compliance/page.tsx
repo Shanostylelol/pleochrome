@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { Shield, AlertTriangle } from 'lucide-react'
 import { NeuCard, NeuBadge, NeuProgress } from '@/components/ui'
 import { trpc } from '@/lib/trpc'
@@ -54,18 +55,20 @@ export default function CompliancePage() {
       ) : (
         <div className="space-y-2">
           {alerts.map((alert, idx) => (
-            <NeuCard key={idx} variant="raised-sm" padding="sm" className="flex items-center gap-3">
-              <AlertTriangle className="h-5 w-5 text-[var(--amber)] shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-[var(--text-primary)]">{alert.detail}</p>
-                <p className="text-xs text-[var(--text-muted)]">
-                  {alert.asset_name ?? alert.entity_name} {alert.deadline ? `· Due: ${new Date(alert.deadline).toLocaleDateString()}` : ''}
-                </p>
-              </div>
-              <NeuBadge color={alert.alert_type === 'overdue' ? 'ruby' : 'amber'} size="sm">
-                {alert.alert_type}
-              </NeuBadge>
-            </NeuCard>
+            <Link key={idx} href={alert.asset_id ? `/crm/assets/${alert.asset_id}` : '#'}>
+              <NeuCard variant="raised-sm" padding="sm" hoverable className="flex items-center gap-3">
+                <AlertTriangle className="h-5 w-5 text-[var(--amber)] shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-[var(--text-primary)]">{alert.detail}</p>
+                  <p className="text-xs text-[var(--text-muted)]">
+                    {alert.asset_name ?? alert.entity_name} {alert.deadline ? `· Due: ${new Date(alert.deadline).toLocaleDateString()}` : ''}
+                  </p>
+                </div>
+                <NeuBadge color={alert.alert_type === 'overdue' ? 'ruby' : 'amber'} size="sm">
+                  {alert.alert_type}
+                </NeuBadge>
+              </NeuCard>
+            </Link>
           ))}
         </div>
       )}
