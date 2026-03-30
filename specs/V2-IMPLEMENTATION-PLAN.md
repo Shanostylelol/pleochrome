@@ -13,6 +13,11 @@
 ### 1.1 Write V2 SQL Migration
 - Create all 16 enums (v2_phase, v2_value_model, v2_task_type, etc.)
 - Create all 19 tables from V2-POWERHOUSE-BLUEPRINT.md
+- **ADDITIONS to blueprint:**
+  - Add `is_hidden BOOLEAN NOT NULL DEFAULT false` to `tasks` table
+  - Add `is_hidden BOOLEAN NOT NULL DEFAULT false` to `subtasks` table
+  - Add `is_hidden BOOLEAN NOT NULL DEFAULT false` to `template_tasks` table
+  - Add `is_hidden BOOLEAN NOT NULL DEFAULT false` to `template_subtasks` table
 - Create indexes on all FK columns and common query patterns
 - Create immutable trigger for activity_log
 - Create updated_at auto-trigger for all tables
@@ -21,10 +26,12 @@
 ### 1.2 Create RPC Functions
 - `instantiate_workflow(asset_id, template_id)` — copy template stages/tasks/subtasks to asset
 - `save_as_template(asset_id, name, description)` — snapshot asset workflow as template
-- `evaluate_gate(asset_id, phase)` — check gate conditions, return pass/fail + blockers
-- `advance_phase(asset_id, target_phase)` — validate gate + move asset
+- `evaluate_gate(asset_id, phase)` — check gate conditions, return **ADVISORY** pass/fail + warnings (does NOT block)
+- `advance_phase(asset_id, target_phase)` — move asset to new phase. Calls evaluate_gate() and returns warnings but **ALWAYS allows the move** (soft gates, not hard blockers). User sees a warning dialog with incomplete items but can click "Proceed Anyway"
 - `generate_asset_report(asset_id)` — return complete JSONB report
 - `batch_document_paths(asset_id)` — return storage paths for ZIP download
+
+**IMPORTANT: Gates are ADVISORY, not blocking.** The gate evaluation returns a list of incomplete stages/tasks/documents as warnings, but the user can always override and advance. The override is logged in activity_log with the user's ID and reason.
 
 ### 1.3 Seed Default Templates
 - Seed 5 workflow templates (Tokenization, Fractional, Debt, Broker Sale, Barter)
@@ -83,17 +90,21 @@
 ### 2.3 Rewrite Tasks Router
 - `listByAsset` — all tasks for an asset
 - `listByStage` — tasks for a specific stage
-- `create` — create task with type, assignee, due date
-- `update` — update task details
+- `create` — create task on a LIVE ASSET stage (+ button on workflow tab)
+- `update` — update task details (title, description, type, assignee, due date)
 - `complete` — mark done (check approval requirements first)
 - `requestApproval` — trigger approval chain
 - `getMyTasks` — tasks assigned to current user across all assets
+- **`reorder`** — batch update sort_order for tasks within a stage (drag-and-drop)
+- **`toggleHidden`** — hide/unhide a task on a live asset (with confirmation dialog)
 
 ### 2.4 Create Subtasks Router
 - `listByTask` — subtasks for a task
-- `create` — add subtask to a task
+- `create` — add subtask to a task on a LIVE ASSET (+ button under any task)
 - `complete` — mark subtask done (log timestamp, team member)
 - `update` — update subtask details
+- **`reorder`** — batch update sort_order for subtasks within a task (drag-and-drop)
+- **`toggleHidden`** — hide/unhide a subtask
 
 ### Testing — Phase 2
 ```
@@ -243,13 +254,20 @@
 - New hero with value model badge
 - New phase timeline (6 phases)
 - **Workflow tab** — Phase-grouped stages, expandable to tasks/subtasks/progress
+  - **Drag-and-drop reorder** stages within a phase
+  - **Drag-and-drop reorder** tasks within a stage
+  - **Hide/unhide** any stage or task (confirmation dialog: "Are you sure you want to hide this? It will be removed as a requirement but can be unhidden later.")
+  - **"+ Add Stage" button** at bottom of each phase section → creates custom stage
+  - **"+ Add Task" button** at bottom of each stage → creates custom task with type selector
+  - **"+ Add Subtask" button** at bottom of each task → creates custom subtask
+  - All custom additions are saved per-asset (not affecting templates)
 - **Tasks tab** — Flat task list with type icons, assignees, subtask progress
 - **Documents tab** — Per-task documents, required checklist, batch download
 - **Comments tab** — Threaded comments for the asset
 - **Partners tab** — Linked partners with role context
 - **Financials tab** — Payment tracking (costs/income), per-phase breakdown
 - **Activity tab** — Audit trail scoped to asset
-- **Gates tab** — Gate milestones with conditions and pass/fail
+- **Gates tab** — Gate milestones with **ADVISORY** status (warnings, not blockers). Shows incomplete items with "Proceed Anyway" option.
 
 ### 5.3 Rewrite New Asset Wizard (assets/new/page.tsx)
 - Step 1: Basic info (name, type, holder entity)
@@ -275,10 +293,21 @@
 [ ] Workflow tab shows stages grouped by phase
 [ ] Clicking a stage expands to show tasks
 [ ] Clicking a task shows subtasks
+[ ] **Drag-and-drop reorder stages within a phase works**
+[ ] **Drag-and-drop reorder tasks within a stage works**
+[ ] **Hide stage shows confirmation dialog, then hides it**
+[ ] **Unhide stage brings it back**
+[ ] **Hide task shows confirmation dialog, then hides it**
+[ ] **"+ Add Stage" button creates custom stage in a phase**
+[ ] **"+ Add Task" button creates custom task in a stage with type selector**
+[ ] **"+ Add Subtask" button creates custom subtask in a task**
 [ ] Tasks tab shows flat list with filters
 [ ] Documents tab shows per-task documents
 [ ] Comments tab shows threaded comments
 [ ] New Asset wizard creates asset with full workflow
+[ ] **Gate evaluation shows ADVISORY warnings (not hard blockers)**
+[ ] **User can "Proceed Anyway" past incomplete gates**
+[ ] **Gate override logged in activity log**
 [ ] All pages render at 375px (mobile) and 1440px (desktop)
 [ ] Dark mode works on all new components
 [ ] npm run build passes
@@ -286,9 +315,15 @@
 **Manual Test Shane:**
 - Create a new asset through the wizard
 - Verify all stages appear in the Workflow tab
+- **Drag a stage to reorder it → verify new order persists**
+- **Hide a stage (e.g., vault transfer if stone already in vault) → confirm dialog → verify hidden**
+- **Unhide it → verify it returns**
+- **Click "+" to add a custom task to a stage → name it, select type → verify it appears**
 - Click through each stage → verify tasks and subtasks
-- Try to advance phase → verify gate blocks if incomplete
+- Try to advance phase → **verify warning dialog (not blocker) with incomplete items**
+- **Click "Proceed Anyway" → verify phase advances and override is logged**
 - Switch between kanban/list/dashboard views
+- **At the end, save the workflow as a new template → verify it appears in Templates page**
 
 ---
 
@@ -444,14 +479,23 @@
 4. Pass Gate G2 → advance to Asset Maturity
 
 ### 8.4 Test All Interactive Features
-1. Drag-reorder a stage within a phase
-2. Hide a stage → verify confirmation dialog
-3. Post a comment on a task
-4. Reply to a comment
-5. Request approval on a task
-6. Approve/reject the request
-7. Upload a document to a task
-8. Save current workflow as template
+1. Drag-reorder a stage within a phase → verify persists after refresh
+2. Drag-reorder a task within a stage → verify persists
+3. Hide a stage (e.g., vault transfer) → confirm dialog → verify hidden from view
+4. Unhide it → verify it comes back in correct position
+5. Hide a task → confirm dialog → verify hidden
+6. Click "+ Add Stage" at bottom of a phase → create custom stage
+7. Click "+ Add Task" at bottom of a stage → select type → create custom task
+8. Click "+ Add Subtask" → create custom subtask
+9. Post a comment on a task
+10. Reply to a comment
+11. Request approval on a task
+12. Approve/reject the request
+13. Upload a document to a task (drag-drop)
+14. Advance phase with incomplete items → verify ADVISORY warning dialog
+15. Click "Proceed Anyway" → verify phase advances, override logged
+16. Save current workflow as template → verify appears in Templates list
+17. Create NEW asset from saved template → verify custom stages/tasks carried over
 
 ### 8.5 Generate Report
 1. Go to Reports → select asset
