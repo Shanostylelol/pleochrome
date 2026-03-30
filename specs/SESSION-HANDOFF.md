@@ -1,56 +1,71 @@
 # Session Handoff — PleoChrome Powerhouse CRM Build
 
-**Last Updated:** 2026-03-29
+**Last Updated:** 2026-03-30
 **Purpose:** This file ensures any new Claude Code session can pick up the build exactly where the last one left off. Read this FIRST in any new session.
 
 ---
 
-## CURRENT STATE
+## CURRENT STATE (as of March 30, 2026)
 
-### What Exists
-- **Landing page:** Live at pleochrome.com with interactive three-path workflow, neumorphic design
-- **Portal pages:** 7 pages updated with three-path support, path selector, platform-agnostic language
-- **Supabase schema:** 2 migrations ready (001 + 002), NOT yet deployed to Supabase
-- **Wireframe prototype:** `wireframe-prototype.html` — 4,990-line interactive prototype with all 13 pages
-- **Build specs:** 23 files in `/specs/` — complete page-by-page build instructions
-- **Feature map:** 118 features mapped with priorities (44 P0 MVP must-haves)
-- **Research corpus:** 300K+ words of strategy, compliance, workflow, and partner DD docs
-- **Decision Audit Log:** 7 strategic decisions tracked
-- **CLAUDE.md:** Complete governance rules with mandatory pre-flight check
+### What's Built & Working
+- **24 Next.js routes** (15 CRM pages + API + manifest + landing + portals)
+- **11 tRPC routers:** health, assets, documents, tasks, partners, meetings, search, governance, activity, assetTaskInstances, steps
+- **Supabase fully deployed:** 19 tables, 81 governance requirements, 4 views, 5 storage buckets, 3 team members
+- **Governance engine CONNECTED:** `assemble_asset_workflow()` creates 53 governance steps per tokenization asset
+- **Neumorphic design system:** 10 atomic components, dark + light mode, responsive at 375/768/1440px
+- **Pipeline Board:** Kanban + list view toggle, DnD with confirmation, stats ribbon, path filters, Quick Add
+- **Asset Detail:** 8-tab interface, phase timeline, Edit modal, document upload, task create, financial cards
+- **All sidebar pages render:** Pipeline, Assets, Partners, Documents, Tasks, Meetings, Activity, Team, Templates, Compliance, Settings
+- **11 test assets** across all phases/paths/types
 
-### What Does NOT Exist Yet
-- CRM application code (no `/crm` routes built)
-- Supabase project initialized (migrations not run)
-- tRPC API layer
-- Neumorphic component library
-- Auth system
-- Any production CRM functionality
+### What Does NOT Work Yet (Critical Gaps)
+1. **Governance steps are NOT interactive** — can't complete, block, or assign tasks on steps
+2. **Templates page is READ-ONLY** — no create/edit modals (CRUD mutations exist but no UI)
+3. **Partner modules table is EMPTY** — no modules configured for any partner
+4. **Default tasks table is EMPTY** — no fallback tasks when no partner module assigned
+5. **asset_task_instances NOT displayed** — getById reads old `tasks` table, not Layer 3 instances
+6. **No executive dashboard** — just 4-stat ribbon, no charts/funnel/trends
+7. **Older assets have ZERO governance steps** — only Lifecycle Test Asset has 53 steps
+8. **Cross-page links incomplete** — many pages are still silos
+9. **No comments system** on assets/steps
+10. **No document versioning or batch download**
+11. **No pagination** on any list
+12. **DnD kanban** — confirmation dialog works but actual drag visual may need testing
 
 ---
 
 ## TO RESUME BUILDING
 
-### Step 1: Read the governance
+### Step 1: Read governance documents
 ```
 Read: CLAUDE.md (mandatory pre-flight)
-Read: specs/MASTER-BUILD-PLAN.md (build sequence)
-Read: specs/BUILD-LOG.md (what's been done)
-Read: specs/ERROR-LOG.md (known issues)
+Read: specs/GAP-ANALYSIS.md (82 gaps with severity matrix)
+Read: specs/BUILD-LOG.md (build audit trail)
+Read: specs/MASTER-BUILD-PLAN.md (phase status)
 ```
 
-### Step 2: Check current phase status
-The MASTER-BUILD-PLAN.md has a status table at the bottom showing which phases are complete.
-
-### Step 3: Read the next spec
-Each phase and step has a specific spec file. Read it completely before writing any code.
-
-### Step 4: Execute the build cycle
+### Step 2: Read the wireframe and specs
 ```
-Plan → Validate (against CLAUDE.md rules) → Build → Test (npm run build) → Log (BUILD-LOG.md) → Commit
+Read: wireframe-prototype.html (4,990-line interactive reference)
+Read: specs/pages/01-pipeline-board.md through specs/pages/11-new-asset-wizard.md
+Read: specs/api/assets-router.md
+Read: specs/features/quick-add-lead.md
+Read: specs/features/search.md
 ```
 
-### Step 5: Autonomous mode
-When the user says "Go", follow the MASTER-BUILD-PLAN phase sequence, executing each step's spec file in order.
+### Step 3: Priority work items
+1. **Make governance steps interactive** — add completion controls, task instance display, status changes
+2. **Build templates CRUD UI** — edit requirements, create modules, map tasks
+3. **Executive dashboard** — AUM trend chart, pipeline funnel, compliance trend, risk heatmap (use recharts, already installed)
+4. **Cross-page connections** — link everything together
+5. **End-to-end lifecycle test** — create asset → complete all steps → advance phases → verify
+
+### Step 4: User's specific requests
+- Every template should be editable (task wording, requirements, partner-specific)
+- Documents organized at task/step level with upload/download
+- DnD kanban needs to work properly
+- Partner modules need to connect to live asset lifecycle
+- Audit every page/tab/button for missing wiring
 
 ---
 
@@ -59,19 +74,12 @@ When the user says "Go", follow the MASTER-BUILD-PLAN phase sequence, executing 
 | File | Purpose |
 |------|---------|
 | `CLAUDE.md` | Governance rules — read before ANY code change |
-| `specs/MASTER-BUILD-PLAN.md` | Build sequence (8 phases) |
+| `specs/GAP-ANALYSIS.md` | 82 gaps across P0-P3 with severity matrix |
 | `specs/BUILD-LOG.md` | What was built and when |
+| `specs/MASTER-BUILD-PLAN.md` | Build sequence (8 phases) |
 | `specs/ERROR-LOG.md` | Issues and resolutions |
-| `specs/foundation/*.md` | Phase 0 specs (6 files) |
-| `specs/pages/*.md` | Phase 1-7 page specs (11 files) |
-| `specs/api/*.md` | API router specs |
-| `specs/features/*.md` | Feature specs (Quick Add, Search) |
-| `.env.local` | Supabase credentials (NOT in git) |
-| `supabase/migrations/001*.sql` | Base schema (13 tables) |
-| `supabase/migrations/002*.sql` | Governance layer (6 tables, 68 requirements) |
 | `wireframe-prototype.html` | Visual reference for all pages |
-| `POWERHOUSE-CRM-FEATURE-MAP.md` | 118 features with priorities |
-| `DECISION-AUDIT-LOG.md` | Strategic decision history |
+| `.env.local` | Supabase credentials (NOT in git) |
 
 ---
 
@@ -79,35 +87,38 @@ When the user says "Go", follow the MASTER-BUILD-PLAN phase sequence, executing 
 
 - **URL:** https://satrlfdnevquvnozhlvn.supabase.co
 - **Project Ref:** satrlfdnevquvnozhlvn
-- **Credentials:** In `.env.local` (not in git)
-- **Status:** Project exists, migrations NOT yet deployed
+- **Credentials:** In `.env.local`
+- **Status:** Fully deployed. 19 tables, 81 governance requirements, 4 views, 5 storage buckets.
+- **assemble_asset_workflow()** function is deployed and working
+
+---
+
+## DATABASE STATE
+
+- **11 test assets** across all phases and value paths
+- **81 governance requirements** (32 shared + 21 tokenization + 15 fractional + 13 debt)
+- **53 asset_steps** on the Lifecycle Test Asset (ID: 80695eea-2b03-4cd8-9660-bafb099b9f35)
+- **1 partner** (Rialto Markets, broker_dealer)
+- **3 team members** (Shane/CEO, David/CTO, Chris/CRO)
+- **Path-specific step numbers:** Tokenization=3.T1-4.T21, Fractional=3.F1-4.F15, Debt=3.D1-4.D13
 
 ---
 
 ## BUILD PHASE STATUS
 
-| Phase | Status | Next Action |
-|-------|--------|-------------|
-| 0: Foundation | NOT STARTED | Run spec `00-supabase-init.md` |
-| 1: Pipeline Board | NOT STARTED | Depends on Phase 0 |
-| 2: Asset Detail | NOT STARTED | Depends on Phase 1 |
-| 3: Documents | NOT STARTED | Depends on Phase 2 |
-| 4: Tasks + Activity | NOT STARTED | Depends on Phase 2 |
-| 5: Partners + Meetings | NOT STARTED | Depends on Phase 2 |
-| 6: Search + Filters | NOT STARTED | Depends on Phases 1-5 |
-| 7: Templates + Compliance | NOT STARTED | Depends on Phase 2 |
-| 8: Polish + Deploy | NOT STARTED | Depends on all phases |
+| Phase | Status | Notes |
+|-------|--------|-------|
+| 0: Foundation | COMPLETE | Supabase, components, tRPC, CRM shell, PWA |
+| 1: Pipeline Board | COMPLETE | Kanban + list + DnD + stats + filters |
+| 2: Asset Detail | COMPLETE | 8 tabs, governance shows 53 steps |
+| 3: Documents | COMPLETE | Upload, download, lock, delete |
+| 4: Tasks + Activity | COMPLETE | Dashboard, create, activity feed |
+| 5: Partners + Meetings | COMPLETE | Directory, detail, create |
+| 6: Search + Filters | COMPLETE | Cmd+K cross-entity search |
+| 7: Templates + Compliance | PARTIAL | Read-only templates, compliance dashboard |
+| 8: Polish + Deploy | PARTIAL | Testing done, many gaps remaining |
 
 ---
-
-## AUTHENTICATION
-
-- **Google OAuth** via Supabase Auth — users log in with @pleochrome.com Google Workspace accounts
-- **Three users (all Admin):** shane@pleochrome.com, david@pleochrome.com, chris@pleochrome.com
-- **Dev mode:** Auth bypass active when `NEXT_PUBLIC_ENV=development`. Use test users in team_members that simulate the 3 founders.
-- **Production:** Google OAuth enforced, only @pleochrome.com domain accepted
-- **Future:** Google Drive, Calendar, Gmail integration via expanded OAuth scopes
-- **Supabase Auth config needed:** Enable Google provider in Supabase dashboard with PleoChrome Google Workspace OAuth credentials
 
 ## CRITICAL REMINDERS
 
@@ -118,11 +129,6 @@ When the user says "Go", follow the MASTER-BUILD-PLAN phase sequence, executing 
 5. **Dark + light mode** — every component must support both
 6. **Immutable audit trail** — never write to activity_log from frontend
 7. **Test after every step** — `npm run build` must pass
-8. **Log after every step** — update BUILD-LOG.md
-9. **Google OAuth only** — no email/password auth, @pleochrome.com domain only
-10. **Test with 3 simulated users** — Shane (CEO), David (CTO), Chris (CRO)
-11. **Mobile-first design** — design for 375px first, test at 375px AND 1440px
-12. **PWA-ready** — Serwist service worker, manifest, offline banner (Phase 0.7)
-13. **Validate ALL inputs** — Zod on both client (React Hook Form) and server (tRPC), shared schemas
-14. **Touch targets 44x44px** — all interactive elements on mobile
-15. **Bottom nav on mobile** — sidebar hidden below 768px, bottom navigation bar replaces it
+8. **Mobile-first design** — design for 375px first, test at 375px AND 1440px
+9. **Validate ALL inputs** — Zod on both client and server
+10. **assemble_asset_workflow()** — MUST be called when creating non-evaluating assets
