@@ -141,7 +141,7 @@ export default function ContactDetailPage() {
       <div>
         {activeTab === 'overview' && (
           <div className="space-y-4">
-            <ContactOnboardingChecklist contact={ct} kycRecords={data?.kycRecords ?? []} />
+            <ContactOnboardingChecklist contactId={params.id} contact={ct} />
             <ContactOverviewTab contact={ct} />
           </div>
         )}

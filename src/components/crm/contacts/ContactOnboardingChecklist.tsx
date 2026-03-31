@@ -1,65 +1,62 @@
 'use client'
 
 import { CheckCircle, XCircle, AlertCircle } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { trpc } from '@/lib/trpc'
 import { NeuCard } from '@/components/ui/NeuCard'
+import { NeuButton } from '@/components/ui/NeuButton'
 import { NeuProgress } from '@/components/ui/NeuProgress'
+import { useToast } from '@/components/ui/NeuToast'
+
+const STAGE_LABELS: Record<string, string> = {
+  identity: 'Identity', screening: 'Screening', accreditation: 'Accreditation',
+  documents: 'Documents', approval: 'Approval', general: 'General',
+}
 
 interface ContactOnboardingChecklistProps {
+  contactId: string
   contact: Record<string, unknown>
-  kycRecords: Array<Record<string, unknown>>
+  kycRecords?: Array<Record<string, unknown>>
 }
 
-interface CheckItem {
-  label: string
-  status: 'done' | 'pending' | 'not_started'
-  detail?: string
-}
+export function ContactOnboardingChecklist({ contactId, contact }: ContactOnboardingChecklistProps) {
+  const { toast } = useToast()
+  const utils = trpc.useUtils()
+  const { data: items = [] } = trpc.contacts.getOnboardingItems.useQuery({ contactId })
 
-function getChecks(contact: Record<string, unknown>, kycRecords: Array<Record<string, unknown>>): CheckItem[] {
-  const kyc = (contact.kyc_status as string) ?? 'not_started'
-  const ofac = (contact.ofac_status as string) ?? 'not_screened'
-  const pep = (contact.pep_status as string) ?? 'not_screened'
-  const accreditation = (contact.accreditation_status as string) ?? 'not_verified'
-  const hasIdentityCheck = kycRecords.some(r => ((r.check_type as string) ?? '').toLowerCase().includes('identity') && r.status === 'passed')
+  const updateMut = trpc.contacts.updateOnboardingItem.useMutation({
+    onSuccess: () => { utils.contacts.getOnboardingItems.invalidate({ contactId }); toast('Item verified', 'success') },
+    onError: (err) => toast(err.message, 'error'),
+  })
 
-  return [
-    {
-      label: 'Identity Verified',
-      status: hasIdentityCheck ? 'done' : kycRecords.some(r => ((r.check_type as string) ?? '').toLowerCase().includes('identity')) ? 'pending' : 'not_started',
-      detail: hasIdentityCheck ? 'Government ID verified' : undefined,
-    },
-    {
-      label: 'KYC/KYB Screening',
-      status: kyc === 'verified' ? 'done' : kyc === 'pending' ? 'pending' : 'not_started',
-      detail: kyc === 'verified' ? `Verified ${contact.kyc_verified_at ? new Date(contact.kyc_verified_at as string).toLocaleDateString() : ''}` : undefined,
-    },
-    {
-      label: 'OFAC/SDN Clear',
-      status: ofac === 'clear' ? 'done' : ofac === 'flagged' || ofac === 'match' ? 'pending' : 'not_started',
-      detail: ofac === 'clear' ? `Screened ${contact.ofac_screened_at ? new Date(contact.ofac_screened_at as string).toLocaleDateString() : ''}` : undefined,
-    },
-    {
-      label: 'PEP Screen Clear',
-      status: pep === 'clear' ? 'done' : pep === 'is_pep' ? 'pending' : 'not_started',
-      detail: pep === 'clear' ? 'No PEP match' : pep === 'is_pep' ? 'PEP flagged — review required' : undefined,
-    },
-    {
-      label: 'Accreditation Verified',
-      status: accreditation === 'verified' ? 'done' : accreditation === 'pending' ? 'pending' : 'not_started',
-      detail: contact.accreditation_type ? `Type: ${contact.accreditation_type}` : undefined,
-    },
-  ]
-}
+  const typedItems = items as Array<Record<string, unknown>>
+  const done = typedItems.filter(i => i.status === 'verified').length
+  const total = typedItems.length
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0
 
-export function ContactOnboardingChecklist({ contact, kycRecords }: ContactOnboardingChecklistProps) {
-  const checks = getChecks(contact, kycRecords)
-  const done = checks.filter(c => c.status === 'done').length
-  const total = checks.length
-  const pct = Math.round((done / total) * 100)
+  // If no template items, show basic KYC status
+  if (total === 0) {
+    const kyc = (contact.kyc_status as string) ?? 'not_started'
+    return (
+      <NeuCard variant="pressed" padding="md">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Compliance Status</span>
+          <span className="text-xs text-[var(--text-muted)]">{kyc === 'verified' ? 'Verified' : 'Pending'}</span>
+        </div>
+      </NeuCard>
+    )
+  }
+
+  // Group by stage
+  const stageOrder = ['identity', 'screening', 'accreditation', 'documents', 'approval', 'general']
+  const grouped = new Map<string, Array<Record<string, unknown>>>()
+  for (const item of typedItems) {
+    const stage = (item.stage as string) ?? 'general'
+    if (!grouped.has(stage)) grouped.set(stage, [])
+    grouped.get(stage)!.push(item)
+  }
 
   const statusIcons = {
-    done: <CheckCircle className="h-4 w-4 text-[var(--chartreuse)]" />,
+    verified: <CheckCircle className="h-4 w-4 text-[var(--chartreuse)]" />,
     pending: <AlertCircle className="h-4 w-4 text-[var(--amber)]" />,
     not_started: <XCircle className="h-4 w-4 text-[var(--ruby)]" />,
   }
@@ -67,26 +64,41 @@ export function ContactOnboardingChecklist({ contact, kycRecords }: ContactOnboa
   return (
     <NeuCard variant="pressed" padding="md">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-          Compliance Checklist
-        </span>
+        <span className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Compliance Checklist</span>
         <span className="text-xs text-[var(--text-muted)]">{done}/{total} complete</span>
       </div>
       <NeuProgress value={pct} color={pct === 100 ? 'emerald' : 'teal'} />
-      <div className="mt-3 space-y-2">
-        {checks.map((check) => (
-          <div key={check.label} className="flex items-center gap-2">
-            {statusIcons[check.status]}
-            <span className={cn('text-sm flex-1',
-              check.status === 'done' ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)]'
-            )}>
-              {check.label}
-            </span>
-            {check.detail && (
-              <span className="text-[10px] text-[var(--text-muted)]">{check.detail}</span>
-            )}
-          </div>
-        ))}
+
+      <div className="mt-3 space-y-3">
+        {stageOrder.filter(s => grouped.has(s)).map((stage) => {
+          const stageItems = grouped.get(stage)!
+          const stageDone = stageItems.filter(i => i.status === 'verified').length
+          return (
+            <div key={stage}>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">{STAGE_LABELS[stage] ?? stage}</span>
+                <span className="text-[10px] text-[var(--text-muted)]">{stageDone}/{stageItems.length}</span>
+              </div>
+              {stageItems.map((item) => {
+                const st = (item.status as string) ?? 'pending'
+                const icon = st === 'verified' ? statusIcons.verified : st === 'pending' ? statusIcons.pending : statusIcons.not_started
+                return (
+                  <div key={item.id as string} className="flex items-center gap-2 py-0.5">
+                    {icon}
+                    <span className="text-sm flex-1 text-[var(--text-primary)]">{item.item_name as string}</span>
+                    {st !== 'verified' && (
+                      <NeuButton variant="ghost" size="sm" loading={updateMut.isPending}
+                        onClick={() => updateMut.mutate({ itemId: item.id as string, status: 'verified' })}
+                        className="!h-5 !px-1.5 text-[10px] text-[var(--teal)]">
+                        Verify
+                      </NeuButton>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )
+        })}
       </div>
     </NeuCard>
   )
