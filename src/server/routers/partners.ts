@@ -95,7 +95,47 @@ export const partnersRouter = createRouter({
         }
       }
 
+      // Auto-seed onboarding items from default template for this partner type
+      if (data) {
+        const { data: defaultTemplate } = await ctx.db
+          .from('partner_onboarding_templates')
+          .select('id')
+          .eq('partner_type', input.partnerType)
+          .eq('is_default', true)
+          .maybeSingle()
+
+        if (defaultTemplate) {
+          await ctx.db.rpc('instantiate_partner_onboarding', {
+            p_partner_id: data.id,
+            p_template_id: defaultTemplate.id,
+          })
+        }
+      }
+
       return data
+    }),
+
+  // ── Get onboarding templates ──────────────────────────────────
+  getOnboardingTemplates: protectedProcedure
+    .input(z.object({ partnerType: z.string().optional() }).optional())
+    .query(async ({ ctx, input }) => {
+      let query = ctx.db.from('partner_onboarding_templates').select('*').order('name')
+      if (input?.partnerType) query = query.eq('partner_type', input.partnerType)
+      const { data, error } = await query
+      if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
+      return data ?? []
+    }),
+
+  // ── Apply template to partner ─────────────────────────────────
+  applyOnboardingTemplate: protectedProcedure
+    .input(z.object({ partnerId: uuidSchema, templateId: uuidSchema }))
+    .mutation(async ({ ctx, input }) => {
+      const { error } = await ctx.db.rpc('instantiate_partner_onboarding', {
+        p_partner_id: input.partnerId,
+        p_template_id: input.templateId,
+      })
+      if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
+      return { success: true }
     }),
 
   update: protectedProcedure

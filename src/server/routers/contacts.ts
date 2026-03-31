@@ -184,6 +184,72 @@ export const contactsRouter = createRouter({
         .single()
 
       if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
+
+      // Auto-seed owner onboarding items from default template
+      if (data) {
+        const { data: contact } = await ctx.db.from('contacts').select('contact_type').eq('id', input.contactId).single()
+        const contactType = (contact?.contact_type as string) ?? 'individual'
+
+        const { data: existingItems } = await ctx.db.from('contact_onboarding_items').select('id').eq('contact_id', input.contactId).limit(1)
+        if (!existingItems || existingItems.length === 0) {
+          const { data: defaultTemplate } = await ctx.db
+            .from('owner_onboarding_templates')
+            .select('id')
+            .eq('contact_type', contactType)
+            .eq('is_default', true)
+            .maybeSingle()
+
+          if (defaultTemplate) {
+            await ctx.db.rpc('instantiate_owner_onboarding', {
+              p_contact_id: input.contactId,
+              p_template_id: defaultTemplate.id,
+            })
+          }
+        }
+      }
+
+      return data
+    }),
+
+  // ── Contact onboarding items ──────────────────────────────────
+  getOnboardingItems: protectedProcedure
+    .input(z.object({ contactId: uuidSchema }))
+    .query(async ({ ctx, input }) => {
+      const { data, error } = await ctx.db
+        .from('contact_onboarding_items')
+        .select('*')
+        .eq('contact_id', input.contactId)
+        .order('sort_order')
+
+      if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
+      return data ?? []
+    }),
+
+  updateOnboardingItem: protectedProcedure
+    .input(z.object({
+      itemId: uuidSchema,
+      status: z.string().optional(),
+      notes: z.string().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const updates: Record<string, unknown> = {}
+      if (input.status !== undefined) {
+        updates.status = input.status
+        if (input.status === 'verified') {
+          updates.verified_at = new Date().toISOString()
+          updates.verified_by = ctx.user.id
+        }
+      }
+      if (input.notes !== undefined) updates.notes = input.notes
+
+      const { data, error } = await ctx.db
+        .from('contact_onboarding_items')
+        .update(updates as never)
+        .eq('id', input.itemId)
+        .select()
+        .single()
+
+      if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
       return data
     }),
 })

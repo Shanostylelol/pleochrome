@@ -747,6 +747,75 @@ export type Database = {
           },
         ]
       }
+      contact_onboarding_items: {
+        Row: {
+          contact_id: string
+          created_at: string
+          description: string | null
+          expires_at: string | null
+          id: string
+          item_name: string
+          item_type: string
+          notes: string | null
+          sort_order: number
+          source_template_item_id: string | null
+          stage: string
+          status: string
+          updated_at: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          item_name: string
+          item_type?: string
+          notes?: string | null
+          sort_order?: number
+          source_template_item_id?: string | null
+          stage?: string
+          status?: string
+          updated_at?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          item_name?: string
+          item_type?: string
+          notes?: string | null
+          sort_order?: number
+          source_template_item_id?: string | null
+          stage?: string
+          status?: string
+          updated_at?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_onboarding_items_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_onboarding_items_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contacts: {
         Row: {
           accreditation_expires_at: string | null
@@ -1438,6 +1507,74 @@ export type Database = {
           },
         ]
       }
+      owner_onboarding_template_items: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          item_name: string
+          item_type: string
+          sort_order: number
+          stage: string
+          template_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          item_name: string
+          item_type?: string
+          sort_order?: number
+          stage?: string
+          template_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          item_name?: string
+          item_type?: string
+          sort_order?: number
+          stage?: string
+          template_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "owner_onboarding_template_items_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "owner_onboarding_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      owner_onboarding_templates: {
+        Row: {
+          contact_type: string
+          created_at: string
+          description: string | null
+          id: string
+          is_default: boolean | null
+          name: string
+        }
+        Insert: {
+          contact_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_default?: boolean | null
+          name: string
+        }
+        Update: {
+          contact_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_default?: boolean | null
+          name?: string
+        }
+        Relationships: []
+      }
       ownership_links: {
         Row: {
           child_contact_id: string
@@ -1590,6 +1727,9 @@ export type Database = {
           item_type: string
           notes: string | null
           partner_id: string
+          sort_order: number | null
+          source_template_item_id: string | null
+          stage: string | null
           status: string
           updated_at: string
           verified_at: string | null
@@ -1605,6 +1745,9 @@ export type Database = {
           item_type: string
           notes?: string | null
           partner_id: string
+          sort_order?: number | null
+          source_template_item_id?: string | null
+          stage?: string | null
           status?: string
           updated_at?: string
           verified_at?: string | null
@@ -1620,6 +1763,9 @@ export type Database = {
           item_type?: string
           notes?: string | null
           partner_id?: string
+          sort_order?: number | null
+          source_template_item_id?: string | null
+          stage?: string | null
           status?: string
           updated_at?: string
           verified_at?: string | null
@@ -1636,6 +1782,91 @@ export type Database = {
           {
             foreignKeyName: "partner_onboarding_items_verified_by_fkey"
             columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_onboarding_template_items: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          item_name: string
+          item_type: string
+          sort_order: number
+          stage: string
+          template_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          item_name: string
+          item_type?: string
+          sort_order?: number
+          stage?: string
+          template_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          item_name?: string
+          item_type?: string
+          sort_order?: number
+          stage?: string
+          template_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_onboarding_template_items_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "partner_onboarding_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_onboarding_templates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_default: boolean | null
+          is_system: boolean | null
+          name: string
+          partner_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_default?: boolean | null
+          is_system?: boolean | null
+          name: string
+          partner_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_default?: boolean | null
+          is_system?: boolean | null
+          name?: string
+          partner_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_onboarding_templates_created_by_fkey"
+            columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "team_members"
             referencedColumns: ["id"]
@@ -2465,6 +2696,14 @@ export type Database = {
       get_team_member_id: { Args: never; Returns: string }
       instantiate_from_template: {
         Args: { p_asset_id: string; p_template_id: string }
+        Returns: undefined
+      }
+      instantiate_owner_onboarding: {
+        Args: { p_contact_id: string; p_template_id: string }
+        Returns: undefined
+      }
+      instantiate_partner_onboarding: {
+        Args: { p_partner_id: string; p_template_id: string }
         Returns: undefined
       }
       instantiate_workflow: {
