@@ -1,30 +1,52 @@
 import { createRouter } from '../trpc'
 import { healthRouter } from './health'
 import { assetsRouter } from './assets'
-import { documentsRouter } from './documents'
+import { stagesRouter } from './stages'
 import { tasksRouter } from './tasks'
+import { subtasksRouter } from './subtasks'
+import { documentsRouter } from './documents'
+import { commentsRouter } from './comments'
+import { approvalsRouter } from './approvals'
+import { notificationsRouter } from './notifications'
+import { contactsRouter } from './contacts'
+import { ownershipRouter } from './ownership'
+import { kycRouter } from './kyc'
 import { partnersRouter } from './partners'
+import { communicationsRouter } from './communications'
 import { meetingsRouter } from './meetings'
+import { templatesRouter } from './templates'
+import { reportsRouter } from './reports'
+import { sopsRouter } from './sops'
+import { remindersRouter } from './reminders'
 import { searchRouter } from './search'
-import { governanceRouter } from './governance'
 import { activityRouter } from './activity'
-import { assetTaskInstancesRouter } from './asset-task-instances'
-import { stepsRouter } from './steps'
 import { dashboardRouter } from './dashboard'
+import { teamRouter } from './team'
 
 export const appRouter = createRouter({
   health: healthRouter,
   assets: assetsRouter,
-  documents: documentsRouter,
+  stages: stagesRouter,
   tasks: tasksRouter,
+  subtasks: subtasksRouter,
+  documents: documentsRouter,
+  comments: commentsRouter,
+  approvals: approvalsRouter,
+  notifications: notificationsRouter,
+  contacts: contactsRouter,
+  ownership: ownershipRouter,
+  kyc: kycRouter,
   partners: partnersRouter,
+  communications: communicationsRouter,
   meetings: meetingsRouter,
+  templates: templatesRouter,
+  reports: reportsRouter,
+  sops: sopsRouter,
+  reminders: remindersRouter,
   search: searchRouter,
-  governance: governanceRouter,
   activity: activityRouter,
-  assetTaskInstances: assetTaskInstancesRouter,
-  steps: stepsRouter,
   dashboard: dashboardRouter,
+  team: teamRouter,
 })
 
 export type AppRouter = typeof appRouter

@@ -4,14 +4,19 @@ import { useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { Handshake, FileText, Calendar, Users, BookOpen, Shield, Settings, X } from 'lucide-react'
+import {
+  Handshake, Users2, FileText, Calendar, ShieldCheck,
+  Users, LayoutTemplate, Shield, Settings, X,
+} from 'lucide-react'
 
 const moreItems = [
   { label: 'Partners', icon: Handshake, href: '/crm/partners' },
+  { label: 'Contacts', icon: Users2, href: '/crm/contacts' },
   { label: 'Documents', icon: FileText, href: '/crm/documents' },
   { label: 'Meetings', icon: Calendar, href: '/crm/meetings' },
+  { label: 'Approvals', icon: ShieldCheck, href: '/crm/approvals' },
   { label: 'Team', icon: Users, href: '/crm/team' },
-  { label: 'Templates', icon: BookOpen, href: '/crm/templates' },
+  { label: 'Templates', icon: LayoutTemplate, href: '/crm/templates' },
   { label: 'Compliance', icon: Shield, href: '/crm/compliance' },
   { label: 'Settings', icon: Settings, href: '/crm/settings' },
 ]
@@ -29,7 +34,10 @@ export function MoreSheet({ open, onClose }: { open: boolean; onClose: () => voi
   return (
     <div className="fixed inset-0 z-50 md:hidden">
       <div className="absolute inset-0 bg-[var(--overlay)]" onClick={onClose} />
-      <div className="absolute bottom-0 left-0 right-0 bg-[var(--bg-surface)] rounded-t-[var(--radius-xl)] shadow-[var(--shadow-raised)] animate-slide-up" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      <div
+        className="absolute bottom-0 left-0 right-0 bg-[var(--bg-surface)] rounded-t-[var(--radius-xl)] shadow-[var(--shadow-raised)] animate-slide-up"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      >
         <div className="flex items-center justify-between px-5 pt-4 pb-2">
           <h3 className="text-sm font-semibold text-[var(--text-primary)]">More</h3>
           <button onClick={onClose} className="p-2 text-[var(--text-muted)] hover:text-[var(--text-primary)]">
@@ -38,7 +46,7 @@ export function MoreSheet({ open, onClose }: { open: boolean; onClose: () => voi
         </div>
         <div className="grid grid-cols-3 gap-1 px-3 pb-4">
           {moreItems.map((item) => {
-            const active = pathname.startsWith(item.href)
+            const active = pathname === item.href || pathname.startsWith(item.href + '/')
             return (
               <Link
                 key={item.href}

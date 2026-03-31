@@ -3,10 +3,12 @@
 import { useState, useEffect, useCallback } from 'react'
 import { trpc } from '@/lib/trpc'
 import { createClient } from '@/lib/supabase'
-import { NeuCard, NeuButton, NeuProgress, NeuInput, NeuBadge } from '@/components/ui'
+import { NeuCard, NeuButton, NeuProgress, NeuInput, NeuBadge, NeuSkeleton } from '@/components/ui'
 import { AssetCard } from '@/components/crm/AssetCard'
-import { Plus, DollarSign, Gem, Clock, Shield, Inbox, X, LayoutGrid, List, GripVertical, BarChart3, AlertTriangle } from 'lucide-react'
+import Link from 'next/link'
+import { Plus, DollarSign, Gem, Clock, Shield, Inbox, X, LayoutGrid, List, GripVertical, BarChart3, AlertTriangle, CheckSquare, ShieldCheck, Bell, Calendar } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { TASK_TYPES, type TaskTypeKey } from '@/lib/constants'
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors,
   type DragEndEvent, DragOverlay, type DragStartEvent,
@@ -14,43 +16,51 @@ import {
 import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { useRouter } from 'next/navigation'
-import type { PipelineBoard } from '@/lib/types'
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type PipelineBoard = any
 
-type PathFilter = 'fractional_securities' | 'tokenization' | 'debt_instruments'
+// V2: value_model values replace value_path
+type PathFilter = 'fractional_securities' | 'tokenization' | 'debt_instrument' | 'broker_sale' | 'barter'
 type ViewMode = 'kanban' | 'list' | 'dashboard'
 
 const PATH_FILTERS: { label: string; value: PathFilter | null; color: string }[] = [
   { label: 'All', value: null, color: 'var(--text-muted)' },
   { label: 'Fractional', value: 'fractional_securities', color: 'var(--emerald)' },
   { label: 'Tokenization', value: 'tokenization', color: 'var(--teal)' },
-  { label: 'Debt', value: 'debt_instruments', color: 'var(--sapphire)' },
+  { label: 'Debt', value: 'debt_instrument', color: 'var(--sapphire)' },
+  { label: 'Broker', value: 'broker_sale', color: 'var(--amber)' },
+  { label: 'Barter', value: 'barter', color: 'var(--amethyst)' },
 ]
 
 type KanbanColumn = { id: string; label: string; color: string; phases: string[] }
 
+// V2 phases
 const COLUMNS: KanbanColumn[] = [
-  { id: 'acquisition', label: 'Acquisition', color: 'var(--emerald)', phases: ['phase_0_foundation', 'phase_1_intake'] },
-  { id: 'preparation', label: 'Preparation', color: 'var(--teal)', phases: ['phase_2_certification', 'phase_3_custody'] },
-  { id: 'execution', label: 'Execution', color: 'var(--amethyst)', phases: ['phase_4_legal', 'phase_5_tokenization', 'phase_6_regulatory'] },
-  { id: 'distribution', label: 'Distribution', color: 'var(--amber)', phases: ['phase_7_distribution', 'phase_8_ongoing'] },
+  { id: 'lead', label: 'Lead', color: 'var(--phase-lead)', phases: ['lead'] },
+  { id: 'intake', label: 'Intake', color: 'var(--phase-intake)', phases: ['intake'] },
+  { id: 'asset_maturity', label: 'Maturity', color: 'var(--phase-asset-maturity)', phases: ['asset_maturity'] },
+  { id: 'security', label: 'Security', color: 'var(--phase-security)', phases: ['security'] },
+  { id: 'value_creation', label: 'Value', color: 'var(--phase-value-creation)', phases: ['value_creation'] },
+  { id: 'distribution', label: 'Distribution', color: 'var(--phase-distribution)', phases: ['distribution'] },
 ]
 
 const PHASE_LABEL: Record<string, string> = {
-  phase_0_foundation: 'Foundation', phase_1_intake: 'Intake', phase_2_certification: 'Certification',
-  phase_3_custody: 'Custody', phase_4_legal: 'Legal', phase_5_tokenization: 'Execution',
-  phase_6_regulatory: 'Regulatory', phase_7_distribution: 'Distribution', phase_8_ongoing: 'Ongoing',
+  lead: 'Lead', intake: 'Intake', asset_maturity: 'Asset Maturity',
+  security: 'Security', value_creation: 'Value Creation', distribution: 'Distribution',
 }
 
 const PATH_LABEL: Record<string, string> = {
-  fractional_securities: 'Fractional', tokenization: 'Tokenization', debt_instruments: 'Debt', evaluating: 'Evaluating',
+  fractional_securities: 'Fractional', tokenization: 'Tokenization', debt_instrument: 'Debt',
+  broker_sale: 'Broker Sale', barter: 'Barter',
 }
 
-const PATH_COLOR: Record<string, 'emerald' | 'teal' | 'sapphire' | 'amber' | 'gray'> = {
-  fractional_securities: 'emerald', tokenization: 'teal', debt_instruments: 'sapphire', evaluating: 'amber',
+const PATH_COLOR: Record<string, string> = {
+  fractional_securities: 'emerald', tokenization: 'teal', debt_instrument: 'sapphire',
+  broker_sale: 'amber', barter: 'amethyst',
 }
 
 const STATUS_COLOR: Record<string, 'emerald' | 'teal' | 'amber' | 'chartreuse' | 'ruby' | 'gray'> = {
-  prospect: 'gray', screening: 'emerald', active: 'teal', paused: 'amber', completed: 'chartreuse', terminated: 'ruby',
+  active: 'teal', paused: 'amber', completed: 'chartreuse', terminated: 'ruby', archived: 'gray',
 }
 
 function formatCurrency(value: number): string {
@@ -111,9 +121,9 @@ export default function PipelineBoardPage() {
   const router = useRouter()
 
   const utils = trpc.useUtils()
-  const { data: assets = [], isLoading } = trpc.assets.list.useQuery(pathFilter ? { pathFilter } : undefined)
-  const { data: stats } = trpc.assets.getStats.useQuery(pathFilter ? { pathFilter } : undefined)
-  const updatePhase = trpc.assets.updatePhase.useMutation({
+  const { data: assets = [], isLoading } = trpc.assets.list.useQuery(pathFilter ? { valueModel: pathFilter } : undefined)
+  const { data: stats } = trpc.assets.getStats.useQuery(pathFilter ? { valueModel: pathFilter } : undefined)
+  const updatePhase = trpc.assets.advancePhase.useMutation({
     onSuccess: () => { utils.assets.list.invalidate(); utils.assets.getStats.invalidate() },
   })
 
@@ -245,10 +255,10 @@ export default function PipelineBoardPage() {
         </NeuCard>
         <NeuCard variant="raised-sm" padding="md">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Compliance</span>
-            <Shield className={cn('h-4 w-4', (stats?.complianceScore ?? 0) >= 80 ? 'text-[var(--chartreuse)]' : (stats?.complianceScore ?? 0) >= 50 ? 'text-[var(--amber)]' : 'text-[var(--ruby)]')} />
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Total</span>
+            <Shield className="h-4 w-4 text-[var(--teal)]" />
           </div>
-          <p className="text-xl font-bold text-[var(--text-primary)]">{stats?.complianceScore !== undefined ? `${stats.complianceScore}%` : 'N/A'}</p>
+          <p className="text-xl font-bold text-[var(--text-primary)]">{stats?.totalCount ?? 0}</p>
         </NeuCard>
       </div>
 
@@ -280,8 +290,11 @@ export default function PipelineBoardPage() {
 
       {/* Content */}
       {isLoading ? (
-        <div className="flex items-center justify-center py-20">
-          <p className="text-[var(--text-muted)]">Loading pipeline...</p>
+        <div className="space-y-4 py-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <NeuSkeleton variant="card" /><NeuSkeleton variant="card" /><NeuSkeleton variant="card" /><NeuSkeleton variant="card" />
+          </div>
+          <NeuSkeleton variant="text" lines={3} />
         </div>
       ) : viewMode === 'dashboard' ? (
         /* ─── Dashboard View ─── */
@@ -333,15 +346,15 @@ export default function PipelineBoardPage() {
                     <NeuBadge color="gray" size="sm">{(asset.asset_type ?? '').replace(/_/g, ' ')}</NeuBadge>
                   </td>
                   <td className="px-4 py-3 hidden lg:table-cell">
-                    <NeuBadge color={PATH_COLOR[asset.value_path as string] ?? 'gray'} size="sm">
-                      {PATH_LABEL[asset.value_path as string] ?? asset.value_path}
+                    <NeuBadge color={(PATH_COLOR[asset.value_model as string] ?? 'gray') as 'gray'} size="sm">
+                      {PATH_LABEL[asset.value_model as string] ?? asset.value_model}
                     </NeuBadge>
                   </td>
                   <td className="px-4 py-3">
                     <span className="text-[var(--text-secondary)]">{PHASE_LABEL[asset.current_phase as string] ?? asset.current_phase}</span>
                   </td>
                   <td className="px-4 py-3 text-right font-semibold text-[var(--text-primary)]">
-                    {fmtVal(asset.offering_value ?? asset.claimed_value)}
+                    {fmtVal(asset.appraised_value ?? asset.claimed_value)}
                   </td>
                   <td className="px-4 py-3 hidden lg:table-cell">
                     <NeuBadge color={STATUS_COLOR[asset.status as string] ?? 'gray'} size="sm">{asset.status}</NeuBadge>
@@ -381,7 +394,7 @@ export default function PipelineBoardPage() {
                 onClick={() => {
                   updatePhase.mutate({
                     assetId: pendingMove.assetId,
-                    newPhase: pendingMove.newPhase as 'phase_0_foundation' | 'phase_1_intake' | 'phase_2_certification' | 'phase_3_custody' | 'phase_4_legal' | 'phase_5_tokenization' | 'phase_6_regulatory' | 'phase_7_distribution' | 'phase_8_ongoing',
+                    targetPhase: pendingMove.newPhase as 'lead' | 'intake' | 'asset_maturity' | 'security' | 'value_creation' | 'distribution',
                   })
                   setPendingMove(null)
                 }}
@@ -429,26 +442,124 @@ function DroppableColumn({ col, assets }: { col: KanbanColumn; assets: PipelineB
   )
 }
 
-// ─── Dashboard View ──────────────────────────────────
+// ─── Dashboard View (My Day + Pipeline Analytics) ────
 function DashboardView() {
   const { data: funnel = [] } = trpc.dashboard.getPipelineFunnel.useQuery()
   const { data: pathData = [] } = trpc.dashboard.getAssetsByPath.useQuery()
-  const { data: compliance = [] } = trpc.dashboard.getComplianceSummary.useQuery()
   const { data: risks = [] } = trpc.dashboard.getRiskIndicators.useQuery()
+  const { data: myDay } = trpc.dashboard.getMyDay.useQuery()
 
   const maxFunnel = Math.max(...funnel.map((f) => f.count), 1)
   const totalValue = pathData.reduce((s, p) => s + p.value, 0)
   const totalAssets = pathData.reduce((s, p) => s + p.count, 0)
 
   const pathColors: Record<string, string> = {
-    fractional_securities: 'var(--emerald)',
-    tokenization: 'var(--teal)',
-    debt_instruments: 'var(--sapphire)',
-    evaluating: 'var(--amber)',
+    fractional_securities: 'var(--emerald)', tokenization: 'var(--teal)',
+    debt_instrument: 'var(--sapphire)', broker_sale: 'var(--amber)', barter: 'var(--text-muted)',
   }
+
+  const myTasks = myDay?.tasks ?? []
+  const myApprovals = myDay?.approvals ?? []
+  const myReminders = myDay?.reminders ?? []
 
   return (
     <div className="space-y-6">
+      {/* My Day — Personal Widgets */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* My Tasks */}
+        <NeuCard variant="raised" padding="md">
+          <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-2">
+            <CheckSquare className="h-4 w-4 text-[var(--teal)]" /> My Tasks
+            {myTasks.length > 0 && (
+              <span className="ml-auto text-xs font-bold text-[var(--teal)]">{myTasks.length}</span>
+            )}
+          </h3>
+          {myTasks.length === 0 ? (
+            <p className="text-xs text-[var(--text-muted)] py-4 text-center">No open tasks</p>
+          ) : (
+            <div className="space-y-1.5">
+              {myTasks.slice(0, 5).map((t) => {
+                const taskCfg = TASK_TYPES[t.task_type as TaskTypeKey]
+                const assetData = t.assets as { name: string } | null
+                return (
+                  <Link key={t.id} href={`/crm/assets/${t.asset_id}`} className="block">
+                    <div className="flex items-center gap-2 px-2 py-1.5 rounded-[var(--radius-sm)] hover:bg-[var(--bg-elevated)] transition-colors">
+                      <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: taskCfg?.color ?? 'var(--text-muted)' }} />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium text-[var(--text-primary)] truncate">{t.title}</p>
+                        {assetData?.name && <p className="text-[10px] text-[var(--text-muted)] truncate">{assetData.name}</p>}
+                      </div>
+                      {t.due_date && (
+                        <span className="text-[10px] text-[var(--text-muted)] shrink-0" style={{ fontFamily: 'var(--font-mono)' }}>
+                          {new Date(t.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        </span>
+                      )}
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          )}
+        </NeuCard>
+
+        {/* Pending Approvals */}
+        <NeuCard variant="raised" padding="md">
+          <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-2">
+            <ShieldCheck className="h-4 w-4 text-[var(--amber)]" /> Pending Approvals
+            {myApprovals.length > 0 && (
+              <span className="ml-auto text-xs font-bold text-[var(--amber)]">{myApprovals.length}</span>
+            )}
+          </h3>
+          {myApprovals.length === 0 ? (
+            <p className="text-xs text-[var(--text-muted)] py-4 text-center">No pending approvals</p>
+          ) : (
+            <div className="space-y-1.5">
+              {myApprovals.slice(0, 5).map((a) => {
+                const taskData = a.tasks as { title: string; asset_id: string } | null
+                return (
+                  <div key={a.id} className="flex items-center gap-2 px-2 py-1.5 rounded-[var(--radius-sm)] hover:bg-[var(--bg-elevated)] transition-colors">
+                    <NeuBadge color="amber" dot />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-[var(--text-primary)] truncate">{taskData?.title ?? 'Approval'}</p>
+                      <p className="text-[10px] text-[var(--text-muted)]">
+                        Requested {new Date(a.requested_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      </p>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </NeuCard>
+
+        {/* Upcoming Reminders */}
+        <NeuCard variant="raised" padding="md">
+          <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-2">
+            <Bell className="h-4 w-4 text-[var(--amethyst)]" /> Reminders (7 days)
+            {myReminders.length > 0 && (
+              <span className="ml-auto text-xs font-bold text-[var(--amethyst)]">{myReminders.length}</span>
+            )}
+          </h3>
+          {myReminders.length === 0 ? (
+            <p className="text-xs text-[var(--text-muted)] py-4 text-center">No upcoming reminders</p>
+          ) : (
+            <div className="space-y-1.5">
+              {myReminders.slice(0, 5).map((r) => (
+                <div key={r.id} className="flex items-center gap-2 px-2 py-1.5 rounded-[var(--radius-sm)] hover:bg-[var(--bg-elevated)] transition-colors">
+                  <Calendar className="h-3.5 w-3.5 text-[var(--amethyst)] shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium text-[var(--text-primary)] truncate">{r.title}</p>
+                  </div>
+                  <span className="text-[10px] text-[var(--text-muted)] shrink-0" style={{ fontFamily: 'var(--font-mono)' }}>
+                    {new Date(r.remind_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </NeuCard>
+      </div>
+
       {/* Pipeline Funnel */}
       <NeuCard variant="raised" padding="md">
         <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-4">Pipeline Funnel</h3>
@@ -457,10 +568,8 @@ function DashboardView() {
             <div key={f.phase} className="flex items-center gap-3">
               <span className="text-xs text-[var(--text-muted)] w-24 text-right truncate">{f.phase}</span>
               <div className="flex-1 h-7 rounded-[var(--radius-sm)] bg-[var(--bg-body)] shadow-[var(--shadow-pressed)] overflow-hidden">
-                <div
-                  className="h-full rounded-[var(--radius-sm)] bg-[var(--teal)] transition-all"
-                  style={{ width: `${Math.max((f.count / maxFunnel) * 100, f.count > 0 ? 8 : 0)}%` }}
-                />
+                <div className="h-full rounded-[var(--radius-sm)] bg-[var(--teal)] transition-all"
+                  style={{ width: `${Math.max((f.count / maxFunnel) * 100, f.count > 0 ? 8 : 0)}%` }} />
               </div>
               <span className="text-sm font-bold text-[var(--text-primary)] w-8 text-right">{f.count}</span>
             </div>
@@ -469,9 +578,9 @@ function DashboardView() {
       </NeuCard>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Path Distribution */}
+        {/* AUM by Model */}
         <NeuCard variant="raised" padding="md">
-          <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-4">Value by Path</h3>
+          <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-4">AUM by Model</h3>
           {pathData.length === 0 ? (
             <p className="text-sm text-[var(--text-muted)] text-center py-6">No assets yet</p>
           ) : (
@@ -482,16 +591,11 @@ function DashboardView() {
                   <div key={p.path}>
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-xs font-medium text-[var(--text-secondary)]">{p.name}</span>
-                      <span className="text-xs text-[var(--text-muted)]">{p.count} assets · {formatCurrency(p.value)}</span>
+                      <span className="text-xs text-[var(--text-muted)]">{p.count} assets &middot; {formatCurrency(p.value)}</span>
                     </div>
                     <div className="h-3 rounded-full bg-[var(--bg-body)] shadow-[var(--shadow-pressed)] overflow-hidden">
-                      <div
-                        className="h-full rounded-full transition-all"
-                        style={{
-                          width: `${Math.max(pct, p.value > 0 ? 5 : 0)}%`,
-                          backgroundColor: pathColors[p.path] ?? 'var(--teal)',
-                        }}
-                      />
+                      <div className="h-full rounded-full transition-all"
+                        style={{ width: `${Math.max(pct, p.value > 0 ? 5 : 0)}%`, backgroundColor: pathColors[p.path] ?? 'var(--teal)' }} />
                     </div>
                   </div>
                 )
@@ -525,39 +629,6 @@ function DashboardView() {
           </div>
         </NeuCard>
       </div>
-
-      {/* Compliance by Asset */}
-      <NeuCard variant="raised" padding="md">
-        <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-4">Compliance by Asset</h3>
-        {compliance.length === 0 ? (
-          <p className="text-sm text-[var(--text-muted)] text-center py-6">No assets with governance steps</p>
-        ) : (
-          <div className="space-y-2">
-            {compliance.map((a) => (
-              <div key={a.id} className="flex items-center gap-3 cursor-pointer hover:bg-[var(--bg-elevated)] px-3 py-2 rounded-[var(--radius-md)] transition-colors"
-                onClick={() => window.location.href = `/crm/assets/${a.id}?tab=governance`}
-              >
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[var(--text-primary)] truncate">{a.name}</p>
-                  <p className="text-xs text-[var(--text-muted)]">{a.completedSteps}/{a.totalSteps} steps</p>
-                </div>
-                <div className="w-32">
-                  <div className="h-2.5 rounded-full bg-[var(--bg-body)] shadow-[var(--shadow-pressed)] overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all"
-                      style={{
-                        width: `${a.score}%`,
-                        backgroundColor: a.score >= 80 ? 'var(--chartreuse)' : a.score >= 40 ? 'var(--amber)' : 'var(--ruby)',
-                      }}
-                    />
-                  </div>
-                </div>
-                <span className="text-sm font-bold text-[var(--text-primary)] w-10 text-right">{a.score}%</span>
-              </div>
-            ))}
-          </div>
-        )}
-      </NeuCard>
     </div>
   )
 }
@@ -566,8 +637,9 @@ function DashboardView() {
 function QuickAddModal({ onClose }: { onClose: () => void }) {
   const [name, setName] = useState('')
   const [assetType, setAssetType] = useState<'gemstone' | 'real_estate' | 'precious_metal' | 'mineral_rights' | 'other'>('gemstone')
-  const [valuePath, setValuePath] = useState<'fractional_securities' | 'tokenization' | 'debt_instruments' | 'evaluating'>('evaluating')
+  const [valuePath, setValuePath] = useState<'fractional_securities' | 'tokenization' | 'debt_instrument' | 'broker_sale' | 'barter' | ''>('')
   const [holderEntity, setHolderEntity] = useState('')
+  const [description, setDescription] = useState('')
   const [estimatedValue, setEstimatedValue] = useState('')
 
   const utils = trpc.useUtils()
@@ -578,9 +650,10 @@ function QuickAddModal({ onClose }: { onClose: () => void }) {
   const handleSubmit = () => {
     if (!name.trim() || !holderEntity.trim()) return
     createMutation.mutate({
-      name: name.trim(), assetType, valuePath, holderEntity: holderEntity.trim(),
-      estimatedValue: estimatedValue ? parseFloat(estimatedValue) : undefined,
-    })
+      name: name.trim(), assetType, valueModel: valuePath || undefined, holderEntity: holderEntity.trim(),
+      description: description.trim() || undefined,
+      claimedValue: estimatedValue ? parseFloat(estimatedValue.replace(/,/g, '')) : undefined,
+    } as any)
   }
 
   return (
@@ -593,6 +666,12 @@ function QuickAddModal({ onClose }: { onClose: () => void }) {
         </div>
         <NeuInput label="Asset Name *" placeholder="e.g., Emerald Barrel #017093" value={name} onChange={(e) => setName(e.target.value)} />
         <NeuInput label="Holder Entity *" placeholder="e.g., Kandi International LLC" value={holderEntity} onChange={(e) => setHolderEntity(e.target.value)} />
+        <div>
+          <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-1 block">Description</label>
+          <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2}
+            placeholder="Brief asset description..."
+            className="w-full text-sm rounded-[var(--radius-sm)] px-3 py-2 resize-none bg-[var(--bg-input)] text-[var(--text-primary)] placeholder:text-[var(--text-placeholder)] shadow-[var(--shadow-pressed)] border border-[var(--border)] focus:outline-none focus:border-[var(--teal)]" />
+        </div>
         <div className="grid grid-cols-2 gap-3">
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-[var(--text-secondary)]">Asset Type</label>
@@ -604,20 +683,33 @@ function QuickAddModal({ onClose }: { onClose: () => void }) {
             </select>
           </div>
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-[var(--text-secondary)]">Value Path</label>
+            <label className="text-xs font-semibold text-[var(--text-secondary)]">Value Model</label>
             <select value={valuePath} onChange={(e) => setValuePath(e.target.value as typeof valuePath)}
               className="h-11 rounded-[var(--radius-md)] border px-3 text-sm bg-[var(--bg-input)] text-[var(--text-primary)] shadow-[var(--shadow-pressed)] border-[var(--border)] focus:outline-none focus:border-[var(--teal)]">
-              <option value="evaluating">Evaluating</option><option value="fractional_securities">Fractional</option>
-              <option value="tokenization">Tokenization</option><option value="debt_instruments">Debt</option>
+              <option value="">Undecided</option><option value="fractional_securities">Fractional</option>
+              <option value="tokenization">Tokenization</option><option value="debt_instrument">Debt</option>
+              <option value="broker_sale">Broker Sale</option><option value="barter">Barter</option>
             </select>
           </div>
         </div>
-        <NeuInput label="Estimated Value" placeholder="e.g., 15400000" type="number" value={estimatedValue} onChange={(e) => setEstimatedValue(e.target.value)} />
+        <NeuInput label="Estimated Value" placeholder="$0"
+          value={estimatedValue}
+          onChange={(e) => setEstimatedValue(e.target.value.replace(/[^0-9.]/g, ''))}
+          onBlur={() => {
+            const num = parseFloat(estimatedValue)
+            if (!isNaN(num) && num > 0) setEstimatedValue(num.toLocaleString('en-US'))
+          }}
+          onFocus={() => setEstimatedValue(estimatedValue.replace(/,/g, ''))} />
         <div className="flex gap-3 pt-2">
           <NeuButton variant="ghost" onClick={onClose} fullWidth>Cancel</NeuButton>
           <NeuButton onClick={handleSubmit} loading={createMutation.isPending} disabled={!name.trim() || !holderEntity.trim()} fullWidth>Create Asset</NeuButton>
         </div>
         {createMutation.error && <p className="text-sm text-[var(--ruby)]">{createMutation.error.message}</p>}
+        <div className="flex justify-center pt-1 border-t border-[var(--border)]">
+          <a href="/crm/assets/new" onClick={onClose} className="text-[11px] text-[var(--teal)] hover:text-[var(--text-primary)] transition-colors">
+            Need more options? Try the full wizard →
+          </a>
+        </div>
       </NeuCard>
     </div>
   )

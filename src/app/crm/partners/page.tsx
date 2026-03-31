@@ -97,7 +97,36 @@ function PartnerCreateModal({ onClose }: { onClose: () => void }) {
   const [contactPhone, setContactPhone] = useState('')
   const [website, setWebsite] = useState('')
   const [description, setDescription] = useState('')
+  const [emailError, setEmailError] = useState('')
+  const [phoneError, setPhoneError] = useState('')
+  const [websiteError, setWebsiteError] = useState('')
   const utils = trpc.useUtils()
+
+  const validateEmail = (val: string) => {
+    if (val && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+      setEmailError('Please enter a valid email address')
+    } else {
+      setEmailError('')
+    }
+  }
+
+  const validatePhone = (val: string) => {
+    if (val && !/^\+?[\d\s\-().]{7,20}$/.test(val)) {
+      setPhoneError('Please enter a valid phone number')
+    } else {
+      setPhoneError('')
+    }
+  }
+
+  const validateWebsite = (val: string) => {
+    if (val && !/^https?:\/\/.+/.test(val)) {
+      setWebsiteError('URL must start with http:// or https://')
+    } else {
+      setWebsiteError('')
+    }
+  }
+
+  const hasErrors = !!emailError || !!phoneError || !!websiteError
 
   const mutation = trpc.partners.create.useMutation({
     onSuccess: () => {
@@ -107,6 +136,7 @@ function PartnerCreateModal({ onClose }: { onClose: () => void }) {
   })
 
   const handleSubmit = () => {
+    if (hasErrors) return
     mutation.mutate({
       name,
       partnerType,
@@ -129,7 +159,7 @@ function PartnerCreateModal({ onClose }: { onClose: () => void }) {
 
         <div className="space-y-3">
           <NeuInput
-            label="Name"
+            label="Name *"
             placeholder="Partner name"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -155,19 +185,25 @@ function PartnerCreateModal({ onClose }: { onClose: () => void }) {
             type="email"
             placeholder="email@example.com"
             value={contactEmail}
-            onChange={(e) => setContactEmail(e.target.value)}
+            onChange={(e) => { setContactEmail(e.target.value); validateEmail(e.target.value) }}
+            onBlur={() => validateEmail(contactEmail)}
+            error={emailError || undefined}
           />
           <NeuInput
             label="Contact Phone"
             placeholder="+1 (555) 000-0000"
             value={contactPhone}
-            onChange={(e) => setContactPhone(e.target.value)}
+            onChange={(e) => { setContactPhone(e.target.value); validatePhone(e.target.value) }}
+            onBlur={() => validatePhone(contactPhone)}
+            error={phoneError || undefined}
           />
           <NeuInput
             label="Website"
             placeholder="https://example.com"
             value={website}
-            onChange={(e) => setWebsite(e.target.value)}
+            onChange={(e) => { setWebsite(e.target.value); validateWebsite(e.target.value) }}
+            onBlur={() => validateWebsite(website)}
+            error={websiteError || undefined}
           />
           <NeuTextarea
             label="Description"
@@ -180,7 +216,7 @@ function PartnerCreateModal({ onClose }: { onClose: () => void }) {
 
         <div className="flex gap-3 pt-2">
           <NeuButton variant="ghost" onClick={onClose} fullWidth>Cancel</NeuButton>
-          <NeuButton onClick={handleSubmit} loading={mutation.isPending} disabled={!name.trim()} fullWidth>Add Partner</NeuButton>
+          <NeuButton onClick={handleSubmit} loading={mutation.isPending} disabled={!name.trim() || hasErrors} fullWidth>Add Partner</NeuButton>
         </div>
         {mutation.error && <p className="text-sm text-[var(--ruby)]">{mutation.error.message}</p>}
       </NeuCard>

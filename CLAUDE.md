@@ -4,22 +4,48 @@
 
 **BEFORE writing ANY code — even a single line, even a "quick fix" — you MUST:**
 
-1. **Read `specs/SESSION-HANDOFF.md`** FIRST — tells you current state + what phase to build
-2. **Read this entire CLAUDE.md file** to load project context
-3. **Read `specs/V2-MASTER-BUILD-PLAN.md`** — find your current phase section
-4. **Read `specs/V2-ARCHITECTURE-RULES.md`** — code standards, CSS rules, file limits
-5. **Read `src/lib/design-system.ts`** if touching any UI
+1. **Read `specs/SESSION-HANDOFF.md`** — current state + quick start protocol
+2. **Read `specs/DIRECTION.md`** — what to build next with full context
+3. **Read this entire CLAUDE.md file** — project rules and code standards
+4. **Read `specs/PROJECT-MAP.md`** — know where everything is
 5. **Check `src/components/ui/`** for existing components before creating new ones
+6. **Run `npm run build`** — verify clean state before writing code
 
-**This applies to:**
-- New features
-- Bug fixes (even one-line)
-- Refactors
-- Style changes
-- Content updates
-- ANY code change whatsoever
+**This applies to ALL code changes without exception.**
 
-**Why:** Context loss causes inconsistency. A "quick fix" that ignores the design system breaks visual consistency. A content update that ignores the Decision Audit Log contradicts strategic decisions. Every change must be informed by the full project state.
+---
+
+## ⚙️ BUILD GUARDRAILS & OUTPUT CONTROL
+
+### Session Discipline
+1. **Plan before you build.** Enter plan mode for any non-trivial work. Get user approval before writing code.
+2. **Build in small, testable increments.** One feature at a time. Build → verify → test → move on. Do NOT build 5 things then test.
+3. **Test what you build in Chrome.** Every UI change must be verified in the browser via the Chrome extension. API-only testing is NOT sufficient.
+4. **Don't call it done until it's tested.** "Build clean" ≠ "works in browser." TypeScript passing is the minimum, not the goal.
+
+### Code Quality
+5. **File size limits: 250 lines for components, 300 for pages.** Extract to separate files when approaching limits. Use custom hooks for mutation logic.
+6. **No cosmetic-only features.** Every type selector, badge, or UI element must DO something functional. A colored dot that doesn't trigger behavior is not a feature.
+7. **Every mutation needs visible feedback.** Toast on error. Loading state on buttons. Confirmation on save. The user must always know if an action worked.
+8. **Every interaction needs a timestamp and author.** Notes, comments, file uploads, status changes — all must record who did what and when.
+
+### Documentation & Context Preservation
+9. **Update SESSION-HANDOFF.md at the end of every session.** Current state, what was built, what's next.
+10. **Update DIRECTION.md when priorities change.** If user feedback shifts the plan, update the direction file immediately.
+11. **Save critical feedback to memory immediately.** User corrections, confirmed approaches, and surprises go to `~/.claude/projects/.../memory/` right away.
+12. **Log new issues to `specs/v2-testing/MASTER-ISSUE-LOG.md`.** Don't carry issues in your head — write them down.
+
+### File Organization
+13. **Specs go in `specs/`.** Architecture in `v2-architecture/`, testing in `v2-testing/`, session logs in `v2-session-logs/`.
+14. **Business docs go in `docs/`.** Strategy, research, legacy — NOT in project root.
+15. **Project root stays clean.** Only CLAUDE.md, README.md, DECISION-AUDIT-LOG.md at root level.
+16. **New components go in `src/components/crm/`.** Asset detail tabs go in `src/components/crm/asset-detail/`. UI primitives in `src/components/ui/`.
+
+### Testing Protocol
+17. **Test the INTERACTION, not just the render.** Click every button, fill every form, verify every mutation fires and data persists.
+18. **Check console errors after every page.** Zero errors is the target. Hydration errors = broken HTML.
+19. **Test with real data flows.** Create an asset → instantiate workflow → work through stages → advance phase. Not just "does the page load."
+20. **Dark mode + mobile are not optional.** Check both after any UI change.
 
 ---
 

@@ -45,6 +45,42 @@
 
   --gold: #D4AF37;
 
+  /* ── Gray (V2) ─────────────────────────────── */
+  --gray: #6B7280;
+  --gray-light: #9CA3AF;
+  --gray-dark: #4B5563;
+  --gray-bg: rgba(107, 114, 128, 0.15);
+
+  /* ── Phase Colors (V2) ─────────────────────── */
+  --phase-lead: var(--gray);
+  --phase-intake: var(--emerald);
+  --phase-asset-maturity: var(--teal);
+  --phase-security: var(--sapphire);
+  --phase-value-creation: var(--amethyst);
+  --phase-distribution: var(--amber);
+
+  /* ── Value Model Colors (V2) ───────────────── */
+  --model-tokenization: var(--teal);
+  --model-fractional: var(--emerald);
+  --model-debt: var(--sapphire);
+  --model-broker: var(--amber);
+  --model-barter: var(--amethyst);
+
+  /* ── Notification Variables (V2) ───────────── */
+  --notification-unread: var(--teal);
+  --notification-urgent: var(--ruby);
+  --notification-info: var(--sapphire);
+
+  /* ── Comment Thread Variables (V2) ─────────── */
+  --comment-mention: var(--amethyst);
+  --comment-border: var(--border);
+
+  /* ── Approval Badge Variables (V2) ─────────── */
+  --approval-pending: var(--amber);
+  --approval-approved: var(--chartreuse);
+  --approval-rejected: var(--ruby);
+  --approval-escalated: var(--amethyst);
+
   /* ── Spacing ─────────────────────────────────── */
   --space-xs: 4px;
   --space-sm: 8px;
@@ -260,4 +296,23 @@
   color: white;
   font-size: 13px;
   font-weight: 500;
+}
+
+/* ── Skeleton Shimmer ──────────────────────────── */
+
+@keyframes neu-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.neu-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-elevated) 25%,
+    var(--bg-input) 50%,
+    var(--bg-elevated) 75%
+  );
+  background-size: 200% 100%;
+  animation: neu-shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-sm);
 }

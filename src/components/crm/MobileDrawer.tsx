@@ -5,18 +5,22 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { NeuAvatar } from '@/components/ui/NeuAvatar'
-import { X, LayoutDashboard, Gem, Handshake, FileText, CheckSquare, Calendar, Activity, Users, BookOpen, Shield, Settings } from 'lucide-react'
+import {
+  X, LayoutGrid, Gem, Handshake, Users2, FileText, CheckSquare,
+  Calendar, Activity, Users, LayoutTemplate, Shield, Settings,
+} from 'lucide-react'
 
 const allNav = [
-  { label: 'Pipeline', icon: LayoutDashboard, href: '/crm' },
+  { label: 'Pipeline', icon: LayoutGrid, href: '/crm' },
   { label: 'Assets', icon: Gem, href: '/crm/assets' },
   { label: 'Partners', icon: Handshake, href: '/crm/partners' },
+  { label: 'Contacts', icon: Users2, href: '/crm/contacts' },
   { label: 'Documents', icon: FileText, href: '/crm/documents' },
   { label: 'Tasks', icon: CheckSquare, href: '/crm/tasks' },
   { label: 'Meetings', icon: Calendar, href: '/crm/meetings' },
   { label: 'Activity', icon: Activity, href: '/crm/activity' },
   { label: 'Team', icon: Users, href: '/crm/team' },
-  { label: 'Templates', icon: BookOpen, href: '/crm/templates' },
+  { label: 'Templates', icon: LayoutTemplate, href: '/crm/templates' },
   { label: 'Compliance', icon: Shield, href: '/crm/compliance' },
   { label: 'Settings', icon: Settings, href: '/crm/settings' },
 ]
@@ -55,7 +59,9 @@ export function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => 
 
         <nav className="px-3 py-4 space-y-1 overflow-y-auto h-[calc(100%-var(--header-height)-72px)]">
           {allNav.map((item) => {
-            const active = item.href === '/crm' ? pathname === '/crm' : pathname.startsWith(item.href)
+            const active = item.href === '/crm'
+              ? pathname === '/crm'
+              : pathname === item.href || pathname.startsWith(item.href + '/')
             return (
               <Link
                 key={item.href}

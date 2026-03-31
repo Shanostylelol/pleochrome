@@ -7,23 +7,22 @@ import { NeuCard, NeuBadge, NeuButton, NeuInput, NeuProgress } from '@/component
 import { Plus, Search, Gem, LayoutGrid, List } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { AssetCard } from '@/components/crm/AssetCard'
-import type { PipelineBoard } from '@/lib/types'
 
-type PathFilter = 'fractional_securities' | 'tokenization' | 'debt_instruments'
+type PathFilter = 'fractional_securities' | 'tokenization' | 'debt_instrument' | 'broker_sale' | 'barter'
 
 const PATH_LABEL: Record<string, string> = {
-  fractional_securities: 'Fractional', tokenization: 'Tokenization', debt_instruments: 'Debt', evaluating: 'Evaluating',
+  fractional_securities: 'Fractional', tokenization: 'Tokenization', debt_instrument: 'Debt',
+  broker_sale: 'Broker Sale', barter: 'Barter',
 }
 const PATH_COLOR: Record<string, 'emerald' | 'teal' | 'sapphire' | 'amber' | 'gray'> = {
-  fractional_securities: 'emerald', tokenization: 'teal', debt_instruments: 'sapphire', evaluating: 'amber',
+  fractional_securities: 'emerald', tokenization: 'teal', debt_instrument: 'sapphire', broker_sale: 'amber', barter: 'gray',
 }
 const STATUS_COLOR: Record<string, 'emerald' | 'teal' | 'amber' | 'chartreuse' | 'ruby' | 'gray'> = {
-  prospect: 'gray', screening: 'emerald', active: 'teal', paused: 'amber', completed: 'chartreuse', terminated: 'ruby',
+  active: 'teal', paused: 'amber', completed: 'chartreuse', terminated: 'ruby', archived: 'gray',
 }
 const PHASE_LABEL: Record<string, string> = {
-  phase_0_foundation: 'Foundation', phase_1_intake: 'Intake', phase_2_certification: 'Certification',
-  phase_3_custody: 'Custody', phase_4_legal: 'Legal', phase_5_tokenization: 'Execution',
-  phase_6_regulatory: 'Regulatory', phase_7_distribution: 'Distribution', phase_8_ongoing: 'Ongoing',
+  lead: 'Lead', intake: 'Intake', asset_maturity: 'Asset Maturity',
+  security: 'Security', value_creation: 'Value Creation', distribution: 'Distribution',
 }
 
 function fmtVal(val: number | null): string {
@@ -39,7 +38,7 @@ const FILTERS: { label: string; value: PathFilter | null; color: string }[] = [
   { label: 'All', value: null, color: 'var(--text-muted)' },
   { label: 'Fractional', value: 'fractional_securities', color: 'var(--emerald)' },
   { label: 'Tokenization', value: 'tokenization', color: 'var(--teal)' },
-  { label: 'Debt', value: 'debt_instruments', color: 'var(--sapphire)' },
+  { label: 'Debt', value: 'debt_instrument', color: 'var(--sapphire)' },
 ]
 
 export default function AssetsPage() {
@@ -49,7 +48,7 @@ export default function AssetsPage() {
   const router = useRouter()
 
   const { data: assets = [], isLoading } = trpc.assets.list.useQuery(
-    pathFilter ? { pathFilter } : undefined
+    pathFilter ? { valueModel: pathFilter } : undefined
   )
 
   const filtered = search
@@ -85,10 +84,10 @@ export default function AssetsPage() {
 
       {/* Stats by path */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {(['fractional_securities', 'tokenization', 'debt_instruments', 'evaluating'] as const).map((path) => {
-          const count = assets.filter((a) => a.value_path === path).length
+        {(['fractional_securities', 'tokenization', 'debt_instrument', 'broker_sale'] as const).map((path) => {
+          const count = assets.filter((a: any) => a.value_model === path).length
           return (
-            <NeuCard key={path} variant="raised-sm" padding="md" hoverable className="cursor-pointer" onClick={() => setPathFilter(path === pathFilter ? null : path === 'evaluating' ? null : path as PathFilter)}>
+            <NeuCard key={path} variant="raised-sm" padding="md" hoverable className="cursor-pointer" onClick={() => setPathFilter(path === pathFilter ? null : path as PathFilter)}>
               <div className="flex items-center justify-between mb-1">
                 <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">{PATH_LABEL[path]}</span>
                 <NeuBadge color={PATH_COLOR[path]} dot />
@@ -148,9 +147,9 @@ export default function AssetsPage() {
                   <td className="px-4 py-3 font-medium text-[var(--text-muted)]" style={{ fontFamily: 'var(--font-mono)' }}>{asset.reference_code}</td>
                   <td className="px-4 py-3 font-semibold text-[var(--text-primary)]">{asset.name}</td>
                   <td className="px-4 py-3 hidden md:table-cell"><NeuBadge color="gray" size="sm">{formatType(asset.asset_type ?? '')}</NeuBadge></td>
-                  <td className="px-4 py-3 hidden lg:table-cell"><NeuBadge color={PATH_COLOR[asset.value_path as string] ?? 'gray'} size="sm">{PATH_LABEL[asset.value_path as string] ?? asset.value_path}</NeuBadge></td>
+                  <td className="px-4 py-3 hidden lg:table-cell"><NeuBadge color={PATH_COLOR[asset.value_model as string] ?? 'gray'} size="sm">{PATH_LABEL[asset.value_model as string] ?? asset.value_model}</NeuBadge></td>
                   <td className="px-4 py-3 text-[var(--text-secondary)]">{PHASE_LABEL[asset.current_phase as string] ?? asset.current_phase}</td>
-                  <td className="px-4 py-3 text-right font-semibold text-[var(--text-primary)]">{fmtVal(asset.offering_value ?? asset.claimed_value)}</td>
+                  <td className="px-4 py-3 text-right font-semibold text-[var(--text-primary)]">{fmtVal(asset.appraised_value ?? asset.claimed_value)}</td>
                   <td className="px-4 py-3 hidden lg:table-cell"><NeuBadge color={STATUS_COLOR[asset.status as string] ?? 'gray'} size="sm">{asset.status}</NeuBadge></td>
                 </tr>
               ))}

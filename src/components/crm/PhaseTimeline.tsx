@@ -2,60 +2,97 @@
 
 import { cn } from '@/lib/utils'
 import { Check } from 'lucide-react'
+import { PHASES, PHASE_ORDER, type PhaseKey } from '@/lib/constants'
 
-const PHASES = [
-  { key: 'phase_0_foundation', label: 'Foundation', short: '0' },
-  { key: 'phase_1_intake', label: 'Intake', short: '1' },
-  { key: 'phase_2_certification', label: 'Certification', short: '2' },
-  { key: 'phase_3_custody', label: 'Custody', short: '3' },
-  { key: 'phase_4_legal', label: 'Legal', short: '4' },
-  { key: 'phase_5_tokenization', label: 'Execution', short: '5' },
-  { key: 'phase_6_regulatory', label: 'Regulatory', short: '6' },
-  { key: 'phase_7_distribution', label: 'Distribution', short: '7' },
-  { key: 'phase_8_ongoing', label: 'Ongoing', short: '8' },
-]
+// ── Props ─────────────────────────────────────────────────
+export interface PhaseTimelineProps {
+  currentPhase: PhaseKey
+  onPhaseClick?: (phase: PhaseKey) => void
+}
 
-export function PhaseTimeline({ currentPhase }: { currentPhase: string }) {
-  const currentIdx = PHASES.findIndex((p) => p.key === currentPhase)
+// ── Short labels for compact display ──────────────────────
+const SHORT_LABELS: Record<PhaseKey, string> = {
+  lead: 'Lead',
+  intake: 'Intake',
+  asset_maturity: 'Maturity',
+  security: 'Security',
+  value_creation: 'Value',
+  distribution: 'Distrib.',
+}
+
+// ── Component ─────────────────────────────────────────────
+export function PhaseTimeline({ currentPhase, onPhaseClick }: PhaseTimelineProps) {
+  const currentIdx = PHASE_ORDER.indexOf(currentPhase)
 
   return (
     <div className="flex items-center gap-0 overflow-x-auto scrollbar-none py-3 px-1">
-      {PHASES.map((phase, idx) => {
+      {PHASE_ORDER.map((phaseKey, idx) => {
+        const phase = PHASES[phaseKey]
         const isCompleted = idx < currentIdx
         const isActive = idx === currentIdx
         const isPending = idx > currentIdx
+        const isClickable = !!onPhaseClick
 
         return (
-          <div key={phase.key} className="flex items-center shrink-0">
-            {/* Dot */}
-            <div className="flex flex-col items-center">
+          <div key={phaseKey} className="flex items-center shrink-0">
+            {/* Phase dot + label */}
+            <button
+              type="button"
+              disabled={!isClickable}
+              onClick={() => onPhaseClick?.(phaseKey)}
+              className={cn(
+                'flex flex-col items-center gap-1.5 group',
+                isClickable && 'cursor-pointer',
+                !isClickable && 'cursor-default'
+              )}
+            >
               <div
                 className={cn(
                   'flex items-center justify-center rounded-full transition-all',
-                  isCompleted && 'w-7 h-7 bg-[var(--chartreuse)] text-white',
-                  isActive && 'w-9 h-9 bg-[var(--teal)] text-white shadow-[0_0_12px_var(--teal)]',
-                  isPending && 'w-6 h-6 border-2 border-[var(--text-placeholder)] bg-transparent'
+                  isCompleted && 'w-7 h-7 text-white',
+                  isActive && 'w-9 h-9 text-white',
+                  isPending && 'w-6 h-6 border-2 border-[var(--text-placeholder)] bg-transparent',
+                  isClickable && !isActive && 'group-hover:scale-110'
                 )}
+                style={{
+                  ...(isCompleted ? { background: 'var(--chartreuse)' } : {}),
+                  ...(isActive
+                    ? {
+                        background: phase.color,
+                        boxShadow: `0 0 12px ${phase.color}`,
+                      }
+                    : {}),
+                }}
               >
                 {isCompleted && <Check className="h-3.5 w-3.5" strokeWidth={3} />}
-                {isActive && <span className="text-xs font-bold">{phase.short}</span>}
+                {isActive && <span className="text-xs font-bold">{idx + 1}</span>}
               </div>
+
               <span
                 className={cn(
-                  'text-[10px] mt-1.5 whitespace-nowrap',
-                  isActive ? 'font-semibold text-[var(--text-primary)]' : isCompleted ? 'text-[var(--text-secondary)]' : 'text-[var(--text-muted)]'
+                  'text-[10px] whitespace-nowrap transition-colors',
+                  isActive
+                    ? 'font-semibold text-[var(--text-primary)]'
+                    : isCompleted
+                      ? 'text-[var(--text-secondary)]'
+                      : 'text-[var(--text-muted)]',
+                  isClickable && 'group-hover:text-[var(--text-primary)]'
                 )}
               >
-                {phase.label}
+                {SHORT_LABELS[phaseKey]}
               </span>
-            </div>
+            </button>
 
             {/* Connecting line */}
-            {idx < PHASES.length - 1 && (
+            {idx < PHASE_ORDER.length - 1 && (
               <div
                 className={cn(
                   'h-0.5 min-w-[24px] lg:min-w-[40px] mx-1',
-                  idx < currentIdx ? 'bg-[var(--chartreuse)]' : idx === currentIdx ? 'bg-gradient-to-r from-[var(--teal)] to-[var(--text-placeholder)]' : 'border-t-2 border-dashed border-[var(--text-placeholder)]'
+                  idx < currentIdx
+                    ? 'bg-[var(--chartreuse)]'
+                    : idx === currentIdx
+                      ? 'bg-gradient-to-r from-[var(--teal)] to-[var(--text-placeholder)]'
+                      : 'border-t-2 border-dashed border-[var(--text-placeholder)]'
                 )}
               />
             )}

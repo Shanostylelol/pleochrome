@@ -2,15 +2,16 @@ import { createRouter, publicProcedure } from '../trpc'
 
 export const healthRouter = createRouter({
   check: publicProcedure.query(async ({ ctx }) => {
+    // V2: governance_requirements is gone — check assets table instead
     const { count, error } = await ctx.db
-      .from('governance_requirements')
+      .from('assets')
       .select('*', { count: 'exact', head: true })
 
     if (error) {
       return {
         status: 'error' as const,
         message: error.message,
-        governanceRequirementsCount: 0,
+        assetCount: 0,
         timestamp: new Date().toISOString(),
       }
     }
@@ -18,7 +19,7 @@ export const healthRouter = createRouter({
     return {
       status: 'ok' as const,
       message: 'Powerhouse CRM is operational',
-      governanceRequirementsCount: count ?? 0,
+      assetCount: count ?? 0,
       timestamp: new Date().toISOString(),
     }
   }),

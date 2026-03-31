@@ -10,7 +10,8 @@ import { cn } from '@/lib/utils'
 
 // ─── Types ─────────────────────────────────────────────
 type AssetType = 'gemstone' | 'real_estate' | 'precious_metal' | 'mineral_rights' | 'other'
-type ValuePath = 'evaluating' | 'fractional_securities' | 'tokenization' | 'debt_instruments'
+// V2: value_model enum values (no 'evaluating', 'debt_instruments' -> 'debt_instrument')
+type ValuePath = '' | 'fractional_securities' | 'tokenization' | 'debt_instrument' | 'broker_sale' | 'barter'
 
 interface WizardData {
   name: string
@@ -54,9 +55,9 @@ const VALUE_PATHS: {
   bgVar: string
 }[] = [
   {
-    id: 'evaluating',
-    label: 'Evaluating',
-    description: 'Asset is under evaluation. Value path to be determined after due diligence and partner assessment.',
+    id: '',
+    label: 'Undecided',
+    description: 'Asset is under evaluation. Value model to be determined after due diligence and partner assessment.',
     color: '#C47A1A',
     bgVar: 'var(--amber-bg)',
   },
@@ -75,19 +76,35 @@ const VALUE_PATHS: {
     bgVar: 'var(--teal-bg)',
   },
   {
-    id: 'debt_instruments',
-    label: 'Debt Instruments',
+    id: 'debt_instrument',
+    label: 'Debt Instrument',
     description: 'Asset-backed lending with UCC Article 9 perfected security interest. Collateral-based debt structure.',
     color: '#1E3A6E',
     bgVar: 'var(--sapphire-bg)',
   },
+  {
+    id: 'broker_sale',
+    label: 'Broker Sale',
+    description: 'Traditional broker-mediated sale through registered broker-dealer networks.',
+    color: '#C47A1A',
+    bgVar: 'var(--amber-bg)',
+  },
+  {
+    id: 'barter',
+    label: 'Barter',
+    description: 'Direct asset-for-asset exchange or trade arrangement.',
+    color: '#666',
+    bgVar: 'var(--bg-body)',
+  },
 ]
 
 const PATH_LABEL: Record<string, string> = {
-  evaluating: 'Evaluating',
+  '': 'Undecided',
   fractional_securities: 'Fractional Securities',
   tokenization: 'Tokenization',
-  debt_instruments: 'Debt Instruments',
+  debt_instrument: 'Debt Instrument',
+  broker_sale: 'Broker Sale',
+  barter: 'Barter',
 }
 
 // ═══════════════════════════════════════════════════════
@@ -99,7 +116,7 @@ export default function NewAssetPage() {
     assetType: 'gemstone',
     holderEntity: '',
     description: '',
-    valuePath: 'evaluating',
+    valuePath: '',
     estimatedValue: '',
     origin: '',
   })
@@ -109,7 +126,7 @@ export default function NewAssetPage() {
     onSuccess: (created) => {
       utils.assets.list.invalidate()
       utils.assets.getStats.invalidate()
-      router.push(`/crm/assets/${created.id}`)
+      router.push(`/crm/assets/${created.asset.id}`)
     },
   })
 
@@ -125,11 +142,11 @@ export default function NewAssetPage() {
     createMutation.mutate({
       name: data.name.trim(),
       assetType: data.assetType,
-      valuePath: data.valuePath,
+      valueModel: data.valuePath || undefined,
       holderEntity: data.holderEntity.trim(),
-      estimatedValue: data.estimatedValue ? parseFloat(data.estimatedValue) : undefined,
+      claimedValue: data.estimatedValue ? parseFloat(data.estimatedValue) : undefined,
       description: data.description.trim() || undefined,
-    })
+    } as any)
   }
 
   return (

@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { trpc } from '@/lib/trpc'
 import { NeuCard, NeuBadge } from '@/components/ui'
-import { Search, Gem, Handshake, FileText, CheckSquare, Calendar, X } from 'lucide-react'
+import { Search, Gem, Handshake, FileText, CheckSquare, Calendar, Users2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function CommandPalette({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -47,9 +47,10 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
 
   const groups = [
     { key: 'assets', label: 'Assets', icon: Gem, color: 'teal' as const, items: results?.assets ?? [], getPath: (i: { id: string }) => `/crm/assets/${i.id}`, getLabel: (i: { name: string; reference_code: string | null }) => i.name, getSub: (i: { reference_code: string | null; asset_type: string }) => `${i.reference_code} · ${i.asset_type}` },
-    { key: 'partners', label: 'Partners', icon: Handshake, color: 'amethyst' as const, items: results?.partners ?? [], getPath: (i: { id: string }) => `/crm/partners`, getLabel: (i: { name: string }) => i.name, getSub: (i: { type: string; dd_status: string }) => `${i.type} · ${i.dd_status}` },
+    { key: 'partners', label: 'Partners', icon: Handshake, color: 'amethyst' as const, items: results?.partners ?? [], getPath: (i: { id: string }) => `/crm/partners/${i.id}`, getLabel: (i: { name: string }) => i.name, getSub: (i: { type: string; dd_status: string }) => `${i.type} · ${i.dd_status}` },
+    { key: 'contacts', label: 'Contacts', icon: Users2, color: 'teal' as const, items: results?.contacts ?? [], getPath: (i: { id: string }) => `/crm/contacts/${i.id}`, getLabel: (i: { full_name: string }) => i.full_name, getSub: (i: { contact_type: string; kyc_status: string }) => `${i.contact_type} · KYC: ${i.kyc_status}` },
     { key: 'documents', label: 'Documents', icon: FileText, color: 'sapphire' as const, items: results?.documents ?? [], getPath: () => `/crm/documents`, getLabel: (i: { title: string }) => i.title, getSub: (i: { document_type: string }) => i.document_type },
-    { key: 'tasks', label: 'Tasks', icon: CheckSquare, color: 'emerald' as const, items: results?.tasks ?? [], getPath: () => `/crm/tasks`, getLabel: (i: { title: string }) => i.title, getSub: (i: { status: string; priority: string }) => `${i.status} · ${i.priority}` },
+    { key: 'tasks', label: 'Tasks', icon: CheckSquare, color: 'emerald' as const, items: results?.tasks ?? [], getPath: () => `/crm/tasks`, getLabel: (i: { title: string }) => i.title, getSub: (i: { status: string }) => i.status },
     { key: 'meetings', label: 'Meetings', icon: Calendar, color: 'amber' as const, items: results?.meetings ?? [], getPath: () => `/crm/meetings`, getLabel: (i: { title: string }) => i.title, getSub: (i: { meeting_date: string }) => new Date(i.meeting_date).toLocaleDateString() },
   ]
 

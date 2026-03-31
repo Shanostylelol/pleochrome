@@ -1,34 +1,49 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { NeuCard, NeuBadge, NeuProgress, NeuAvatar } from '@/components/ui'
-import { Clock, AlertCircle } from 'lucide-react'
-import type { PipelineBoard } from '@/lib/types'
+import { NeuCard, NeuBadge, NeuAvatar } from '@/components/ui'
 
-const pathColorMap: Record<string, 'emerald' | 'teal' | 'sapphire' | 'amber' | 'gray'> = {
+// ── Value model color mapping ──────────────────────────────────────
+const valueModelColorMap: Record<string, 'emerald' | 'teal' | 'sapphire' | 'amber' | 'gray'> = {
   fractional_securities: 'emerald',
   tokenization: 'teal',
-  debt_instruments: 'sapphire',
-  evaluating: 'amber',
+  debt_instrument: 'sapphire',
+  broker_sale: 'amber',
+  barter: 'gray',
 }
 
-const pathLabelMap: Record<string, string> = {
+const valueModelLabelMap: Record<string, string> = {
   fractional_securities: 'Fractional',
   tokenization: 'Tokenization',
-  debt_instruments: 'Debt',
-  evaluating: 'Evaluating',
+  debt_instrument: 'Debt',
+  broker_sale: 'Broker Sale',
+  barter: 'Barter',
+}
+
+// ── Phase color mapping (CSS variable names) ───────────────────────
+const phaseColorMap: Record<string, string> = {
+  lead: 'var(--text-muted)',
+  intake: 'var(--sapphire)',
+  asset_maturity: 'var(--amethyst)',
+  security: 'var(--emerald)',
+  value_creation: 'var(--teal)',
+  distribution: 'var(--amber)',
 }
 
 const phaseLabelMap: Record<string, string> = {
-  phase_0_foundation: 'Foundation',
-  phase_1_intake: 'Intake',
-  phase_2_certification: 'Certification',
-  phase_3_custody: 'Custody',
-  phase_4_legal: 'Legal',
-  phase_5_tokenization: 'Execution',
-  phase_6_regulatory: 'Regulatory',
-  phase_7_distribution: 'Distribution',
-  phase_8_ongoing: 'Ongoing',
+  lead: 'Lead',
+  intake: 'Intake',
+  asset_maturity: 'Asset Maturity',
+  security: 'Security',
+  value_creation: 'Value Creation',
+  distribution: 'Distribution',
+}
+
+// ── Status dot color mapping ───────────────────────────────────────
+const statusDotMap: Record<string, { color: string; label: string }> = {
+  active: { color: 'var(--teal)', label: 'Active' },
+  paused: { color: 'var(--amber)', label: 'Paused' },
+  archived: { color: 'var(--text-muted)', label: 'Archived' },
 }
 
 function formatAssetType(type: string): string {
@@ -37,76 +52,97 @@ function formatAssetType(type: string): string {
 
 function formatCurrency(value: number | null): string {
   if (!value) return 'TBD'
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value)
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  }).format(value)
 }
 
-export function AssetCard({ asset }: { asset: PipelineBoard }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function AssetCard({ asset }: { asset: any }) {
   const router = useRouter()
-  const total = asset.total_steps ?? 0
-  const completed = asset.completed_steps ?? 0
-  const blocked = asset.blocked_steps ?? 0
-  const overdue = asset.overdue_tasks ?? 0
-  const pct = total > 0 ? (completed / total) * 100 : 0
-  const hasRisk = blocked > 0 || overdue > 0
 
-  const progressColor = blocked > 0 ? 'ruby' : pct > 80 ? 'chartreuse' : 'teal'
+  const phase = (asset.current_phase as string) ?? 'lead'
+  const borderColor = phaseColorMap[phase] ?? 'var(--text-muted)'
+  const status = statusDotMap[asset.status as string] ?? statusDotMap.active
+  const displayValue = asset.appraised_value ?? asset.claimed_value
 
   return (
     <NeuCard
       variant="raised-sm"
       hoverable
-      padding="sm"
-      className="cursor-pointer relative"
+      padding="none"
+      className="cursor-pointer relative overflow-hidden"
       onClick={() => router.push(`/crm/assets/${asset.id}`)}
     >
-      {hasRisk && (
-        <div className="absolute top-2 right-2">
-          <AlertCircle className="h-4 w-4 text-[var(--ruby)]" />
+      {/* Phase color left border indicator */}
+      <div
+        className="absolute left-0 top-0 bottom-0 w-1 rounded-l-[var(--radius-md)]"
+        style={{ backgroundColor: borderColor }}
+      />
+
+      <div className="pl-4 pr-3 py-3">
+        {/* Top row: reference code + status dot */}
+        <div className="flex items-center justify-between">
+          <p
+            className="text-[11px] font-medium text-[var(--text-muted)]"
+            style={{ fontFamily: 'var(--font-mono)' }}
+          >
+            {asset.reference_code}
+          </p>
+          <span
+            className="inline-block w-2 h-2 rounded-full shrink-0"
+            style={{ backgroundColor: status.color }}
+            title={status.label}
+          />
         </div>
-      )}
 
-      <p className="text-[11px] font-medium text-[var(--text-muted)]" style={{ fontFamily: 'var(--font-mono)' }}>
-        {asset.reference_code}
-      </p>
+        {/* Asset name */}
+        <p className="text-sm font-semibold text-[var(--text-primary)] mt-1 truncate pr-2">
+          {asset.name}
+        </p>
 
-      <p className="text-sm font-semibold text-[var(--text-primary)] mt-1 truncate pr-4">
-        {asset.name}
-      </p>
-
-      <div className="flex flex-wrap gap-1 mt-2">
-        <NeuBadge color="gray" size="sm">
-          {formatAssetType(asset.asset_type ?? 'other')}
-        </NeuBadge>
-        {asset.value_path && (
-          <NeuBadge color={pathColorMap[asset.value_path] ?? 'gray'} size="sm">
-            {pathLabelMap[asset.value_path] ?? asset.value_path}
+        {/* Badges row: asset type + value model */}
+        <div className="flex flex-wrap gap-1 mt-2">
+          <NeuBadge color="gray" size="sm">
+            {formatAssetType(asset.asset_type ?? 'other')}
           </NeuBadge>
+          {asset.value_model && (
+            <NeuBadge color={valueModelColorMap[asset.value_model] ?? 'gray'} size="sm">
+              {valueModelLabelMap[asset.value_model] ?? asset.value_model}
+            </NeuBadge>
+          )}
+        </div>
+
+        {/* Value + phase row */}
+        <div className="flex items-end justify-between mt-2">
+          <p className="text-base font-bold text-[var(--text-primary)]">
+            {formatCurrency(displayValue)}
+          </p>
+          <span
+            className="text-[11px] font-medium px-1.5 py-0.5 rounded"
+            style={{
+              color: borderColor,
+              backgroundColor: 'var(--bg-elevated)',
+            }}
+          >
+            {phaseLabelMap[phase] ?? phase}
+          </span>
+        </div>
+
+        {/* Lead assignee avatar */}
+        {asset.team_members?.full_name && (
+          <div className="mt-2 pt-2 border-t border-[var(--border)]">
+            <div className="flex items-center gap-2">
+              <NeuAvatar name={asset.team_members.full_name} size="sm" />
+              <span className="text-xs text-[var(--text-secondary)] truncate">
+                {asset.team_members.full_name}
+              </span>
+            </div>
+          </div>
         )}
-        {asset.status === 'paused' && <NeuBadge color="amber" size="sm">Paused</NeuBadge>}
       </div>
-
-      <p className="text-base font-bold text-[var(--text-primary)] mt-2">
-        {formatCurrency(asset.offering_value ?? asset.claimed_value)}
-      </p>
-
-      {total > 0 && (
-        <div className="mt-2">
-          <NeuProgress value={completed} max={total} color={progressColor} size="sm" showLabel />
-        </div>
-      )}
-
-      <div className="flex items-center gap-1.5 mt-2 text-xs text-[var(--text-secondary)]">
-        <Clock className="h-3 w-3" />
-        <span>
-          {phaseLabelMap[asset.current_phase as string] ?? asset.current_phase} &middot; {asset.days_in_phase ?? 0}d
-        </span>
-      </div>
-
-      {asset.lead_name && (
-        <div className="mt-2">
-          <NeuAvatar name={asset.lead_name} size="sm" />
-        </div>
-      )}
     </NeuCard>
   )
 }

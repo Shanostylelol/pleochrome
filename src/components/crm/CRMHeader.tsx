@@ -1,17 +1,26 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Sun, Moon, Menu, Search } from 'lucide-react'
+import { Sun, Moon, Menu, Search, Bell } from 'lucide-react'
 import { NeuButton } from '@/components/ui/NeuButton'
 import { NeuAvatar } from '@/components/ui/NeuAvatar'
 import { useTheme } from './ThemeProvider'
 import { MobileDrawer } from './MobileDrawer'
 import { CommandPalette } from './CommandPalette'
+import { NotificationPanel } from './NotificationPanel'
+import { trpc } from '@/lib/trpc'
 
 export function CRMHeader() {
   const { theme, toggleTheme } = useTheme()
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
+  const [notificationsOpen, setNotificationsOpen] = useState(false)
+
+  const { data: unreadData } = trpc.notifications.getUnreadCount.useQuery(
+    undefined,
+    { refetchInterval: 30_000 }
+  )
+  const unreadCount = unreadData?.count ?? 0
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -59,6 +68,17 @@ export function CRMHeader() {
           <NeuButton variant="ghost" size="sm" className="sm:hidden" onClick={() => setSearchOpen(true)} aria-label="Search">
             <Search className="h-4 w-4" />
           </NeuButton>
+
+          {/* Notification bell with unread count badge */}
+          <NeuButton variant="ghost" size="sm" className="relative" aria-label="Notifications" onClick={() => setNotificationsOpen(!notificationsOpen)}>
+            <Bell className="h-4 w-4" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-[var(--teal)] rounded-full leading-none">
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
+          </NeuButton>
+
           <NeuButton
             variant="ghost"
             size="sm"
@@ -73,6 +93,7 @@ export function CRMHeader() {
 
       <MobileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
       <CommandPalette open={searchOpen} onClose={() => setSearchOpen(false)} />
+      <NotificationPanel open={notificationsOpen} onClose={() => setNotificationsOpen(false)} />
     </>
   )
 }

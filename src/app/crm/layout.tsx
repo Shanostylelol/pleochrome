@@ -6,6 +6,7 @@ import { CRMSidebar } from '@/components/crm/CRMSidebar'
 import { CRMHeader } from '@/components/crm/CRMHeader'
 import { CRMBottomNav } from '@/components/crm/CRMBottomNav'
 import { OfflineBanner } from '@/components/crm/OfflineBanner'
+import { KeyboardShortcuts } from '@/components/crm/KeyboardShortcuts'
 
 export const metadata: Metadata = {
   title: 'Powerhouse CRM | PleoChrome',
@@ -18,6 +19,7 @@ export default function CRMLayout({ children }: { children: React.ReactNode }) {
       <ThemeProvider>
         <ToastProvider>
           <div className="crm-shell">
+            <KeyboardShortcuts />
             <OfflineBanner />
             <CRMHeader />
             <div className="crm-body">

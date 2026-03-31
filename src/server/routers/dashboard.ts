@@ -3,26 +3,24 @@ import { createRouter, protectedProcedure } from '../trpc'
 
 export const dashboardRouter = createRouter({
   getPipelineFunnel: protectedProcedure.query(async ({ ctx }) => {
+    // V2 phases
     const phases = [
-      'phase_1_intake', 'phase_2_certification', 'phase_3_custody',
-      'phase_4_legal', 'phase_5_tokenization', 'phase_6_regulatory',
-      'phase_7_distribution', 'phase_8_ongoing',
+      'lead', 'intake', 'asset_maturity',
+      'security', 'value_creation', 'distribution',
     ]
     const phaseLabels: Record<string, string> = {
-      phase_1_intake: 'Intake',
-      phase_2_certification: 'Certification',
-      phase_3_custody: 'Custody',
-      phase_4_legal: 'Legal',
-      phase_5_tokenization: 'Execution',
-      phase_6_regulatory: 'Regulatory',
-      phase_7_distribution: 'Distribution',
-      phase_8_ongoing: 'Ongoing',
+      lead: 'Lead',
+      intake: 'Intake',
+      asset_maturity: 'Asset Maturity',
+      security: 'Security',
+      value_creation: 'Value Creation',
+      distribution: 'Distribution',
     }
 
     const { data: assets, error } = await ctx.db
       .from('assets')
       .select('current_phase, status')
-      .in('status', ['prospect', 'screening', 'active', 'paused'])
+      .in('status', ['active', 'paused'])
 
     if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
 
@@ -37,24 +35,25 @@ export const dashboardRouter = createRouter({
   getAssetsByPath: protectedProcedure.query(async ({ ctx }) => {
     const { data: assets, error } = await ctx.db
       .from('assets')
-      .select('value_path, offering_value, claimed_value')
-      .in('status', ['prospect', 'screening', 'active', 'paused'])
+      .select('value_model, appraised_value, claimed_value')
+      .in('status', ['active', 'paused'])
 
     if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
 
     const pathLabels: Record<string, string> = {
       fractional_securities: 'Fractional',
       tokenization: 'Tokenization',
-      debt_instruments: 'Debt',
-      evaluating: 'Evaluating',
+      debt_instrument: 'Debt',
+      broker_sale: 'Broker Sale',
+      barter: 'Barter',
     }
 
     const grouped: Record<string, { count: number; value: number }> = {}
     for (const a of assets ?? []) {
-      const path = a.value_path ?? 'evaluating'
+      const path = a.value_model ?? 'undecided'
       if (!grouped[path]) grouped[path] = { count: 0, value: 0 }
       grouped[path].count++
-      grouped[path].value += a.offering_value ?? a.claimed_value ?? 0
+      grouped[path].value += a.appraised_value ?? a.claimed_value ?? 0
     }
 
     return Object.entries(grouped).map(([path, data]) => ({
@@ -66,45 +65,50 @@ export const dashboardRouter = createRouter({
   }),
 
   getComplianceSummary: protectedProcedure.query(async ({ ctx }) => {
-    const { data, error } = await ctx.db
-      .from('v_pipeline_board')
-      .select('id, name, current_phase, total_steps, completed_steps, status')
-      .in('status', ['prospect', 'screening', 'active', 'paused'])
+    // V2: no v_pipeline_board view — query assets + count stages directly
+    const { data: assets, error } = await ctx.db
+      .from('assets')
+      .select('id, name, current_phase, status')
+      .in('status', ['active', 'paused'])
 
     if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
 
-    return (data ?? []).map((a) => ({
-      id: a.id,
-      name: a.name,
-      phase: a.current_phase,
-      totalSteps: a.total_steps ?? 0,
-      completedSteps: a.completed_steps ?? 0,
-      score: a.total_steps ? Math.round(((a.completed_steps ?? 0) / a.total_steps) * 100) : 0,
-    }))
+    const results = []
+    for (const a of assets ?? []) {
+      const { count: totalStages } = await ctx.db
+        .from('asset_stages')
+        .select('*', { count: 'exact', head: true })
+        .eq('asset_id', a.id)
+
+      const { count: completedStages } = await ctx.db
+        .from('asset_stages')
+        .select('*', { count: 'exact', head: true })
+        .eq('asset_id', a.id)
+        .eq('status', 'completed')
+
+      const total = totalStages ?? 0
+      const completed = completedStages ?? 0
+      results.push({
+        id: a.id,
+        name: a.name,
+        phase: a.current_phase,
+        totalSteps: total,
+        completedSteps: completed,
+        score: total > 0 ? Math.round((completed / total) * 100) : 0,
+      })
+    }
+
+    return results
   }),
 
   getRiskIndicators: protectedProcedure.query(async ({ ctx }) => {
     const risks: Array<{ label: string; severity: 'low' | 'medium' | 'high'; detail: string }> = []
 
-    // Check for blocked steps
-    const { data: blockedSteps } = await ctx.db
-      .from('asset_steps')
-      .select('id, step_title, blocked_reason, assets!asset_steps_asset_id_fkey(name)')
-      .eq('status', 'blocked')
-
-    if (blockedSteps && blockedSteps.length > 0) {
-      risks.push({
-        label: `${blockedSteps.length} blocked governance steps`,
-        severity: 'high',
-        detail: blockedSteps.map((s) => `${(s.assets as { name: string } | null)?.name}: ${s.step_title}`).join(', '),
-      })
-    }
-
     // Check for stale assets (no activity in 14+ days)
     const { data: staleAssets } = await ctx.db
       .from('assets')
       .select('id, name, updated_at')
-      .in('status', ['prospect', 'screening', 'active'])
+      .in('status', ['active'])
       .lt('updated_at', new Date(Date.now() - 14 * 86400000).toISOString())
 
     if (staleAssets && staleAssets.length > 0) {
@@ -140,11 +144,61 @@ export const dashboardRouter = createRouter({
   getRecentActivity: protectedProcedure.query(async ({ ctx }) => {
     const { data, error } = await ctx.db
       .from('activity_log')
-      .select('*, team_members!activity_log_performed_by_fkey(full_name)')
+      .select('*')
       .order('performed_at', { ascending: false })
       .limit(10)
 
     if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
     return data ?? []
+  }),
+
+  // ── My Day (personalized dashboard) ────────────────────────────
+  getMyDay: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.user.id
+
+    // My tasks (open, assigned to me)
+    const { data: myTasks } = await ctx.db
+      .from('tasks')
+      .select('id, title, status, due_date, task_type, asset_id, assets!tasks_asset_id_fkey(name)')
+      .eq('assigned_to', userId)
+      .eq('is_deleted', false)
+      .in('status', ['todo', 'in_progress', 'blocked'] as never[])
+      .order('due_date', { ascending: true, nullsFirst: false })
+      .limit(10)
+
+    // My pending approvals
+    const { data: myApprovals } = await ctx.db
+      .from('approvals')
+      .select('id, task_id, requested_at, tasks!approvals_task_id_fkey(title, asset_id)')
+      .eq('approver_id', userId)
+      .eq('decision', 'pending')
+      .order('requested_at')
+      .limit(10)
+
+    // My upcoming reminders (next 7 days)
+    const weekFromNow = new Date(Date.now() + 7 * 86_400_000).toISOString()
+    const { data: myReminders } = await ctx.db
+      .from('reminders')
+      .select('id, title, remind_at, asset_id, status')
+      .eq('remind_user_id', userId)
+      .in('status', ['pending', 'snoozed'])
+      .lt('remind_at', weekFromNow)
+      .order('remind_at')
+      .limit(10)
+
+    // Unread notifications count
+    const { count: unreadCount } = await ctx.db
+      .from('notifications')
+      .select('id', { count: 'exact', head: true })
+      .eq('recipient_id', userId)
+      .eq('is_read', false)
+      .eq('is_dismissed', false)
+
+    return {
+      tasks: myTasks ?? [],
+      approvals: myApprovals ?? [],
+      reminders: myReminders ?? [],
+      unreadNotifications: unreadCount ?? 0,
+    }
   }),
 })

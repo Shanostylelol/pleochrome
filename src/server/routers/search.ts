@@ -7,10 +7,10 @@ export const searchRouter = createRouter({
     .query(async ({ ctx, input }) => {
       const q = `%${input.query}%`
 
-      const [assets, partners, documents, tasks, meetings] = await Promise.all([
+      const [assets, partners, contacts, documents, tasks, meetings] = await Promise.all([
         ctx.db
           .from('assets')
-          .select('id, name, reference_code, asset_type, current_phase, value_path, status')
+          .select('id, name, reference_code, asset_type, current_phase, value_model, status')
           .or(`name.ilike.${q},reference_code.ilike.${q}`)
           .limit(5),
         ctx.db
@@ -19,13 +19,19 @@ export const searchRouter = createRouter({
           .ilike('name', q)
           .limit(5),
         ctx.db
+          .from('contacts')
+          .select('id, full_name, contact_type, email, kyc_status')
+          .or(`full_name.ilike.${q},email.ilike.${q},entity_name.ilike.${q}`)
+          .eq('is_deleted', false)
+          .limit(5),
+        ctx.db
           .from('documents')
           .select('id, title, filename, document_type, asset_id')
           .or(`title.ilike.${q},filename.ilike.${q}`)
           .limit(5),
         ctx.db
           .from('tasks')
-          .select('id, title, status, priority, asset_id')
+          .select('id, title, status, asset_id')
           .ilike('title', q)
           .limit(5),
         ctx.db
@@ -38,9 +44,10 @@ export const searchRouter = createRouter({
       return {
         assets: assets.data ?? [],
         partners: partners.data ?? [],
+        contacts: contacts.data ?? [],
         documents: documents.data ?? [],
         tasks: tasks.data ?? [],
-        meetings: meetings.data ?? [],
+        meetings: meetings?.data ?? [],
       }
     }),
 })
