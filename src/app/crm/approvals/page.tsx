@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { ShieldCheck, Check, X, Clock, User } from 'lucide-react'
+import { ShieldCheck, Check, X, Clock, User, ExternalLink } from 'lucide-react'
+import Link from 'next/link'
 import { NeuCard, NeuButton, NeuBadge, NeuTextarea } from '@/components/ui'
 import { ListPageSkeleton } from '@/components/crm/skeletons'
 import { trpc } from '@/lib/trpc'
@@ -62,17 +63,22 @@ function ApprovalCard({ approval }: { approval: Record<string, unknown> }) {
       {/* Task title + asset */}
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-[var(--text-primary)] truncate">
-            {task?.title ?? 'Untitled task'}
-          </p>
+          {task?.asset_id ? (
+            <Link href={`/crm/assets/${task.asset_id}?tab=tasks`}
+              className="text-sm font-semibold text-[var(--text-primary)] hover:text-[var(--teal)] truncate flex items-center gap-1.5 group">
+              {task?.title ?? 'Untitled task'}
+              <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+            </Link>
+          ) : (
+            <p className="text-sm font-semibold text-[var(--text-primary)] truncate">
+              {task?.title ?? 'Untitled task'}
+            </p>
+          )}
           {task?.assets && (
             <p className="text-xs text-[var(--text-muted)] mt-0.5 truncate">
               {task.assets.name}
               {task.assets.reference_code && (
-                <span
-                  className="ml-1.5"
-                  style={{ fontFamily: 'var(--font-mono)' }}
-                >
+                <span className="ml-1.5" style={{ fontFamily: 'var(--font-mono)' }}>
                   ({task.assets.reference_code})
                 </span>
               )}
