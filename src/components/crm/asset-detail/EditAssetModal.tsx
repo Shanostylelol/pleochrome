@@ -23,6 +23,7 @@ export function EditAssetModal({ asset, assetId, onClose }: EditAssetModalProps)
   const [appraisedValue, setAppraisedValue] = useState((asset.appraised_value as number | null)?.toString() ?? '')
   const rawTarget = asset.target_completion_date as string | null | undefined
   const [targetDate, setTargetDate] = useState(rawTarget ? rawTarget.slice(0, 10) : '')
+  const [holderEntity, setHolderEntity] = useState((asset.asset_holder_entity as string) ?? '')
 
   const utils = trpc.useUtils()
   const updateMutation = trpc.assets.update.useMutation({
@@ -41,6 +42,7 @@ export function EditAssetModal({ asset, assetId, onClose }: EditAssetModalProps)
       claimedValue: claimedValue ? parseFloat(claimedValue.replace(/,/g, '')) : undefined,
       appraisedValue: appraisedValue ? parseFloat(appraisedValue.replace(/,/g, '')) : undefined,
       targetCompletionDate: targetDate ? new Date(targetDate).toISOString() : null,
+      holderEntity: holderEntity.trim() || undefined,
     })
   }
 
@@ -89,6 +91,12 @@ export function EditAssetModal({ asset, assetId, onClose }: EditAssetModalProps)
             onChange={(e) => setAppraisedValue(e.target.value.replace(/[^0-9.]/g, ''))}
             onBlur={() => { const n = parseFloat(appraisedValue); if (!isNaN(n) && n > 0) setAppraisedValue(n.toLocaleString('en-US')) }}
             onFocus={() => setAppraisedValue(appraisedValue.replace(/,/g, ''))}
+          />
+          <NeuInput
+            label="Holder Entity"
+            placeholder="Entity name"
+            value={holderEntity}
+            onChange={(e) => setHolderEntity(e.target.value)}
           />
           <NeuInput
             label="Target Completion Date"

@@ -89,10 +89,8 @@ export function OverviewTab({ asset, assetId }: OverviewTabProps) {
         <NeuCard variant="raised" padding="md">
           <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Holder Information</h3>
           <dl className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <dt className="text-[var(--text-muted)]">Entity</dt>
-              <dd className="text-[var(--text-primary)]">{(asset.asset_holder_entity as string) ?? '\u2014'}</dd>
-            </div>
+            <EditableField label="Entity" value={(asset.asset_holder_entity as string) ?? ''}
+              onSave={(v) => updateAsset.mutate({ assetId, holderEntity: v || undefined } as never)} />
             <EditableField label="Description" value={(asset.description as string) ?? ''}
               onSave={(v) => saveField('description', v)} />
           </dl>

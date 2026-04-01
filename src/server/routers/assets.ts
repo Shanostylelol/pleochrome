@@ -233,6 +233,8 @@ export const assetsRouter = createRouter({
       if (fields.leadTeamMemberId !== undefined) updates.lead_team_member_id = fields.leadTeamMemberId
       if (fields.metadata !== undefined) updates.metadata = fields.metadata
       if (fields.targetCompletionDate !== undefined) updates.target_completion_date = fields.targetCompletionDate
+      if (fields.assetType !== undefined) updates.asset_type = fields.assetType
+      if (fields.holderEntity !== undefined) updates.asset_holder_entity = fields.holderEntity
 
       if (Object.keys(updates).length === 0) {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'No fields to update' })
