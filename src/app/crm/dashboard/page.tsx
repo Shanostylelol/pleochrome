@@ -156,15 +156,20 @@ export default function DashboardPage() {
           <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-3">Risk Indicators</h2>
           {rL ? <NeuSkeleton variant="text" lines={3} /> : (
             <div className="space-y-3">
-              {riskArr.map((r, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  {r.severity === 'high' ? <AlertTriangle className="h-4 w-4 text-[var(--ruby)] shrink-0" />
-                    : r.severity === 'medium' ? <AlertTriangle className="h-4 w-4 text-[var(--amber)] shrink-0" />
-                    : <CheckCircle2 className="h-4 w-4 text-[var(--chartreuse)] shrink-0" />}
-                  <span className="text-xs text-[var(--text-secondary)] flex-1">{r.label}</span>
-                  <NeuBadge color={r.severity === 'high' ? 'ruby' : r.severity === 'medium' ? 'amber' : 'chartreuse'} size="sm">{r.severity}</NeuBadge>
-                </div>
-              ))}
+              {riskArr.map((r, i) => {
+                const row = (
+                  <div key={i} className={`flex items-center gap-3 ${(r as Record<string, unknown>).href ? 'cursor-pointer hover:bg-[var(--bg-elevated)] px-2 -mx-2 py-1 -my-1 rounded-[var(--radius-sm)] transition-colors' : ''}`}>
+                    {r.severity === 'high' ? <AlertTriangle className="h-4 w-4 text-[var(--ruby)] shrink-0" />
+                      : r.severity === 'medium' ? <AlertTriangle className="h-4 w-4 text-[var(--amber)] shrink-0" />
+                      : <CheckCircle2 className="h-4 w-4 text-[var(--chartreuse)] shrink-0" />}
+                    <span className="text-xs text-[var(--text-secondary)] flex-1">{r.label}</span>
+                    <NeuBadge color={r.severity === 'high' ? 'ruby' : r.severity === 'medium' ? 'amber' : 'chartreuse'} size="sm">{r.severity}</NeuBadge>
+                  </div>
+                )
+                return (r as Record<string, unknown>).href
+                  ? <Link key={i} href={(r as Record<string, unknown>).href as string}>{row}</Link>
+                  : row
+              })}
             </div>
           )}
         </NeuCard>

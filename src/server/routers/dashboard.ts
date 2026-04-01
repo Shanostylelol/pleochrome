@@ -101,7 +101,7 @@ export const dashboardRouter = createRouter({
   }),
 
   getRiskIndicators: protectedProcedure.query(async ({ ctx }) => {
-    const risks: Array<{ label: string; severity: 'low' | 'medium' | 'high'; detail: string }> = []
+    const risks: Array<{ label: string; severity: 'low' | 'medium' | 'high'; detail: string; href?: string }> = []
 
     // Check for stale assets (no activity in 14+ days)
     const { data: staleAssets } = await ctx.db
@@ -112,9 +112,10 @@ export const dashboardRouter = createRouter({
 
     if (staleAssets && staleAssets.length > 0) {
       risks.push({
-        label: `${staleAssets.length} stale assets (no updates in 14+ days)`,
+        label: `${staleAssets.length} stale asset${staleAssets.length > 1 ? 's' : ''} (no updates in 14+ days)`,
         severity: 'medium',
         detail: staleAssets.map((a) => a.name).join(', '),
+        href: '/crm/assets',
       })
     }
 
@@ -127,9 +128,26 @@ export const dashboardRouter = createRouter({
 
     if (overdueTasks && overdueTasks.length > 0) {
       risks.push({
-        label: `${overdueTasks.length} overdue tasks`,
+        label: `${overdueTasks.length} overdue task${overdueTasks.length > 1 ? 's' : ''}`,
         severity: 'high',
         detail: `${overdueTasks.length} tasks past their due date`,
+        href: '/crm/tasks',
+      })
+    }
+
+    // Check for blocked tasks
+    const { count: blockedCount } = await ctx.db
+      .from('tasks')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'blocked')
+      .eq('is_deleted', false)
+
+    if ((blockedCount ?? 0) > 0) {
+      risks.push({
+        label: `${blockedCount} blocked task${blockedCount === 1 ? '' : 's'}`,
+        severity: 'high',
+        detail: 'Tasks blocked and needing attention',
+        href: '/crm/tasks',
       })
     }
 
