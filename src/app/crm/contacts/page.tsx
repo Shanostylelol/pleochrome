@@ -5,8 +5,11 @@ import Link from 'next/link'
 import { trpc } from '@/lib/trpc'
 import { cn } from '@/lib/utils'
 import { NeuCard, NeuBadge, NeuButton, NeuTabs, NeuInput, NeuModal, NeuSelect } from '@/components/ui'
-import { Plus, Search, Users, User, Building2, Mail, Download } from 'lucide-react'
+import { Plus, Search, Users, User, Building2, Mail, Download, ArrowUpDown, ChevronUp, ChevronDown } from 'lucide-react'
 import { exportCSV } from '@/lib/csv-export'
+import { useMemo } from 'react'
+
+type ContactSortKey = 'full_name' | 'kyc_status' | 'contact_type'
 import { ComplianceBadge } from '@/components/crm/ComplianceBadge'
 import { ListPageSkeleton } from '@/components/crm/skeletons'
 
@@ -30,13 +33,29 @@ export default function ContactsListPage() {
   const [search, setSearch] = useState('')
   const [kycFilter, setKycFilter] = useState('')
   const [showAdd, setShowAdd] = useState(false)
+  const [sortKey, setSortKey] = useState<ContactSortKey>('full_name')
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
 
   const contactType = filter === 'all' ? undefined : (filter as 'individual' | 'entity')
-  const { data: contacts = [], isLoading } = trpc.contacts.list.useQuery({
+  const { data: rawContacts = [], isLoading } = trpc.contacts.list.useQuery({
     contactType,
     search: search || undefined,
     kycStatus: kycFilter || undefined,
   })
+  const contacts = useMemo(() => [...rawContacts].sort((a, b) => {
+    const av = (a as Record<string, unknown>)[sortKey] as string | null
+    const bv = (b as Record<string, unknown>)[sortKey] as string | null
+    const cmp = av == null ? 1 : bv == null ? -1 : String(av).localeCompare(String(bv))
+    return sortDir === 'asc' ? cmp : -cmp
+  }), [rawContacts, sortKey, sortDir])
+
+  const toggleSort = (key: ContactSortKey) => {
+    if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc')
+    else { setSortKey(key); setSortDir('asc') }
+  }
+  const SortIcon = ({ col }: { col: ContactSortKey }) => sortKey !== col
+    ? <ArrowUpDown className="h-3 w-3 ml-1 opacity-40" />
+    : sortDir === 'asc' ? <ChevronUp className="h-3 w-3 ml-1" /> : <ChevronDown className="h-3 w-3 ml-1" />
 
   // ── Create contact ──────────────────────────────────────
   const [newName, setNewName] = useState('')
@@ -136,12 +155,18 @@ export default function ContactsListPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[var(--border)]">
-                {['Name', 'Type', 'Email', 'Role', 'KYC Status'].map((h) => (
-                  <th
-                    key={h}
-                    className="text-left px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]"
-                  >
-                    {h}
+                {([
+                  { key: 'full_name' as ContactSortKey, label: 'Name' },
+                  { key: 'contact_type' as ContactSortKey, label: 'Type' },
+                  { key: null, label: 'Email' },
+                  { key: null, label: 'Role' },
+                  { key: 'kyc_status' as ContactSortKey, label: 'KYC Status' },
+                ]).map(({ key, label }) => (
+                  <th key={label} onClick={key ? () => toggleSort(key) : undefined}
+                    className={`text-left px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] ${key ? 'cursor-pointer hover:text-[var(--text-secondary)] select-none' : ''}`}>
+                    <span className="inline-flex items-center">
+                      {label}{key && <SortIcon col={key} />}
+                    </span>
                   </th>
                 ))}
               </tr>
