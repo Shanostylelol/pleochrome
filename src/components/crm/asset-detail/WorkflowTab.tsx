@@ -1,12 +1,13 @@
 'use client'
 
 import { useState, useMemo, useEffect } from 'react'
-import { Plus, Search, LayoutList, Layers } from 'lucide-react'
+import { Plus, Search, LayoutList, Layers, BookOpen } from 'lucide-react'
 import { PHASES, PHASE_ORDER, type PhaseKey } from '@/lib/constants'
 import { useWorkflowMutations } from './useWorkflowMutations'
 import { NeuButton } from '@/components/ui/NeuButton'
 import { NeuCard } from '@/components/ui/NeuCard'
 import { NeuInput } from '@/components/ui/NeuInput'
+import { NeuModal } from '@/components/ui/NeuModal'
 import { StageAccordion, type Stage } from '@/components/crm/StageAccordion'
 import { SortableStageWrapper } from '@/components/crm/SortableStageWrapper'
 import { DndContext, DragOverlay, closestCenter, type DragEndEvent, type DragStartEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
@@ -48,6 +49,7 @@ export function WorkflowTab({ assetId, stages, tasks, subtasks, focusTaskId }: W
   const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set())
   const [viewMode, setViewMode] = useState<'accordion' | 'compact'>('accordion')
   const [drawerTask, setDrawerTask] = useState<{ task: Task; stage: Stage } | null>(null)
+  const [showApplyTemplate, setShowApplyTemplate] = useState(false)
   const { data: currentUser } = trpc.team.getCurrentUser.useQuery()
   const currentUserId = currentUser?.id ?? ''
 
@@ -183,13 +185,19 @@ export function WorkflowTab({ assetId, stages, tasks, subtasks, focusTaskId }: W
                 : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
             }`}>Select</button>
         </div>
-        <div className="flex gap-1 ml-auto">
+        <div className="flex items-center gap-1 ml-auto">
+          <NeuButton variant="ghost" size="sm" icon={<BookOpen className="h-3.5 w-3.5" />}
+            onClick={() => setShowApplyTemplate(true)} className="!h-7 !px-2 !text-xs hidden sm:flex">
+            Apply Template
+          </NeuButton>
           <button onClick={() => setViewMode('accordion')}
-            className={`p-1.5 rounded-[var(--radius-sm)] transition-colors ${viewMode === 'accordion' ? 'bg-[var(--bg-surface)] shadow-[var(--shadow-raised-sm)] text-[var(--text-primary)]' : 'text-[var(--text-muted)]'}`}>
+            className={`p-1.5 rounded-[var(--radius-sm)] transition-colors ${viewMode === 'accordion' ? 'bg-[var(--bg-surface)] shadow-[var(--shadow-raised-sm)] text-[var(--text-primary)]' : 'text-[var(--text-muted)]'}`}
+            aria-label="Accordion view">
             <Layers className="h-4 w-4" />
           </button>
           <button onClick={() => setViewMode('compact')}
-            className={`p-1.5 rounded-[var(--radius-sm)] transition-colors ${viewMode === 'compact' ? 'bg-[var(--bg-surface)] shadow-[var(--shadow-raised-sm)] text-[var(--text-primary)]' : 'text-[var(--text-muted)]'}`}>
+            className={`p-1.5 rounded-[var(--radius-sm)] transition-colors ${viewMode === 'compact' ? 'bg-[var(--bg-surface)] shadow-[var(--shadow-raised-sm)] text-[var(--text-primary)]' : 'text-[var(--text-muted)]'}`}
+            aria-label="Compact view">
             <LayoutList className="h-4 w-4" />
           </button>
         </div>
@@ -325,6 +333,9 @@ export function WorkflowTab({ assetId, stages, tasks, subtasks, focusTaskId }: W
         />
       )}
 
+      {/* Apply template modal */}
+      <ApplyTemplateModal open={showApplyTemplate} onClose={() => setShowApplyTemplate(false)} assetId={assetId} />
+
       {/* Task detail drawer (compact view) */}
       <TaskDetailDrawer
         open={!!drawerTask}
@@ -341,5 +352,49 @@ export function WorkflowTab({ assetId, stages, tasks, subtasks, focusTaskId }: W
         onReorderSubtasks={(ids) => drawerTask?.task && handleReorderSubtasks(drawerTask.task.id, ids)}
       />
     </div>
+  )
+}
+
+// ── Apply Template Modal ──────────────────────────────────
+function ApplyTemplateModal({ open, onClose, assetId }: { open: boolean; onClose: () => void; assetId: string }) {
+  const utils = trpc.useUtils()
+  const { data: templates = [], isLoading } = trpc.templates.list.useQuery(undefined, { enabled: open })
+  const applyMut = trpc.templates.instantiateToAsset.useMutation({
+    onSuccess: () => {
+      utils.assets.getById.invalidate({ assetId })
+      onClose()
+    },
+  })
+
+  return (
+    <NeuModal open={open} onClose={onClose} title="Apply Template" maxWidth="sm">
+      <div className="space-y-3">
+        <p className="text-xs text-[var(--text-muted)]">Select a workflow template to apply to this asset. Existing stages will be preserved.</p>
+        {isLoading ? (
+          <div className="py-4 text-center text-sm text-[var(--text-muted)]">Loading templates…</div>
+        ) : templates.length === 0 ? (
+          <div className="py-4 text-center">
+            <p className="text-sm text-[var(--text-muted)]">No templates yet</p>
+            <p className="text-xs text-[var(--text-placeholder)] mt-1">Save a workflow as a template from another asset</p>
+          </div>
+        ) : (
+          <div className="space-y-2 max-h-64 overflow-y-auto">
+            {(templates as Record<string, unknown>[]).map((t) => (
+              <NeuCard key={t.id as string} variant="raised-sm" hoverable padding="sm"
+                className="cursor-pointer" onClick={() => applyMut.mutate({ assetId, templateId: t.id as string })}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-[var(--text-primary)]">{t.name as string}</p>
+                    {Boolean(t.description) && <p className="text-xs text-[var(--text-muted)] truncate">{String(t.description)}</p>}
+                  </div>
+                  {applyMut.isPending && <span className="text-xs text-[var(--text-muted)]">Applying…</span>}
+                </div>
+              </NeuCard>
+            ))}
+          </div>
+        )}
+        <NeuButton variant="ghost" onClick={onClose} fullWidth>Cancel</NeuButton>
+      </div>
+    </NeuModal>
   )
 }
