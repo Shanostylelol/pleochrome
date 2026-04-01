@@ -1,6 +1,6 @@
 'use client'
 
-import { LayoutDashboard, AlertTriangle, CheckCircle2, Clock, Activity } from 'lucide-react'
+import { LayoutDashboard, AlertTriangle, CheckCircle2, Clock, Activity, Check, AlarmClock } from 'lucide-react'
 import { NeuCard, NeuBadge, NeuProgress, NeuSkeleton } from '@/components/ui'
 import { trpc } from '@/lib/trpc'
 import { PHASES, type PhaseKey } from '@/lib/constants'
@@ -92,11 +92,11 @@ export default function DashboardPage() {
               {(myDayObj.reminders ?? []).length === 0 ? (
                 <p className="text-xs text-[var(--text-muted)]">No upcoming reminders</p>
               ) : (myDayObj.reminders ?? []).slice(0, 5).map((r: any) => (
-                <Link key={r.id} href={r.asset_id ? `/crm/assets/${r.asset_id}` : '/crm/tasks'}
-                  className="flex items-center gap-2 px-2 py-1.5 rounded-[var(--radius-sm)] hover:bg-[var(--bg-elevated)] transition-colors text-xs">
+                <div key={r.id} className="flex items-center gap-1 px-2 py-1 rounded-[var(--radius-sm)] hover:bg-[var(--bg-elevated)] transition-colors group text-xs">
                   <span className="truncate flex-1 text-[var(--text-primary)]">{r.title}</span>
                   <span className="text-[var(--text-muted)] shrink-0">{new Date(r.remind_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                </Link>
+                  <DismissReminderButton reminderId={r.id} />
+                </div>
               ))}
             </div>
           </div>
@@ -252,3 +252,19 @@ export default function DashboardPage() {
 }
 
 // DayStat removed — replaced with inline actionable items
+
+function DismissReminderButton({ reminderId }: { reminderId: string }) {
+  const utils = trpc.useUtils()
+  const dismiss = trpc.reminders.dismiss.useMutation({
+    onSuccess: () => { utils.dashboard.getMyDay.invalidate(); utils.reminders.list.invalidate() },
+  })
+  return (
+    <button
+      onClick={(e) => { e.preventDefault(); e.stopPropagation(); dismiss.mutate({ reminderId }) }}
+      aria-label="Dismiss reminder"
+      className="opacity-0 group-hover:opacity-100 p-1 rounded-[var(--radius-sm)] text-[var(--chartreuse)] hover:bg-[var(--bg-body)] transition-all shrink-0"
+    >
+      <Check className="h-3 w-3" />
+    </button>
+  )
+}
