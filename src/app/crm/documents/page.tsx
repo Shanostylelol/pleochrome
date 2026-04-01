@@ -1,11 +1,13 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useMemo } from 'react'
 import Link from 'next/link'
 import { trpc } from '@/lib/trpc'
 import { createClient } from '@/lib/supabase'
 import { NeuCard, NeuBadge, NeuButton, NeuInput, NeuSelect, NeuSkeleton } from '@/components/ui'
-import { FileText, Upload, Lock, Unlock, Search, Trash2, X, UploadCloud, Download, Package } from 'lucide-react'
+import { FileText, Upload, Lock, Unlock, Search, Trash2, X, UploadCloud, Download, Package, ArrowUpDown, ChevronUp, ChevronDown } from 'lucide-react'
+
+type DocSortKey = 'title' | 'document_type' | 'uploaded_at' | 'file_size_bytes'
 import { exportCSV } from '@/lib/csv-export'
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
@@ -48,7 +50,17 @@ export default function DocumentsPage() {
   const [uploaderFilter, setUploaderFilter] = useState('')
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
+  const [sortKey, setSortKey] = useState<DocSortKey>('uploaded_at')
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const toggleSort = (key: DocSortKey) => {
+    if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc')
+    else { setSortKey(key); setSortDir(key === 'uploaded_at' ? 'desc' : 'asc') }
+  }
+  const SortIcon = ({ col }: { col: DocSortKey }) => sortKey !== col
+    ? <ArrowUpDown className="h-3 w-3 ml-1 opacity-40" />
+    : sortDir === 'asc' ? <ChevronUp className="h-3 w-3 ml-1" /> : <ChevronDown className="h-3 w-3 ml-1" />
 
   const { data: assets = [] } = trpc.assets.list.useQuery()
   const { data: teamMembers = [] } = trpc.team.listActive.useQuery()
@@ -62,9 +74,16 @@ export default function DocumentsPage() {
     ...(dateTo ? { dateTo: new Date(dateTo + 'T23:59:59').toISOString() } : {}),
   }
 
-  const { data: documents = [], isLoading } = trpc.documents.list.useQuery(
+  const { data: rawDocuments = [], isLoading } = trpc.documents.list.useQuery(
     Object.keys(queryInput).length > 0 ? queryInput : undefined
   )
+  const documents = useMemo(() => [...rawDocuments].sort((a, b) => {
+    const av = (a as Record<string, unknown>)[sortKey]
+    const bv = (b as Record<string, unknown>)[sortKey]
+    if (av == null) return 1; if (bv == null) return -1
+    const cmp = typeof av === 'number' && typeof bv === 'number' ? av - bv : String(av).localeCompare(String(bv))
+    return sortDir === 'asc' ? cmp : -cmp
+  }), [rawDocuments, sortKey, sortDir])
   const { data: stats } = trpc.documents.getStats.useQuery()
   const utils = trpc.useUtils()
 
@@ -267,12 +286,21 @@ export default function DocumentsPage() {
               <thead>
                 <tr className="border-b border-[var(--border)] bg-[var(--bg-body)]">
                   <th className="w-8 px-3 py-2"><span className="sr-only">Select</span></th>
-                  <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Title</th>
-                  <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] hidden md:table-cell">Type</th>
-                  <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] hidden lg:table-cell">Asset</th>
-                  <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] hidden lg:table-cell">Uploaded By</th>
-                  <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] hidden sm:table-cell">Date</th>
-                  <th className="text-right px-3 py-2 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] hidden md:table-cell">Size</th>
+                  {([
+                    { key: 'title' as DocSortKey, label: 'Title', cls: '' },
+                    { key: 'document_type' as DocSortKey, label: 'Type', cls: 'hidden md:table-cell' },
+                    { key: null, label: 'Asset', cls: 'hidden lg:table-cell' },
+                    { key: null, label: 'Uploaded By', cls: 'hidden lg:table-cell' },
+                    { key: 'uploaded_at' as DocSortKey, label: 'Date', cls: 'hidden sm:table-cell' },
+                    { key: 'file_size_bytes' as DocSortKey, label: 'Size', cls: 'hidden md:table-cell text-right' },
+                  ]).map(({ key, label, cls }) => (
+                    <th key={label} onClick={key ? () => toggleSort(key) : undefined}
+                      className={`px-3 py-2 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] ${cls} ${key ? 'cursor-pointer hover:text-[var(--text-secondary)] select-none' : ''}`}>
+                      <span className="inline-flex items-center">
+                        {label}{key && <SortIcon col={key} />}
+                      </span>
+                    </th>
+                  ))}
                   <th className="text-right px-3 py-2" />
                 </tr>
               </thead>
