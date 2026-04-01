@@ -203,6 +203,20 @@ export function WorkflowTab({ assetId, stages, tasks, subtasks, focusTaskId }: W
         </div>
       </div>
 
+      {/* Empty state: no stages at all */}
+      {stages.length === 0 && viewMode === 'accordion' && (
+        <NeuCard variant="pressed" padding="lg" className="text-center">
+          <div className="text-[var(--text-placeholder)] mb-3">
+            <Layers className="h-10 w-10 mx-auto" />
+          </div>
+          <p className="text-sm font-medium text-[var(--text-muted)]">No workflow stages yet</p>
+          <p className="text-xs text-[var(--text-placeholder)] mt-1 mb-4">Apply a template to get started quickly, or add stages manually below</p>
+          <NeuButton icon={<BookOpen className="h-4 w-4" />} onClick={() => setShowApplyTemplate(true)} size="sm">
+            Apply Template
+          </NeuButton>
+        </NeuCard>
+      )}
+
       {viewMode === 'compact' ? (
         <CompactWorkflowView
           stagesByPhase={stagesByPhase}
