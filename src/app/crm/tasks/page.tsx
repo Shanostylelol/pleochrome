@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { CheckSquare, Plus, LayoutGrid, List, Download } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { CheckSquare, Plus, LayoutGrid, List, Download, Search, ArrowUpDown } from 'lucide-react'
 import { NeuCard, NeuButton, NeuTabs, NeuInput, NeuTextarea, NeuSelect, NeuModal } from '@/components/ui'
 import { exportCSV } from '@/lib/csv-export'
 import { TASK_TYPES, type TaskTypeKey } from '@/lib/constants'
@@ -26,9 +26,13 @@ const TASK_TYPE_OPTIONS = Object.entries(TASK_TYPES).map(([key, cfg]) => ({
   label: cfg.label,
 }))
 
+type SortKey = 'due_date' | 'status' | 'title'
+
 export default function TasksPage() {
   const [filter, setFilter] = useState('all')
   const [view, setView] = useState<'kanban' | 'list'>('kanban')
+  const [search, setSearch] = useState('')
+  const [sortKey, setSortKey] = useState<SortKey>('due_date')
   const [showCreate, setShowCreate] = useState(false)
   const utils = trpc.useUtils()
 
@@ -55,8 +59,28 @@ export default function TasksPage() {
     updateStatus.mutate({ taskId, status: status as 'todo' | 'in_progress' | 'blocked' | 'pending_approval' | 'approved' | 'rejected' | 'done' | 'cancelled' })
   const handleComplete = (taskId: string) => completeTask.mutate({ taskId })
 
-  const tasks = isMyTasks ? myTasks : allTasks
+  const rawTasks = isMyTasks ? myTasks : allTasks
   const isLoading = isMyTasks ? loadingMy : loadingAll
+
+  const tasks = useMemo(() => {
+    let t = rawTasks as Record<string, unknown>[]
+    if (search) {
+      const q = search.toLowerCase()
+      t = t.filter(task => ((task.title as string) ?? '').toLowerCase().includes(q))
+    }
+    t = [...t].sort((a, b) => {
+      if (sortKey === 'due_date') {
+        const da = a.due_date as string | null, db = b.due_date as string | null
+        if (!da && !db) return 0
+        if (!da) return 1
+        if (!db) return -1
+        return new Date(da).getTime() - new Date(db).getTime()
+      }
+      if (sortKey === 'status') return ((a.status as string) ?? '').localeCompare((b.status as string) ?? '')
+      return ((a.title as string) ?? '').localeCompare((b.title as string) ?? '')
+    })
+    return t
+  }, [rawTasks, search, sortKey])
 
   return (
     <div className="space-y-6">
@@ -84,6 +108,29 @@ export default function TasksPage() {
           <NeuButton icon={<Plus className="h-4 w-4" />} onClick={() => setShowCreate(true)}>
             <span className="hidden sm:inline">New Task</span>
           </NeuButton>
+        </div>
+      </div>
+
+      {/* Search + sort row */}
+      <div className="flex items-center gap-3 flex-wrap">
+        <div className="relative flex-1 min-w-[160px] max-w-xs">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--text-muted)]" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search tasks..."
+            className="w-full pl-9 pr-3 py-1.5 text-sm rounded-[var(--radius-md)] bg-[var(--bg-body)] shadow-[var(--shadow-pressed)] text-[var(--text-primary)] placeholder:text-[var(--text-placeholder)] outline-none focus:ring-1 focus:ring-[var(--border-focus)]"
+          />
+        </div>
+        <div className="flex items-center gap-1.5">
+          <ArrowUpDown className="h-3.5 w-3.5 text-[var(--text-muted)]" />
+          {(['due_date', 'status', 'title'] as SortKey[]).map((k) => (
+            <button key={k} onClick={() => setSortKey(k)}
+              className={`px-2.5 py-1 text-xs rounded-[var(--radius-sm)] transition-colors ${sortKey === k ? 'bg-[var(--bg-elevated)] text-[var(--text-primary)] font-medium' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'}`}>
+              {k === 'due_date' ? 'Due' : k === 'status' ? 'Status' : 'Title'}
+            </button>
+          ))}
         </div>
       </div>
 

@@ -8,8 +8,8 @@ import { useToast } from '@/components/ui/NeuToast'
 interface SetReminderModalProps {
   open: boolean
   onClose: () => void
-  assetId: string
-  assetName: string
+  assetId?: string
+  assetName?: string
 }
 
 const QUICK_OPTIONS = [
@@ -61,7 +61,7 @@ export function SetReminderModal({ open, onClose, assetId, assetName }: SetRemin
       title: title.trim(),
       description: description.trim() || undefined,
       remindAt: new Date(remindAt).toISOString(),
-      assetId,
+      assetId: assetId || undefined,
       isRecurring: !!recurrence,
       recurrenceRule: (recurrence || undefined) as 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'annually' | undefined,
     })
@@ -70,7 +70,7 @@ export function SetReminderModal({ open, onClose, assetId, assetName }: SetRemin
   return (
     <NeuModal open={open} onClose={onClose} title="Set Reminder" maxWidth="sm">
       <div className="space-y-4">
-        <p className="text-xs text-[var(--text-muted)]">For: <span className="font-medium text-[var(--text-secondary)]">{assetName}</span></p>
+        {assetName && <p className="text-xs text-[var(--text-muted)]">For: <span className="font-medium text-[var(--text-secondary)]">{assetName}</span></p>}
 
         <NeuInput
           label="Title *"

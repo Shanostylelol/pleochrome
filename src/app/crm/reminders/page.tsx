@@ -33,8 +33,6 @@ export default function RemindersPage() {
 
   const utils = trpc.useUtils()
   const { data: reminders = [], isLoading } = trpc.reminders.list.useQuery()
-  const { data: assets = [] } = trpc.assets.list.useQuery()
-
   const dismissMut = trpc.reminders.dismiss.useMutation({
     onSuccess: () => utils.reminders.list.invalidate(),
   })
@@ -48,9 +46,6 @@ export default function RemindersPage() {
   const overdue = (reminders as Record<string, unknown>[]).filter((r) => new Date(r.remind_at as string).getTime() < Date.now())
   const upcoming = (reminders as Record<string, unknown>[]).filter((r) => new Date(r.remind_at as string).getTime() >= Date.now())
 
-  // For create modal we need a default asset — pick the first active one
-  const defaultAsset = (assets as { id: string; name: string }[])[0]
-
   return (
     <div className="space-y-6 max-w-3xl">
       <div className="flex items-start justify-between gap-4">
@@ -62,11 +57,9 @@ export default function RemindersPage() {
             {reminders.length} pending · {overdue.length} overdue
           </p>
         </div>
-        {defaultAsset && (
-          <NeuButton icon={<Plus className="h-4 w-4" />} onClick={() => setShowCreate(true)}>
-            <span className="hidden sm:inline">New Reminder</span>
-          </NeuButton>
-        )}
+        <NeuButton icon={<Plus className="h-4 w-4" />} onClick={() => setShowCreate(true)}>
+          <span className="hidden sm:inline">New Reminder</span>
+        </NeuButton>
       </div>
 
       {isLoading ? <ListPageSkeleton /> : reminders.length === 0 ? (
@@ -96,7 +89,7 @@ export default function RemindersPage() {
         </div>
       )}
 
-      {defaultAsset && <SetReminderModal open={showCreate} onClose={() => setShowCreate(false)} assetId={defaultAsset.id} assetName={defaultAsset.name} />}
+      <SetReminderModal open={showCreate} onClose={() => setShowCreate(false)} />
     </div>
   )
 }
