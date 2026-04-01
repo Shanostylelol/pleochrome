@@ -35,6 +35,7 @@ export default function MeetingsPage() {
   const [view, setView] = useState<'list' | 'calendar'>('list')
 
   const { data: meetings = [], isLoading } = trpc.meetings.list.useQuery()
+  const { data: tasksWithDates = [] } = trpc.tasks.list.useQuery(undefined, { select: (tasks) => tasks.filter((t) => !!t.due_date) })
 
   return (
     <div className="space-y-6">
@@ -77,7 +78,7 @@ export default function MeetingsPage() {
 
       {/* Calendar or list */}
       {view === 'calendar' ? (
-        isLoading ? <ListPageSkeleton /> : <CalendarView meetings={meetings} />
+        isLoading ? <ListPageSkeleton /> : <CalendarView meetings={meetings} tasks={tasksWithDates as { id: string; title: string; due_date: string; asset_id: string; status: string }[]} />
       ) : null}
 
       {/* Meeting list */}

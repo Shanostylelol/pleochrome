@@ -7,6 +7,8 @@ import { createClient } from '@/lib/supabase'
 import { NeuCard, NeuBadge, NeuButton, NeuInput, NeuSelect, NeuSkeleton } from '@/components/ui'
 import { FileText, Upload, Lock, Unlock, Search, Trash2, X, UploadCloud, Download, Package } from 'lucide-react'
 import { exportCSV } from '@/lib/csv-export'
+import JSZip from 'jszip'
+import { saveAs } from 'file-saver'
 import { DocumentPreviewModal } from '@/components/crm/DocumentPreviewModal'
 
 function formatBytes(bytes: number): string {
@@ -108,11 +110,36 @@ export default function DocumentsPage() {
     })
   }
 
+  const [batchDownloading, setBatchDownloading] = useState(false)
+
   const handleDownload = async (docId: string) => {
     try {
       const result = await utils.client.documents.getDownloadUrl.query({ documentId: docId })
       window.open(result.url, '_blank')
     } catch { /* no file in storage yet */ }
+  }
+
+  const handleBatchDownload = async () => {
+    if (selectedIds.size === 0) return
+    setBatchDownloading(true)
+    try {
+      const zip = new JSZip()
+      const selected = documents.filter((d) => selectedIds.has((d as Record<string, unknown>).id as string))
+      await Promise.all(selected.map(async (doc) => {
+        const d = doc as Record<string, unknown>
+        try {
+          const result = await utils.client.documents.getDownloadUrl.query({ documentId: d.id as string })
+          if (result?.url) {
+            const res = await fetch(result.url)
+            zip.file((d.filename ?? d.title ?? 'document') as string, await res.blob())
+          }
+        } catch { /* skip files without storage */ }
+      }))
+      saveAs(await zip.generateAsync({ type: 'blob' }), `documents-${new Date().toISOString().slice(0, 10)}.zip`)
+      setSelectedIds(new Set())
+    } finally {
+      setBatchDownloading(false)
+    }
   }
 
   return (
@@ -130,8 +157,9 @@ export default function DocumentsPage() {
         </div>
         <div className="flex gap-2">
           {selectedIds.size > 0 && (
-            <NeuButton variant="ghost" icon={<Package className="h-4 w-4" />} onClick={() => alert('Batch download coming soon (JSZip)')}>
-              <span className="hidden sm:inline">{selectedIds.size} selected</span>
+            <NeuButton variant="ghost" icon={<Package className="h-4 w-4" />}
+              onClick={handleBatchDownload} loading={batchDownloading}>
+              <span className="hidden sm:inline">{selectedIds.size} selected — Download ZIP</span>
             </NeuButton>
           )}
           <NeuButton variant="ghost" icon={<Download className="h-4 w-4" />} size="sm"
