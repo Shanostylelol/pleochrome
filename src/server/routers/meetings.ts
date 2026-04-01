@@ -8,16 +8,22 @@ export const meetingsRouter = createRouter({
     .input(z.object({
       assetId: uuidSchema.optional(),
       partnerId: uuidSchema.optional(),
-      limit: z.number().int().default(50),
+      meetingType: z.string().optional(),
+      dateFrom: z.string().optional(),
+      dateTo: z.string().optional(),
+      limit: z.number().int().default(100),
     }).optional())
     .query(async ({ ctx, input }) => {
       let query = ctx.db.from('meeting_notes')
         .select('*, assets!meeting_notes_asset_id_fkey(name, reference_code), partners!meeting_notes_partner_id_fkey(name), team_members!meeting_notes_created_by_fkey(full_name)')
         .order('meeting_date', { ascending: false })
-        .limit(input?.limit ?? 50)
+        .limit(input?.limit ?? 100)
 
       if (input?.assetId) query = query.eq('asset_id', input.assetId)
       if (input?.partnerId) query = query.eq('partner_id', input.partnerId)
+      if (input?.meetingType) query = query.eq('meeting_type', input.meetingType)
+      if (input?.dateFrom) query = query.gte('meeting_date', input.dateFrom)
+      if (input?.dateTo) query = query.lte('meeting_date', input.dateTo + 'T23:59:59Z')
 
       const { data, error } = await query
       if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })

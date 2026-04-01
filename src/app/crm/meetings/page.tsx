@@ -33,8 +33,16 @@ export default function MeetingsPage() {
   const [showCreate, setShowCreate] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [view, setView] = useState<'list' | 'calendar'>('list')
+  const [typeFilter, setTypeFilter] = useState('')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
 
-  const { data: meetings = [], isLoading } = trpc.meetings.list.useQuery()
+  const queryInput = {
+    ...(typeFilter ? { meetingType: typeFilter } : {}),
+    ...(dateFrom ? { dateFrom } : {}),
+    ...(dateTo ? { dateTo } : {}),
+  }
+  const { data: meetings = [], isLoading } = trpc.meetings.list.useQuery(Object.keys(queryInput).length ? queryInput : undefined)
   const { data: tasksWithDates = [] } = trpc.tasks.list.useQuery(undefined, { select: (tasks) => tasks.filter((t) => !!t.due_date) })
 
   return (
@@ -74,6 +82,22 @@ export default function MeetingsPage() {
             <span className="hidden sm:inline">New Meeting</span>
           </NeuButton>
         </div>
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-3">
+        <NeuSelect value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="!w-36">
+          <option value="">All Types</option>
+          {MEETING_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+        </NeuSelect>
+        <NeuInput type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="!w-36" />
+        <NeuInput type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="!w-36" />
+        {(typeFilter || dateFrom || dateTo) && (
+          <button onClick={() => { setTypeFilter(''); setDateFrom(''); setDateTo('') }}
+            className="text-xs text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors">
+            Clear filters ×
+          </button>
+        )}
       </div>
 
       {/* Calendar or list */}
