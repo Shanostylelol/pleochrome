@@ -78,7 +78,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
             <button
               onClick={this.handleRetry}
-              className="inline-flex items-center justify-center gap-2 h-10 px-5 rounded-[var(--radius-md)] bg-[var(--teal)] text-white text-sm font-medium shadow-[var(--shadow-raised-sm)] hover:bg-[var(--teal-light)] transition-all neu-btn-press focus:outline-none focus:ring-2 focus:ring-[var(--border-focus)] focus:ring-offset-1"
+              className="inline-flex items-center justify-center gap-2 h-10 px-5 rounded-[var(--radius-md)] bg-[var(--teal)] text-[var(--bg-body)] text-sm font-medium shadow-[var(--shadow-raised-sm)] hover:opacity-90 transition-all neu-btn-press focus:outline-none focus:ring-2 focus:ring-[var(--border-focus)] focus:ring-offset-1"
             >
               <RotateCcw className="h-4 w-4" />
               Retry

@@ -116,7 +116,7 @@ function KanbanCard({
   const totalCount = subtaskList.length
 
   const handleTitleClick = () => {
-    if (task.asset_id) router.push(`/crm/assets/${task.asset_id}?tab=workflow`)
+    if (task.asset_id) router.push(`/crm/assets/${task.asset_id}?tab=workflow&taskId=${task.id}`)
   }
 
   return (

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Shield, AlertTriangle, UserX, Clock } from 'lucide-react'
 import { NeuCard, NeuBadge, NeuProgress } from '@/components/ui'
+import { ListPageSkeleton } from '@/components/crm/skeletons'
 import { trpc } from '@/lib/trpc'
 import { PHASES, type PhaseKey } from '@/lib/constants'
 
@@ -84,7 +85,7 @@ export default function CompliancePage() {
       </div>
 
       {isLoading ? (
-        <p className="text-[var(--text-muted)] text-center py-10">Loading compliance data...</p>
+        <ListPageSkeleton />
       ) : (
         <>
           {/* Asset Compliance Table */}

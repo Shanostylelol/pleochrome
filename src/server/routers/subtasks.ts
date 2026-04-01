@@ -114,6 +114,30 @@ export const subtasksRouter = createRouter({
         } as never)
       }
 
+      // Auto-create communication_log entry for call/email/communication subtask types
+      if (fields.notes && data) {
+        const subType = (data as Record<string, unknown>).subtask_type as string | undefined
+        if (subType && ['call', 'email', 'communication'].includes(subType)) {
+          try {
+            const parsed = JSON.parse(fields.notes)
+            if (parsed.text || parsed.call_to || parsed.email_to) {
+              // Get the task to find the asset_id
+              const { data: task } = await ctx.db.from('tasks').select('asset_id').eq('id', (data as Record<string, unknown>).task_id as string).single()
+              await ctx.db.from('communication_log').insert({
+                asset_id: task?.asset_id ?? null,
+                task_id: (data as Record<string, unknown>).task_id,
+                comm_type: subType === 'call' ? 'phone' : subType,
+                direction: 'outbound',
+                summary: parsed.text || `${subType} logged`,
+                duration_minutes: parsed.duration_min ?? null,
+                performed_by: ctx.user.id,
+                performed_at: new Date().toISOString(),
+              } as never)
+            }
+          } catch { /* notes not JSON — skip */ }
+        }
+      }
+
       return data
     }),
 

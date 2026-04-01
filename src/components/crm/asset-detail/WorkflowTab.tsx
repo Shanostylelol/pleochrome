@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useMemo } from 'react'
-import { Plus, Search } from 'lucide-react'
+import { useState, useMemo, useEffect } from 'react'
+import { Plus, Search, LayoutList, Layers } from 'lucide-react'
 import { PHASES, PHASE_ORDER, type PhaseKey } from '@/lib/constants'
 import { useWorkflowMutations } from './useWorkflowMutations'
 import { NeuButton } from '@/components/ui/NeuButton'
@@ -12,6 +12,8 @@ import { SortableStageWrapper } from '@/components/crm/SortableStageWrapper'
 import { DndContext, DragOverlay, closestCenter, type DragEndEvent, type DragStartEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 import { ConfirmHideModal } from '@/components/crm/ConfirmHideModal'
+import { CompactWorkflowView } from '@/components/crm/CompactWorkflowView'
+import { TaskDetailDrawer } from '@/components/crm/TaskDetailDrawer'
 import { BulkActionBar } from '@/components/crm/BulkActionBar'
 import { trpc } from '@/lib/trpc'
 import type { Task } from '@/components/crm/TaskCard'
@@ -23,6 +25,7 @@ interface WorkflowTabProps {
   stages: Stage[]
   tasks: Task[]
   subtasks: Array<{ id: string; task_id: string; title: string; status: string; subtask_type?: string; notes?: string; assignee?: { name: string; avatar_url?: string } }>
+  focusTaskId?: string | null
 }
 
 const STATUS_FILTERS = [
@@ -31,7 +34,7 @@ const STATUS_FILTERS = [
 ]
 
 // ── Component ─────────────────────────────────────────────
-export function WorkflowTab({ assetId, stages, tasks, subtasks }: WorkflowTabProps) {
+export function WorkflowTab({ assetId, stages, tasks, subtasks, focusTaskId }: WorkflowTabProps) {
   const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set())
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
@@ -43,8 +46,26 @@ export function WorkflowTab({ assetId, stages, tasks, subtasks }: WorkflowTabPro
   const [activeStageDragId, setActiveStageDragId] = useState<string | null>(null)
   const [selectMode, setSelectMode] = useState(false)
   const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set())
+  const [viewMode, setViewMode] = useState<'accordion' | 'compact'>('accordion')
+  const [drawerTask, setDrawerTask] = useState<{ task: Task; stage: Stage } | null>(null)
   const { data: currentUser } = trpc.team.getCurrentUser.useQuery()
   const currentUserId = currentUser?.id ?? ''
+
+  // ── Auto-focus on a specific task (deep link from tasks page, dashboard, etc.)
+  useEffect(() => {
+    if (!focusTaskId) return
+    const task = tasks.find(t => t.id === focusTaskId)
+    if (!task) return
+    const stageId = (task as unknown as { stage_id: string }).stage_id
+    if (viewMode === 'compact') {
+      // Open the drawer for the focused task
+      const stage = stages.find(s => s.id === stageId)
+      if (stage) setDrawerTask({ task, stage })
+    } else {
+      // Expand the stage containing the task in accordion mode
+      setExpandedStages(prev => { const n = new Set(prev); n.add(stageId); return n })
+    }
+  }, [focusTaskId, tasks.length]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Optimistic reorder state ───────────────────────────
   const [localTaskOrder, setLocalTaskOrder] = useState<Map<string, string[]>>(new Map())
@@ -158,12 +179,32 @@ export function WorkflowTab({ assetId, stages, tasks, subtasks }: WorkflowTabPro
           <button onClick={() => { setSelectMode(!selectMode); if (selectMode) setSelectedTaskIds(new Set()) }}
             className={`px-2.5 py-1 text-xs rounded-[var(--radius-sm)] transition-all ${
               selectMode
-                ? 'bg-[var(--teal)] text-white font-medium'
+                ? 'bg-[var(--teal)] text-[var(--text-on-accent)] font-medium'
                 : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
             }`}>Select</button>
         </div>
+        <div className="flex gap-1 ml-auto">
+          <button onClick={() => setViewMode('accordion')}
+            className={`p-1.5 rounded-[var(--radius-sm)] transition-colors ${viewMode === 'accordion' ? 'bg-[var(--bg-surface)] shadow-[var(--shadow-raised-sm)] text-[var(--text-primary)]' : 'text-[var(--text-muted)]'}`}>
+            <Layers className="h-4 w-4" />
+          </button>
+          <button onClick={() => setViewMode('compact')}
+            className={`p-1.5 rounded-[var(--radius-sm)] transition-colors ${viewMode === 'compact' ? 'bg-[var(--bg-surface)] shadow-[var(--shadow-raised-sm)] text-[var(--text-primary)]' : 'text-[var(--text-muted)]'}`}>
+            <LayoutList className="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
+      {viewMode === 'compact' ? (
+        <CompactWorkflowView
+          stagesByPhase={stagesByPhase}
+          tasksByStage={tasksByStage}
+          subtasksByTask={subtasksByTask}
+          onUpdateTaskStatus={handleUpdateTaskStatus}
+          onSelectTask={(task, stage) => setDrawerTask({ task, stage })}
+        />
+      ) : (
+      <div className="space-y-0">
       {PHASE_ORDER.map((phaseKey) => {
         const phase = PHASES[phaseKey]
         const phaseStages = stagesByPhase.get(phaseKey) ?? []
@@ -263,6 +304,8 @@ export function WorkflowTab({ assetId, stages, tasks, subtasks }: WorkflowTabPro
           </div>
         )
       })}
+      </div>
+      )}
 
       {/* Confirm hide modal */}
       <ConfirmHideModal
@@ -281,6 +324,22 @@ export function WorkflowTab({ assetId, stages, tasks, subtasks }: WorkflowTabPro
           onDone={() => { setSelectedTaskIds(new Set()); setSelectMode(false) }}
         />
       )}
+
+      {/* Task detail drawer (compact view) */}
+      <TaskDetailDrawer
+        open={!!drawerTask}
+        onClose={() => setDrawerTask(null)}
+        task={drawerTask?.task ?? null}
+        stage={drawerTask?.stage ?? null}
+        subtasks={drawerTask?.task ? (subtasksByTask.get(drawerTask.task.id) ?? []) : []}
+        assetId={assetId}
+        onComplete={handleCompleteTask}
+        onAddSubtask={handleAddSubtask}
+        onUpdate={handleUpdateTask}
+        onDeleteSubtask={handleDeleteSubtask}
+        onUpdateSubtask={handleUpdateSubtask}
+        onReorderSubtasks={(ids) => drawerTask?.task && handleReorderSubtasks(drawerTask.task.id, ids)}
+      />
     </div>
   )
 }

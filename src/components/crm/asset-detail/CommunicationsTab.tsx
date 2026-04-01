@@ -5,7 +5,7 @@ import {
   Mail, Phone, Video, Users, MessageSquare, ArrowUpRight, ArrowDownLeft, Plus, Clock,
 } from 'lucide-react'
 import {
-  NeuCard, NeuBadge, NeuButton, NeuInput, NeuTextarea, NeuSelect, NeuModal,
+  NeuCard, NeuBadge, NeuButton, NeuInput, NeuTextarea, NeuSelect, NeuModal, NeuSkeleton,
 } from '@/components/ui'
 import { trpc } from '@/lib/trpc'
 
@@ -66,7 +66,7 @@ export function CommunicationsTab({ assetId }: CommunicationsTabProps) {
       </div>
 
       {isLoading ? (
-        <p className="text-[var(--text-muted)] text-center py-10">Loading communications...</p>
+        <NeuSkeleton variant="text" lines={3} />
       ) : comms.length === 0 ? (
         <NeuCard variant="pressed" padding="lg" className="text-center">
           <MessageSquare className="h-10 w-10 text-[var(--text-placeholder)] mx-auto mb-3" />

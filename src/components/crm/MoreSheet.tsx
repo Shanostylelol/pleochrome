@@ -44,7 +44,7 @@ export function MoreSheet({ open, onClose }: { open: boolean; onClose: () => voi
             <X className="h-4 w-4" />
           </button>
         </div>
-        <div className="grid grid-cols-3 gap-1 px-3 pb-4">
+        <div className="grid grid-cols-2 min-[360px]:grid-cols-3 gap-1 px-3 pb-4">
           {moreItems.map((item) => {
             const active = pathname === item.href || pathname.startsWith(item.href + '/')
             return (

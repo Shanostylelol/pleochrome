@@ -11,7 +11,7 @@ export function SortableStageWrapper({ id, children }: { id: string; children: R
   return (
     <div ref={setNodeRef} style={style} className="flex items-start gap-1">
       <button ref={setActivatorNodeRef} {...listeners} {...attributes}
-        className="mt-4 p-2 text-[var(--text-placeholder)] hover:text-[var(--text-muted)] cursor-grab active:cursor-grabbing shrink-0"
+        className="mt-4 p-2 text-[var(--text-placeholder)] hover:text-[var(--text-muted)] cursor-grab active:cursor-grabbing shrink-0 hidden sm:block"
         aria-label="Drag to reorder">
         <GripVertical className="h-4 w-4" />
       </button>

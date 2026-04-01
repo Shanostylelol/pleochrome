@@ -7,6 +7,7 @@ import { NeuCard } from '@/components/ui/NeuCard'
 import { NeuBadge } from '@/components/ui/NeuBadge'
 import { NeuButton } from '@/components/ui/NeuButton'
 import { useToast } from '@/components/ui/NeuToast'
+import { NeuSkeleton } from '@/components/ui/NeuSkeleton'
 import { User, Building2, Plus, Crown } from 'lucide-react'
 import { AddOwnerModal } from './AddOwnerModal'
 import { ComplianceBadge } from '@/components/crm/ComplianceBadge'
@@ -175,7 +176,7 @@ export function OverviewTab({ asset, assetId }: OverviewTabProps) {
         )}
 
         {ownersLoading ? (
-          <p className="text-sm text-[var(--text-muted)] py-2">Loading owners...</p>
+          <NeuSkeleton variant="text" lines={3} />
         ) : owners.length === 0 ? (
           <NeuCard variant="pressed" padding="md" className="text-center">
             <User className="h-8 w-8 text-[var(--text-placeholder)] mx-auto mb-2" />

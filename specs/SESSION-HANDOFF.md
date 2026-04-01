@@ -1,253 +1,130 @@
 # Session Handoff — PleoChrome Powerhouse CRM V2
 
-**Last Updated:** 2026-03-30
-**Purpose:** Read this FIRST in any new session. Tells you exactly where to pick up.
+**Last Updated:** 2026-04-01 (Session 3 final)
+**Purpose:** Read this FIRST on any machine. Tells you exactly where to pick up.
 
 ---
 
-## QUICK START (New Session Protocol)
+## QUICK START (new machine or new session)
 
+```bash
+cd ~/Projects/pleochrome
+git pull
+npm install                          # Install any new deps
+npx supabase start                   # Start local DB (if needed)
+npm run dev                          # Start dev server on :3000
 ```
-Step 1: READ THIS FILE — know current state
-Step 2: READ specs/DIRECTION.md — what to build next with full context
-Step 3: READ CLAUDE.md — mandatory code rules
-Step 4: READ specs/PROJECT-MAP.md — know where everything is
-Step 5: RUN `npm run build` — verify clean state before writing code
-Step 6: GO — execute the direction
-```
 
-**Architecture specs are in `specs/v2-architecture/`.** Only read specific files when DIRECTION.md tells you to.
+Then open: http://localhost:3000/crm
+
+The plan is at: `~/.claude/plans/lexical-weaving-scott.md`
 
 ---
 
-## CURRENT STATE (Updated 2026-03-31 — Session 2)
+## CURRENT STATE
 
-### Infrastructure Status
+### What's DONE (Phases 0-8 + A-B partial)
 
-| What | Status |
-|------|--------|
-| V2 Database | 28 tables + 4 new migrations (subtask types, storage bucket, instantiation fix, RLS fix) |
-| tRPC Routers | 23 total (added team router with getCurrentUser + listActive) |
-| Supabase Storage | `documents` bucket created with permissive RLS policies |
-| Subtask Types | 18 enum values (11 original task types + 7 subtask-specific: call, email, note, research, verification, follow_up, signature) |
-| Template Subtasks | All backfilled with semantic types |
-| Workflow Instantiation | FIXED — copies subtask_type from templates |
-| Build | TypeScript 0 errors, production build clean |
-| Console Errors | 0 across all pages |
+| Phase | Feature | Status |
+|-------|---------|--------|
+| 0 | ErrorBoundary, modal fix, sidebar responsive, breakpoints | ✅ Done |
+| 1 | NeuConfirmDialog on all destructive actions | ✅ Done |
+| 2 | CSS consistency (--text-on-accent, Neu* components) | ✅ Done |
+| 3 | CompactWorkflowView + TaskDetailDrawer + toggle | ✅ Done |
+| 4 | Loading skeletons across 19 files | ✅ Done |
+| 5 | CurrentUserProvider, dynamic user everywhere | ✅ Done |
+| 6 | Mobile polish (bottom nav, MoreSheet, landscape) | ✅ Done |
+| 7 | Quick Add form validation with inline errors | ✅ Done |
+| 8 | Dashboard page with 6 real-data widgets | ✅ Done |
+| A1 | Pipeline page refactored 709→327 lines | ✅ Done |
+| A2 | Pipeline cards: progress bars + "Next: [task]" | ✅ Done |
+| A3 | Pipeline card quick actions (Advance, Archive) | ✅ Done |
+| A4 | Archive flow (hidden from pipeline by default) | ✅ Done |
+| -- | crm-content max-width fix (button always visible) | ✅ Done |
+| -- | Deep-link tasks: ?tab=workflow&taskId= (auto-expand) | ✅ Done |
+| B1 | Actionable Dashboard (clickable tasks/approvals/reminders) | ✅ Done |
+| B2 | Enhanced Search (prefix filters: overdue:, blocked:, phase:) | ✅ Done |
+| C2 | Enforced phase gating (pre-check + override reason) | ✅ Done |
+| C3 | Financial projections (cost-to-complete, revenue projection) | ✅ Done |
+| D | Comms unification (subtask calls → communication_log) | ✅ Done |
+| E1 | Asset duplication (assets.duplicate mutation) | ✅ Done |
+| E2 | CSV export utility (src/lib/csv-export.ts) | ✅ Done |
+| E3 | Print stylesheet (src/styles/print.css) | ✅ Done |
 
-### Current Phase: **SPRINTS A-D + DOC HARDENING COMPLETE — READY FOR PRODUCTION POLISH**
+### What's REMAINING
 
-### What Was Built (Session 2 — March 31)
+| Phase | Feature | Priority |
+|-------|---------|----------|
+| C1 | Asset target dates/SLA — needs DB migration | HIGH |
+| B1 bug | Funnel bar click uses PHASES[p.phase].label (capitalized) instead of p.phase (lowercase) for URL — fix the href to use `p.phase` not the label | HIGH |
+| E4 | Enhanced audit/activity filters (date range, user, entity type) | MEDIUM |
+| F1 | Calendar view for meetings + task due dates | MEDIUM |
+| F2 | Animations (accordion expand, modal enter/exit) | LOW |
+| F3 | Accessibility (focus trap in NeuModal, ARIA labels) | MEDIUM |
+| F4 | Pipeline extras (velocity, saved filters, notif prefs) | LOW |
+| -- | Wire ?phase= URL param in pipeline page to filter | MEDIUM |
+| -- | Duplicate button in asset detail actions menu | MEDIUM |
+| -- | CSV export buttons on list pages | MEDIUM |
+| -- | Print button in asset detail Export menu | MEDIUM |
 
-**Sprint A:** 13 type-specific subtask renderers (Document→upload, Call→log, Meeting→scheduler, Approval→flow, Verification→pass/fail, etc.), subtask-level files + comments, type badge dropdowns replacing dots, success toasts on all mutations.
-
-**Sprint B:** 5 notification triggers (task_assigned, subtask_assigned, document_uploaded, stage_completed, phase_advanced), approval auto-advance to done, stage-level files + comments.
-
-**Sprint C:** Template editor subtask management (add/delete), task reorder arrows, required docs checklist component, batch download with JSZip.
-
-**Document System Hardening:** Preview modal (text/PDF/image inline), document edit/update/rename, documents grouped by stage, partner documents tab, required document types seeded (23 requirements across 11+ stages), 6 Library filters (search, type, asset, uploader, date from/to), version history with Replace button.
-
-**Sprint D:** Overview metadata inline-editable (Origin, Carat Weight, GIA Report, Vault Provider, SPV Name, SPV EIN), currency formatting on value inputs ($commas on blur), activity badge color mappings (30+ action types), empty stage hiding during status filter, loading skeletons on 3 pages.
-
-**Audit Fixes:** 10 missing error toasts added, filter bar layout fixed, lock/unlock cycle verified, click-to-expand on subtask titles.
-
-### What's Next (Remaining Work)
-- Mobile 375px viewport testing + touch target sizing
-- Keyboard DnD accessibility
-- Communication logging on contacts/partners
-- Report generation + activity export
-- Ownership tree visualization
-- Partner onboarding/credentials tab completion
-- Fresh E2E test with new asset creation through full lifecycle
-
-### CRITICAL: What Needs To Be Built (Shane's Feedback 2026-03-31)
-
-**The current build is surface-level UI. Types are cosmetic dots, notes don't save visibly, files only work at one level, nothing creates audit records. This CRM manages real assets worth millions — every interaction must be recorded, traceable, and functional.**
-
-#### 1. TYPE-SPECIFIC RENDERERS (Highest Priority)
-Each subtask/task type must trigger a SPECIFIC UI and action:
-- **Document** → Inline upload zone + version history + notes thread
-- **Meeting** → Meeting scheduler/modal + calendar display + invites
-- **Approval** → Approval request form showing what needs approval + approve/reject flow
-- **Call** → Call log form (who, when, duration, outcome, notes)
-- **Email** → Email log (to, subject, body, attachments)
-- **Note** → Rich text note with author + timestamp
-- **Verification** → Checklist with pass/fail + evidence attachment
-- **Signature** → Signature request status + signed document upload
-Currently these are just colored dots that change nothing.
-
-#### 2. UNIVERSAL CONVERSATION THREAD
-Every entity (stage, task, subtask, document) needs:
-- Threaded, timestamped conversation history
-- Author attribution (who said what, when)
-- @mention support triggering notifications (like Pipedrive)
-- File attachments within conversations
-- NOT separate "notes" and "comments" — one unified activity/conversation system
-
-#### 3. UNIVERSAL FILE ATTACHMENT
-- Files at stage, task, AND subtask level (currently task only)
-- Version history (replace a document, keep old versions)
-- Notes/conversation on each document
-- Version comparison
-
-#### 4. VISIBLE SAVE STATES & AUDIT
-- Every mutation shows toast confirmation
-- Every saved item shows "saved by X at Y time"
-- Reminders show confirmation + history
-- All changes create timestamped activity records
-
-#### 5. TYPE SYSTEM UX
-- Replace tiny dot buttons with clear dropdown selectors
-- The dots are confusing — users don't know what they mean
-- Stages and tasks need type selectors too (not just subtasks)
-- Each type needs defined paths and structures
-
-#### 6. REMAINING MEDIUM PRIORITY ITEMS
-- Overview metadata fields inline-editable
-- Currency formatting on value inputs
-- Activity badge color mappings
-- Empty stage hiding during status filter
-- Loading skeletons
-- Mobile 375px viewport
-- Touch target sizing
-
-### What Was Fixed (March 30-31) — Now Working
-- [x] Button click responsiveness (div role=button, stopPropagation)
-- [x] DragOverlay added for visual drag feedback
-- [x] Error toast handlers on all 16 mutations
-- [x] Subtask types created (13 distinct types with colors)
-- [x] File upload wired to real Supabase Storage
-- [x] Storage RLS fixed for dev mode
-- [x] Workflow instantiation function fixed (gate_criteria removed)
-- [x] CommunicationsTab registered
-- [x] "Value Model" label fixed
-- [x] Wizard link in Quick Add modal
-- [x] Subtask inline editing, type selector, status cycling
-- [x] Per-task files/comments sections (collapsible)
-- [x] Task assignment dropdown
-- [x] Progress bars on stages
-- [x] Search/filter in workflow
-- [x] getCurrentUser tRPC procedure
-
-### What MUST Be Read Before Next Session
-1. This file (SESSION-HANDOFF.md) — current state
-2. `~/.claude/projects/-Users-shanepierson-Projects/memory/pleochrome-feedback-2026-03-31.md` — Shane's detailed feedback
-3. `~/.claude/projects/-Users-shanepierson-Projects/memory/pleochrome-session-2026-03-31-state.md` — Complete session state
-4. `specs/MASTER-ISSUE-LOG.md` — 30 issues by tier
-5. `specs/COMPLETE-FIX-AND-TEST-PLAN.md` — 104 untested elements + execution plan
-6. `specs/V2-POWERHOUSE-BLUEPRINT.md` — Original architecture (Section 10-11)
-7. CLAUDE.md — Project rules
-
-### Testing Protocol for Next Session
-- Delete test data and start fresh
-- Create new test asset through wizard
-- Test EVERY feature against original V2 spec requirements
-- Verify type-specific behavior works (not just cosmetic)
-- Verify conversation threads are functional with timestamps
-- Verify file upload/download at all levels
-- Verify @mentions create notifications
-- Use Chrome extension for ALL testing — no API-only tests
+### KNOWN BUGS
+1. **Funnel bar click** → uses capitalized label in URL (`/crm?phase=Lead`) but pipeline doesn't read the `phase` param to filter. Two fixes needed:
+   - In `dashboard/page.tsx`: change href to use `p.phase` (lowercase key, e.g. "lead") not the label
+   - In `page.tsx`: read `searchParams.get('phase')` on mount and apply to kanban filter
+2. **Deep-link auto-expand**: `?tab=workflow&taskId=X` navigates correctly and expands the right stage, but timing is tight — the fix (`tasks.length` dependency) was applied but not Chrome-tested fully
+3. **Turbopack caching**: Requires dev server restart after major changes. Always `kill -9 $(lsof -ti:3000) && npm run dev` if things look stale
 
 ---
 
-## SPEC FILE MAP (reorganized 2026-03-31)
+## KEY FILES CREATED THIS SESSION
 
-All V2 architecture specs moved to `specs/v2-architecture/`. Testing docs in `specs/v2-testing/`.
+### New Components
+- `src/components/ui/NeuConfirmDialog.tsx` — Reusable confirm dialog
+- `src/components/crm/CompactWorkflowView.tsx` — Dense flat workflow list
+- `src/components/crm/TaskDetailDrawer.tsx` — Slide-out task detail panel
+- `src/components/crm/skeletons/ListPageSkeleton.tsx` — Skeleton for list pages
+- `src/components/crm/skeletons/DetailPageSkeleton.tsx` — Skeleton for detail pages
+- `src/components/crm/CurrentUserProvider.tsx` — Dynamic user context
+- `src/components/crm/PipelineHeader.tsx` — Sticky pipeline header with + New Asset
+- `src/components/crm/PipelineStatsRibbon.tsx` — KPI cards bar
+- `src/components/crm/PipelineFilterBar.tsx` — Value model filter pills
+- `src/components/crm/QuickAddModal.tsx` — Quick Add Asset modal
+- `src/components/crm/PipelineDashboardView.tsx` — Inline dashboard view in pipeline
+- `src/app/crm/dashboard/page.tsx` — Standalone dashboard page
+- `src/lib/csv-export.ts` — CSV export utility
+- `src/styles/print.css` — Print stylesheet
 
-| File | What | When to Read |
-|------|------|-------------|
-| `v2-architecture/V2-POWERHOUSE-BLUEPRINT.md` | Schema, routers, pages | Building routers or pages |
-| `v2-architecture/V2-BUILD-READINESS-AUDIT.md` | 14 wiring gaps | Connecting features |
-| `v2-architecture/V2-FEATURES-AND-WORKFLOWS-ADDENDUM.md` | Meetings, SOPs, reminders | Building those features |
-| `v2-architecture/V2-COMPLETE-TASK-DENSITY.md` | 175 tasks, 656 subtasks | Template work |
-| `v2-architecture/V2-ARCHITECTURE-RULES.md` | Code standards | Always |
-| `v2-testing/V2-GAP-AUDIT-2026-03-31.md` | Spec vs reality gaps | Planning work |
-| `v2-testing/MASTER-ISSUE-LOG.md` | 30 categorized issues | Prioritizing |
-| `DIRECTION.md` | What to build next | Every session |
-| `PROJECT-MAP.md` | Where everything is | When lost |
-
----
-
-## SUPABASE
-
-- **URL:** https://satrlfdnevquvnozhlvn.supabase.co
-- **Project Ref:** satrlfdnevquvnozhlvn
-- **Credentials:** In `.env.local`
-- **Current state:** V1 tables exist but ALL DATA WIPED (except team_members). RLS disabled.
-- **Team members:** Shane/CEO, David/CTO, Chris/CRO (3 rows)
-
----
-
-## STACK
-
-- Next.js 16 + React 19 + TypeScript strict + Tailwind v4
-- tRPC (fetch adapter, NOT @trpc/next) + TanStack Query v5
-- Supabase (PostgreSQL + Auth + Storage + Realtime)
-- @dnd-kit for drag-and-drop
-- recharts for charts (already installed)
-- jszip + file-saver for batch downloads (already installed)
-- Serwist for PWA (currently disabled for Turbopack)
+### Key Modifications
+- `src/styles/neumorphic.css` — Breakpoints, max-width, landscape, --text-on-accent
+- `src/server/routers/assets.ts` — listForPipeline, duplicate, advancePhase gating
+- `src/server/routers/search.ts` — Prefix filter search + getQuickFilterCounts
+- `src/server/routers/subtasks.ts` — Communication_log auto-entry on call/email
+- `src/components/crm/AssetCard.tsx` — Progress bars, next task, quick actions menu
+- `src/app/crm/page.tsx` — Refactored to use extracted components
+- `src/app/crm/assets/[id]/page.tsx` — Confirm advance, focusTaskId deep-link
+- `src/components/crm/asset-detail/WorkflowTab.tsx` — focusTaskId auto-expand, compact toggle
+- `src/components/crm/GateWarningModal.tsx` — Override reason textarea
 
 ---
 
-## V2 ARCHITECTURE SUMMARY (Don't re-read specs — this is the cheat sheet)
+## ARCHITECTURE NOTES
 
-**6 Phases:** Lead → Intake → Asset Maturity → Security → Value Creation → Distribution
-
-**5 Value Models:** Tokenization, Fractional Securities, Debt Instrument, Broker Sale, Barter
-
-**Hierarchy:** Phase → Stage → Task → Subtask → (Comments + Documents)
-
-**28 Tables:** assets, asset_stages, tasks, subtasks, documents, comments, approvals, notifications, activity_log, workflow_templates, template_stages, template_tasks, template_subtasks, partners, partner_onboarding_items, partner_credentials, contacts, ownership_links, asset_owners, kyc_records, communication_log, meetings, sops, reminders, asset_partners, gate_checks, meeting_notes, team_members
-
-**11 Task Types:** document_upload, meeting, physical_action, payment_outgoing, payment_incoming, approval, review, due_diligence, filing, communication, automated
-
-**Key Features:** Drag-and-drop reorder (stages + tasks), hide/unhide (stages + tasks + subtasks), soft/advisory gates, save-as-template, partner auto-linking, ownership hierarchy with KYC, comment threads with @mentions, multi-level approvals, notification system, meeting transcripts, SOPs, reminders, batch document download, printable reports
-
-**Gates are ADVISORY** — warnings displayed, user can always "Proceed Anyway", override logged.
+- **tRPC routers**: 25 routers in `src/server/routers/`
+- **Stack**: Next.js 16 + React 19 + TypeScript + Tailwind v4 + Supabase + tRPC
+- **Design system**: All components use CSS custom properties (`var(--teal)`, etc.)
+- **No overflow-y:auto on .crm-content** — removed to enable `position: sticky`
+- **max-width on .crm-content** — prevents kanban from expanding page width
+- **Supabase gen types fails** — new tables use `(ctx.db.from as Function)()` cast
+- **NeuConfirmDialog** — use for ALL destructive actions going forward
+- **focusTaskId deep-link** — all task navigation links now use `?tab=workflow&taskId={id}`
 
 ---
 
-## CRITICAL RULES (Always Follow)
-
-1. `npm run build` after EVERY file change — zero errors
-2. Neumorphic design system — CSS variables only, no hardcoded colors
-3. Dark + light mode — every component
-4. Mobile-first — test at 375px after every UI change
-5. "asset" not "stone" — everywhere
-6. File size limits — 300 max for pages, 250 for components
-7. No inline components in pages — extract to components/crm/
-8. Shared NeuModal for all modals
-9. constants.ts for all phase/status/task-type labels and colors
-10. Activity log is IMMUTABLE — never write from frontend
-11. Tailwind v4: use `var()` explicitly — `w-[var(--x)]` not `w-[--x]`
-
----
-
-## GIT STATE
-
-- **Branch:** main
-- **Remote:** origin (Shanostylelol/pleochrome)
-- **Last commit:** V2 MASTER BUILD PLAN
-- **All spec files committed and pushed**
-
----
-
-## SPEC FILE INVENTORY (14 files, ~10,000 lines)
-
-| # | File | Lines | What |
-|---|------|-------|------|
-| 1 | V2-MASTER-BUILD-PLAN.md | 458 | THE build sequence — 9 phases with tests |
-| 2 | V2-POWERHOUSE-BLUEPRINT.md | 2,569 | SQL schema, routers, pages |
-| 3 | V2-COMPLETE-TASK-DENSITY.md | 2,617 | 175 tasks, 656 subtasks for template seeding |
-| 4 | V2-MIGRATION-ADDENDUM.md | 330 | Schema fixes (enums, columns, 6 extra tables) |
-| 5 | V2-ARCHITECTURE-RULES.md | 380 | Code standards, CSS rules, testing rules |
-| 6 | V2-BUILD-READINESS-AUDIT.md | 607 | Wiring details for 14 features |
-| 7 | V2-UNIFIED-PHASE-MAPPING.md | 361 | 6 phases × 5 models = all stages |
-| 8 | V2-RETROFIT-ANALYSIS.md | 291 | File-by-file KEEP/REWRITE/DELETE |
-| 9 | V2-PARTNER-AND-CUSTOMER-DESIGN.md | 251 | Partner onboarding, credentials, comms |
-| 10 | V2-OWNERSHIP-AND-KYC-DESIGN.md | 336 | Entity look-through, KYC records |
-| 11 | V2-FEATURES-AND-WORKFLOWS-ADDENDUM.md | 468 | Meetings, SOPs, reminders, timeline, exports |
-| 12 | V2-REGULATORY-VALIDATION-REPORT.md | 22 | 48 citations verified, 0 fabricated |
-| 13 | DEBT-INSTRUMENT-WORKFLOW-COMPLETE.md | 796 | Debt/Broker/Barter full spec |
-| 14 | BUILD-LOG.md | ~350 | Build audit trail (update after every phase) |
+## FEATURE PIPELINE (deferred)
+Logged at `specs/FEATURE-PIPELINE.md`:
+- Investor/stakeholder portal view
+- Audit certification
+- Auto-document requests
+- Batch pipeline operations
+- Partner auto-task creation
+- Partner performance metrics

@@ -39,7 +39,7 @@ export function NeuCheckbox({ checked, onChange, label, disabled, color = 'teal'
             : 'bg-[var(--bg-input)] border-[var(--border)] shadow-[var(--shadow-pressed)]'
         )}
       >
-        {checked && <Check className="h-3.5 w-3.5 text-white" strokeWidth={3} />}
+        {checked && <Check className="h-3.5 w-3.5 text-[var(--text-on-accent)]" strokeWidth={3} />}
       </button>
       {label && <span className="text-sm text-[var(--text-primary)]">{label}</span>}
     </label>

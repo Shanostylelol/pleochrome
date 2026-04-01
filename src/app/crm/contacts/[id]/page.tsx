@@ -11,6 +11,7 @@ import { ContactKycTab } from '@/components/crm/contacts/ContactKycTab'
 import { ContactOwnershipTab } from '@/components/crm/contacts/ContactOwnershipTab'
 import { ContactCommsTab } from '@/components/crm/contacts/ContactCommsTab'
 import { EditContactModal } from '@/components/crm/contacts/EditContactModal'
+import { ListPageSkeleton } from '@/components/crm/skeletons'
 import {
   ChevronRight, Edit3, LayoutGrid, ShieldCheck, Network, MessageCircle,
   Mail, Phone, User, Building2,
@@ -45,9 +46,7 @@ export default function ContactDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <p className="text-[var(--text-muted)]">Loading contact...</p>
-      </div>
+      <ListPageSkeleton />
     )
   }
 

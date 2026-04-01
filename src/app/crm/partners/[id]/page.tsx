@@ -10,6 +10,7 @@ import { PartnerCredentialsTab } from '@/components/crm/partners/PartnerCredenti
 import { PartnerAssignmentsTab } from '@/components/crm/partners/PartnerAssignmentsTab'
 import { EditPartnerModal } from '@/components/crm/partners/EditPartnerModal'
 import { PartnerDocumentsTab } from '@/components/crm/partners/PartnerDocumentsTab'
+import { ListPageSkeleton } from '@/components/crm/skeletons'
 import {
   ChevronRight, Edit3, ExternalLink, Mail, Phone, User, Globe,
   LayoutGrid, ClipboardCheck, Award, Gem, Calendar, FileText,
@@ -57,9 +58,7 @@ export default function PartnerDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <p className="text-[var(--text-muted)]">Loading partner...</p>
-      </div>
+      <ListPageSkeleton />
     )
   }
 

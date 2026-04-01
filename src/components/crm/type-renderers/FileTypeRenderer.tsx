@@ -32,20 +32,20 @@ export function FileTypeRenderer({ subtask, typeKey, onUpdate }: FileTypeRendere
   if (typeKey === 'document_upload') {
     return (
       <div className="space-y-2">
-        <p className="text-xs text-[var(--text-muted)]">
-          Upload documents for this task. Files are attached below.
-        </p>
-        <div className="flex items-start gap-2">
-          <Upload className="h-4 w-4 text-[var(--teal)] mt-0.5 shrink-0" />
-          <textarea value={text} onChange={(e) => setText(e.target.value)}
-            placeholder="Notes about this document..."
-            rows={2}
-            className={cn('flex-1 text-xs rounded-[var(--radius-sm)] px-2 py-1.5 resize-none',
+        <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
+          <Upload className="h-3.5 w-3.5 text-[var(--teal)] shrink-0" />
+          <span>Attach files using the <strong>Files</strong> section below. Add any notes here:</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <input value={text} onChange={(e) => setText(e.target.value)}
+            placeholder="e.g., Needs notarized copy, must include page 2..."
+            onKeyDown={(e) => { if (e.key === 'Enter') saveNotes() }}
+            className={cn('flex-1 h-7 text-xs rounded-[var(--radius-sm)] px-2',
               'bg-[var(--bg-input)] text-[var(--text-primary)] placeholder:text-[var(--text-placeholder)]',
               'shadow-[var(--shadow-pressed)] border border-[var(--border)]',
               'focus:outline-none focus:border-[var(--teal)]')} />
+          <NeuButton size="sm" onClick={() => saveNotes()} className="!h-7 shrink-0">Save</NeuButton>
         </div>
-        <NeuButton size="sm" onClick={() => saveNotes()} className="!h-7">Save Notes</NeuButton>
       </div>
     )
   }
@@ -80,13 +80,13 @@ export function FileTypeRenderer({ subtask, typeKey, onUpdate }: FileTypeRendere
           <NeuButton size="sm" variant={result === 'pass' ? 'primary' : 'ghost'}
             icon={<CheckCircle className="h-3.5 w-3.5" />}
             onClick={() => saveNotes({ result: 'pass', checklist: items })}
-            className={cn('!h-7', result === 'pass' && '!bg-[var(--emerald)] !text-white')}>
+            className={cn('!h-7', result === 'pass' && '!bg-[var(--emerald)] !text-[var(--text-on-accent)]')}>
             Pass
           </NeuButton>
           <NeuButton size="sm" variant={result === 'fail' ? 'primary' : 'ghost'}
             icon={<XCircle className="h-3.5 w-3.5" />}
             onClick={() => saveNotes({ result: 'fail', checklist: items })}
-            className={cn('!h-7', result === 'fail' && '!bg-[var(--ruby)] !text-white')}>
+            className={cn('!h-7', result === 'fail' && '!bg-[var(--ruby)] !text-[var(--text-on-accent)]')}>
             Fail
           </NeuButton>
         </div>

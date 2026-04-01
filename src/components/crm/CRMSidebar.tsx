@@ -3,13 +3,15 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { useCurrentUser } from './CurrentUserProvider'
 import { NeuAvatar } from '@/components/ui/NeuAvatar'
 import {
-  LayoutGrid, Gem, Handshake, Users2, FileText, CheckSquare,
+  LayoutGrid, LayoutDashboard, Gem, Handshake, Users2, FileText, CheckSquare,
   Calendar, Activity, ShieldCheck, Users, LayoutTemplate, Shield, Settings,
 } from 'lucide-react'
 
 const mainNav = [
+  { label: 'Dashboard', icon: LayoutDashboard, href: '/crm/dashboard' },
   { label: 'Pipeline', icon: LayoutGrid, href: '/crm' },
   { label: 'Assets', icon: Gem, href: '/crm/assets' },
   { label: 'Partners', icon: Handshake, href: '/crm/partners' },
@@ -35,6 +37,7 @@ function isActive(pathname: string, href: string) {
 
 export function CRMSidebar() {
   const pathname = usePathname()
+  const currentUser = useCurrentUser()
 
   const renderNavItem = (item: (typeof mainNav)[number]) => {
     const active = isActive(pathname, item.href)
@@ -57,8 +60,7 @@ export function CRMSidebar() {
 
   return (
     <aside
-      className="crm-sidebar hidden md:flex flex-col fixed left-0 top-[var(--header-height)] h-[calc(100vh-var(--header-height))] bg-[var(--bg-sidebar)] border-r border-[var(--border)] z-30 w-[var(--sidebar-width)] lg:w-[var(--sidebar-width)]"
-      style={{ width: 'var(--sidebar-width)' }}
+      className="crm-sidebar hidden md:flex flex-col fixed left-0 top-[var(--header-height)] h-[calc(100vh-var(--header-height))] bg-[var(--bg-sidebar)] border-r border-[var(--border)] z-30 w-[var(--sidebar-collapsed-width)] lg:w-[var(--sidebar-width)]"
     >
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
         {mainNav.map(renderNavItem)}
@@ -70,10 +72,10 @@ export function CRMSidebar() {
 
       <div className="px-3 py-3 border-t border-[var(--border)]">
         <div className="flex items-center gap-3 px-3 py-2 rounded-[var(--radius-md)] hover:bg-[var(--bg-elevated)] transition-colors cursor-pointer">
-          <NeuAvatar name="Shane Pierson" size="sm" />
+          <NeuAvatar name={currentUser.full_name} size="sm" />
           <div className="hidden lg:block min-w-0">
-            <p className="text-sm font-medium text-[var(--text-primary)] truncate">Shane Pierson</p>
-            <p className="text-xs text-[var(--text-muted)]">CEO</p>
+            <p className="text-sm font-medium text-[var(--text-primary)] truncate">{currentUser.full_name}</p>
+            <p className="text-xs text-[var(--text-muted)]">{currentUser.role || 'Team'}</p>
           </div>
         </div>
       </div>

@@ -7,6 +7,7 @@ import {
 } from '@/components/ui'
 import { trpc } from '@/lib/trpc'
 import { MeetingDetail } from '@/components/crm/MeetingDetail'
+import { ListPageSkeleton } from '@/components/crm/skeletons'
 
 const MEETING_TYPES = [
   { value: 'call', label: 'Call' },
@@ -54,7 +55,7 @@ export default function MeetingsPage() {
 
       {/* Meeting list */}
       {isLoading ? (
-        <p className="text-[var(--text-muted)] text-center py-10">Loading meetings...</p>
+        <ListPageSkeleton />
       ) : meetings.length === 0 ? (
         <NeuCard variant="pressed" padding="lg" className="text-center">
           <Calendar className="h-12 w-12 text-[var(--text-placeholder)] mx-auto mb-3" />

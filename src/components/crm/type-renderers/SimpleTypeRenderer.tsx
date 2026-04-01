@@ -111,19 +111,19 @@ export function SimpleTypeRenderer({ subtask, typeKey, onUpdate }: SimpleTypeRen
           <NeuButton size="sm" variant={decision === 'approved' ? 'primary' : 'ghost'}
             icon={<CheckCircle className="h-3.5 w-3.5" />}
             onClick={() => setDecision('approved')}
-            className={cn('!h-7', decision === 'approved' && '!bg-[var(--emerald)] !text-white')}>
+            className={cn('!h-7', decision === 'approved' && '!bg-[var(--emerald)] !text-[var(--text-on-accent)]')}>
             Approved
           </NeuButton>
           <NeuButton size="sm" variant={decision === 'rejected' ? 'primary' : 'ghost'}
             icon={<XCircle className="h-3.5 w-3.5" />}
             onClick={() => setDecision('rejected')}
-            className={cn('!h-7', decision === 'rejected' && '!bg-[var(--ruby)] !text-white')}>
+            className={cn('!h-7', decision === 'rejected' && '!bg-[var(--ruby)] !text-[var(--text-on-accent)]')}>
             Rejected
           </NeuButton>
           <NeuButton size="sm" variant={decision === 'needs_changes' ? 'primary' : 'ghost'}
             icon={<AlertCircle className="h-3.5 w-3.5" />}
             onClick={() => setDecision('needs_changes')}
-            className={cn('!h-7', decision === 'needs_changes' && '!bg-[var(--amber)] !text-white')}>
+            className={cn('!h-7', decision === 'needs_changes' && '!bg-[var(--amber)] !text-[var(--text-on-accent)]')}>
             Needs Changes
           </NeuButton>
         </div>

@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { saveAs } from 'file-saver'
 import { trpc } from '@/lib/trpc'
-import { NeuCard, NeuBadge, NeuButton, NeuTabs, NeuAvatar, NeuSkeleton } from '@/components/ui'
+import { NeuCard, NeuBadge, NeuButton, NeuTabs, NeuAvatar, NeuSkeleton, NeuConfirmDialog } from '@/components/ui'
 import { PhaseTimeline } from '@/components/crm/PhaseTimeline'
 import {
   OverviewTab, WorkflowTab, TasksTab, DocumentsTab,
@@ -17,8 +17,10 @@ import {
   ChevronRight, Edit3, FileUp, MessageSquare, Download, LayoutGrid,
   Shield, FileText, CheckSquare, Activity, Lock, DollarSign,
   Handshake, MessageCircle, ArrowRight, Copy, Calendar, Phone,
+  MoreHorizontal,
 } from 'lucide-react'
 import { VALUE_MODELS, ASSET_STATUSES, PHASES, PHASE_ORDER, type PhaseKey } from '@/lib/constants'
+import { cn } from '@/lib/utils'
 import type { Stage } from '@/components/crm/StageAccordion'
 import type { Task } from '@/components/crm/TaskCard'
 
@@ -43,7 +45,6 @@ const TABS = [
   { id: 'meetings', label: 'Meetings', icon: <Calendar className={IC} /> },
 ]
 
-// ── Page component ────────────────────────────────────────
 export default function AssetDetailPage() {
   const params = useParams<{ id: string }>()
   const searchParams = useSearchParams()
@@ -57,6 +58,22 @@ export default function AssetDetailPage() {
   const [gateWarnings, setGateWarnings] = useState<GateWarning[]>([])
   const [gateTargetPhase, setGateTargetPhase] = useState('')
   const [showGateModal, setShowGateModal] = useState(false)
+  const [showActions, setShowActions] = useState(false)
+  const [isCompact, setIsCompact] = useState(false)
+  const [confirmAdvance, setConfirmAdvance] = useState(false)
+
+  const heroRef = useRef<HTMLDivElement>(null)
+
+  // Show compact header when hero scrolls out of view
+  useEffect(() => {
+    function onScroll() {
+      if (!heroRef.current) return
+      const rect = heroRef.current.getBoundingClientRect()
+      setIsCompact(rect.bottom < 56) // 56 = header height
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   const utils = trpc.useUtils()
   const { data, isLoading, error } = trpc.assets.getById.useQuery({ assetId: params.id })
@@ -66,8 +83,14 @@ export default function AssetDetailPage() {
 
   const advanceMutation = trpc.assets.advancePhase.useMutation({
     onSuccess: (result) => {
-      const res = result as { warnings?: GateWarning[]; new_phase?: string }
-      if (res.warnings && res.warnings.length > 0) {
+      const res = result as { blocked?: boolean; warnings?: GateWarning[]; new_phase?: string; requiresOverride?: boolean }
+      if (res.blocked && res.warnings) {
+        setGateWarnings(res.warnings)
+        setGateTargetPhase(nextPhase ?? '')
+        setShowGateModal(true)
+        return // Don't invalidate — phase didn't advance
+      }
+      if (res.warnings && res.warnings.length > 0 && !res.blocked) {
         setGateWarnings(res.warnings)
         setGateTargetPhase(res.new_phase ?? '')
         setShowGateModal(true)
@@ -100,40 +123,25 @@ export default function AssetDetailPage() {
   const { asset, stages, tasks, subtasks, documents, activity, comments, partners } = data
   const meta = (asset.metadata ?? {}) as Record<string, unknown>
 
-  // Transform raw data for V2 components
   const typedStages: Stage[] = stages.map((s) => ({
-    id: s.id,
-    name: s.name,
-    status: s.status as Stage['status'],
-    phase: s.phase as PhaseKey,
-    is_gate: s.is_gate,
-    sort_order: s.sort_order,
+    id: s.id, name: s.name, status: s.status as Stage['status'],
+    phase: s.phase as PhaseKey, is_gate: s.is_gate, sort_order: s.sort_order,
   }))
 
   const typedTasks: Task[] = tasks.map((t) => ({
-    id: t.id,
-    title: t.title,
-    description: t.description ?? undefined,
-    notes: t.notes ?? undefined,
-    task_type: t.task_type as Task['task_type'],
-    status: t.status as Task['status'],
-    due_date: t.due_date ?? undefined,
+    id: t.id, title: t.title, description: t.description ?? undefined,
+    notes: t.notes ?? undefined, task_type: t.task_type as Task['task_type'],
+    status: t.status as Task['status'], due_date: t.due_date ?? undefined,
     assigned_to: t.assigned_to ?? undefined,
-    assignee: t.team_members
-      ? { name: (t.team_members as { full_name: string }).full_name }
-      : undefined,
+    assignee: t.team_members ? { name: (t.team_members as { full_name: string }).full_name } : undefined,
     payment_amount: t.estimated_amount ?? undefined,
     payment_direction: t.task_type === 'payment_incoming' ? 'incoming' as const
-      : t.task_type === 'payment_outgoing' ? 'outgoing' as const
-      : undefined,
+      : t.task_type === 'payment_outgoing' ? 'outgoing' as const : undefined,
     stage_id: t.stage_id,
   })) as (Task & { stage_id: string })[]
 
   const typedSubtasks = subtasks.map((st) => ({
-    id: st.id,
-    task_id: st.task_id,
-    title: st.title,
-    status: st.status,
+    id: st.id, task_id: st.task_id, title: st.title, status: st.status,
     subtask_type: (st as Record<string, unknown>).subtask_type as string | undefined,
     notes: (st as Record<string, unknown>).notes as string | undefined,
     assignee: undefined,
@@ -155,7 +163,6 @@ export default function AssetDetailPage() {
       saveAs(new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' }), `${asset.reference_code}-report.json`)
     } catch { /* handled */ } finally { setExportLoading(false) }
   }
-
   const handleExportCSV = async () => {
     setExportLoading(true); setExportMenuOpen(false)
     try {
@@ -167,128 +174,167 @@ export default function AssetDetailPage() {
       saveAs(new Blob([headers + rows], { type: 'text/csv;charset=utf-8' }), `${asset.reference_code}-tasks.csv`)
     } catch { /* handled */ } finally { setExportLoading(false) }
   }
-
   const handlePrint = () => { setExportMenuOpen(false); window.print() }
 
   return (
-    <div className="space-y-4 max-w-6xl">
-      {/* Breadcrumb */}
-      <nav className="flex items-center gap-2 text-[13px]">
-        <Link href="/crm" className="text-[var(--text-muted)] hover:text-[var(--text-secondary)]">Pipeline</Link>
-        <ChevronRight className="h-3 w-3 text-[var(--text-muted)]" />
-        <span className="font-semibold text-[var(--text-primary)]">{asset.name}</span>
-      </nav>
-
-      {/* Hero */}
-      <NeuCard variant="raised" padding="lg">
-        <div className="flex flex-col lg:flex-row gap-6">
-          <div className="flex-1 min-w-0">
-            <h1 className="text-2xl font-semibold text-[var(--text-primary)] truncate" style={{ fontFamily: 'var(--font-display)' }}>
-              {asset.name}
-            </h1>
-            <p className="text-[13px] text-[var(--text-muted)] mt-0.5" style={{ fontFamily: 'var(--font-mono)' }}>
-              {asset.reference_code}
-            </p>
-
-            <div className="flex flex-wrap gap-1.5 mt-3">
-              <NeuBadge color={STATUS_COLOR[statusKey] ?? 'gray'}>{ASSET_STATUSES[statusKey]?.label ?? asset.status}</NeuBadge>
-              {modelLabel && (
-                <NeuBadge color={MODEL_COLOR[modelKey ?? ''] ?? 'gray'}>{modelLabel}</NeuBadge>
-              )}
-              <NeuBadge color="gray">{fmtType(asset.asset_type)}</NeuBadge>
-            </div>
-
-            {asset.asset_holder_entity && (
-              <p className="text-sm text-[var(--text-secondary)] mt-2">{asset.asset_holder_entity}</p>
-            )}
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Claimed</p>
-                <p className="text-lg font-bold text-[var(--text-primary)]">{fmt(asset.claimed_value)}</p>
-              </div>
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Appraised</p>
-                <p className="text-lg font-bold text-[var(--text-primary)]">{fmt(asset.appraised_value)}</p>
-              </div>
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Raised</p>
-                <p className="text-lg font-bold text-[var(--text-primary)]">{fmt(meta.capital_raised as number | null)}</p>
-              </div>
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Investors</p>
-                <p className="text-lg font-bold text-[var(--text-primary)]">{(meta.investor_count as number) ?? 0}</p>
-              </div>
-            </div>
-
-            {asset.team_members && (
-              <div className="flex items-center gap-2 mt-3">
-                <NeuAvatar name={(asset.team_members as { full_name: string }).full_name} size="sm" />
-                <span className="text-sm text-[var(--text-secondary)]">
-                  {(asset.team_members as { full_name: string }).full_name}
-                </span>
-              </div>
-            )}
+    <div className="max-w-6xl">
+      {/* ── Compact sticky header (appears on scroll) ── */}
+      <div
+        className={cn(
+          'sticky z-30 transition-all duration-200',
+          'top-[var(--header-height)]',
+          isCompact
+            ? 'opacity-100 translate-y-0'
+            : 'opacity-0 -translate-y-1 pointer-events-none max-h-0 overflow-hidden'
+        )}
+      >
+        <div className="flex items-center gap-3 px-4 py-2 rounded-b-[var(--radius-md)] bg-[var(--bg-surface)] shadow-[var(--shadow-raised)] border-b border-[var(--border)]">
+          <h2 className="text-sm font-semibold text-[var(--text-primary)] truncate flex-1">{asset.name}</h2>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <NeuBadge color={STATUS_COLOR[statusKey] ?? 'gray'} size="sm">{ASSET_STATUSES[statusKey]?.label ?? asset.status}</NeuBadge>
+            <span className="text-[10px] text-[var(--text-muted)] font-mono">{PHASES[asset.current_phase as PhaseKey]?.label ?? asset.current_phase}</span>
           </div>
-
-          <div className="flex lg:flex-col gap-2 flex-wrap lg:w-44 shrink-0">
-            <NeuButton icon={<Edit3 className="h-4 w-4" />} size="sm" fullWidth onClick={() => setShowEdit(true)}>Edit</NeuButton>
-            <NeuButton
-              variant="ghost"
-              icon={<ArrowRight className="h-4 w-4" />}
-              size="sm"
-              fullWidth
-              disabled={advanceMutation.isPending || !nextPhase}
-              onClick={() => {
-                if (!nextPhase) return
-                advanceMutation.mutate({ assetId: params.id, targetPhase: nextPhase })
-              }}
-            >
-              {nextPhase ? `Advance to ${PHASES[nextPhase].label}` : 'Final Phase'}
+          <div className="flex items-center gap-1 shrink-0">
+            <NeuButton variant="ghost" size="sm" className="!h-7 !px-2" onClick={() => setShowEdit(true)}>
+              <Edit3 className="h-3.5 w-3.5" />
             </NeuButton>
-            <NeuButton variant="ghost" icon={<Copy className="h-4 w-4" />} size="sm" fullWidth onClick={() => setShowSaveTemplate(true)}>Save Template</NeuButton>
-            <NeuButton variant="ghost" icon={<FileUp className="h-4 w-4" />} size="sm" fullWidth onClick={() => setActiveTab('documents')}>Add Doc</NeuButton>
-            <NeuButton variant="ghost" icon={<MessageSquare className="h-4 w-4" />} size="sm" fullWidth onClick={() => setActiveTab('comments')}>Comment</NeuButton>
-            <div className="relative">
-              <NeuButton variant="ghost" icon={<Download className="h-4 w-4" />} size="sm" fullWidth
-                disabled={exportLoading} onClick={() => setExportMenuOpen(!exportMenuOpen)}>
-                Export
+            {nextPhase && (
+              <NeuButton size="sm" className="!h-7 !px-2 !text-xs" disabled={advanceMutation.isPending}
+                onClick={() => setConfirmAdvance(true)}>
+                <ArrowRight className="h-3.5 w-3.5 mr-1" /> {PHASES[nextPhase].label}
               </NeuButton>
-              {exportMenuOpen && (
-                <div className="absolute right-0 top-full mt-1 z-20 neu-raised-sm p-1 min-w-[150px]">
-                  <button onClick={handleExportJSON} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]">Export JSON</button>
-                  <button onClick={handleExportCSV} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]">Export CSV</button>
-                  <button onClick={handlePrint} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]">Print Report</button>
-                </div>
-              )}
-            </div>
+            )}
           </div>
         </div>
-      </NeuCard>
+        <div className="px-0 pt-1 pb-1 bg-[var(--bg-body)]">
+          <NeuTabs tabs={tabsWithCounts} activeTab={activeTab} onTabChange={setActiveTab} size="sm" />
+        </div>
+      </div>
 
-      {/* Phase Timeline */}
-      <NeuCard variant="pressed" padding="sm">
-        <PhaseTimeline currentPhase={asset.current_phase as PhaseKey} />
-      </NeuCard>
+      <div className="space-y-3">
+        {/* Breadcrumb */}
+        <nav className="flex items-center gap-2 text-[13px]">
+          <Link href="/crm" className="text-[var(--text-muted)] hover:text-[var(--text-secondary)]">Pipeline</Link>
+          <ChevronRight className="h-3 w-3 text-[var(--text-muted)]" />
+          <span className="font-semibold text-[var(--text-primary)] truncate">{asset.name}</span>
+        </nav>
 
-      {/* Tabs */}
-      <NeuTabs tabs={tabsWithCounts} activeTab={activeTab} onTabChange={setActiveTab} />
+        {/* ── Hero card (full version) ── */}
+        <div ref={heroRef}>
+          <NeuCard variant="raised" padding="md">
+            <div className="flex flex-col lg:flex-row gap-4">
+              <div className="flex-1 min-w-0">
+                {/* Title row */}
+                <div className="flex items-start gap-3">
+                  <div className="flex-1 min-w-0">
+                    <h1 className="text-xl lg:text-2xl font-semibold text-[var(--text-primary)] truncate" style={{ fontFamily: 'var(--font-display)' }}>
+                      {asset.name}
+                    </h1>
+                    <p className="text-[11px] text-[var(--text-muted)]" style={{ fontFamily: 'var(--font-mono)' }}>
+                      {asset.reference_code}
+                    </p>
+                  </div>
+                </div>
 
-      {/* Tab Content */}
-      <div>
-        {activeTab === 'overview' && <OverviewTab asset={asset} assetId={params.id} />}
-        {activeTab === 'workflow' && <WorkflowTab assetId={params.id} stages={typedStages} tasks={typedTasks} subtasks={typedSubtasks} />}
-        {activeTab === 'documents' && <DocumentsTab assetId={params.id} documents={documents} stages={typedStages} />}
-        {activeTab === 'comments' && <CommentsTab assetId={params.id} currentUserId={currentUserId}
-          tasks={typedTasks.map(t => ({ id: t.id, title: t.title, stage_id: (t as unknown as { stage_id: string }).stage_id }))}
-          stages={typedStages.map(s => ({ id: s.id, name: s.name }))} />}
-        {activeTab === 'tasks' && <TasksTab assetId={params.id} tasks={typedTasks} subtasks={typedSubtasks} />}
-        {activeTab === 'activity' && <ActivityTab activity={activity} assetName={asset.reference_code as string} />}
-        {activeTab === 'gates' && <GatesTab assetId={params.id} stages={typedStages} />}
-        {activeTab === 'financials' && <FinancialsTab tasks={typedTasks} asset={asset} assetId={params.id} />}
-        {activeTab === 'partners' && <PartnersTab partners={partners} assetId={params.id} />}
-        {activeTab === 'communications' && <CommunicationsTab assetId={params.id} />}
-        {activeTab === 'meetings' && <MeetingsTab assetId={params.id} />}
+                {/* Badges + holder — single line */}
+                <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                  <NeuBadge color={STATUS_COLOR[statusKey] ?? 'gray'} size="sm">{ASSET_STATUSES[statusKey]?.label ?? asset.status}</NeuBadge>
+                  {modelLabel && <NeuBadge color={MODEL_COLOR[modelKey ?? ''] ?? 'gray'} size="sm">{modelLabel}</NeuBadge>}
+                  <NeuBadge color="gray" size="sm">{fmtType(asset.asset_type)}</NeuBadge>
+                  {asset.asset_holder_entity && (
+                    <span className="text-xs text-[var(--text-secondary)] ml-1">{asset.asset_holder_entity}</span>
+                  )}
+                </div>
+
+                {/* Compact value metrics — inline on one row */}
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-1 mt-3 text-sm">
+                  <div><span className="text-[10px] uppercase tracking-wider text-[var(--text-muted)]">Claimed </span><span className="font-bold text-[var(--text-primary)]">{fmt(asset.claimed_value)}</span></div>
+                  <div><span className="text-[10px] uppercase tracking-wider text-[var(--text-muted)]">Appraised </span><span className="font-bold text-[var(--text-primary)]">{fmt(asset.appraised_value)}</span></div>
+                  <div><span className="text-[10px] uppercase tracking-wider text-[var(--text-muted)]">Raised </span><span className="font-bold text-[var(--text-primary)]">{fmt(meta.capital_raised as number | null)}</span></div>
+                  <div><span className="text-[10px] uppercase tracking-wider text-[var(--text-muted)]">Investors </span><span className="font-bold text-[var(--text-primary)]">{(meta.investor_count as number) ?? 0}</span></div>
+                  {asset.team_members && (
+                    <div className="flex items-center gap-1.5 ml-auto">
+                      <NeuAvatar name={(asset.team_members as { full_name: string }).full_name} size="sm" />
+                      <span className="text-xs text-[var(--text-secondary)]">{(asset.team_members as { full_name: string }).full_name}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Phase timeline — merged into hero */}
+                <div className="mt-3 pt-3 border-t border-[var(--border)]">
+                  <PhaseTimeline currentPhase={asset.current_phase as PhaseKey} />
+                </div>
+              </div>
+
+              {/* Actions — collapsed behind menu on mobile */}
+              <div className="hidden lg:flex lg:flex-col gap-1.5 lg:w-40 shrink-0">
+                <NeuButton icon={<Edit3 className="h-4 w-4" />} size="sm" fullWidth onClick={() => setShowEdit(true)}>Edit</NeuButton>
+                <NeuButton variant="ghost" icon={<ArrowRight className="h-4 w-4" />} size="sm" fullWidth
+                  disabled={advanceMutation.isPending || !nextPhase}
+                  onClick={() => { if (nextPhase) setConfirmAdvance(true) }}>
+                  {nextPhase ? `Advance to ${PHASES[nextPhase].label}` : 'Final Phase'}
+                </NeuButton>
+                <NeuButton variant="ghost" icon={<Copy className="h-4 w-4" />} size="sm" fullWidth onClick={() => setShowSaveTemplate(true)}>Save Template</NeuButton>
+                <NeuButton variant="ghost" icon={<FileUp className="h-4 w-4" />} size="sm" fullWidth onClick={() => setActiveTab('documents')}>Add Doc</NeuButton>
+                <NeuButton variant="ghost" icon={<MessageSquare className="h-4 w-4" />} size="sm" fullWidth onClick={() => setActiveTab('comments')}>Comment</NeuButton>
+                <div className="relative">
+                  <NeuButton variant="ghost" icon={<Download className="h-4 w-4" />} size="sm" fullWidth
+                    disabled={exportLoading} onClick={() => setExportMenuOpen(!exportMenuOpen)}>Export</NeuButton>
+                  {exportMenuOpen && (
+                    <div className="absolute right-0 top-full mt-1 z-20 neu-raised-sm p-1 min-w-[150px]">
+                      <button onClick={handleExportJSON} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]">JSON</button>
+                      <button onClick={handleExportCSV} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]">CSV</button>
+                      <button onClick={handlePrint} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]">Print</button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Mobile action menu */}
+              <div className="lg:hidden flex items-center gap-2">
+                <NeuButton icon={<Edit3 className="h-4 w-4" />} size="sm" onClick={() => setShowEdit(true)}>Edit</NeuButton>
+                {nextPhase && (
+                  <NeuButton size="sm" icon={<ArrowRight className="h-4 w-4" />} disabled={advanceMutation.isPending}
+                    onClick={() => setConfirmAdvance(true)}>
+                    {PHASES[nextPhase].label}
+                  </NeuButton>
+                )}
+                <div className="relative ml-auto">
+                  <NeuButton variant="ghost" size="sm" icon={<MoreHorizontal className="h-4 w-4" />}
+                    onClick={() => setShowActions(!showActions)} />
+                  {showActions && (
+                    <div className="absolute right-0 top-full mt-1 z-20 neu-raised-sm p-1 min-w-[160px]">
+                      <button onClick={() => { setShowSaveTemplate(true); setShowActions(false) }} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"><Copy className="h-3.5 w-3.5" /> Save Template</button>
+                      <button onClick={() => { setActiveTab('documents'); setShowActions(false) }} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"><FileUp className="h-3.5 w-3.5" /> Add Doc</button>
+                      <button onClick={() => { setActiveTab('comments'); setShowActions(false) }} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"><MessageSquare className="h-3.5 w-3.5" /> Comment</button>
+                      <button onClick={handleExportJSON} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"><Download className="h-3.5 w-3.5" /> Export</button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </NeuCard>
+        </div>
+
+        {/* Tabs (non-sticky instance — the sticky copy is above) */}
+        <NeuTabs tabs={tabsWithCounts} activeTab={activeTab} onTabChange={setActiveTab} />
+
+        {/* Tab Content */}
+        <div>
+          {activeTab === 'overview' && <OverviewTab asset={asset} assetId={params.id} />}
+          {activeTab === 'workflow' && <WorkflowTab assetId={params.id} stages={typedStages} tasks={typedTasks} subtasks={typedSubtasks} focusTaskId={searchParams.get('taskId')} />}
+          {activeTab === 'documents' && <DocumentsTab assetId={params.id} documents={documents} stages={typedStages} />}
+          {activeTab === 'comments' && <CommentsTab assetId={params.id} currentUserId={currentUserId}
+            tasks={typedTasks.map(t => ({ id: t.id, title: t.title, stage_id: (t as unknown as { stage_id: string }).stage_id }))}
+            stages={typedStages.map(s => ({ id: s.id, name: s.name }))} />}
+          {activeTab === 'tasks' && <TasksTab assetId={params.id} tasks={typedTasks} subtasks={typedSubtasks} />}
+          {activeTab === 'activity' && <ActivityTab activity={activity} assetName={asset.reference_code as string} />}
+          {activeTab === 'gates' && <GatesTab assetId={params.id} stages={typedStages} />}
+          {activeTab === 'financials' && <FinancialsTab tasks={typedTasks} asset={asset} assetId={params.id} />}
+          {activeTab === 'partners' && <PartnersTab partners={partners} assetId={params.id} />}
+          {activeTab === 'communications' && <CommunicationsTab assetId={params.id} />}
+          {activeTab === 'meetings' && <MeetingsTab assetId={params.id} />}
+        </div>
       </div>
 
       {showEdit && <EditAssetModal asset={asset} assetId={params.id} onClose={() => setShowEdit(false)} />}
@@ -296,12 +342,23 @@ export default function AssetDetailPage() {
       <GateWarningModal
         open={showGateModal}
         onClose={() => setShowGateModal(false)}
-        onProceed={() => {
-          advanceMutation.mutate({ assetId: params.id, targetPhase: gateTargetPhase as PhaseKey, force: true })
-        }}
+        onProceed={(reason) => advanceMutation.mutate({ assetId: params.id, targetPhase: gateTargetPhase as PhaseKey, force: true, overrideReason: reason })}
         warnings={gateWarnings}
         targetPhase={gateTargetPhase}
       />
+      {nextPhase && (
+        <NeuConfirmDialog
+          open={confirmAdvance}
+          onClose={() => setConfirmAdvance(false)}
+          onConfirm={() => {
+            setConfirmAdvance(false)
+            advanceMutation.mutate({ assetId: params.id, targetPhase: nextPhase })
+          }}
+          title="Advance Phase"
+          message={`Advance from ${PHASES[asset.current_phase as PhaseKey]?.label ?? asset.current_phase} to ${PHASES[nextPhase].label}? This will be logged to the audit trail.`}
+          confirmLabel={`Advance to ${PHASES[nextPhase].label}`}
+        />
+      )}
     </div>
   )
 }

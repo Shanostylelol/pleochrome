@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 import { NeuCard, NeuBadge, NeuButton, NeuTabs, NeuInput, NeuModal, NeuSelect } from '@/components/ui'
 import { Plus, Search, Users, User, Building2, Mail } from 'lucide-react'
 import { ComplianceBadge } from '@/components/crm/ComplianceBadge'
+import { ListPageSkeleton } from '@/components/crm/skeletons'
 
 // ── KYC badge color map ──────────────────────────────────
 const KYC_COLOR: Record<string, 'gray' | 'amber' | 'teal' | 'chartreuse' | 'ruby'> = {
@@ -111,9 +112,7 @@ export default function ContactsListPage() {
 
       {/* Table */}
       {isLoading ? (
-        <NeuCard variant="raised" padding="lg" className="text-center">
-          <p className="text-sm text-[var(--text-muted)]">Loading contacts...</p>
-        </NeuCard>
+        <ListPageSkeleton />
       ) : contacts.length === 0 ? (
         <NeuCard variant="pressed" padding="lg" className="text-center">
           <Users className="h-10 w-10 text-[var(--text-placeholder)] mx-auto mb-3" />

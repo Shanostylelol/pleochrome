@@ -12,6 +12,7 @@ import { NeuCard } from '@/components/ui/NeuCard'
 import { NeuCheckbox } from '@/components/ui/NeuCheckbox'
 import { NeuBadge } from '@/components/ui/NeuBadge'
 import { NeuAvatar } from '@/components/ui/NeuAvatar'
+import { NeuConfirmDialog } from '@/components/ui/NeuConfirmDialog'
 import { NeuButton } from '@/components/ui/NeuButton'
 import { TASK_TYPES, TASK_STATUSES, type TaskTypeKey, type TaskStatusKey } from '@/lib/constants'
 import { type Subtask } from './SubtaskChecklist'
@@ -130,6 +131,7 @@ export function TaskCard({
   const [menuOpen, setMenuOpen] = useState(false)
   const [editingTitle, setEditingTitle] = useState(false)
   const [titleValue, setTitleValue] = useState(task.title)
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const titleInputRef = useRef<HTMLInputElement>(null)
 
   const isDone = task.status === 'done'
@@ -241,7 +243,8 @@ export function TaskCard({
               </button>
               {menuOpen && (
                 <TaskMenu task={task} onHide={onHide} onUpdateStatus={onUpdateStatus}
-                  onDelete={onDelete} onClose={() => setMenuOpen(false)} />
+                  onDelete={onDelete ? () => { setMenuOpen(false); setConfirmDelete(true) } : undefined}
+                  onClose={() => setMenuOpen(false)} />
               )}
             </div>
           </div>
@@ -253,6 +256,15 @@ export function TaskCard({
           )}
         </div>
       </div>
+      <NeuConfirmDialog
+        open={confirmDelete}
+        onClose={() => setConfirmDelete(false)}
+        onConfirm={() => { onDelete?.(task.id); setConfirmDelete(false) }}
+        title="Delete Task"
+        message={`Delete "${task.title}"? This cannot be undone.`}
+        confirmLabel="Delete"
+        variant="danger"
+      />
     </NeuCard>
   )
 }

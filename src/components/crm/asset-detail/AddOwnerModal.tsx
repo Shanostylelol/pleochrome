@@ -16,7 +16,7 @@ interface AddOwnerModalProps {
 }
 
 const ROLE_OPTIONS = [
-  { value: 'holder', label: 'Holder' },
+  { value: 'asset_holder', label: 'Asset Holder' },
   { value: 'beneficial_owner', label: 'Beneficial Owner' },
   { value: 'investor', label: 'Investor' },
 ]
@@ -24,7 +24,7 @@ const ROLE_OPTIONS = [
 export function AddOwnerModal({ open, onClose, assetId }: AddOwnerModalProps) {
   const [mode, setMode] = useState<'select' | 'create'>('select')
   const [contactId, setContactId] = useState('')
-  const [role, setRole] = useState('holder')
+  const [role, setRole] = useState('asset_holder')
   const [ownershipPct, setOwnershipPct] = useState('')
   const [isPrimary, setIsPrimary] = useState(false)
   const [search, setSearch] = useState('')
@@ -56,7 +56,7 @@ export function AddOwnerModal({ open, onClose, assetId }: AddOwnerModalProps) {
       if (newContactId) {
         linkMutation.mutate({
           contactId: newContactId, assetId,
-          role: role.trim() || 'holder',
+          role: role.trim() || 'asset_holder',
           ownershipPercentage: ownershipPct ? parseFloat(ownershipPct) : undefined,
           isPrimary,
         })
@@ -66,14 +66,14 @@ export function AddOwnerModal({ open, onClose, assetId }: AddOwnerModalProps) {
   })
 
   const resetForm = () => {
-    setMode('select'); setContactId(''); setRole('holder'); setOwnershipPct(''); setIsPrimary(false)
+    setMode('select'); setContactId(''); setRole('asset_holder'); setOwnershipPct(''); setIsPrimary(false)
     setSearch(''); setNewName(''); setNewEmail(''); setNewPhone(''); setNewType('individual')
   }
 
   const handleSubmitSelect = () => {
     if (!contactId) return
     linkMutation.mutate({
-      contactId, assetId, role: role.trim() || 'holder',
+      contactId, assetId, role: role.trim() || 'asset_holder',
       ownershipPercentage: ownershipPct ? parseFloat(ownershipPct) : undefined,
       isPrimary,
     })

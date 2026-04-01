@@ -84,7 +84,7 @@ export function NotificationPanel({ open, onClose }: { open: boolean; onClose: (
                 className={cn(
                   'px-3 py-1 rounded-[var(--radius-md)] text-xs font-medium transition-all',
                   filter === f
-                    ? 'bg-[var(--teal)] text-white'
+                    ? 'bg-[var(--teal)] text-[var(--text-on-accent)]'
                     : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
                 )}
               >

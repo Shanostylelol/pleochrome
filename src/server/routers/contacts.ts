@@ -252,4 +252,32 @@ export const contactsRouter = createRouter({
       if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
       return data
     }),
+
+  createOnboardingItem: protectedProcedure
+    .input(z.object({
+      contactId: uuidSchema,
+      itemName: z.string().min(1).max(255),
+      itemType: z.string().min(1),
+      stage: z.string().optional(),
+      description: z.string().max(1000).optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const { data, error } = await (ctx.db.from as Function)('contact_onboarding_items').insert({
+        contact_id: input.contactId,
+        item_name: input.itemName,
+        item_type: input.itemType,
+        stage: input.stage ?? 'general',
+        description: input.description ?? null,
+      }).select().single()
+      if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
+      return data
+    }),
+
+  deleteOnboardingItem: protectedProcedure
+    .input(z.object({ itemId: uuidSchema }))
+    .mutation(async ({ ctx, input }) => {
+      const { error } = await (ctx.db.from as Function)('contact_onboarding_items').delete().eq('id', input.itemId)
+      if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
+      return { success: true }
+    }),
 })

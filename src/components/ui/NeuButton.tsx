@@ -19,10 +19,10 @@ const sizeStyles = {
 }
 
 const variantStyles = {
-  primary: 'bg-[var(--teal)] text-white shadow-[var(--shadow-raised-sm)] hover:bg-[var(--teal-light)]',
+  primary: 'bg-[var(--teal)] text-[var(--text-on-accent)] shadow-[var(--shadow-raised-sm)] hover:bg-[var(--teal-light)]',
   ghost: 'bg-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)]',
-  danger: 'bg-[var(--ruby)] text-white shadow-[var(--shadow-raised-sm)] hover:bg-[var(--ruby-light)]',
-  success: 'bg-[var(--emerald)] text-white shadow-[var(--shadow-raised-sm)] hover:bg-[var(--emerald-light)]',
+  danger: 'bg-[var(--ruby)] text-[var(--text-on-accent)] shadow-[var(--shadow-raised-sm)] hover:bg-[var(--ruby-light)]',
+  success: 'bg-[var(--emerald)] text-[var(--text-on-accent)] shadow-[var(--shadow-raised-sm)] hover:bg-[var(--emerald-light)]',
 }
 
 export const NeuButton = forwardRef<HTMLButtonElement, NeuButtonProps>(

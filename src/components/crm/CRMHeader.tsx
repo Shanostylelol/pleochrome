@@ -8,10 +8,12 @@ import { useTheme } from './ThemeProvider'
 import { MobileDrawer } from './MobileDrawer'
 import { CommandPalette } from './CommandPalette'
 import { NotificationPanel } from './NotificationPanel'
+import { useCurrentUser } from './CurrentUserProvider'
 import { trpc } from '@/lib/trpc'
 
 export function CRMHeader() {
   const { theme, toggleTheme } = useTheme()
+  const currentUser = useCurrentUser()
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
@@ -73,7 +75,7 @@ export function CRMHeader() {
           <NeuButton variant="ghost" size="sm" className="relative" aria-label="Notifications" onClick={() => setNotificationsOpen(!notificationsOpen)}>
             <Bell className="h-4 w-4" />
             {unreadCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-[var(--teal)] rounded-full leading-none">
+              <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-[var(--text-on-accent)] bg-[var(--teal)] rounded-full leading-none">
                 {unreadCount > 99 ? '99+' : unreadCount}
               </span>
             )}
@@ -87,7 +89,7 @@ export function CRMHeader() {
           >
             {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </NeuButton>
-          <NeuAvatar name="Shane Pierson" size="sm" />
+          <NeuAvatar name={currentUser.full_name} size="sm" />
         </div>
       </header>
 

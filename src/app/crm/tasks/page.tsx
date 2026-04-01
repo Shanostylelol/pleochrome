@@ -5,6 +5,7 @@ import { CheckSquare, Plus, LayoutGrid, List } from 'lucide-react'
 import { NeuCard, NeuButton, NeuTabs, NeuInput, NeuTextarea, NeuSelect, NeuModal } from '@/components/ui'
 import { TASK_TYPES, type TaskTypeKey } from '@/lib/constants'
 import { trpc } from '@/lib/trpc'
+import { ListPageSkeleton } from '@/components/crm/skeletons'
 import { TaskKanbanView } from '@/components/crm/TaskKanbanView'
 import { TaskListView } from '@/components/crm/TaskListView'
 import { TeamWorkloadView } from '@/components/crm/TeamWorkloadView'
@@ -109,7 +110,7 @@ export default function TasksPage() {
       {filter === 'team' ? (
         <TeamWorkloadView onSelectMember={(id) => { setFilter(id === 'unassigned' ? 'all' : 'mine') }} />
       ) : isLoading ? (
-        <p className="text-[var(--text-muted)] text-center py-10">Loading tasks...</p>
+        <ListPageSkeleton />
       ) : tasks.length === 0 ? (
         <NeuCard variant="pressed" padding="lg" className="text-center">
           <CheckSquare className="h-12 w-12 text-[var(--text-placeholder)] mx-auto mb-3" />

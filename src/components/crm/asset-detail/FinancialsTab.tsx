@@ -102,6 +102,50 @@ export function FinancialsTab({ tasks, asset, assetId }: FinancialsTabProps) {
         </NeuCard>
       </div>
 
+      {/* Cost-to-Complete + Projections */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <NeuCard variant="raised" padding="md">
+          <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Cost to Complete</h3>
+          {(() => {
+            const incompleteTasks = tasks.filter(t => t.status !== 'done' && t.status !== 'cancelled' && t.payment_direction === 'outgoing' && t.payment_amount)
+            const costToComplete = incompleteTasks.reduce((s, t) => s + (t.payment_amount ?? 0), 0)
+            return (
+              <div>
+                <p className="text-xl font-bold text-[var(--text-primary)]">{fmt(costToComplete)}</p>
+                <p className="text-xs text-[var(--text-muted)] mt-1">{incompleteTasks.length} remaining payments across incomplete tasks</p>
+              </div>
+            )
+          })()}
+        </NeuCard>
+
+        <NeuCard variant="raised" padding="md">
+          <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Revenue Projection</h3>
+          {(() => {
+            const targetRaise = (meta.target_raise as number) ?? 0
+            const mgmtFee = (meta.management_fee_pct as number) ?? 2.0
+            const projectedRevenue = targetRaise * (mgmtFee / 100)
+            return targetRaise > 0 ? (
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-sm">
+                  <span className="text-[var(--text-muted)]">Target Raise</span>
+                  <span className="text-[var(--text-primary)] font-medium">{fmtCompact(targetRaise)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-[var(--text-muted)]">Mgmt Fee</span>
+                  <span className="text-[var(--text-primary)] font-medium">{mgmtFee}%</span>
+                </div>
+                <div className="flex justify-between text-sm pt-1 border-t border-[var(--border)]">
+                  <span className="text-[var(--text-muted)] font-semibold">Projected Revenue</span>
+                  <span className="text-[var(--emerald)] font-bold">{fmtCompact(projectedRevenue)}</span>
+                </div>
+              </div>
+            ) : (
+              <p className="text-xs text-[var(--text-muted)]">Set target_raise and management_fee_pct in asset metadata to see projections</p>
+            )
+          })()}
+        </NeuCard>
+      </div>
+
       {/* Structure */}
       <NeuCard variant="raised" padding="md">
         <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Structure</h3>

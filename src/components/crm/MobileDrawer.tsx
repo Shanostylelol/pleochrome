@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { NeuAvatar } from '@/components/ui/NeuAvatar'
+import { useCurrentUser } from './CurrentUserProvider'
 import {
   X, LayoutGrid, Gem, Handshake, Users2, FileText, CheckSquare,
   Calendar, Activity, Users, LayoutTemplate, Shield, Settings,
@@ -27,6 +28,7 @@ const allNav = [
 
 export function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const pathname = usePathname()
+  const currentUser = useCurrentUser()
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -83,10 +85,10 @@ export function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => 
 
         <div className="absolute bottom-0 left-0 right-0 px-4 py-3 border-t border-[var(--border)]">
           <div className="flex items-center gap-3">
-            <NeuAvatar name="Shane Pierson" size="sm" />
+            <NeuAvatar name={currentUser.full_name} size="sm" />
             <div>
-              <p className="text-sm font-medium text-[var(--text-primary)]">Shane Pierson</p>
-              <p className="text-xs text-[var(--text-muted)]">CEO</p>
+              <p className="text-sm font-medium text-[var(--text-primary)]">{currentUser.full_name}</p>
+              <p className="text-xs text-[var(--text-muted)]">{currentUser.role || 'Team'}</p>
             </div>
           </div>
         </div>

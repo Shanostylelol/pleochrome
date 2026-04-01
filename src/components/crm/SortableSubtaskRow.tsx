@@ -5,6 +5,7 @@ import { X, GripVertical, ChevronDown, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { NeuCheckbox } from '@/components/ui/NeuCheckbox'
 import { NeuBadge } from '@/components/ui/NeuBadge'
+import { NeuConfirmDialog } from '@/components/ui/NeuConfirmDialog'
 import { SUBTASK_STATUSES, SUBTASK_TYPES, type SubtaskTypeKey } from '@/lib/constants'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
@@ -34,6 +35,7 @@ export function SortableSubtaskRow({ st, taskId, assetId, currentUserId, autoExp
   const [titleVal, setTitleVal] = useState(st.title)
   const [expanded, setExpanded] = useState(!!autoExpand)
   const [typeMenuOpen, setTypeMenuOpen] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const { setNodeRef, setActivatorNodeRef, listeners, attributes, transform, transition, isDragging } = useSortable({ id: st.id })
@@ -77,7 +79,7 @@ export function SortableSubtaskRow({ st, taskId, assetId, currentUserId, autoExp
       )}>
         {/* Drag handle */}
         <button ref={setActivatorNodeRef} {...listeners} {...attributes} aria-label="Drag to reorder"
-          className="p-2 text-[var(--text-placeholder)] hover:text-[var(--text-muted)] cursor-grab active:cursor-grabbing shrink-0 opacity-0 group-hover/subtask:opacity-100 transition-opacity">
+          className="p-2 text-[var(--text-placeholder)] hover:text-[var(--text-muted)] cursor-grab active:cursor-grabbing shrink-0 opacity-0 group-hover/subtask:opacity-100 transition-opacity hidden sm:block">
           <GripVertical className="h-4 w-4" />
         </button>
 
@@ -150,7 +152,7 @@ export function SortableSubtaskRow({ st, taskId, assetId, currentUserId, autoExp
 
         {/* Delete */}
         {onDelete && (
-          <button onClick={(e) => { e.stopPropagation(); onDelete(st.id) }}
+          <button onClick={(e) => { e.stopPropagation(); setConfirmDelete(true) }}
             className={cn('p-1.5 rounded-[var(--radius-sm)] opacity-0 group-hover/subtask:opacity-100',
               'text-[var(--text-muted)] hover:text-[var(--ruby)] transition-all shrink-0')}
             title="Delete subtask">
@@ -169,6 +171,15 @@ export function SortableSubtaskRow({ st, taskId, assetId, currentUserId, autoExp
           onUpdate={(id: string, fields: { title?: string; subtaskType?: string; notes?: string; status?: string }) => onUpdate?.(id, fields)}
         />
       )}
+      <NeuConfirmDialog
+        open={confirmDelete}
+        onClose={() => setConfirmDelete(false)}
+        onConfirm={() => { onDelete?.(st.id); setConfirmDelete(false) }}
+        title="Delete Subtask"
+        message={`Remove "${st.title}"? This cannot be undone.`}
+        confirmLabel="Delete"
+        variant="danger"
+      />
     </div>
   )
 }

@@ -5,7 +5,7 @@ import {
   Calendar, Plus, Clock, MapPin, Users, Video, Phone, User, ChevronDown,
 } from 'lucide-react'
 import {
-  NeuCard, NeuBadge, NeuButton, NeuInput, NeuTextarea, NeuSelect, NeuModal,
+  NeuCard, NeuBadge, NeuButton, NeuInput, NeuTextarea, NeuSelect, NeuModal, NeuSkeleton,
 } from '@/components/ui'
 import { trpc } from '@/lib/trpc'
 import { MeetingDetail } from '@/components/crm/MeetingDetail'
@@ -58,7 +58,7 @@ export function MeetingsTab({ assetId }: MeetingsTabProps) {
 
       {/* List */}
       {isLoading ? (
-        <p className="text-[var(--text-muted)] text-center py-10">Loading meetings...</p>
+        <NeuSkeleton variant="text" lines={3} />
       ) : meetings.length === 0 ? (
         <NeuCard variant="pressed" padding="lg" className="text-center">
           <Calendar className="h-10 w-10 text-[var(--text-placeholder)] mx-auto mb-3" />

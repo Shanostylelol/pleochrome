@@ -2,73 +2,13 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Handshake, Plus, Mail, Phone, ExternalLink, X } from 'lucide-react'
+import { Handshake, Plus, Mail, Phone, X, LayoutGrid, List } from 'lucide-react'
 import { NeuCard, NeuBadge, NeuButton, NeuAvatar, NeuInput, NeuTextarea, NeuSelect } from '@/components/ui'
+import { ListPageSkeleton } from '@/components/crm/skeletons'
 import { trpc } from '@/lib/trpc'
 
 const ddColorMap: Record<string, 'gray' | 'amber' | 'chartreuse' | 'ruby'> = {
   not_started: 'gray', in_progress: 'amber', passed: 'chartreuse', failed: 'ruby',
-}
-
-export default function PartnersPage() {
-  const [showCreateModal, setShowCreateModal] = useState(false)
-  const { data: partners = [], isLoading } = trpc.partners.list.useQuery()
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold text-[var(--text-primary)]" style={{ fontFamily: 'var(--font-display)' }}>
-            Partners
-          </h1>
-          <p className="text-sm text-[var(--text-muted)] mt-1">{partners.length} partners</p>
-        </div>
-        <NeuButton icon={<Plus className="h-4 w-4" />} onClick={() => setShowCreateModal(true)}>
-          <span className="hidden sm:inline">Add Partner</span>
-        </NeuButton>
-      </div>
-
-      {isLoading ? (
-        <p className="text-[var(--text-muted)] text-center py-10">Loading partners...</p>
-      ) : partners.length === 0 ? (
-        <NeuCard variant="pressed" padding="lg" className="text-center">
-          <Handshake className="h-12 w-12 text-[var(--text-placeholder)] mx-auto mb-3" />
-          <p className="text-sm text-[var(--text-muted)]">No partners yet</p>
-        </NeuCard>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {partners.map((p) => (
-            <Link key={p.id} href={`/crm/partners/${p.id}`}>
-              <NeuCard variant="raised" padding="md" hoverable>
-                <div className="flex items-center gap-3 mb-3">
-                  <NeuAvatar name={p.name} />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{p.name}</p>
-                    <NeuBadge color="amethyst" size="sm">{p.type}</NeuBadge>
-                  </div>
-                </div>
-                <div className="space-y-1.5 text-xs text-[var(--text-secondary)]">
-                  {p.contact_name && <p>{p.contact_name}</p>}
-                  {p.contact_email && (
-                    <span className="flex items-center gap-1">
-                      <Mail className="h-3 w-3" />{p.contact_email}
-                    </span>
-                  )}
-                  {p.contact_phone && (
-                    <p className="flex items-center gap-1"><Phone className="h-3 w-3" />{p.contact_phone}</p>
-                  )}
-                </div>
-                <div className="mt-3 pt-2 border-t border-[var(--border)]">
-                  <NeuBadge color={ddColorMap[p.dd_status] ?? 'gray'} size="sm">DD: {p.dd_status}</NeuBadge>
-                </div>
-              </NeuCard>
-            </Link>
-          ))}
-        </div>
-      )}
-      {showCreateModal && <PartnerCreateModal onClose={() => setShowCreateModal(false)} />}
-    </div>
-  )
 }
 
 const PARTNER_TYPES = [
@@ -89,6 +29,178 @@ const PARTNER_TYPES = [
   { value: 'other', label: 'Other' },
 ]
 
+const TYPE_LABEL_MAP: Record<string, string> = Object.fromEntries(PARTNER_TYPES.map((t) => [t.value, t.label]))
+
+export default function PartnersPage() {
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [typeFilter, setTypeFilter] = useState('')
+  const [search, setSearch] = useState('')
+  const { data: partners = [], isLoading } = trpc.partners.list.useQuery(
+    { partnerType: typeFilter || undefined, search: search || undefined }
+  )
+
+  // Group by type for list view
+  const grouped = partners.reduce<Record<string, typeof partners>>((acc, p) => {
+    const key = p.type ?? 'other'
+    ;(acc[key] ??= []).push(p)
+    return acc
+  }, {})
+
+  const sortedGroups = Object.entries(grouped).sort(([a], [b]) =>
+    (TYPE_LABEL_MAP[a] ?? a).localeCompare(TYPE_LABEL_MAP[b] ?? b)
+  )
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold text-[var(--text-primary)]" style={{ fontFamily: 'var(--font-display)' }}>
+            Partners
+          </h1>
+          <p className="text-sm text-[var(--text-muted)] mt-1">{partners.length} partners</p>
+        </div>
+        <NeuButton icon={<Plus className="h-4 w-4" />} onClick={() => setShowCreateModal(true)}>
+          <span className="hidden sm:inline">Add Partner</span>
+        </NeuButton>
+      </div>
+
+      {/* Filters + view toggle */}
+      <div className="flex flex-wrap items-center gap-3">
+        <NeuInput
+          placeholder="Search partners..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="!w-48 sm:!w-64"
+        />
+        <NeuSelect
+          value={typeFilter}
+          onChange={(e) => setTypeFilter(e.target.value)}
+          className="!w-44"
+        >
+          <option value="">All Types</option>
+          {PARTNER_TYPES.map((t) => (
+            <option key={t.value} value={t.value}>{t.label}</option>
+          ))}
+        </NeuSelect>
+        <div className="ml-auto flex gap-1">
+          <button
+            onClick={() => setViewMode('grid')}
+            className={`p-2 rounded-[var(--radius-sm)] transition-colors ${
+              viewMode === 'grid' ? 'bg-[var(--bg-surface)] shadow-[var(--shadow-raised-sm)] text-[var(--text-primary)]' : 'text-[var(--text-muted)]'
+            }`}
+          >
+            <LayoutGrid className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => setViewMode('list')}
+            className={`p-2 rounded-[var(--radius-sm)] transition-colors ${
+              viewMode === 'list' ? 'bg-[var(--bg-surface)] shadow-[var(--shadow-raised-sm)] text-[var(--text-primary)]' : 'text-[var(--text-muted)]'
+            }`}
+          >
+            <List className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
+      {isLoading ? (
+        <ListPageSkeleton />
+      ) : partners.length === 0 ? (
+        <NeuCard variant="pressed" padding="lg" className="text-center">
+          <Handshake className="h-12 w-12 text-[var(--text-placeholder)] mx-auto mb-3" />
+          <p className="text-sm text-[var(--text-muted)]">{search || typeFilter ? 'No partners match your filters' : 'No partners yet'}</p>
+        </NeuCard>
+      ) : viewMode === 'grid' ? (
+        /* ── Grid View (grouped by type) ── */
+        <div className="space-y-6">
+          {sortedGroups.map(([type, items]) => (
+            <div key={type}>
+              <div className="flex items-center gap-2 mb-3">
+                <NeuBadge color="amethyst" size="sm">{TYPE_LABEL_MAP[type] ?? type}</NeuBadge>
+                <span className="text-xs text-[var(--text-muted)]">{items.length}</span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {items.map((p) => <PartnerCard key={p.id} partner={p} />)}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        /* ── List View (grouped by type) ── */
+        <div className="space-y-4">
+          {sortedGroups.map(([type, items]) => (
+            <div key={type}>
+              <div className="flex items-center gap-2 mb-2 px-1">
+                <NeuBadge color="amethyst" size="sm">{TYPE_LABEL_MAP[type] ?? type}</NeuBadge>
+                <span className="text-xs text-[var(--text-muted)]">{items.length}</span>
+              </div>
+              <NeuCard variant="raised" padding="none" className="overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-[var(--border)] bg-[var(--bg-elevated)] text-[var(--text-muted)] text-xs uppercase tracking-wider">
+                      <th className="px-4 py-2 text-left font-semibold">Name</th>
+                      <th className="px-4 py-2 text-left font-semibold hidden sm:table-cell">Contact</th>
+                      <th className="px-4 py-2 text-left font-semibold hidden md:table-cell">Email</th>
+                      <th className="px-4 py-2 text-left font-semibold hidden lg:table-cell">Phone</th>
+                      <th className="px-4 py-2 text-left font-semibold">DD Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {items.map((p) => (
+                      <tr key={p.id} className="border-b border-[var(--border)] last:border-b-0 hover:bg-[var(--bg-elevated)] transition-colors">
+                        <td className="px-4 py-3">
+                          <Link href={`/crm/partners/${p.id}`} className="flex items-center gap-2">
+                            <NeuAvatar name={p.name} size="sm" />
+                            <span className="font-medium text-[var(--text-primary)] hover:text-[var(--teal)] transition-colors">{p.name}</span>
+                          </Link>
+                        </td>
+                        <td className="px-4 py-3 text-[var(--text-secondary)] hidden sm:table-cell">{p.contact_name ?? '—'}</td>
+                        <td className="px-4 py-3 text-[var(--text-secondary)] hidden md:table-cell">{p.contact_email ?? '—'}</td>
+                        <td className="px-4 py-3 text-[var(--text-secondary)] hidden lg:table-cell">{p.contact_phone ?? '—'}</td>
+                        <td className="px-4 py-3">
+                          <NeuBadge color={ddColorMap[p.dd_status] ?? 'gray'} size="sm">{p.dd_status}</NeuBadge>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </NeuCard>
+            </div>
+          ))}
+        </div>
+      )}
+      {showCreateModal && <PartnerCreateModal onClose={() => setShowCreateModal(false)} />}
+    </div>
+  )
+}
+
+function PartnerCard({ partner: p }: { partner: { id: string; name: string; type: string; contact_name: string | null; contact_email: string | null; contact_phone: string | null; dd_status: string } }) {
+  return (
+    <Link href={`/crm/partners/${p.id}`}>
+      <NeuCard variant="raised" padding="md" hoverable>
+        <div className="flex items-center gap-3 mb-3">
+          <NeuAvatar name={p.name} />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{p.name}</p>
+          </div>
+        </div>
+        <div className="space-y-1.5 text-xs text-[var(--text-secondary)]">
+          {p.contact_name && <p>{p.contact_name}</p>}
+          {p.contact_email && (
+            <span className="flex items-center gap-1"><Mail className="h-3 w-3" />{p.contact_email}</span>
+          )}
+          {p.contact_phone && (
+            <p className="flex items-center gap-1"><Phone className="h-3 w-3" />{p.contact_phone}</p>
+          )}
+        </div>
+        <div className="mt-3 pt-2 border-t border-[var(--border)]">
+          <NeuBadge color={ddColorMap[p.dd_status] ?? 'gray'} size="sm">DD: {p.dd_status}</NeuBadge>
+        </div>
+      </NeuCard>
+    </Link>
+  )
+}
+
 function PartnerCreateModal({ onClose }: { onClose: () => void }) {
   const [name, setName] = useState('')
   const [partnerType, setPartnerType] = useState('appraiser')
@@ -105,41 +217,29 @@ function PartnerCreateModal({ onClose }: { onClose: () => void }) {
   const validateEmail = (val: string) => {
     if (val && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
       setEmailError('Please enter a valid email address')
-    } else {
-      setEmailError('')
-    }
+    } else { setEmailError('') }
   }
-
   const validatePhone = (val: string) => {
     if (val && !/^\+?[\d\s\-().]{7,20}$/.test(val)) {
       setPhoneError('Please enter a valid phone number')
-    } else {
-      setPhoneError('')
-    }
+    } else { setPhoneError('') }
   }
-
   const validateWebsite = (val: string) => {
     if (val && !/^https?:\/\/.+/.test(val)) {
       setWebsiteError('URL must start with http:// or https://')
-    } else {
-      setWebsiteError('')
-    }
+    } else { setWebsiteError('') }
   }
 
   const hasErrors = !!emailError || !!phoneError || !!websiteError
 
   const mutation = trpc.partners.create.useMutation({
-    onSuccess: () => {
-      utils.partners.list.invalidate()
-      onClose()
-    },
+    onSuccess: () => { utils.partners.list.invalidate(); onClose() },
   })
 
   const handleSubmit = () => {
     if (hasErrors) return
     mutation.mutate({
-      name,
-      partnerType,
+      name, partnerType,
       contactName: contactName || undefined,
       contactEmail: contactEmail || undefined,
       contactPhone: contactPhone || undefined,
@@ -156,64 +256,24 @@ function PartnerCreateModal({ onClose }: { onClose: () => void }) {
           <h2 className="text-lg font-semibold text-[var(--text-primary)]" style={{ fontFamily: 'var(--font-display)' }}>Add Partner</h2>
           <button onClick={onClose} className="p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)]"><X className="h-5 w-5" /></button>
         </div>
-
         <div className="space-y-3">
-          <NeuInput
-            label="Name *"
-            placeholder="Partner name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-          <NeuSelect
-            label="Type"
-            value={partnerType}
-            onChange={(e) => setPartnerType(e.target.value)}
-          >
-            {PARTNER_TYPES.map((t) => (
-              <option key={t.value} value={t.value}>{t.label}</option>
-            ))}
+          <NeuInput label="Name *" placeholder="Partner name" value={name} onChange={(e) => setName(e.target.value)} required />
+          <NeuSelect label="Type" value={partnerType} onChange={(e) => setPartnerType(e.target.value)}>
+            {PARTNER_TYPES.map((t) => (<option key={t.value} value={t.value}>{t.label}</option>))}
           </NeuSelect>
-          <NeuInput
-            label="Contact Name"
-            placeholder="Contact person"
-            value={contactName}
-            onChange={(e) => setContactName(e.target.value)}
-          />
-          <NeuInput
-            label="Contact Email"
-            type="email"
-            placeholder="email@example.com"
-            value={contactEmail}
+          <NeuInput label="Contact Name" placeholder="Contact person" value={contactName} onChange={(e) => setContactName(e.target.value)} />
+          <NeuInput label="Contact Email" type="email" placeholder="email@example.com" value={contactEmail}
             onChange={(e) => { setContactEmail(e.target.value); validateEmail(e.target.value) }}
-            onBlur={() => validateEmail(contactEmail)}
-            error={emailError || undefined}
-          />
-          <NeuInput
-            label="Contact Phone"
-            placeholder="+1 (555) 000-0000"
-            value={contactPhone}
+            onBlur={() => validateEmail(contactEmail)} error={emailError || undefined} />
+          <NeuInput label="Contact Phone" placeholder="+1 (555) 000-0000" value={contactPhone}
             onChange={(e) => { setContactPhone(e.target.value); validatePhone(e.target.value) }}
-            onBlur={() => validatePhone(contactPhone)}
-            error={phoneError || undefined}
-          />
-          <NeuInput
-            label="Website"
-            placeholder="https://example.com"
-            value={website}
+            onBlur={() => validatePhone(contactPhone)} error={phoneError || undefined} />
+          <NeuInput label="Website" placeholder="https://example.com" value={website}
             onChange={(e) => { setWebsite(e.target.value); validateWebsite(e.target.value) }}
-            onBlur={() => validateWebsite(website)}
-            error={websiteError || undefined}
-          />
-          <NeuTextarea
-            label="Description"
-            placeholder="Optional notes about this partner"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={3}
-          />
+            onBlur={() => validateWebsite(website)} error={websiteError || undefined} />
+          <NeuTextarea label="Description" placeholder="Optional notes about this partner" value={description}
+            onChange={(e) => setDescription(e.target.value)} rows={3} />
         </div>
-
         <div className="flex gap-3 pt-2">
           <NeuButton variant="ghost" onClick={onClose} fullWidth>Cancel</NeuButton>
           <NeuButton onClick={handleSubmit} loading={mutation.isPending} disabled={!name.trim() || hasErrors} fullWidth>Add Partner</NeuButton>

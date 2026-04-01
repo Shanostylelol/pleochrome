@@ -24,7 +24,7 @@ export function CRMBottomNav() {
         className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-[var(--bg-surface)] border-t border-[var(--border)]"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
-        <div className="flex items-stretch h-16">
+        <div className="flex items-stretch h-16 justify-around">
           {bottomItems.map((item) => {
             const active = item.href === '/crm'
               ? pathname === '/crm'

@@ -1,7 +1,12 @@
 'use client'
 
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { NeuCard, NeuBadge, NeuAvatar } from '@/components/ui'
+import { MoreHorizontal, ArrowRight, Archive } from 'lucide-react'
+import { NeuCard, NeuBadge, NeuAvatar, NeuProgress, NeuConfirmDialog } from '@/components/ui'
+import { trpc } from '@/lib/trpc'
+import { useToast } from '@/components/ui/NeuToast'
+import { PHASES, PHASE_ORDER, type PhaseKey } from '@/lib/constants'
 
 // ── Value model color mapping ──────────────────────────────────────
 const valueModelColorMap: Record<string, 'emerald' | 'teal' | 'sapphire' | 'amber' | 'gray'> = {
@@ -62,6 +67,19 @@ function formatCurrency(value: number | null): string {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function AssetCard({ asset }: { asset: any }) {
   const router = useRouter()
+  const { toast } = useToast()
+  const utils = trpc.useUtils()
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [confirmArchive, setConfirmArchive] = useState(false)
+
+  const archiveMut = trpc.assets.archive.useMutation({
+    onSuccess: () => { utils.assets.listForPipeline.invalidate(); toast('Asset archived', 'success') },
+    onError: (err) => toast(err.message, 'error'),
+  })
+  const advanceMut = trpc.assets.advancePhase.useMutation({
+    onSuccess: () => { utils.assets.listForPipeline.invalidate(); toast('Phase advanced', 'success') },
+    onError: (err) => toast(err.message, 'error'),
+  })
 
   const phase = (asset.current_phase as string) ?? 'lead'
   const borderColor = phaseColorMap[phase] ?? 'var(--text-muted)'
@@ -73,7 +91,7 @@ export function AssetCard({ asset }: { asset: any }) {
       variant="raised-sm"
       hoverable
       padding="none"
-      className="cursor-pointer relative overflow-hidden"
+      className="cursor-pointer relative overflow-hidden group"
       onClick={() => router.push(`/crm/assets/${asset.id}`)}
     >
       {/* Phase color left border indicator */}
@@ -91,11 +109,34 @@ export function AssetCard({ asset }: { asset: any }) {
           >
             {asset.reference_code}
           </p>
-          <span
-            className="inline-block w-2 h-2 rounded-full shrink-0"
-            style={{ backgroundColor: status.color }}
-            title={status.label}
-          />
+          <div className="flex items-center gap-1 shrink-0">
+            <span className="inline-block w-2 h-2 rounded-full" style={{ backgroundColor: status.color }} title={status.label} />
+            <div className="relative">
+              <button onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen) }}
+                className="p-1 rounded-[var(--radius-sm)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-colors opacity-0 group-hover:opacity-100"
+                aria-label="Asset actions">
+                <MoreHorizontal className="h-3.5 w-3.5" />
+              </button>
+              {menuOpen && (
+                <div className="absolute right-0 top-6 z-30 neu-raised-sm p-1 min-w-[140px]" onClick={(e) => e.stopPropagation()}>
+                  {(() => {
+                    const idx = PHASE_ORDER.indexOf(phase as PhaseKey)
+                    const nextPhase = idx >= 0 && idx < PHASE_ORDER.length - 1 ? PHASE_ORDER[idx + 1] : null
+                    return nextPhase ? (
+                      <button onClick={() => { advanceMut.mutate({ assetId: asset.id, targetPhase: nextPhase }); setMenuOpen(false) }}
+                        className="flex items-center gap-2 w-full px-3 py-2 text-xs rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]">
+                        <ArrowRight className="h-3 w-3" /> Advance to {PHASES[nextPhase]?.label}
+                      </button>
+                    ) : null
+                  })()}
+                  <button onClick={() => { setConfirmArchive(true); setMenuOpen(false) }}
+                    className="flex items-center gap-2 w-full px-3 py-2 text-xs rounded-[var(--radius-sm)] text-[var(--ruby)] hover:bg-[color-mix(in_srgb,var(--ruby)_10%,transparent)]">
+                    <Archive className="h-3 w-3" /> Archive
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Asset name */}
@@ -131,6 +172,23 @@ export function AssetCard({ asset }: { asset: any }) {
           </span>
         </div>
 
+        {/* Task progress */}
+        {asset.taskProgress && asset.taskProgress.total > 0 && (
+          <div className="mt-2">
+            <div className="flex items-center gap-2">
+              <div className="flex-1"><NeuProgress value={asset.taskProgress.completed} max={asset.taskProgress.total} color="teal" size="sm" /></div>
+              <span className="text-[11px] text-[var(--text-muted)] tabular-nums shrink-0">
+                {asset.taskProgress.completed}/{asset.taskProgress.total}
+              </span>
+            </div>
+            {asset.taskProgress.nextTask && (
+              <p className="text-[11px] text-[var(--text-muted)] mt-1 truncate">
+                Next: {asset.taskProgress.nextTask}
+              </p>
+            )}
+          </div>
+        )}
+
         {/* Lead assignee avatar */}
         {asset.team_members?.full_name && (
           <div className="mt-2 pt-2 border-t border-[var(--border)]">
@@ -143,6 +201,16 @@ export function AssetCard({ asset }: { asset: any }) {
           </div>
         )}
       </div>
+      <NeuConfirmDialog
+        open={confirmArchive}
+        onClose={() => setConfirmArchive(false)}
+        onConfirm={() => { archiveMut.mutate({ assetId: asset.id, reason: 'Archived from pipeline' }); setConfirmArchive(false) }}
+        title="Archive Asset"
+        message={`Archive "${asset.name}"? It will be hidden from the pipeline.`}
+        confirmLabel="Archive"
+        variant="danger"
+        loading={archiveMut.isPending}
+      />
     </NeuCard>
   )
 }

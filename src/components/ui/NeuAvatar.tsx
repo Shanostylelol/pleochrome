@@ -41,7 +41,7 @@ export function NeuAvatar({ name, src, size = 'md', color }: NeuAvatarProps) {
   return (
     <div
       className={cn(
-        'inline-flex items-center justify-center rounded-full shadow-[var(--shadow-raised-sm)] overflow-hidden font-semibold text-white shrink-0',
+        'inline-flex items-center justify-center rounded-full shadow-[var(--shadow-raised-sm)] overflow-hidden font-semibold text-[var(--text-on-accent)] shrink-0',
         sizeMap[size]
       )}
       style={{ backgroundColor: src ? undefined : bg }}

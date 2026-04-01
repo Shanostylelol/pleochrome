@@ -6,6 +6,7 @@ import { NeuCard, NeuBadge, NeuButton, NeuInput, NeuTextarea, NeuSelect, NeuModa
 import { VALUE_MODELS, type ValueModelKey } from '@/lib/constants'
 import { trpc } from '@/lib/trpc'
 import { TemplateEditor } from '@/components/crm/TemplateEditor'
+import { ListPageSkeleton } from '@/components/crm/skeletons'
 
 const VALUE_MODEL_OPTS = [
   { value: '', label: 'All Models' },
@@ -66,7 +67,7 @@ export default function TemplatesPage() {
 
       {/* Template grid */}
       {isLoading ? (
-        <p className="text-[var(--text-muted)] text-center py-10">Loading templates...</p>
+        <ListPageSkeleton />
       ) : templates.length === 0 ? (
         <NeuCard variant="pressed" padding="lg" className="text-center">
           <BookOpen className="h-12 w-12 text-[var(--text-placeholder)] mx-auto mb-3" />

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { trpc } from '@/lib/trpc'
-import { NeuCard, NeuBadge, NeuButton, NeuModal, NeuInput, NeuSelect } from '@/components/ui'
+import { NeuCard, NeuBadge, NeuButton, NeuModal, NeuInput, NeuSelect, NeuSkeleton } from '@/components/ui'
 import { Plus, ShieldCheck } from 'lucide-react'
 
 const KYC_STATUS_COLOR: Record<string, 'gray' | 'amber' | 'teal' | 'chartreuse' | 'ruby'> = {
@@ -38,9 +38,7 @@ export function ContactKycTab({ contactId }: { contactId: string }) {
 
   if (isLoading) {
     return (
-      <NeuCard variant="raised" padding="lg" className="text-center">
-        <p className="text-sm text-[var(--text-muted)]">Loading KYC records...</p>
-      </NeuCard>
+      <NeuSkeleton variant="text" lines={3} />
     )
   }
 

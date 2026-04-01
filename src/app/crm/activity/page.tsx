@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { Activity, Clock, Download } from 'lucide-react'
 import { NeuCard, NeuBadge, NeuButton, NeuTabs, NeuAvatar } from '@/components/ui'
+import { ListPageSkeleton } from '@/components/crm/skeletons'
 import { trpc } from '@/lib/trpc'
 import { createClient } from '@/lib/supabase'
 
@@ -130,7 +131,7 @@ export default function ActivityPage() {
       <NeuTabs tabs={TABS} activeTab={filter} onTabChange={setFilter} />
 
       {isLoading && allEntries.length === 0 ? (
-        <p className="text-[var(--text-muted)] text-center py-10">Loading activity...</p>
+        <ListPageSkeleton />
       ) : allEntries.length === 0 ? (
         <NeuCard variant="pressed" padding="lg" className="text-center">
           <Activity className="h-12 w-12 text-[var(--text-placeholder)] mx-auto mb-3" />

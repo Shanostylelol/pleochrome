@@ -1,13 +1,22 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Sun, Moon, Bell, Database, User } from 'lucide-react'
 import { NeuCard, NeuToggle } from '@/components/ui'
 import { useTheme } from '@/components/crm/ThemeProvider'
+import { useCurrentUser } from '@/components/crm/CurrentUserProvider'
 
 export default function SettingsPage() {
   const { theme, toggleTheme } = useTheme()
-  const [inAppNotifs, setInAppNotifs] = useState(true)
+  const currentUser = useCurrentUser()
+  const [inAppNotifs, setInAppNotifs] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('pleochrome-notifs')
+      return saved !== null ? JSON.parse(saved) : true
+    }
+    return true
+  })
+  useEffect(() => { localStorage.setItem('pleochrome-notifs', JSON.stringify(inAppNotifs)) }, [inAppNotifs])
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -32,7 +41,7 @@ export default function SettingsPage() {
         <div className="space-y-3 text-sm">
           <div className="flex justify-between">
             <span className="text-[var(--text-muted)]">Name</span>
-            <span className="text-[var(--text-primary)] font-medium">Shane Pierson</span>
+            <span className="text-[var(--text-primary)] font-medium">{currentUser.full_name}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-[var(--text-muted)]">Email</span>
@@ -40,7 +49,7 @@ export default function SettingsPage() {
               className="text-[var(--text-primary)]"
               style={{ fontFamily: 'var(--font-mono)' }}
             >
-              shane@pleochrome.com
+              {currentUser.email || 'Not set'}
             </span>
           </div>
           <div className="flex justify-between">

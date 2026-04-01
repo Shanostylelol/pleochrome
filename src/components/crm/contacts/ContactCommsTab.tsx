@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { trpc } from '@/lib/trpc'
-import { NeuCard, NeuBadge, NeuButton, NeuModal, NeuInput, NeuSelect, NeuTextarea } from '@/components/ui'
+import { NeuCard, NeuBadge, NeuButton, NeuModal, NeuInput, NeuSelect, NeuTextarea, NeuSkeleton } from '@/components/ui'
 import { Plus, MessageCircle, Mail, Phone, Video, Users } from 'lucide-react'
 
 const TYPE_ICON: Record<string, typeof Mail> = {
@@ -48,9 +48,7 @@ export function ContactCommsTab({ contactId }: { contactId: string }) {
 
   if (isLoading) {
     return (
-      <NeuCard variant="raised" padding="lg" className="text-center">
-        <p className="text-sm text-[var(--text-muted)]">Loading communications...</p>
-      </NeuCard>
+      <NeuSkeleton variant="text" lines={3} />
     )
   }
 

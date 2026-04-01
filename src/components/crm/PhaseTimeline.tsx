@@ -49,8 +49,8 @@ export function PhaseTimeline({ currentPhase, onPhaseClick }: PhaseTimelineProps
               <div
                 className={cn(
                   'flex items-center justify-center rounded-full transition-all',
-                  isCompleted && 'w-7 h-7 text-white',
-                  isActive && 'w-9 h-9 text-white',
+                  isCompleted && 'w-7 h-7 text-[var(--text-on-accent)]',
+                  isActive && 'w-9 h-9 text-[var(--text-on-accent)]',
                   isPending && 'w-6 h-6 border-2 border-[var(--text-placeholder)] bg-transparent',
                   isClickable && !isActive && 'group-hover:scale-110'
                 )}

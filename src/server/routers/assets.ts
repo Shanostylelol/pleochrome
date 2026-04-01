@@ -32,6 +32,52 @@ export const assetsRouter = createRouter({
       return data ?? []
     }),
 
+  // ── List for pipeline with task progress ──────────────────────
+  listForPipeline: protectedProcedure
+    .input(listAssetsInput.optional())
+    .query(async ({ ctx, input }) => {
+      let query = ctx.db
+        .from('assets')
+        .select('*, team_members!assets_lead_team_member_id_fkey(id, full_name, role)')
+        .eq('is_deleted', false)
+        .in('status', ['active', 'paused'])
+        .order('updated_at', { ascending: false })
+
+      if (input?.valueModel) query = query.eq('value_model', input.valueModel)
+      if (input?.status) query = query.eq('status', input.status)
+      if (input?.phase) query = query.eq('current_phase', input.phase)
+      if (input?.search) query = query.or(`name.ilike.%${input.search}%,reference_code.ilike.%${input.search}%`)
+      query = query.limit(input?.limit ?? 50)
+
+      const { data: assets, error } = await query
+      if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
+      if (!assets || assets.length === 0) return []
+
+      // Batch fetch task progress for all assets
+      const assetIds = assets.map(a => a.id)
+      const { data: tasks } = await ctx.db
+        .from('tasks')
+        .select('asset_id, status, title, sort_order')
+        .in('asset_id', assetIds)
+        .eq('is_deleted', false)
+        .eq('is_hidden', false)
+
+      // Compute progress per asset
+      const progressMap = new Map<string, { total: number; completed: number; nextTask: string | null }>()
+      for (const t of tasks ?? []) {
+        if (!progressMap.has(t.asset_id)) progressMap.set(t.asset_id, { total: 0, completed: 0, nextTask: null })
+        const p = progressMap.get(t.asset_id)!
+        p.total++
+        if (t.status === 'done' || t.status === 'cancelled') p.completed++
+        else if (!p.nextTask) p.nextTask = t.title
+      }
+
+      return assets.map(a => ({
+        ...a,
+        taskProgress: progressMap.get(a.id) ?? { total: 0, completed: 0, nextTask: null },
+      }))
+    }),
+
   // ── Get full asset hierarchy ───────────────────────────────────
   getById: protectedProcedure
     .input(assetIdInput)
@@ -202,11 +248,44 @@ export const assetsRouter = createRouter({
       return data
     }),
 
-  // ── Advance phase (advisory gates) ─────────────────────────────
+  // ── Advance phase (enforced gates with override) ────────────────
   advancePhase: protectedProcedure
     .input(advancePhaseInput)
     .mutation(async ({ ctx, input }) => {
-      // Use the advance_phase RPC which ALWAYS advances and returns warnings
+      // Pre-check: find incomplete tasks in current phase gate stages
+      if (!input.force) {
+        const { data: asset } = await ctx.db.from('assets').select('current_phase').eq('id', input.assetId).single()
+        if (asset) {
+          const { data: gateStages } = await ctx.db
+            .from('asset_stages')
+            .select('id, name')
+            .eq('asset_id', input.assetId)
+            .eq('phase', asset.current_phase)
+            .eq('is_gate', true)
+          if (gateStages && gateStages.length > 0) {
+            const gateIds = gateStages.map(s => s.id)
+            const { data: incompleteTasks } = await ctx.db
+              .from('tasks')
+              .select('id, title, status, stage_id')
+              .in('stage_id', gateIds)
+              .eq('is_deleted', false)
+              .not('status', 'in', '("done","cancelled")')
+            if (incompleteTasks && incompleteTasks.length > 0) {
+              return {
+                blocked: true,
+                warnings: incompleteTasks.map(t => ({
+                  taskId: t.id,
+                  taskTitle: t.title,
+                  stageName: gateStages.find(s => s.id === t.stage_id)?.name ?? '',
+                })),
+                requiresOverride: true,
+              }
+            }
+          }
+        }
+      }
+
+      // Proceed with advance (either no blockers or force=true with reason)
       const { data, error } = await ctx.db.rpc('advance_phase', {
         p_asset_id: input.assetId,
         p_target_phase: input.targetPhase,
@@ -328,5 +407,41 @@ export const assetsRouter = createRouter({
 
       if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
       return data
+    }),
+
+  // ── Duplicate asset ────────────────────────────────────────────
+  duplicate: protectedProcedure
+    .input(assetIdInput)
+    .mutation(async ({ ctx, input }) => {
+      const { data: original, error: fetchErr } = await ctx.db
+        .from('assets')
+        .select('*')
+        .eq('id', input.assetId)
+        .single()
+      if (fetchErr || !original) throw new TRPCError({ code: 'NOT_FOUND', message: 'Asset not found' })
+
+      const refCode = `PC-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`
+      const { data: newAsset, error: insertErr } = await ctx.db
+        .from('assets')
+        .insert({
+          name: `${original.name} (Copy)`,
+          reference_code: refCode,
+          asset_type: original.asset_type,
+          value_model: original.value_model,
+          asset_holder_entity: original.asset_holder_entity,
+          claimed_value: original.claimed_value,
+          description: original.description,
+          currency: original.currency,
+          origin: original.origin,
+          current_phase: 'lead',
+          status: 'active',
+          lead_team_member_id: ctx.user.id,
+          metadata: original.metadata,
+        } as never)
+        .select()
+        .single()
+
+      if (insertErr) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: insertErr.message })
+      return newAsset
     }),
 })

@@ -7,6 +7,8 @@ import { CRMHeader } from '@/components/crm/CRMHeader'
 import { CRMBottomNav } from '@/components/crm/CRMBottomNav'
 import { OfflineBanner } from '@/components/crm/OfflineBanner'
 import { KeyboardShortcuts } from '@/components/crm/KeyboardShortcuts'
+import { ErrorBoundary } from '@/components/crm/ErrorBoundary'
+import { CurrentUserProvider } from '@/components/crm/CurrentUserProvider'
 
 export const metadata: Metadata = {
   title: 'Powerhouse CRM | PleoChrome',
@@ -18,6 +20,7 @@ export default function CRMLayout({ children }: { children: React.ReactNode }) {
     <CRMProviders>
       <ThemeProvider>
         <ToastProvider>
+          <CurrentUserProvider>
           <div className="crm-shell">
             <KeyboardShortcuts />
             <OfflineBanner />
@@ -25,11 +28,12 @@ export default function CRMLayout({ children }: { children: React.ReactNode }) {
             <div className="crm-body">
               <CRMSidebar />
               <main className="crm-content">
-                {children}
+                <ErrorBoundary>{children}</ErrorBoundary>
               </main>
             </div>
             <CRMBottomNav />
           </div>
+        </CurrentUserProvider>
         </ToastProvider>
       </ThemeProvider>
     </CRMProviders>

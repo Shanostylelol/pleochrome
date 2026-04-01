@@ -7,6 +7,7 @@ import { NeuCard, NeuBadge, NeuButton, NeuInput, NeuProgress } from '@/component
 import { Plus, Search, Gem, LayoutGrid, List } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { AssetCard } from '@/components/crm/AssetCard'
+import { ListPageSkeleton } from '@/components/crm/skeletons'
 
 type PathFilter = 'fractional_securities' | 'tokenization' | 'debt_instrument' | 'broker_sale' | 'barter'
 
@@ -117,7 +118,7 @@ export default function AssetsPage() {
 
       {/* Content */}
       {isLoading ? (
-        <p className="text-[var(--text-muted)] text-center py-20">Loading assets...</p>
+        <ListPageSkeleton />
       ) : filtered.length === 0 ? (
         <NeuCard variant="pressed" padding="lg" className="text-center">
           <Gem className="h-12 w-12 text-[var(--text-placeholder)] mx-auto mb-3" />

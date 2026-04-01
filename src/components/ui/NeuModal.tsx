@@ -53,7 +53,7 @@ export function NeuModal({ open, onClose, title, children, maxWidth = 'md', clas
         variant="raised"
         padding="lg"
         className={cn(
-          'relative z-10 w-full max-h-[90vh] overflow-y-auto',
+          'relative z-10 w-full max-h-[80vh] sm:max-h-[90vh] overflow-y-auto',
           maxWidthClasses[maxWidth],
           className,
         )}

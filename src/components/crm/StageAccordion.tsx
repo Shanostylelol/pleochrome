@@ -143,72 +143,59 @@ export function StageAccordion({
             onClick={onToggle}
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggle() } }}
             className={cn(
-              'flex items-center gap-3 w-full px-4 py-3 text-left cursor-pointer',
+              'w-full px-3 sm:px-4 py-2.5 sm:py-3 text-left cursor-pointer',
               'hover:bg-[var(--bg-elevated)] transition-colors'
             )}
           >
-            {/* Gate icon */}
-            {stage.is_gate && (
-              <div className="flex items-center justify-center w-6 h-6 rounded-full bg-[var(--amber-bg)] shrink-0">
-                <Shield className="h-3.5 w-3.5 text-[var(--amber)]" />
-              </div>
-            )}
-
-            {/* Stage name */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-[var(--text-primary)] truncate">
-                  {stage.name}
-                </span>
-                {stage.is_gate && (
-                  <NeuBadge color="amber" size="sm">Gate</NeuBadge>
-                )}
-              </div>
-            </div>
-
-            {/* Status + count */}
-            <NeuBadge color={statusBadge[stage.status]} size="sm">
-              {statusCfg.label}
-            </NeuBadge>
-
-            {/* Stage status transition buttons */}
-            {onUpdateStageStatus && stage.status === 'not_started' && (
-              <NeuButton
-                variant="ghost"
-                size="sm"
-                icon={<Play className="h-3 w-3" />}
-                onClick={(e) => { e.stopPropagation(); onUpdateStageStatus(stage.id, 'in_progress') }}
-                className="!h-6 !px-1.5 !text-[11px] text-[var(--teal)]"
-              >
-                Start
-              </NeuButton>
-            )}
-            {onUpdateStageStatus && stage.status === 'in_progress' && (
-              <NeuButton
-                variant="ghost"
-                size="sm"
-                icon={<CheckCircle2 className="h-3 w-3" />}
-                onClick={(e) => { e.stopPropagation(); onUpdateStageStatus(stage.id, 'completed') }}
-                className="!h-6 !px-1.5 !text-[11px] text-[var(--chartreuse)]"
-              >
-                Complete
-              </NeuButton>
-            )}
-
-            <div className="flex items-center gap-2 shrink-0">
-              {taskCount > 0 && <div className="w-16"><NeuProgress value={completedCount} max={taskCount} color="teal" size="sm" /></div>}
-              <span className="text-xs text-[var(--text-muted)] tabular-nums whitespace-nowrap">
-                {completedCount}/{taskCount}
-              </span>
-            </div>
-
-            {/* Chevron */}
-            <ChevronDown
-              className={cn(
-                'h-4 w-4 text-[var(--text-muted)] transition-transform shrink-0',
-                isExpanded && 'rotate-180'
+            {/* Top row: name + chevron */}
+            <div className="flex items-center gap-2">
+              {stage.is_gate && (
+                <div className="flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[var(--amber-bg)] shrink-0">
+                  <Shield className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-[var(--amber)]" />
+                </div>
               )}
-            />
+              <span className="text-sm font-semibold text-[var(--text-primary)] truncate flex-1">
+                {stage.name}
+              </span>
+              {stage.is_gate && (
+                <NeuBadge color="amber" size="sm">Gate</NeuBadge>
+              )}
+              <ChevronDown
+                className={cn(
+                  'h-4 w-4 text-[var(--text-muted)] transition-transform shrink-0',
+                  isExpanded && 'rotate-180'
+                )}
+              />
+            </div>
+
+            {/* Bottom row: status + actions + progress (wraps naturally) */}
+            <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+              <NeuBadge color={statusBadge[stage.status]} size="sm">
+                {statusCfg.label}
+              </NeuBadge>
+
+              {onUpdateStageStatus && stage.status === 'not_started' && (
+                <NeuButton variant="ghost" size="sm" icon={<Play className="h-3 w-3" />}
+                  onClick={(e) => { e.stopPropagation(); onUpdateStageStatus(stage.id, 'in_progress') }}
+                  className="!h-6 !px-1.5 !text-[11px] text-[var(--teal)]">
+                  Start
+                </NeuButton>
+              )}
+              {onUpdateStageStatus && stage.status === 'in_progress' && (
+                <NeuButton variant="ghost" size="sm" icon={<CheckCircle2 className="h-3 w-3" />}
+                  onClick={(e) => { e.stopPropagation(); onUpdateStageStatus(stage.id, 'completed') }}
+                  className="!h-6 !px-1.5 !text-[11px] text-[var(--chartreuse)]">
+                  Complete
+                </NeuButton>
+              )}
+
+              <div className="flex items-center gap-2 ml-auto shrink-0">
+                {taskCount > 0 && <div className="w-12 sm:w-16"><NeuProgress value={completedCount} max={taskCount} color="teal" size="sm" /></div>}
+                <span className="text-xs text-[var(--text-muted)] tabular-nums whitespace-nowrap">
+                  {completedCount}/{taskCount}
+                </span>
+              </div>
+            </div>
           </div>
 
           {/* Expanded body */}

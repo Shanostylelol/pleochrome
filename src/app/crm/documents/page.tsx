@@ -121,11 +121,11 @@ export default function DocumentsPage() {
           <h1 className="text-2xl font-semibold text-[var(--text-primary)]" style={{ fontFamily: 'var(--font-display)' }}>
             Document Library
           </h1>
-          <p className="text-sm text-[var(--text-muted)] mt-1">
+          <div className="text-sm text-[var(--text-muted)] mt-1">
             {stats
               ? `${stats.totalDocuments} documents | ${formatBytes(stats.totalSizeBytes)} used | ${stats.lockedCount} locked`
-              : 'Loading...'}
-          </p>
+              : <NeuSkeleton variant="text" lines={1} className="w-48" />}
+          </div>
         </div>
         <div className="flex gap-2">
           {selectedIds.size > 0 && (

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { trpc } from '@/lib/trpc'
-import { NeuCard, NeuBadge, NeuButton, NeuModal, NeuInput, NeuSelect } from '@/components/ui'
+import { NeuCard, NeuBadge, NeuButton, NeuModal, NeuInput, NeuSelect, NeuSkeleton } from '@/components/ui'
 import { Plus, Award, AlertTriangle } from 'lucide-react'
 
 function formatDate(date: string | null | undefined): string {
@@ -48,9 +48,7 @@ export function PartnerCredentialsTab({ partnerId }: { partnerId: string }) {
 
   if (isLoading) {
     return (
-      <NeuCard variant="raised" padding="lg" className="text-center">
-        <p className="text-sm text-[var(--text-muted)]">Loading credentials...</p>
-      </NeuCard>
+      <NeuSkeleton variant="text" lines={3} />
     )
   }
 

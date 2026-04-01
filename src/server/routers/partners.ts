@@ -188,7 +188,7 @@ export const partnersRouter = createRouter({
   getOnboardingItems: protectedProcedure
     .input(z.object({ partnerId: uuidSchema }))
     .query(async ({ ctx, input }) => {
-      const { data, error } = await ctx.db.from('partner_onboarding_items').select('*').eq('partner_id', input.partnerId).order('created_at')
+      const { data, error } = await ctx.db.from('partner_onboarding_items').select('*').eq('partner_id', input.partnerId).order('sort_order').order('created_at')
       if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
       return data ?? []
     }),
@@ -198,6 +198,7 @@ export const partnersRouter = createRouter({
       partnerId: uuidSchema,
       itemName: z.string().min(1).max(255),
       itemType: z.string().min(1),
+      stage: z.string().optional(),
       description: z.string().max(1000).optional(),
     }))
     .mutation(async ({ ctx, input }) => {
@@ -205,6 +206,7 @@ export const partnersRouter = createRouter({
         partner_id: input.partnerId,
         item_name: input.itemName,
         item_type: input.itemType,
+        stage: input.stage ?? 'general',
         description: input.description ?? null,
       } as never).select().single()
 
@@ -232,6 +234,14 @@ export const partnersRouter = createRouter({
       const { data, error } = await ctx.db.from('partner_onboarding_items').update(updates as never).eq('id', input.itemId).select().single()
       if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
       return data
+    }),
+
+  deleteOnboardingItem: protectedProcedure
+    .input(z.object({ itemId: uuidSchema }))
+    .mutation(async ({ ctx, input }) => {
+      const { error } = await ctx.db.from('partner_onboarding_items').delete().eq('id', input.itemId)
+      if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
+      return { success: true }
     }),
 
   // ── Credentials ────────────────────────────────────────────────

@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect, type KeyboardEvent } from 'react'
 import { Plus, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { NeuSelect } from '@/components/ui/NeuSelect'
+import { NeuInput } from '@/components/ui/NeuInput'
 import { SUBTASK_TYPES, type SubtaskTypeKey } from '@/lib/constants'
 import { SUBTASK_STATUSES } from '@/lib/constants'
 import {
@@ -86,7 +88,7 @@ export function SubtaskChecklist({
   }
 
   return (
-    <div className="space-y-0.5">
+    <div className="space-y-1">
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <SortableContext items={subtaskIds} strategy={verticalListSortingStrategy}>
           {subtasks.map((st) => (
@@ -111,24 +113,18 @@ export function SubtaskChecklist({
       {/* Add subtask */}
       {isAdding ? (
         <div className="flex items-center gap-2 pt-1 px-1">
-          <select value={newType} onChange={(e) => setNewType(e.target.value)}
-            className={cn('h-7 text-[11px] rounded-[var(--radius-sm)] px-1',
-              'bg-[var(--bg-input)] text-[var(--text-secondary)]',
-              'shadow-[var(--shadow-pressed)] border border-[var(--border)]',
-              'focus:outline-none focus:border-[var(--teal)]')}>
+          <NeuSelect value={newType} onChange={(e) => setNewType(e.target.value)}
+            className="!h-7 !text-[11px] !rounded-[var(--radius-sm)]">
             <option value="">No type</option>
             {SUBTASK_TYPE_KEYS.map((key) => (
               <option key={key} value={key}>{SUBTASK_TYPES[key].label}</option>
             ))}
-          </select>
-          <input value={newTitle}
+          </NeuSelect>
+          <NeuInput value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Subtask title..."
-            className={cn('flex-1 h-7 text-sm rounded-[var(--radius-sm)] px-2',
-              'bg-[var(--bg-input)] text-[var(--text-primary)] placeholder:text-[var(--text-placeholder)]',
-              'shadow-[var(--shadow-pressed)] border border-[var(--border)]',
-              'focus:outline-none focus:border-[var(--teal)]')} />
+            className="!h-7 flex-1" />
           <button onClick={() => { setIsAdding(false); setNewTitle(''); setNewType('') }}
             className="p-1 text-[var(--text-muted)] hover:text-[var(--ruby)] transition-colors shrink-0"
             title="Cancel">
