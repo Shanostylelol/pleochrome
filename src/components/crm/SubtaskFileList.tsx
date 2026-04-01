@@ -103,12 +103,12 @@ export function SubtaskFileList({ subtaskId, taskId, assetId }: SubtaskFileListP
               <FileText className="h-3.5 w-3.5 text-[var(--text-muted)] shrink-0" />
               <span className="flex-1 text-xs text-[var(--text-primary)] truncate">{doc.filename}</span>
               <span className="text-[10px] text-[var(--text-muted)] shrink-0">{formatBytes(doc.file_size_bytes)}</span>
-              <button onClick={() => handleDownload(doc.id)}
+              <button onClick={() => handleDownload(doc.id)} aria-label={`Download ${doc.filename}`}
                 className="p-1.5 text-[var(--text-muted)] hover:text-[var(--teal)] transition-colors opacity-0 group-hover:opacity-100">
                 <Download className="h-3 w-3" />
               </button>
               {!doc.is_locked && (
-                <button onClick={() => deleteDoc.mutate({ documentId: doc.id })}
+                <button onClick={() => deleteDoc.mutate({ documentId: doc.id })} aria-label={`Delete ${doc.filename}`}
                   className="p-1.5 text-[var(--text-muted)] hover:text-[var(--ruby)] transition-colors opacity-0 group-hover:opacity-100">
                   <Trash2 className="h-3 w-3" />
                 </button>

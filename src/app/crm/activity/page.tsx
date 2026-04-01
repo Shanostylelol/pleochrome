@@ -51,20 +51,24 @@ export default function ActivityPage() {
   const [entityType, setEntityType] = useState('')
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
+  const [performedBy, setPerformedBy] = useState('')
   const [showFilters, setShowFilters] = useState(false)
   const [cursor, setCursor] = useState<string | undefined>(undefined)
   const [allEntries, setAllEntries] = useState<Array<Record<string, unknown>>>([])
+
+  const { data: teamMembers = [] } = trpc.team.listActive.useQuery()
 
   const queryInput = {
     ...(filter !== 'all' ? { category: filter } : {}),
     ...(entityType ? { entityType } : {}),
     ...(dateFrom ? { dateFrom } : {}),
     ...(dateTo ? { dateTo } : {}),
+    ...(performedBy ? { performedBy } : {}),
     limit: PAGE_SIZE,
     cursor,
   }
 
-  const hasActiveFilters = !!entityType || !!dateFrom || !!dateTo
+  const hasActiveFilters = !!entityType || !!dateFrom || !!dateTo || !!performedBy
 
   const { data: entries = [], isLoading } = trpc.activity.list.useQuery(queryInput)
   const { data: countData } = trpc.activity.getCount.useQuery()
@@ -74,7 +78,7 @@ export default function ActivityPage() {
   useEffect(() => {
     setCursor(undefined)
     setAllEntries([])
-  }, [filter, entityType, dateFrom, dateTo])
+  }, [filter, entityType, dateFrom, dateTo, performedBy])
 
   // Merge new entries
   useEffect(() => {
@@ -160,6 +164,15 @@ export default function ActivityPage() {
               </NeuSelect>
             </div>
             <div>
+              <p className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] mb-1">User</p>
+              <NeuSelect value={performedBy} onChange={(e) => setPerformedBy(e.target.value)} className="!w-40">
+                <option value="">All Users</option>
+                {(teamMembers as { id: string; full_name: string }[]).map(m => (
+                  <option key={m.id} value={m.id}>{m.full_name}</option>
+                ))}
+              </NeuSelect>
+            </div>
+            <div>
               <p className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] mb-1">From</p>
               <NeuInput type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="!w-36" />
             </div>
@@ -168,7 +181,7 @@ export default function ActivityPage() {
               <NeuInput type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="!w-36" />
             </div>
             {hasActiveFilters && (
-              <NeuButton variant="ghost" size="sm" onClick={() => { setEntityType(''); setDateFrom(''); setDateTo('') }}>
+              <NeuButton variant="ghost" size="sm" onClick={() => { setEntityType(''); setDateFrom(''); setDateTo(''); setPerformedBy('') }}>
                 Clear
               </NeuButton>
             )}

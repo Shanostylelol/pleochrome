@@ -23,6 +23,7 @@ export default function DashboardPage() {
   const { data: recent, isLoading: aL } = trpc.dashboard.getRecentActivity.useQuery()
   const { data: myDay, isLoading: mL } = trpc.dashboard.getMyDay.useQuery()
   const { data: comp, isLoading: cL } = trpc.dashboard.getComplianceSummary.useQuery()
+  const { data: velocity, isLoading: vL } = trpc.dashboard.getPipelineVelocity.useQuery()
 
   // Safe typed access
   const funnelArr = funnel ?? []
@@ -31,6 +32,7 @@ export default function DashboardPage() {
   const recentArr = recent ?? []
   const myDayObj = myDay ?? { tasks: [], approvals: [], reminders: [], unreadNotifications: 0 }
   const compArr = comp ?? []
+  const velocityArr = velocity ?? []
 
   return (
     <div className="space-y-6 max-w-6xl">
@@ -111,7 +113,7 @@ export default function DashboardPage() {
                 const maxC = Math.max(...funnelArr.map(x => x.count), 1)
                 return (
                   <Link key={p.phase} href={`/crm?phase=${p.phase}`} className="flex items-center gap-3 hover:bg-[var(--bg-elevated)] rounded-[var(--radius-sm)] px-1 -mx-1 transition-colors">
-                    <span className="text-xs text-[var(--text-muted)] w-20 truncate">{PHASES[p.phase as PhaseKey]?.label ?? p.phase}</span>
+                    <span className="text-xs text-[var(--text-muted)] w-20 truncate">{(p as Record<string, unknown>).label as string ?? PHASES[p.phase as PhaseKey]?.label ?? p.phase}</span>
                     <div className="flex-1 h-5 rounded-[var(--radius-sm)] bg-[var(--bg-elevated)] overflow-hidden">
                       <div className="h-full rounded-[var(--radius-sm)]" style={{ width: `${(p.count / maxC) * 100}%`, background: PHASE_COLORS[p.phase] ?? 'var(--gray)' }} />
                     </div>
@@ -178,6 +180,48 @@ export default function DashboardPage() {
           )}
         </NeuCard>
       </div>
+
+      {/* Pipeline Velocity */}
+      <NeuCard variant="raised" padding="md">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-3">Pipeline Velocity (last 30 days)</h2>
+        {vL ? <NeuSkeleton variant="text" lines={6} /> : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b border-[var(--border)]">
+                  <th className="text-left pb-2 font-semibold text-[var(--text-muted)] uppercase tracking-wider">Phase</th>
+                  <th className="text-right pb-2 font-semibold text-[var(--text-muted)] uppercase tracking-wider">Assets</th>
+                  <th className="text-right pb-2 font-semibold text-[var(--text-muted)] uppercase tracking-wider">Advanced</th>
+                  <th className="text-right pb-2 font-semibold text-[var(--text-muted)] uppercase tracking-wider">Avg Days</th>
+                </tr>
+              </thead>
+              <tbody>
+                {velocityArr.map((v) => {
+                  const ph = v.phase as string
+                  const avgColor = (v.avgDaysInPhase ?? 0) > 60 ? 'var(--ruby)' : (v.avgDaysInPhase ?? 0) > 30 ? 'var(--amber)' : 'var(--chartreuse)'
+                  return (
+                    <tr key={ph} className="border-b border-[var(--border)] hover:bg-[var(--bg-elevated)] transition-colors">
+                      <td className="py-2">
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full shrink-0" style={{ background: PHASE_COLORS[ph] ?? 'var(--gray)' }} />
+                          <span className="text-[var(--text-secondary)]">{v.label as string}</span>
+                        </div>
+                      </td>
+                      <td className="py-2 text-right tabular-nums text-[var(--text-primary)] font-medium">{v.assetCount as number}</td>
+                      <td className="py-2 text-right tabular-nums">
+                        <NeuBadge color={(v.advanced30d as number) > 0 ? 'emerald' : 'gray'} size="sm">{v.advanced30d as number}</NeuBadge>
+                      </td>
+                      <td className="py-2 text-right tabular-nums font-bold" style={{ color: v.avgDaysInPhase != null ? avgColor : 'var(--text-muted)' }}>
+                        {v.avgDaysInPhase != null ? `${v.avgDaysInPhase}d` : '—'}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </NeuCard>
 
       {/* Recent Activity */}
       <NeuCard variant="raised" padding="md">

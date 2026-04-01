@@ -25,7 +25,8 @@ export const dashboardRouter = createRouter({
     if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
 
     const funnel = phases.map((phase) => ({
-      phase: phaseLabels[phase] ?? phase,
+      phase,  // lowercase key for URL param
+      label: phaseLabels[phase] ?? phase,
       count: (assets ?? []).filter((a) => a.current_phase === phase).length,
     }))
 
@@ -200,5 +201,60 @@ export const dashboardRouter = createRouter({
       reminders: myReminders ?? [],
       unreadNotifications: unreadCount ?? 0,
     }
+  }),
+
+  // ── Pipeline Velocity ─────────────────────────────────
+  // Returns: assets advanced per phase in last 30 days + avg days in current phase
+  getPipelineVelocity: protectedProcedure.query(async ({ ctx }) => {
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 86_400_000).toISOString()
+    const phases = ['lead', 'intake', 'asset_maturity', 'security', 'value_creation', 'distribution']
+    const phaseLabels: Record<string, string> = {
+      lead: 'Lead', intake: 'Intake', asset_maturity: 'Asset Maturity',
+      security: 'Security', value_creation: 'Value Creation', distribution: 'Distribution',
+    }
+
+    // Count phase_advanced events per phase in last 30 days
+    const { data: advanceEvents } = await ctx.db
+      .from('activity_log')
+      .select('detail')
+      .eq('action', 'phase_advanced' as never)
+      .gte('performed_at', thirtyDaysAgo)
+
+    // Count from detail field "to: <phase>"
+    const throughput: Record<string, number> = {}
+    ;(advanceEvents ?? []).forEach((e) => {
+      const detail = (e.detail as string) ?? ''
+      const match = detail.match(/to[:\s]+(\w+)/i)
+      if (match) {
+        const ph = match[1].toLowerCase()
+        throughput[ph] = (throughput[ph] ?? 0) + 1
+      }
+    })
+
+    // Avg days in current phase (using updated_at as proxy for last phase change)
+    const { data: activeAssets } = await ctx.db
+      .from('assets')
+      .select('current_phase, updated_at')
+      .in('status', ['active', 'paused'])
+      .eq('is_deleted', false)
+
+    const phaseDays: Record<string, number[]> = {}
+    ;(activeAssets ?? []).forEach((a) => {
+      if (!a.current_phase || !a.updated_at) return
+      const days = Math.floor((Date.now() - new Date(a.updated_at).getTime()) / 86_400_000)
+      ;(phaseDays[a.current_phase] ??= []).push(days)
+    })
+
+    return phases.map((phase) => {
+      const days = phaseDays[phase] ?? []
+      const avgDays = days.length > 0 ? Math.round(days.reduce((a, b) => a + b, 0) / days.length) : null
+      return {
+        phase,
+        label: phaseLabels[phase],
+        advanced30d: throughput[phase] ?? 0,
+        avgDaysInPhase: avgDays,
+        assetCount: days.length,
+      }
+    })
   }),
 })

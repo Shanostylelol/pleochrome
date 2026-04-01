@@ -103,15 +103,35 @@ export default function PipelineBoardPage() {
   return <Suspense><PipelineBoardInner /></Suspense>
 }
 
+const LS_FILTER_KEY = 'plc-pipeline-filter'
+const LS_VIEW_KEY = 'plc-pipeline-view'
+
 function PipelineBoardInner() {
   const searchParams = useSearchParams()
-  const [pathFilter, setPathFilter] = useState<PathFilter | null>(null)
+  const [pathFilter, setPathFilter] = useState<PathFilter | null>(() => {
+    if (typeof window === 'undefined') return null
+    return (localStorage.getItem(LS_FILTER_KEY) as PathFilter) || null
+  })
   const [phaseHighlight, setPhaseHighlight] = useState<string | null>(null)
   const [showQuickAdd, setShowQuickAdd] = useState(false)
-  const [viewMode, setViewMode] = useState<ViewMode>('kanban')
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    if (typeof window === 'undefined') return 'kanban'
+    return (localStorage.getItem(LS_VIEW_KEY) as ViewMode) || 'kanban'
+  })
   const [activeId, setActiveId] = useState<string | null>(null)
   const [pendingMove, setPendingMove] = useState<{ assetId: string; assetName: string; fromPhase: string; toPhase: string; newPhase: string } | null>(null)
   const router = useRouter()
+
+  // Persist filter + view mode changes
+  const handlePathFilterChange = (f: PathFilter | null) => {
+    setPathFilter(f)
+    if (f) localStorage.setItem(LS_FILTER_KEY, f)
+    else localStorage.removeItem(LS_FILTER_KEY)
+  }
+  const handleViewModeChange = (v: ViewMode) => {
+    setViewMode(v)
+    localStorage.setItem(LS_VIEW_KEY, v)
+  }
 
   // Read ?phase= param from URL (e.g. from dashboard funnel click)
   useEffect(() => {
@@ -176,13 +196,13 @@ function PipelineBoardInner() {
   return (
     <div className="space-y-6 overflow-x-clip">
       {/* ─── Header (sticky) ─── */}
-      <PipelineHeader viewMode={viewMode} onViewModeChange={setViewMode} onNewAsset={() => setShowQuickAdd(true)} />
+      <PipelineHeader viewMode={viewMode} onViewModeChange={handleViewModeChange} onNewAsset={() => setShowQuickAdd(true)} />
 
       {/* ─── Stats Ribbon ─── */}
       <PipelineStatsRibbon stats={stats} />
 
       {/* ─── Path Filter Pills ─── */}
-      <PipelineFilterBar pathFilter={pathFilter} onPathFilterChange={setPathFilter} assetCount={assets.length} />
+      <PipelineFilterBar pathFilter={pathFilter} onPathFilterChange={handlePathFilterChange} assetCount={assets.length} />
 
       {/* ─── Content ─── */}
       {isLoading ? (

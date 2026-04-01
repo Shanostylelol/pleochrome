@@ -6,6 +6,7 @@ import { trpc } from '@/lib/trpc'
 import { createClient } from '@/lib/supabase'
 import { NeuCard, NeuBadge, NeuButton, NeuInput, NeuSelect, NeuSkeleton } from '@/components/ui'
 import { FileText, Upload, Lock, Unlock, Search, Trash2, X, UploadCloud, Download, Package } from 'lucide-react'
+import { exportCSV } from '@/lib/csv-export'
 import { DocumentPreviewModal } from '@/components/crm/DocumentPreviewModal'
 
 function formatBytes(bytes: number): string {
@@ -133,6 +134,14 @@ export default function DocumentsPage() {
               <span className="hidden sm:inline">{selectedIds.size} selected</span>
             </NeuButton>
           )}
+          <NeuButton variant="ghost" icon={<Download className="h-4 w-4" />} size="sm"
+            onClick={() => exportCSV('documents.csv', [
+              { key: 'title', label: 'Title' }, { key: 'filename', label: 'Filename' },
+              { key: 'document_type', label: 'Type' }, { key: 'file_size_bytes', label: 'Size (bytes)' },
+              { key: 'uploaded_at', label: 'Uploaded' },
+            ], documents as Record<string, unknown>[])}>
+            <span className="hidden sm:inline">CSV</span>
+          </NeuButton>
           <NeuButton icon={<Upload className="h-4 w-4" />} onClick={() => setShowUpload(!showUpload)}>
             <span className="hidden sm:inline">Upload</span>
           </NeuButton>
