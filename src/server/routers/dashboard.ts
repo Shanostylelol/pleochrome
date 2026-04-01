@@ -66,40 +66,38 @@ export const dashboardRouter = createRouter({
   }),
 
   getComplianceSummary: protectedProcedure.query(async ({ ctx }) => {
-    // V2: no v_pipeline_board view — query assets + count stages directly
     const { data: assets, error } = await ctx.db
       .from('assets')
       .select('id, name, current_phase, status')
       .in('status', ['active', 'paused'])
 
     if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
+    if (!assets || assets.length === 0) return []
 
-    const results = []
-    for (const a of assets ?? []) {
-      const { count: totalStages } = await ctx.db
-        .from('asset_stages')
-        .select('*', { count: 'exact', head: true })
-        .eq('asset_id', a.id)
+    // Batch fetch all stage counts in one query
+    const assetIds = assets.map(a => a.id)
+    const { data: stages } = await ctx.db
+      .from('asset_stages')
+      .select('asset_id, status')
+      .in('asset_id', assetIds)
 
-      const { count: completedStages } = await ctx.db
-        .from('asset_stages')
-        .select('*', { count: 'exact', head: true })
-        .eq('asset_id', a.id)
-        .eq('status', 'completed')
-
-      const total = totalStages ?? 0
-      const completed = completedStages ?? 0
-      results.push({
-        id: a.id,
-        name: a.name,
-        phase: a.current_phase,
-        totalSteps: total,
-        completedSteps: completed,
-        score: total > 0 ? Math.round((completed / total) * 100) : 0,
-      })
+    // Group in JS
+    const stageMap = new Map<string, { total: number; completed: number }>()
+    for (const s of stages ?? []) {
+      if (!stageMap.has(s.asset_id)) stageMap.set(s.asset_id, { total: 0, completed: 0 })
+      const m = stageMap.get(s.asset_id)!
+      m.total++
+      if (s.status === 'completed') m.completed++
     }
 
-    return results
+    return assets.map(a => {
+      const { total = 0, completed = 0 } = stageMap.get(a.id) ?? {}
+      return {
+        id: a.id, name: a.name, phase: a.current_phase,
+        totalSteps: total, completedSteps: completed,
+        score: total > 0 ? Math.round((completed / total) * 100) : 0,
+      }
+    })
   }),
 
   getRiskIndicators: protectedProcedure.query(async ({ ctx }) => {
