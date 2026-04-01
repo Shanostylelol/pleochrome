@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import {
   Handshake, Users2, FileText, Calendar, ShieldCheck,
-  Users, LayoutTemplate, Shield, Settings, X,
+  Users, LayoutTemplate, Shield, Settings, X, Bell,
 } from 'lucide-react'
 
 const moreItems = [
@@ -14,6 +14,7 @@ const moreItems = [
   { label: 'Contacts', icon: Users2, href: '/crm/contacts' },
   { label: 'Documents', icon: FileText, href: '/crm/documents' },
   { label: 'Meetings', icon: Calendar, href: '/crm/meetings' },
+  { label: 'Reminders', icon: Bell, href: '/crm/reminders' },
   { label: 'Approvals', icon: ShieldCheck, href: '/crm/approvals' },
   { label: 'Team', icon: Users, href: '/crm/team' },
   { label: 'Templates', icon: LayoutTemplate, href: '/crm/templates' },

@@ -4,7 +4,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { trpc } from '@/lib/trpc'
 import { NeuCard, NeuBadge, NeuButton, NeuInput, NeuProgress } from '@/components/ui'
-import { Plus, Search, Gem, LayoutGrid, List } from 'lucide-react'
+import { Plus, Search, Gem, LayoutGrid, List, Download } from 'lucide-react'
+import { exportCSV } from '@/lib/csv-export'
 import { cn } from '@/lib/utils'
 import { AssetCard } from '@/components/crm/AssetCard'
 import { ListPageSkeleton } from '@/components/crm/skeletons'
@@ -77,6 +78,15 @@ export default function AssetsPage() {
               <List className="h-4 w-4" />
             </button>
           </div>
+          <NeuButton variant="ghost" icon={<Download className="h-4 w-4" />} size="sm"
+            onClick={() => exportCSV('assets.csv', [
+              { key: 'reference_code', label: 'Reference' }, { key: 'name', label: 'Name' },
+              { key: 'asset_type', label: 'Type' }, { key: 'value_model', label: 'Model' },
+              { key: 'current_phase', label: 'Phase' }, { key: 'status', label: 'Status' },
+              { key: 'claimed_value', label: 'Claimed Value' }, { key: 'appraised_value', label: 'Appraised Value' },
+            ], filtered as unknown as Record<string, unknown>[])}>
+            <span className="hidden sm:inline">CSV</span>
+          </NeuButton>
           <NeuButton icon={<Plus className="h-4 w-4" />} onClick={() => router.push('/crm/assets/new')}>
             <span className="hidden sm:inline">New Asset</span>
           </NeuButton>
