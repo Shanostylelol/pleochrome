@@ -7,7 +7,7 @@ import { useCurrentUser } from './CurrentUserProvider'
 import { NeuAvatar } from '@/components/ui/NeuAvatar'
 import {
   LayoutGrid, LayoutDashboard, Gem, Handshake, Users2, FileText, CheckSquare,
-  Calendar, Activity, ShieldCheck, Users, LayoutTemplate, Shield, Settings,
+  Calendar, Activity, ShieldCheck, Users, LayoutTemplate, Shield, Settings, Bell,
 } from 'lucide-react'
 
 const mainNav = [
@@ -19,6 +19,7 @@ const mainNav = [
   { label: 'Documents', icon: FileText, href: '/crm/documents' },
   { label: 'Tasks', icon: CheckSquare, href: '/crm/tasks' },
   { label: 'Meetings', icon: Calendar, href: '/crm/meetings' },
+  { label: 'Reminders', icon: Bell, href: '/crm/reminders' },
   { label: 'Activity', icon: Activity, href: '/crm/activity' },
   { label: 'Approvals', icon: ShieldCheck, href: '/crm/approvals' },
 ]
