@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { useCurrentUser } from './CurrentUserProvider'
 import { NeuAvatar } from '@/components/ui/NeuAvatar'
+import { trpc } from '@/lib/trpc'
 import {
   LayoutGrid, LayoutDashboard, Gem, Handshake, Users2, FileText, CheckSquare,
   Calendar, Activity, ShieldCheck, Users, LayoutTemplate, Shield, Settings, Bell,
@@ -39,9 +40,12 @@ function isActive(pathname: string, href: string) {
 export function CRMSidebar() {
   const pathname = usePathname()
   const currentUser = useCurrentUser()
+  const { data: reminders = [] } = trpc.reminders.list.useQuery()
+  const overdueCount = (reminders as Record<string, unknown>[]).filter(r => new Date(r.remind_at as string).getTime() < Date.now()).length
 
   const renderNavItem = (item: (typeof mainNav)[number]) => {
     const active = isActive(pathname, item.href)
+    const badge = item.href === '/crm/reminders' && overdueCount > 0 ? overdueCount : 0
     return (
       <Link
         key={item.href}
@@ -53,8 +57,16 @@ export function CRMSidebar() {
             : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]'
         )}
       >
-        <item.icon className="h-5 w-5 shrink-0" />
-        <span className="hidden lg:inline">{item.label}</span>
+        <div className="relative shrink-0">
+          <item.icon className="h-5 w-5" />
+          {badge > 0 && (
+            <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[var(--ruby)] text-white text-[9px] font-bold flex items-center justify-center">
+              {badge > 9 ? '9+' : badge}
+            </span>
+          )}
+        </div>
+        <span className="hidden lg:inline flex-1">{item.label}</span>
+        {badge > 0 && <span className="hidden lg:inline ml-auto text-[10px] font-bold text-[var(--ruby)]">{badge}</span>}
       </Link>
     )
   }
