@@ -11,6 +11,7 @@ import { NeuSkeleton } from '@/components/ui/NeuSkeleton'
 import { User, Building2, Plus, Crown } from 'lucide-react'
 import { AddOwnerModal } from './AddOwnerModal'
 import { ComplianceBadge } from '@/components/crm/ComplianceBadge'
+import { RecentCommsWidget } from './RecentCommsWidget'
 
 type BadgeColor = 'emerald' | 'teal' | 'sapphire' | 'amber' | 'chartreuse' | 'ruby' | 'amethyst' | 'gray'
 const KYC_COLOR: Record<string, BadgeColor> = {
@@ -216,6 +217,8 @@ export function OverviewTab({ asset, assetId }: OverviewTabProps) {
       </NeuCard>
 
       <AddOwnerModal open={showAddOwner} onClose={() => setShowAddOwner(false)} assetId={assetId} />
+
+      <RecentCommsWidget assetId={assetId} />
     </div>
   )
 }
