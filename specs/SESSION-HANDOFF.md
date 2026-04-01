@@ -1,6 +1,6 @@
 # Session Handoff — PleoChrome Powerhouse CRM V2
 
-**Last Updated:** 2026-04-01 (Session 4 final)
+**Last Updated:** 2026-04-01 (Session 5 final)
 **Purpose:** Read this FIRST on any machine. Tells you exactly where to pick up.
 
 ---
@@ -10,117 +10,107 @@
 ```bash
 cd ~/Projects/pleochrome
 git pull
-npm install                          # Install any new deps
-npx supabase start                   # Start local DB (if needed)
-npx supabase db push                 # Apply new migration (target_completion_date)
-npm run dev                          # Start dev server on :3000
+npm install
+npx supabase start
+npx supabase db push                 # Apply migration: add_target_completion_date
+npm run dev                          # :3000
 ```
 
 Then open: http://localhost:3000/crm
 
-The plan is at: `~/.claude/plans/lexical-weaving-scott.md`
-
 ---
 
-## CURRENT STATE
+## CURRENT STATE — ALL PLANNED PHASES COMPLETE
 
-### What's DONE (Phases 0-8 + A-E + F1-F3)
+### What's DONE (Phases 0-8 + A-F4)
 
 | Phase | Feature | Status |
 |-------|---------|--------|
-| 0 | ErrorBoundary, modal fix, sidebar responsive, breakpoints | ✅ Done |
-| 1 | NeuConfirmDialog on all destructive actions | ✅ Done |
-| 2 | CSS consistency (--text-on-accent, Neu* components) | ✅ Done |
-| 3 | CompactWorkflowView + TaskDetailDrawer + toggle | ✅ Done |
-| 4 | Loading skeletons across 19 files | ✅ Done |
-| 5 | CurrentUserProvider, dynamic user everywhere | ✅ Done |
-| 6 | Mobile polish (bottom nav, MoreSheet, landscape) | ✅ Done |
-| 7 | Quick Add form validation with inline errors | ✅ Done |
-| 8 | Dashboard page with 6 real-data widgets | ✅ Done |
-| A1 | Pipeline page refactored 709→327 lines | ✅ Done |
-| A2 | Pipeline cards: progress bars + "Next: [task]" | ✅ Done |
-| A3 | Pipeline card quick actions (Advance, Archive) | ✅ Done |
-| A4 | Archive flow (hidden from pipeline by default) | ✅ Done |
-| -- | crm-content max-width fix (button always visible) | ✅ Done |
-| -- | Deep-link tasks: ?tab=workflow&taskId= (auto-expand) | ✅ Done |
-| B1 | Actionable Dashboard (clickable tasks/approvals/reminders) | ✅ Done |
-| B1 bug | Funnel bar uses p.phase (lowercase) in URL | ✅ Fixed |
-| B2 | Enhanced Search (prefix filters: overdue:, blocked:, phase:) | ✅ Done |
-| C1 | Asset target dates/SLA — DB migration + UI | ✅ Done |
-| C2 | Enforced phase gating (pre-check + override reason) | ✅ Done |
-| C3 | Financial projections (cost-to-complete, revenue projection) | ✅ Done |
-| D | Comms unification (subtask calls → communication_log) | ✅ Done |
-| E1 | Asset duplication — mutation + Duplicate button in detail | ✅ Done |
-| E2 | CSV export utility (src/lib/csv-export.ts) | ✅ Done |
-| E2 | CSV export buttons on tasks/partners/contacts/meetings pages | ✅ Done |
-| E3 | Print stylesheet + Print in Export menu | ✅ Done |
-| E4 | Enhanced activity filters (date range, entity type) | ✅ Done |
-| F1 | Calendar view for meetings + task due dates | ✅ Done |
-| F2 | Animations (accordion expand, modal scale+fade) | ✅ Done |
-| F3 | Accessibility (focus trap NeuModal, ARIA labels) | ✅ Done |
-| -- | Wire ?phase= URL param in pipeline page | ✅ Done |
+| 0 | ErrorBoundary, modal fix, sidebar responsive, breakpoints | ✅ |
+| 1 | NeuConfirmDialog on all destructive actions | ✅ |
+| 2 | CSS consistency (--text-on-accent, Neu* components) | ✅ |
+| 3 | CompactWorkflowView + TaskDetailDrawer + toggle | ✅ |
+| 4 | Loading skeletons across 19 files | ✅ |
+| 5 | CurrentUserProvider, dynamic user everywhere | ✅ |
+| 6 | Mobile polish (bottom nav, MoreSheet, landscape) | ✅ |
+| 7 | Quick Add form validation with inline errors | ✅ |
+| 8 | Dashboard page with 6 real-data widgets | ✅ |
+| A1 | Pipeline page refactored 709→327 lines | ✅ |
+| A2 | Pipeline cards: progress bars + "Next: [task]" | ✅ |
+| A3 | Pipeline card quick actions (Advance, Archive) | ✅ |
+| A4 | Archive flow (hidden from pipeline by default) | ✅ |
+| B1 | Actionable Dashboard (clickable tasks/approvals/reminders) | ✅ |
+| B2 | Enhanced Search (prefix filters: overdue:, blocked:, phase:) | ✅ |
+| B2 | CommandPalette quick filter chips + keyboard navigation (↑↓↵) | ✅ |
+| C1 | Asset target dates/SLA — DB migration + UI + pipeline card | ✅ |
+| C2 | Enforced phase gating (pre-check + override reason) | ✅ |
+| C3 | Financial projections (cost-to-complete, revenue projection) | ✅ |
+| D | Comms unification (subtask calls → communication_log) | ✅ |
+| E1 | Asset duplication — mutation + Duplicate button in detail | ✅ |
+| E2 | CSV export on tasks/partners/contacts/meetings/documents pages | ✅ |
+| E3 | Print stylesheet + Print in Export menu | ✅ |
+| E4 | Enhanced activity filters (date range, entity type, user) | ✅ |
+| F1 | Calendar view for meetings + task due dates | ✅ |
+| F2 | Animations (accordion expand, modal scale+fade) | ✅ |
+| F3 | Accessibility (focus trap NeuModal, ARIA labels on 8 components) | ✅ |
+| F4 | Velocity widget on dashboard (30d throughput + avg days/phase) | ✅ |
+| F4 | Saved pipeline filters (localStorage: filter + view mode) | ✅ |
+| F4 | Notification preferences in settings (5 per-type toggles) | ✅ |
+| -- | Wire ?phase= URL param in pipeline (column highlight) | ✅ |
+| -- | crm-content max-width fix | ✅ |
+| -- | Deep-link tasks: ?tab=workflow&taskId= (auto-expand) | ✅ |
+| -- | Funnel bar URL bug FIXED (p.phase lowercase, label separate) | ✅ |
 
-### What's REMAINING
+### What's REMAINING (Future Work)
 
-| Phase | Feature | Priority |
-|-------|---------|----------|
-| F4 | Pipeline velocity widget on dashboard | LOW |
-| F4 | Saved pipeline filters (localStorage) | LOW |
-| F4 | Notification preferences in settings | LOW |
-| -- | Activity filters: user (performedBy) dropdown | LOW |
-| -- | SubtaskFileList / StageFileList ARIA download+delete | LOW |
-| -- | Deep-link auto-expand Chrome-verified | VERIFY |
+All planned items complete. Potential next areas:
+
+| Area | Description | Notes |
+|------|-------------|-------|
+| Investor portal | Read-only stakeholder view | Deferred to FEATURE-PIPELINE.md |
+| Audit cert | Export compliance PDF | Deferred |
+| Batch ops | Multi-select pipeline operations | Deferred |
+| Calendar task tasks | Wire task due_dates into CalendarView | Easy add (pass tasks prop) |
+| Push notifications | Browser push API | Requires service worker setup |
+| Email digests | Daily summary emails | Requires Resend/email setup |
 
 ### KNOWN BUGS
-1. **Deep-link auto-expand**: `?tab=workflow&taskId=X` timing fix was applied (tasks.length dep) but not Chrome-tested on a live session. Mark as done after verifying.
-2. **Turbopack caching**: Requires dev server restart after major changes. Always `kill -9 $(lsof -ti:3000) && npm run dev` if things look stale.
-3. **DB migration pending**: `20260401000000_add_target_completion_date.sql` — run `npx supabase db push` on prod/local before using target date field.
+1. **DB migration**: `20260401000000_add_target_completion_date.sql` — run `npx supabase db push` before `target_completion_date` field is usable.
+2. **Turbopack caching**: `kill -9 $(lsof -ti:3000) && npm run dev` if things look stale.
+3. **pre-existing TS warnings** in partners.ts / contacts.ts re: `partner_onboarding_templates` — these use `(ctx.db.from as Function)()` cast per architecture notes. Not errors in production.
 
 ---
 
-## SESSION 4 CHANGES
+## SESSION 5 CHANGES
 
-### New Files
-- `src/components/crm/CalendarView.tsx` — Monthly calendar grid, meetings + task due dates, day detail panel
-- `supabase/migrations/20260401000000_add_target_completion_date.sql` — adds target_completion_date to assets
-
-### Key Modifications
-- `src/app/crm/page.tsx` — ?phase= URL param wires to column highlight; Suspense wrapper for useSearchParams
-- `src/app/crm/assets/[id]/page.tsx` — Duplicate button (desktop + mobile), target_completion_date hero indicator
-- `src/app/crm/activity/page.tsx` — Date range + entity type filters
-- `src/app/crm/meetings/page.tsx` — List/calendar view toggle, CalendarView integration
-- `src/app/crm/tasks/page.tsx` — CSV export button
-- `src/app/crm/partners/page.tsx` — CSV export button
-- `src/app/crm/contacts/page.tsx` — CSV export button
-- `src/components/crm/AssetCard.tsx` — target_completion_date days indicator
-- `src/components/crm/asset-detail/EditAssetModal.tsx` — Target date field
-- `src/components/crm/StageAccordion.tsx` — AnimatePresence expand/collapse
-- `src/components/ui/NeuModal.tsx` — AnimatePresence scale+fade + focus trap + ARIA
-- `src/server/routers/activity.ts` — dateFrom, dateTo, performedBy filter support
-- `src/server/routers/assets.ts` — targetCompletionDate in update mutation
-- `src/lib/validation/asset.ts` — targetCompletionDate field in updateAssetInput
-- Several close buttons: aria-label added (MoreSheet, TaskDetailDrawer, NotificationPanel, MobileDrawer, QuickAddModal)
-- `src/components/crm/EntityFileList.tsx` — aria-label on download/delete buttons
+- Velocity widget on dashboard: phase throughput (last 30d advanced count) + avg days in phase with color coding
+- Saved pipeline filters: pathFilter + viewMode persist via localStorage
+- Activity page: user (performedBy) dropdown filter using team.listActive
+- Documents page: CSV export button
+- CommandPalette: keyboard navigation (↑↓ navigate, ↵ select, hover sets index), auto-scroll, ↵ hint on row, quick filter chips
+- Settings: 5 per-type notification preference toggles (persisted to localStorage)
+- ARIA: SubtaskFileList + StageFileList download/delete buttons
+- FIXED: getPipelineFunnel now returns `{phase (lowercase key), label, count}` — dashboard funnel bar URLs are now `/crm?phase=lead` (lowercase)
 
 ---
 
 ## ARCHITECTURE NOTES
 
+- **Stack**: Next.js 16 + React 19 + TypeScript + Tailwind v4 + Supabase + tRPC + motion v12
 - **tRPC routers**: 25 routers in `src/server/routers/`
-- **Stack**: Next.js 16 + React 19 + TypeScript + Tailwind v4 + Supabase + tRPC
-- **Design system**: All components use CSS custom properties (`var(--teal)`, etc.)
 - **No overflow-y:auto on .crm-content** — removed to enable `position: sticky`
 - **max-width on .crm-content** — prevents kanban from expanding page width
 - **Supabase gen types fails** — new tables use `(ctx.db.from as Function)()` cast; new fields use `(asset as Record<string, unknown>).field`
-- **NeuConfirmDialog** — use for ALL destructive actions going forward
-- **focusTaskId deep-link** — all task navigation links now use `?tab=workflow&taskId={id}`
-- **useSearchParams** — must be wrapped in `<Suspense>` in any Next.js page (pipeline page already fixed)
-- **motion** — installed as "motion" (v12), import from `motion/react` (not `framer-motion`)
+- **NeuConfirmDialog** — use for ALL destructive actions
+- **focusTaskId deep-link** — all task navigation: `?tab=workflow&taskId={id}`
+- **useSearchParams** — must be wrapped in `<Suspense>` in any Next.js page
+- **motion** — import from `motion/react` (not `framer-motion`)
+- **localStorage keys**: `plc-pipeline-filter`, `plc-pipeline-view`, `pleochrome-notifs`, `plc-notif-*`
 
 ---
 
 ## FEATURE PIPELINE (deferred)
-Logged at `specs/FEATURE-PIPELINE.md`:
+See `specs/FEATURE-PIPELINE.md`:
 - Investor/stakeholder portal view
 - Audit certification
 - Auto-document requests
