@@ -1,91 +1,101 @@
 # Session Handoff — PleoChrome Powerhouse CRM V2
 
-**Last Updated:** 2026-04-01 (Sessions 5-6 final)
+**Last Updated:** 2026-04-01 (Sessions 6-7 final)
 **Purpose:** Read this FIRST on any machine. Tells you exactly where to pick up.
 
 ---
 
-## QUICK START (new machine or new session)
+## QUICK START
 
 ```bash
 cd ~/Projects/pleochrome
-git pull
-npm install
+git pull && npm install
 npx supabase start
-npx supabase db push          # Apply: add_target_completion_date migration
-npm run dev                   # :3000
+npx supabase db push   # Apply: add_target_completion_date migration
+npm run dev            # :3000
 ```
 
 ---
 
-## CURRENT STATE — PRODUCTION-READY
+## CURRENT STATE — FULL PRODUCTION CRM
 
-The CRM is now fully production-ready as a daily workflow tool. All planned phases complete + significant additional features added in sessions 5-6.
+All planned phases complete + extensive quality improvements across 7 sessions.
 
-### What's DONE (Sessions 1-6)
+### Session 7 Changes
 
-**Core Phases (0-F4):** All done — see previous handoffs for details.
+**New features:**
+- WorkflowTab: "Apply Template" button → modal picker using `templates.instantiateToAsset`
+- WorkflowTab: Empty state CTA when no stages ("Apply Template" prominent)
+- Pipeline filter bar: inline search input to filter assets by name/reference
+- Pipeline board: "Archived" toggle (lg: desktop only) via `includeArchived` flag
+- partners router: `listAssetsInput.includeArchived` field
+- approvals router: `getPendingCount` procedure → sidebar badge
+- CRMSidebar: Approvals count badge alongside Reminders badge
 
-**Sessions 5-6 additional features:**
-- Reminders system: SetReminderModal, /crm/reminders page, sidebar badge, dashboard dismiss
-- Team workload: getWorkload procedure + live stats on team page
-- Documents batch download with JSZip
-- CalendarView with task due dates wired
-- CommandPalette: keyboard nav + quick filter chips + deep-links for tasks/docs
-- Velocity widget on dashboard
-- Saved pipeline filters (localStorage)
-- Activity page: user dropdown filter
-- Notification preferences in settings (5 per-type toggles)
-- Partner Comms tab (PartnerCommsTab + Log Communication modal)
+**Filter/sort improvements:**
+- Assets list table: clickable sortable headers (Ref/Name/Phase/Value/Status)
+- Contacts table: sortable Name/Type/KYC columns
+- Documents table: sortable Title/Type/Date/Size columns (default: Date desc)
+- Partners page: DD status filter dropdown (All/Not Started/In Progress/Passed/Failed)
+- Meetings page: type + date range filters wired to meetings router
+
+**Data quality:**
+- `getComplianceSummary`: N+1 → batch fetch (1 query instead of N+1)
+- `getRiskIndicators`: blocked tasks check added; risk items are now clickable links
+- meetings router: added meetingType, dateFrom, dateTo filter params
+
+**UX improvements:**
+- Set Reminder: available on contact detail + partner detail (was only on asset)
+- Dashboard My Day tasks: show asset name as secondary line
+- Pipeline cards: "X overdue" ruby indicator when tasks are past due
+- listForPipeline: computes `overdueCount` per asset
+- Approvals: task title links to `/crm/assets/{id}?tab=tasks`
+
+### All Features (Sessions 1-7)
+
+Everything in the plan (Phases 0-F4) plus:
+- Full reminders system (create/view/dismiss/snooze from anywhere)
+- Partner Comms tab + Log Communication modal
 - RecentCommsWidget on asset OverviewTab
-- Description field editable on OverviewTab
-- asset_holder_entity editable (OverviewTab inline + EditAssetModal)
-- FinancialsTab: target_raise + management_fee_pct inline-editable projections
-- Pipeline cards: overdueCount indicator in ruby
-- listForPipeline: computes overdueCount per asset
-- Dashboard My Day: task items show asset name + overdue due dates in ruby
-- Search deep-links: tasks → /crm/assets/{id}?tab=workflow&taskId={id}
-- Contacts/assets CSV export on all list pages
-- Assets list CSV export
-- ARIA labels on all icon-only buttons (8 components)
+- Calendar view for meetings (with task due dates)
+- Keyboard nav in CommandPalette
+- Pipeline velocity widget on dashboard
+- Saved pipeline state (localStorage)
+- Apply Template in WorkflowTab
+- Sortable tables on assets/contacts/documents/partners
+- Documents batch ZIP download
+- All CSV exports on every list page
 
-### REMAINING (genuinely deferred)
+### What's Genuinely Remaining
 
-| Feature | Notes |
-|---------|-------|
-| Email digests | Requires Resend/email setup |
-| Push notifications | Requires service worker push API |
-| Investor portal | Deferred — see FEATURE-PIPELINE.md |
-| Audit certification PDF | Deferred |
-| Batch pipeline operations | Deferred |
-| Partner auto-task creation | Deferred |
-| Deep-link Chrome test | timing fix applied, verify in live session |
-
-### KNOWN ACTIVE BUGS
-1. **DB migration**: Run `npx supabase db push` to apply `20260401000000_add_target_completion_date.sql`
-2. **Turbopack**: `kill -9 $(lsof -ti:3000) && npm run dev` if stale
-3. **LSP false positives**: Many "unused" warnings from the LSP are false — `npx tsc --noEmit` is authoritative (zero errors)
-4. **Pre-existing TS warnings**: partners.ts + contacts.ts for `partner_onboarding_templates` / `contact_onboarding_items` — these are `as unknown as` casts, not real errors
+| Item | Notes |
+|------|-------|
+| Email digests | Requires Resend setup |
+| Push notifications | Requires service worker API |
+| Investor portal | Deferred — FEATURE-PIPELINE.md |
+| Pagination for large datasets | 50/100 limits fine for current team size |
+| Chrome extension verification | Full E2E test with real data |
 
 ---
 
 ## ARCHITECTURE NOTES
 
-- **Stack**: Next.js 16 + React 19 + TypeScript strict + Tailwind v4 + Supabase + tRPC + motion v12
+- **Stack**: Next.js 16 + React 19 + TypeScript + Tailwind v4 + Supabase + tRPC + motion v12
 - **tRPC routers**: 25 routers in `src/server/routers/`
 - **localStorage keys**: `plc-pipeline-filter`, `plc-pipeline-view`, `pleochrome-notifs`, `plc-notif-*`
-- **No overflow-y:auto on .crm-content** — removed to enable `position: sticky`
-- **useSearchParams** — must be wrapped in `<Suspense>` in any Next.js page
-- **motion** — import from `motion/react` (not `framer-motion`)
-- **New field access**: Use `(asset as Record<string, unknown>).field` until `npx supabase gen types` is re-run
+- **useSearchParams** → wrapped in `<Suspense>` (pipeline page)
+- **motion** → import from `motion/react`
+- **New DB fields** → `(asset as Record<string, unknown>).field` pattern until gen types re-run
+- **N+1 fixed**: compliance summary now batches stage queries
+- **approvals.getPendingCount** → new lightweight count query for sidebar badge
 
 ---
 
 ## FEATURE PIPELINE (deferred)
+
 See `specs/FEATURE-PIPELINE.md`:
-- Investor/stakeholder portal view
-- Audit certification
-- Auto-document requests
+- Investor/stakeholder portal
+- Audit certification PDF
 - Batch pipeline operations
 - Partner auto-task creation
 - Partner performance metrics
