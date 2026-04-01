@@ -181,11 +181,18 @@ export function AssetCard({ asset }: { asset: any }) {
                 {asset.taskProgress.completed}/{asset.taskProgress.total}
               </span>
             </div>
-            {asset.taskProgress.nextTask && (
-              <p className="text-[11px] text-[var(--text-muted)] mt-1 truncate">
-                Next: {asset.taskProgress.nextTask}
-              </p>
-            )}
+            <div className="flex items-center justify-between mt-1">
+              {asset.taskProgress.nextTask ? (
+                <p className="text-[11px] text-[var(--text-muted)] truncate flex-1">
+                  Next: {asset.taskProgress.nextTask}
+                </p>
+              ) : <span />}
+              {(asset.taskProgress.overdueCount ?? 0) > 0 && (
+                <span className="text-[10px] font-bold text-[var(--ruby)] shrink-0 ml-2">
+                  {asset.taskProgress.overdueCount} overdue
+                </span>
+              )}
+            </div>
           </div>
         )}
 

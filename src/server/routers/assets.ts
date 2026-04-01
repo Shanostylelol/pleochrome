@@ -55,26 +55,30 @@ export const assetsRouter = createRouter({
 
       // Batch fetch task progress for all assets
       const assetIds = assets.map(a => a.id)
+      const now = new Date().toISOString()
       const { data: tasks } = await ctx.db
         .from('tasks')
-        .select('asset_id, status, title, sort_order')
+        .select('asset_id, status, title, sort_order, due_date')
         .in('asset_id', assetIds)
         .eq('is_deleted', false)
         .eq('is_hidden', false)
 
-      // Compute progress per asset
-      const progressMap = new Map<string, { total: number; completed: number; nextTask: string | null }>()
+      // Compute progress + overdue per asset
+      const progressMap = new Map<string, { total: number; completed: number; nextTask: string | null; overdueCount: number }>()
       for (const t of tasks ?? []) {
-        if (!progressMap.has(t.asset_id)) progressMap.set(t.asset_id, { total: 0, completed: 0, nextTask: null })
+        if (!progressMap.has(t.asset_id)) progressMap.set(t.asset_id, { total: 0, completed: 0, nextTask: null, overdueCount: 0 })
         const p = progressMap.get(t.asset_id)!
         p.total++
         if (t.status === 'done' || t.status === 'cancelled') p.completed++
-        else if (!p.nextTask) p.nextTask = t.title
+        else {
+          if (!p.nextTask) p.nextTask = t.title
+          if (t.due_date && t.due_date < now) p.overdueCount++
+        }
       }
 
       return assets.map(a => ({
         ...a,
-        taskProgress: progressMap.get(a.id) ?? { total: 0, completed: 0, nextTask: null },
+        taskProgress: progressMap.get(a.id) ?? { total: 0, completed: 0, nextTask: null, overdueCount: 0 },
       }))
     }),
 

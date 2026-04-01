@@ -62,8 +62,15 @@ export default function DashboardPage() {
                   <Link key={t.id} href={`/crm/assets/${t.asset_id}?tab=workflow&taskId=${t.id}`}
                     className="flex items-center gap-2 px-2 py-1.5 rounded-[var(--radius-sm)] hover:bg-[var(--bg-elevated)] transition-colors text-xs">
                     <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: cfg?.color ?? 'var(--gray)' }} />
-                    <span className="truncate flex-1 text-[var(--text-primary)]">{t.title}</span>
-                    {t.due_date && <span className="text-[var(--text-muted)] shrink-0">{new Date(t.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>}
+                    <div className="flex-1 min-w-0">
+                      <p className="truncate text-[var(--text-primary)]">{t.title}</p>
+                      {t.assets?.name && <p className="truncate text-[var(--text-muted)] text-[10px]">{t.assets.name}</p>}
+                    </div>
+                    {t.due_date && (
+                      <span className={`shrink-0 ${new Date(t.due_date).getTime() < Date.now() ? 'text-[var(--ruby)]' : 'text-[var(--text-muted)]'}`}>
+                        {new Date(t.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      </span>
+                    )}
                   </Link>
                 )
               })}
