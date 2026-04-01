@@ -37,6 +37,29 @@ function fmtCompact(val: number | null | undefined): string {
 // ── Component ─────────────────────────────────────────────
 export function FinancialsTab({ tasks, asset, assetId }: FinancialsTabProps) {
   const meta = (asset.metadata ?? {}) as Record<string, unknown>
+  const { toast } = useToast()
+  const utils = trpc.useUtils()
+
+  const [editingTargetRaise, setEditingTargetRaise] = useState(false)
+  const [editingMgmtFee, setEditingMgmtFee] = useState(false)
+  const [targetRaiseDraft, setTargetRaiseDraft] = useState(String((meta.target_raise as number) ?? ''))
+  const [mgmtFeeDraft, setMgmtFeeDraft] = useState(String((meta.management_fee_pct as number) ?? ''))
+
+  const updateMeta = trpc.assets.update.useMutation({
+    onSuccess: () => { utils.assets.getById.invalidate({ assetId }); toast('Saved', 'success') },
+    onError: (err) => toast(err.message, 'error'),
+  })
+
+  function saveTargetRaise() {
+    const val = parseFloat(targetRaiseDraft.replace(/,/g, ''))
+    updateMeta.mutate({ assetId, metadata: { ...meta, target_raise: isNaN(val) ? undefined : val } } as never)
+    setEditingTargetRaise(false)
+  }
+  function saveMgmtFee() {
+    const val = parseFloat(mgmtFeeDraft)
+    updateMeta.mutate({ assetId, metadata: { ...meta, management_fee_pct: isNaN(val) ? undefined : val } } as never)
+    setEditingMgmtFee(false)
+  }
 
   // Compute totals from task payment fields
   const incomingTasks = tasks.filter((t) => t.payment_direction === 'incoming' && t.payment_amount)
@@ -120,29 +143,40 @@ export function FinancialsTab({ tasks, asset, assetId }: FinancialsTabProps) {
 
         <NeuCard variant="raised" padding="md">
           <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Revenue Projection</h3>
-          {(() => {
-            const targetRaise = (meta.target_raise as number) ?? 0
-            const mgmtFee = (meta.management_fee_pct as number) ?? 2.0
-            const projectedRevenue = targetRaise * (mgmtFee / 100)
-            return targetRaise > 0 ? (
-              <div className="space-y-1.5">
-                <div className="flex justify-between text-sm">
-                  <span className="text-[var(--text-muted)]">Target Raise</span>
-                  <span className="text-[var(--text-primary)] font-medium">{fmtCompact(targetRaise)}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-[var(--text-muted)]">Mgmt Fee</span>
-                  <span className="text-[var(--text-primary)] font-medium">{mgmtFee}%</span>
-                </div>
-                <div className="flex justify-between text-sm pt-1 border-t border-[var(--border)]">
-                  <span className="text-[var(--text-muted)] font-semibold">Projected Revenue</span>
-                  <span className="text-[var(--emerald)] font-bold">{fmtCompact(projectedRevenue)}</span>
-                </div>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-[var(--text-muted)]">Target Raise</span>
+              {editingTargetRaise ? (
+                <input autoFocus value={targetRaiseDraft} onChange={(e) => setTargetRaiseDraft(e.target.value)}
+                  onBlur={saveTargetRaise} onKeyDown={(e) => { if (e.key === 'Enter') saveTargetRaise(); if (e.key === 'Escape') setEditingTargetRaise(false) }}
+                  className="text-right w-32 bg-transparent border-b border-[var(--teal)] text-[var(--text-primary)] outline-none px-1 text-sm" placeholder="$0" />
+              ) : (
+                <span className="text-[var(--text-primary)] font-medium cursor-pointer hover:text-[var(--teal)] transition-colors" onClick={() => { setTargetRaiseDraft(String((meta.target_raise as number) ?? '')); setEditingTargetRaise(true) }} title="Click to edit">
+                  {(meta.target_raise as number) ? fmtCompact(meta.target_raise as number) : <span className="text-[var(--text-placeholder)] text-xs">Click to set</span>}
+                </span>
+              )}
+            </div>
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-[var(--text-muted)]">Mgmt Fee %</span>
+              {editingMgmtFee ? (
+                <input autoFocus value={mgmtFeeDraft} onChange={(e) => setMgmtFeeDraft(e.target.value)}
+                  onBlur={saveMgmtFee} onKeyDown={(e) => { if (e.key === 'Enter') saveMgmtFee(); if (e.key === 'Escape') setEditingMgmtFee(false) }}
+                  className="text-right w-20 bg-transparent border-b border-[var(--teal)] text-[var(--text-primary)] outline-none px-1 text-sm" placeholder="2.0" />
+              ) : (
+                <span className="text-[var(--text-primary)] font-medium cursor-pointer hover:text-[var(--teal)] transition-colors" onClick={() => { setMgmtFeeDraft(String((meta.management_fee_pct as number) ?? '')); setEditingMgmtFee(true) }} title="Click to edit">
+                  {(meta.management_fee_pct as number) ? `${meta.management_fee_pct}%` : <span className="text-[var(--text-placeholder)] text-xs">Click to set</span>}
+                </span>
+              )}
+            </div>
+            {(meta.target_raise as number) > 0 && (
+              <div className="flex justify-between text-sm pt-2 border-t border-[var(--border)]">
+                <span className="text-[var(--text-muted)] font-semibold">Projected Revenue</span>
+                <span className="text-[var(--emerald)] font-bold">
+                  {fmtCompact((meta.target_raise as number) * ((meta.management_fee_pct as number ?? 2.0) / 100))}
+                </span>
               </div>
-            ) : (
-              <p className="text-xs text-[var(--text-muted)]">Set target_raise and management_fee_pct in asset metadata to see projections</p>
-            )
-          })()}
+            )}
+          </div>
         </NeuCard>
       </div>
 
