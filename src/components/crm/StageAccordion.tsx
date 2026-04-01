@@ -12,8 +12,8 @@ import { type Task } from './TaskCard'
 import { type Subtask } from './SubtaskChecklist'
 import { SortableTaskItem } from './SortableTaskItem'
 import { TaskDetailSection } from './TaskDetailSection'
-import { StageFileList } from './StageFileList'
-import { StageCommentThread } from './StageCommentThread'
+import { EntityFileList } from './EntityFileList'
+import { EntityCommentThread } from './EntityCommentThread'
 import { StageFooter } from './StageFooter'
 import {
   DndContext,
@@ -263,12 +263,12 @@ export function StageAccordion({
 
               {/* Stage-level files */}
               <TaskDetailSection icon={<Paperclip className="h-3 w-3" />} label="Stage Files">
-                <StageFileList stageId={stage.id} assetId={assetId} />
+                <EntityFileList entityType="stage" entityId={stage.id} assetId={assetId} />
               </TaskDetailSection>
 
               {/* Stage-level comments */}
               <TaskDetailSection icon={<MessageCircle className="h-3 w-3" />} label="Stage Comments">
-                <StageCommentThread stageId={stage.id} assetId={assetId} currentUserId={currentUserId ?? ''} />
+                <EntityCommentThread entityType="stage" entityId={stage.id} assetId={assetId} currentUserId={currentUserId ?? ''} />
               </TaskDetailSection>
 
               {/* Footer */}

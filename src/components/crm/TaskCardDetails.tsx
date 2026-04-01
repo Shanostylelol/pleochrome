@@ -7,8 +7,8 @@ import { TASK_TYPES, type TaskTypeKey } from '@/lib/constants'
 import { NeuButton, NeuInput } from '@/components/ui'
 import { trpc } from '@/lib/trpc'
 import { SubtaskChecklist, type Subtask } from './SubtaskChecklist'
-import { TaskFileList } from './TaskFileList'
-import { TaskCommentThread } from './TaskCommentThread'
+import { EntityFileList } from './EntityFileList'
+import { EntityCommentThread } from './EntityCommentThread'
 import { TaskActivityList } from './TaskActivityList'
 import { TaskAssigneeSelect } from './TaskAssigneeSelect'
 import { TaskDetailSection } from './TaskDetailSection'
@@ -223,12 +223,12 @@ export function TaskCardDetails({
 
       {/* Files */}
       <TaskDetailSection icon={<Paperclip className="h-3 w-3" />} label="Files">
-        <TaskFileList taskId={task.id} assetId={assetId} />
+        <EntityFileList entityType="task" entityId={task.id} assetId={assetId} />
       </TaskDetailSection>
 
       {/* Comments */}
       <TaskDetailSection icon={<MessageCircle className="h-3 w-3" />} label="Comments">
-        <TaskCommentThread taskId={task.id} assetId={assetId} currentUserId={currentUser?.id ?? ''} />
+        <EntityCommentThread entityType="task" entityId={task.id} assetId={assetId} currentUserId={currentUser?.id ?? ''} />
       </TaskDetailSection>
 
       {/* Activity */}

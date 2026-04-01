@@ -2,8 +2,8 @@
 
 import { MessageCircle, Paperclip } from 'lucide-react'
 import { SUBTASK_TYPES, type SubtaskTypeKey } from '@/lib/constants'
-import { SubtaskFileList } from './SubtaskFileList'
-import { SubtaskCommentThread } from './SubtaskCommentThread'
+import { EntityFileList } from './EntityFileList'
+import { EntityCommentThread } from './EntityCommentThread'
 import { TaskDetailSection } from './TaskDetailSection'
 import { FileTypeRenderer } from './type-renderers/FileTypeRenderer'
 import { CommunicationTypeRenderer } from './type-renderers/CommunicationTypeRenderer'
@@ -68,12 +68,12 @@ export function SubtaskTypeRenderer(props: SubtaskTypeRendererProps) {
 
       {/* Universal: Files */}
       <TaskDetailSection icon={<Paperclip className="h-3 w-3" />} label="Files">
-        <SubtaskFileList subtaskId={subtask.id} taskId={taskId} assetId={assetId} />
+        <EntityFileList entityType="subtask" entityId={subtask.id} taskId={taskId} assetId={assetId} />
       </TaskDetailSection>
 
       {/* Universal: Comments */}
       <TaskDetailSection icon={<MessageCircle className="h-3 w-3" />} label="Comments">
-        <SubtaskCommentThread subtaskId={subtask.id} assetId={assetId} currentUserId={currentUserId} />
+        <EntityCommentThread entityType="subtask" entityId={subtask.id} assetId={assetId} currentUserId={currentUserId} />
       </TaskDetailSection>
     </div>
   )
