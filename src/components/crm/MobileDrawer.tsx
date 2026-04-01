@@ -54,7 +54,7 @@ export function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => 
           <span className="text-lg font-semibold text-[var(--text-primary)]" style={{ fontFamily: 'var(--font-display)' }}>
             PleoChrome
           </span>
-          <button onClick={onClose} className="p-2 text-[var(--text-muted)] hover:text-[var(--text-primary)]">
+          <button onClick={onClose} aria-label="Close navigation" className="p-2 text-[var(--text-muted)] hover:text-[var(--text-primary)]">
             <X className="h-5 w-5" />
           </button>
         </div>

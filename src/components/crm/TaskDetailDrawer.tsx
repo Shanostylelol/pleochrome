@@ -55,7 +55,7 @@ export function TaskDetailDrawer({
       )}>
         {/* Header */}
         <div className="sticky top-0 z-10 flex items-center gap-2 px-4 py-3 bg-[var(--bg-surface)] border-b border-[var(--border)]">
-          <button onClick={onClose} className="p-1.5 rounded-[var(--radius-sm)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center">
+          <button onClick={onClose} aria-label="Close task details" className="p-1.5 rounded-[var(--radius-sm)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center">
             <X className="h-5 w-5" />
           </button>
           {stage && (

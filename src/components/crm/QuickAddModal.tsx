@@ -43,7 +43,7 @@ export function QuickAddModal({ onClose }: QuickAddModalProps) {
       <NeuCard variant="raised" padding="lg" className="relative w-full max-w-md max-w-[calc(100vw-2rem)] z-10 space-y-4 max-h-[80vh] sm:max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-[var(--text-primary)]" style={{ fontFamily: 'var(--font-display)' }}>Quick Add Asset</h2>
-          <button onClick={onClose} className="p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)]"><X className="h-5 w-5" /></button>
+          <button onClick={onClose} aria-label="Close quick add" className="p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)]"><X className="h-5 w-5" /></button>
         </div>
         <NeuInput label="Asset Name *" placeholder="e.g., Emerald Barrel #017093" value={name}
           onChange={(e) => setName(e.target.value)} error={nameErr} />

@@ -40,7 +40,7 @@ export function MoreSheet({ open, onClose }: { open: boolean; onClose: () => voi
       >
         <div className="flex items-center justify-between px-5 pt-4 pb-2">
           <h3 className="text-sm font-semibold text-[var(--text-primary)]">More</h3>
-          <button onClick={onClose} className="p-2 text-[var(--text-muted)] hover:text-[var(--text-primary)]">
+          <button onClick={onClose} aria-label="Close menu" className="p-2 text-[var(--text-muted)] hover:text-[var(--text-primary)]">
             <X className="h-4 w-4" />
           </button>
         </div>

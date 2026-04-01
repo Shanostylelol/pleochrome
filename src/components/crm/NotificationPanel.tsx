@@ -69,7 +69,7 @@ export function NotificationPanel({ open, onClose }: { open: boolean; onClose: (
               >
                 Mark all read
               </button>
-              <button onClick={onClose} className="p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)]">
+              <button onClick={onClose} aria-label="Close notifications" className="p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)]">
                 <X className="h-4 w-4" />
               </button>
             </div>
