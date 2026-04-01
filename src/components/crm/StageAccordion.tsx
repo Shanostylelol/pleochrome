@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
 import { ChevronDown, Shield, Play, CheckCircle2, Paperclip, MessageCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { NeuCard } from '@/components/ui/NeuCard'
@@ -199,7 +200,15 @@ export function StageAccordion({
           </div>
 
           {/* Expanded body */}
+          <AnimatePresence initial={false}>
           {isExpanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2, ease: 'easeInOut' }}
+              style={{ overflow: 'hidden' }}
+            >
             <div className="px-4 pb-4 pt-1 border-t border-[var(--border)]">
               {/* Task list with DnD */}
               {tasks.length === 0 ? (
@@ -261,7 +270,9 @@ export function StageAccordion({
               {/* Footer */}
               <StageFooter stageId={stage.id} onAddTask={onAddTask} onHideStage={onHideStage} />
             </div>
+            </motion.div>
           )}
+          </AnimatePresence>
         </div>
       </div>
     </NeuCard>

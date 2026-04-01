@@ -29,6 +29,7 @@ export const updateAssetInput = z.object({
   spvEin: z.string().max(20).optional(),
   leadTeamMemberId: uuidSchema.optional(),
   metadata: z.record(z.unknown()).optional(),
+  targetCompletionDate: z.string().datetime({ offset: true }).nullable().optional(),
 })
 
 export const advancePhaseInput = z.object({

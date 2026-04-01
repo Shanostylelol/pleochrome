@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { CheckSquare, Plus, LayoutGrid, List } from 'lucide-react'
+import { CheckSquare, Plus, LayoutGrid, List, Download } from 'lucide-react'
 import { NeuCard, NeuButton, NeuTabs, NeuInput, NeuTextarea, NeuSelect, NeuModal } from '@/components/ui'
+import { exportCSV } from '@/lib/csv-export'
 import { TASK_TYPES, type TaskTypeKey } from '@/lib/constants'
 import { trpc } from '@/lib/trpc'
 import { ListPageSkeleton } from '@/components/crm/skeletons'
@@ -72,9 +73,18 @@ export default function TasksPage() {
             {tasks.length} task{tasks.length !== 1 ? 's' : ''}
           </p>
         </div>
-        <NeuButton icon={<Plus className="h-4 w-4" />} onClick={() => setShowCreate(true)}>
-          <span className="hidden sm:inline">New Task</span>
-        </NeuButton>
+        <div className="flex items-center gap-2">
+          <NeuButton variant="ghost" icon={<Download className="h-4 w-4" />} size="sm"
+            onClick={() => exportCSV('tasks.csv', [
+              { key: 'title', label: 'Task' }, { key: 'task_type', label: 'Type' },
+              { key: 'status', label: 'Status' }, { key: 'due_date', label: 'Due Date' },
+            ], tasks as Record<string, unknown>[])}>
+            <span className="hidden sm:inline">CSV</span>
+          </NeuButton>
+          <NeuButton icon={<Plus className="h-4 w-4" />} onClick={() => setShowCreate(true)}>
+            <span className="hidden sm:inline">New Task</span>
+          </NeuButton>
+        </div>
       </div>
 
       {/* Controls row: filters + view toggle */}

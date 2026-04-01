@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import { trpc } from '@/lib/trpc'
 import { createClient } from '@/lib/supabase'
 import { NeuCard, NeuButton, NeuBadge, NeuSkeleton } from '@/components/ui'
@@ -17,7 +17,7 @@ import {
 } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type PipelineBoard = any
 
@@ -100,12 +100,24 @@ function SortableAssetCard({ asset }: { asset: PipelineBoard }) {
 
 // ═══════════════════════════════════════════════════════
 export default function PipelineBoardPage() {
+  return <Suspense><PipelineBoardInner /></Suspense>
+}
+
+function PipelineBoardInner() {
+  const searchParams = useSearchParams()
   const [pathFilter, setPathFilter] = useState<PathFilter | null>(null)
+  const [phaseHighlight, setPhaseHighlight] = useState<string | null>(null)
   const [showQuickAdd, setShowQuickAdd] = useState(false)
   const [viewMode, setViewMode] = useState<ViewMode>('kanban')
   const [activeId, setActiveId] = useState<string | null>(null)
   const [pendingMove, setPendingMove] = useState<{ assetId: string; assetName: string; fromPhase: string; toPhase: string; newPhase: string } | null>(null)
   const router = useRouter()
+
+  // Read ?phase= param from URL (e.g. from dashboard funnel click)
+  useEffect(() => {
+    const phase = searchParams.get('phase')
+    if (phase) setPhaseHighlight(phase)
+  }, [searchParams])
 
   const utils = trpc.useUtils()
   const { data: assets = [], isLoading } = trpc.assets.listForPipeline.useQuery(pathFilter ? { valueModel: pathFilter } : undefined)
@@ -191,7 +203,7 @@ export default function PipelineBoardPage() {
               const colAssets = grouped[col.id]
               return (
                 <SortableContext key={col.id} items={colAssets.map((a) => a.id!)} strategy={verticalListSortingStrategy} id={col.id}>
-                  <DroppableColumn col={col} assets={colAssets} />
+                  <DroppableColumn col={col} assets={colAssets} highlighted={phaseHighlight === col.id} />
                 </SortableContext>
               )
             })}
@@ -298,19 +310,20 @@ export default function PipelineBoardPage() {
 }
 
 // ─── Droppable Column ──────────────────────────────────
-function DroppableColumn({ col, assets }: { col: KanbanColumn; assets: PipelineBoard[] }) {
+function DroppableColumn({ col, assets, highlighted }: { col: KanbanColumn; assets: PipelineBoard[]; highlighted?: boolean }) {
   const { setNodeRef } = useSortable({ id: col.id })
 
   return (
     <div className="flex-shrink-0 w-[280px] lg:w-[320px]">
-      <div className="flex items-center gap-2 px-3 py-2.5">
+      <div className={`flex items-center gap-2 px-3 py-2.5 rounded-t-[var(--radius-md)] transition-colors ${highlighted ? 'bg-[var(--bg-elevated)]' : ''}`}>
         <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: col.color }} />
         <span className="text-sm font-semibold text-[var(--text-primary)]">{col.label}</span>
+        {highlighted && <span className="text-[10px] font-bold uppercase tracking-wider ml-1" style={{ color: col.color }}>Filtered</span>}
         <span className="text-xs text-[var(--text-muted)] ml-auto">{assets.length}</span>
       </div>
       <div
         ref={setNodeRef}
-        className="rounded-[var(--radius-lg)] bg-[var(--bg-body)] shadow-[var(--shadow-pressed)] p-2 min-h-[200px] space-y-2 overflow-y-auto max-h-[calc(100vh-360px)]"
+        className={`rounded-b-[var(--radius-lg)] bg-[var(--bg-body)] p-2 min-h-[200px] space-y-2 overflow-y-auto max-h-[calc(100vh-360px)] transition-all ${highlighted ? 'shadow-[0_0_0_2px_var(--teal),var(--shadow-pressed)]' : 'shadow-[var(--shadow-pressed)]'}`}
       >
         {assets.length > 0 ? (
           assets.map((asset) => <SortableAssetCard key={asset.id} asset={asset} />)

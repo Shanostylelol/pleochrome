@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Calendar, Plus, Clock, MapPin, Users, Video, Phone, User } from 'lucide-react'
+import { Calendar, Plus, Clock, MapPin, Users, Video, Phone, User, Download } from 'lucide-react'
+import { exportCSV } from '@/lib/csv-export'
 import {
   NeuCard, NeuBadge, NeuButton, NeuInput, NeuTextarea, NeuSelect, NeuModal,
 } from '@/components/ui'
@@ -48,9 +49,18 @@ export default function MeetingsPage() {
             {meetings.length} meeting{meetings.length !== 1 ? 's' : ''}
           </p>
         </div>
-        <NeuButton icon={<Plus className="h-4 w-4" />} onClick={() => setShowCreate(true)}>
-          <span className="hidden sm:inline">New Meeting</span>
-        </NeuButton>
+        <div className="flex items-center gap-2">
+          <NeuButton variant="ghost" icon={<Download className="h-4 w-4" />} size="sm"
+            onClick={() => exportCSV('meetings.csv', [
+              { key: 'title', label: 'Title' }, { key: 'meeting_type', label: 'Type' },
+              { key: 'meeting_date', label: 'Date' }, { key: 'location', label: 'Location' },
+            ], meetings as Record<string, unknown>[])}>
+            <span className="hidden sm:inline">CSV</span>
+          </NeuButton>
+          <NeuButton icon={<Plus className="h-4 w-4" />} onClick={() => setShowCreate(true)}>
+            <span className="hidden sm:inline">New Meeting</span>
+          </NeuButton>
+        </div>
       </div>
 
       {/* Meeting list */}

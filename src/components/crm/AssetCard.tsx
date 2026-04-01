@@ -189,6 +189,17 @@ export function AssetCard({ asset }: { asset: any }) {
           </div>
         )}
 
+        {/* Target date indicator */}
+        {asset.target_completion_date && (() => {
+          const days = Math.ceil((new Date(asset.target_completion_date).getTime() - Date.now()) / 86400000)
+          const color = days < 0 ? 'var(--ruby)' : days <= 14 ? 'var(--amber)' : 'var(--chartreuse)'
+          return (
+            <p className="text-[11px] mt-1 truncate" style={{ color }}>
+              {days < 0 ? `${Math.abs(days)}d overdue` : days === 0 ? 'Due today' : `${days}d to target`}
+            </p>
+          )
+        })()}
+
         {/* Lead assignee avatar */}
         {asset.team_members?.full_name && (
           <div className="mt-2 pt-2 border-t border-[var(--border)]">

@@ -2,10 +2,11 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Handshake, Plus, Mail, Phone, X, LayoutGrid, List } from 'lucide-react'
+import { Handshake, Plus, Mail, Phone, X, LayoutGrid, List, Download } from 'lucide-react'
 import { NeuCard, NeuBadge, NeuButton, NeuAvatar, NeuInput, NeuTextarea, NeuSelect } from '@/components/ui'
 import { ListPageSkeleton } from '@/components/crm/skeletons'
 import { trpc } from '@/lib/trpc'
+import { exportCSV } from '@/lib/csv-export'
 
 const ddColorMap: Record<string, 'gray' | 'amber' | 'chartreuse' | 'ruby'> = {
   not_started: 'gray', in_progress: 'amber', passed: 'chartreuse', failed: 'ruby',
@@ -60,9 +61,18 @@ export default function PartnersPage() {
           </h1>
           <p className="text-sm text-[var(--text-muted)] mt-1">{partners.length} partners</p>
         </div>
-        <NeuButton icon={<Plus className="h-4 w-4" />} onClick={() => setShowCreateModal(true)}>
-          <span className="hidden sm:inline">Add Partner</span>
-        </NeuButton>
+        <div className="flex items-center gap-2">
+          <NeuButton variant="ghost" icon={<Download className="h-4 w-4" />} size="sm"
+            onClick={() => exportCSV('partners.csv', [
+              { key: 'name', label: 'Name' }, { key: 'type', label: 'Type' },
+              { key: 'dd_status', label: 'DD Status' }, { key: 'email', label: 'Email' },
+            ], partners as Record<string, unknown>[])}>
+            <span className="hidden sm:inline">CSV</span>
+          </NeuButton>
+          <NeuButton icon={<Plus className="h-4 w-4" />} onClick={() => setShowCreateModal(true)}>
+            <span className="hidden sm:inline">Add Partner</span>
+          </NeuButton>
+        </div>
       </div>
 
       {/* Filters + view toggle */}

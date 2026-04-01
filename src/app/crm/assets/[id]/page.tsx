@@ -61,6 +61,7 @@ export default function AssetDetailPage() {
   const [showActions, setShowActions] = useState(false)
   const [isCompact, setIsCompact] = useState(false)
   const [confirmAdvance, setConfirmAdvance] = useState(false)
+  const [confirmDuplicate, setConfirmDuplicate] = useState(false)
 
   const heroRef = useRef<HTMLDivElement>(null)
 
@@ -80,6 +81,12 @@ export default function AssetDetailPage() {
 
   const [exportLoading, setExportLoading] = useState(false)
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
+
+  const duplicateMutation = trpc.assets.duplicate.useMutation({
+    onSuccess: (newAsset) => {
+      router.push(`/crm/assets/${(newAsset as { id: string }).id}`)
+    },
+  })
 
   const advanceMutation = trpc.assets.advancePhase.useMutation({
     onSuccess: (result) => {
@@ -146,6 +153,11 @@ export default function AssetDetailPage() {
     notes: (st as Record<string, unknown>).notes as string | undefined,
     assignee: undefined,
   }))
+
+  const targetDateStr = (asset as Record<string, unknown>).target_completion_date as string | null | undefined
+  const targetDaysLeft = targetDateStr ? Math.ceil((new Date(targetDateStr).getTime() - Date.now()) / 86400000) : null
+  const targetColor = targetDaysLeft == null ? '' : targetDaysLeft < 0 ? 'var(--ruby)' : targetDaysLeft <= 14 ? 'var(--amber)' : 'var(--chartreuse)'
+  const targetLabel = targetDaysLeft == null ? '' : targetDaysLeft < 0 ? `${Math.abs(targetDaysLeft)}d overdue` : targetDaysLeft === 0 ? 'Due today' : `${targetDaysLeft}d left`
 
   const countMap: Record<string, number> = { workflow: stages.length, documents: documents.length, tasks: tasks.length, comments: comments.length, partners: partners.length }
   const tabsWithCounts = TABS.map((t) => countMap[t.id] != null ? { ...t, count: countMap[t.id] } : t)
@@ -252,6 +264,13 @@ export default function AssetDetailPage() {
                   <div><span className="text-[10px] uppercase tracking-wider text-[var(--text-muted)]">Appraised </span><span className="font-bold text-[var(--text-primary)]">{fmt(asset.appraised_value)}</span></div>
                   <div><span className="text-[10px] uppercase tracking-wider text-[var(--text-muted)]">Raised </span><span className="font-bold text-[var(--text-primary)]">{fmt(meta.capital_raised as number | null)}</span></div>
                   <div><span className="text-[10px] uppercase tracking-wider text-[var(--text-muted)]">Investors </span><span className="font-bold text-[var(--text-primary)]">{(meta.investor_count as number) ?? 0}</span></div>
+                  {targetDateStr && (
+                    <div>
+                      <span className="text-[10px] uppercase tracking-wider text-[var(--text-muted)]">Target </span>
+                      <span className="font-bold" style={{ color: targetColor }}>{targetLabel}</span>
+                      <span className="text-[10px] text-[var(--text-muted)] ml-1">({new Date(targetDateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })})</span>
+                    </div>
+                  )}
                   {asset.team_members && (
                     <div className="flex items-center gap-1.5 ml-auto">
                       <NeuAvatar name={(asset.team_members as { full_name: string }).full_name} size="sm" />
@@ -274,6 +293,7 @@ export default function AssetDetailPage() {
                   onClick={() => { if (nextPhase) setConfirmAdvance(true) }}>
                   {nextPhase ? `Advance to ${PHASES[nextPhase].label}` : 'Final Phase'}
                 </NeuButton>
+                <NeuButton variant="ghost" icon={<Copy className="h-4 w-4" />} size="sm" fullWidth onClick={() => setConfirmDuplicate(true)} loading={duplicateMutation.isPending}>Duplicate</NeuButton>
                 <NeuButton variant="ghost" icon={<Copy className="h-4 w-4" />} size="sm" fullWidth onClick={() => setShowSaveTemplate(true)}>Save Template</NeuButton>
                 <NeuButton variant="ghost" icon={<FileUp className="h-4 w-4" />} size="sm" fullWidth onClick={() => setActiveTab('documents')}>Add Doc</NeuButton>
                 <NeuButton variant="ghost" icon={<MessageSquare className="h-4 w-4" />} size="sm" fullWidth onClick={() => setActiveTab('comments')}>Comment</NeuButton>
@@ -304,6 +324,7 @@ export default function AssetDetailPage() {
                     onClick={() => setShowActions(!showActions)} />
                   {showActions && (
                     <div className="absolute right-0 top-full mt-1 z-20 neu-raised-sm p-1 min-w-[160px]">
+                      <button onClick={() => { setConfirmDuplicate(true); setShowActions(false) }} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"><Copy className="h-3.5 w-3.5" /> Duplicate</button>
                       <button onClick={() => { setShowSaveTemplate(true); setShowActions(false) }} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"><Copy className="h-3.5 w-3.5" /> Save Template</button>
                       <button onClick={() => { setActiveTab('documents'); setShowActions(false) }} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"><FileUp className="h-3.5 w-3.5" /> Add Doc</button>
                       <button onClick={() => { setActiveTab('comments'); setShowActions(false) }} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"><MessageSquare className="h-3.5 w-3.5" /> Comment</button>
@@ -345,6 +366,15 @@ export default function AssetDetailPage() {
         onProceed={(reason) => advanceMutation.mutate({ assetId: params.id, targetPhase: gateTargetPhase as PhaseKey, force: true, overrideReason: reason })}
         warnings={gateWarnings}
         targetPhase={gateTargetPhase}
+      />
+      <NeuConfirmDialog
+        open={confirmDuplicate}
+        onClose={() => setConfirmDuplicate(false)}
+        onConfirm={() => { setConfirmDuplicate(false); duplicateMutation.mutate({ assetId: params.id }) }}
+        title="Duplicate Asset"
+        message={`Create a copy of "${asset.name}"? The duplicate will be reset to Lead phase with a new reference code.`}
+        confirmLabel="Duplicate"
+        loading={duplicateMutation.isPending}
       />
       {nextPhase && (
         <NeuConfirmDialog

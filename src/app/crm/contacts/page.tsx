@@ -5,7 +5,8 @@ import Link from 'next/link'
 import { trpc } from '@/lib/trpc'
 import { cn } from '@/lib/utils'
 import { NeuCard, NeuBadge, NeuButton, NeuTabs, NeuInput, NeuModal, NeuSelect } from '@/components/ui'
-import { Plus, Search, Users, User, Building2, Mail } from 'lucide-react'
+import { Plus, Search, Users, User, Building2, Mail, Download } from 'lucide-react'
+import { exportCSV } from '@/lib/csv-export'
 import { ComplianceBadge } from '@/components/crm/ComplianceBadge'
 import { ListPageSkeleton } from '@/components/crm/skeletons'
 
@@ -86,9 +87,18 @@ export default function ContactsListPage() {
             {contacts.length} contact{contacts.length !== 1 ? 's' : ''}
           </p>
         </div>
-        <NeuButton icon={<Plus className="h-4 w-4" />} size="sm" onClick={() => setShowAdd(true)}>
-          Add Contact
-        </NeuButton>
+        <div className="flex items-center gap-2">
+          <NeuButton variant="ghost" icon={<Download className="h-4 w-4" />} size="sm"
+            onClick={() => exportCSV('contacts.csv', [
+              { key: 'full_name', label: 'Name' }, { key: 'contact_type', label: 'Type' },
+              { key: 'email', label: 'Email' }, { key: 'kyc_status', label: 'KYC' },
+            ], contacts as Record<string, unknown>[])}>
+            <span className="hidden sm:inline">CSV</span>
+          </NeuButton>
+          <NeuButton icon={<Plus className="h-4 w-4" />} size="sm" onClick={() => setShowAdd(true)}>
+            Add Contact
+          </NeuButton>
+        </div>
       </div>
 
       {/* Filters */}

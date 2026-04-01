@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { Activity, Clock, Download } from 'lucide-react'
-import { NeuCard, NeuBadge, NeuButton, NeuTabs, NeuAvatar } from '@/components/ui'
+import { Activity, Clock, Download, Filter } from 'lucide-react'
+import { NeuCard, NeuBadge, NeuButton, NeuTabs, NeuAvatar, NeuInput, NeuSelect } from '@/components/ui'
 import { ListPageSkeleton } from '@/components/crm/skeletons'
 import { trpc } from '@/lib/trpc'
 import { createClient } from '@/lib/supabase'
@@ -36,26 +36,45 @@ function timeAgo(date: string): string {
 
 const PAGE_SIZE = 50
 
+const ENTITY_TYPES = [
+  { value: '', label: 'All Entities' },
+  { value: 'asset', label: 'Assets' },
+  { value: 'task', label: 'Tasks' },
+  { value: 'document', label: 'Documents' },
+  { value: 'partner', label: 'Partners' },
+  { value: 'contact', label: 'Contacts' },
+  { value: 'meeting', label: 'Meetings' },
+]
+
 export default function ActivityPage() {
   const [filter, setFilter] = useState('all')
+  const [entityType, setEntityType] = useState('')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
+  const [showFilters, setShowFilters] = useState(false)
   const [cursor, setCursor] = useState<string | undefined>(undefined)
   const [allEntries, setAllEntries] = useState<Array<Record<string, unknown>>>([])
 
   const queryInput = {
     ...(filter !== 'all' ? { category: filter } : {}),
+    ...(entityType ? { entityType } : {}),
+    ...(dateFrom ? { dateFrom } : {}),
+    ...(dateTo ? { dateTo } : {}),
     limit: PAGE_SIZE,
     cursor,
   }
+
+  const hasActiveFilters = !!entityType || !!dateFrom || !!dateTo
 
   const { data: entries = [], isLoading } = trpc.activity.list.useQuery(queryInput)
   const { data: countData } = trpc.activity.getCount.useQuery()
   const utils = trpc.useUtils()
 
-  // Reset when filter changes
+  // Reset when any filter changes
   useEffect(() => {
     setCursor(undefined)
     setAllEntries([])
-  }, [filter])
+  }, [filter, entityType, dateFrom, dateTo])
 
   // Merge new entries
   useEffect(() => {
@@ -119,14 +138,43 @@ export default function ActivityPage() {
             Immutable audit trail &mdash; {countData?.count ?? 0} entries
           </p>
         </div>
-        <NeuButton
-          variant="ghost"
-          icon={<Download className="h-4 w-4" />}
-          onClick={handleExport}
-        >
-          <span className="hidden sm:inline">Export</span>
-        </NeuButton>
+        <div className="flex items-center gap-2">
+          <NeuButton variant="ghost" icon={<Filter className="h-4 w-4" />} size="sm"
+            onClick={() => setShowFilters(!showFilters)}
+            className={hasActiveFilters ? '!text-[var(--teal)]' : ''}>
+            <span className="hidden sm:inline">Filters{hasActiveFilters ? ' •' : ''}</span>
+          </NeuButton>
+          <NeuButton variant="ghost" icon={<Download className="h-4 w-4" />} onClick={handleExport}>
+            <span className="hidden sm:inline">Export</span>
+          </NeuButton>
+        </div>
       </div>
+
+      {showFilters && (
+        <NeuCard variant="pressed" padding="sm">
+          <div className="flex flex-wrap items-end gap-3">
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] mb-1">Entity Type</p>
+              <NeuSelect value={entityType} onChange={(e) => setEntityType(e.target.value)} className="!w-40">
+                {ENTITY_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+              </NeuSelect>
+            </div>
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] mb-1">From</p>
+              <NeuInput type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="!w-36" />
+            </div>
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] mb-1">To</p>
+              <NeuInput type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="!w-36" />
+            </div>
+            {hasActiveFilters && (
+              <NeuButton variant="ghost" size="sm" onClick={() => { setEntityType(''); setDateFrom(''); setDateTo('') }}>
+                Clear
+              </NeuButton>
+            )}
+          </div>
+        </NeuCard>
+      )}
 
       <NeuTabs tabs={TABS} activeTab={filter} onTabChange={setFilter} />
 

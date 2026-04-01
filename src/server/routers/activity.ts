@@ -11,6 +11,9 @@ export const activityRouter = createRouter({
       category: z.string().optional(),
       action: z.string().optional(),
       entityType: z.string().optional(),
+      performedBy: uuidSchema.optional(),
+      dateFrom: z.string().optional(),
+      dateTo: z.string().optional(),
       limit: z.number().int().min(10).max(500).default(100),
       cursor: uuidSchema.optional(),
     }).optional())
@@ -25,6 +28,9 @@ export const activityRouter = createRouter({
       if (input?.category) query = query.eq('category', input.category)
       if (input?.action) query = query.eq('action', input.action as never)
       if (input?.entityType) query = query.eq('entity_type', input.entityType)
+      if (input?.performedBy) query = query.eq('performed_by', input.performedBy)
+      if (input?.dateFrom) query = query.gte('performed_at', input.dateFrom)
+      if (input?.dateTo) query = query.lte('performed_at', input.dateTo + 'T23:59:59Z')
       if (input?.cursor) query = query.lt('id', input.cursor)
 
       const { data, error } = await query
