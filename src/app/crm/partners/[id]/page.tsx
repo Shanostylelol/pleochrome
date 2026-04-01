@@ -10,10 +10,11 @@ import { PartnerCredentialsTab } from '@/components/crm/partners/PartnerCredenti
 import { PartnerAssignmentsTab } from '@/components/crm/partners/PartnerAssignmentsTab'
 import { EditPartnerModal } from '@/components/crm/partners/EditPartnerModal'
 import { PartnerDocumentsTab } from '@/components/crm/partners/PartnerDocumentsTab'
+import { PartnerCommsTab } from '@/components/crm/partners/PartnerCommsTab'
 import { ListPageSkeleton } from '@/components/crm/skeletons'
 import {
   ChevronRight, Edit3, ExternalLink, Mail, Phone, User, Globe,
-  LayoutGrid, ClipboardCheck, Award, Gem, Calendar, FileText,
+  LayoutGrid, ClipboardCheck, Award, Gem, Calendar, FileText, MessageCircle,
 } from 'lucide-react'
 
 // ── Constants ─────────────────────────────────────────────
@@ -44,6 +45,7 @@ const TABS = [
   { id: 'credentials', label: 'Credentials', icon: <Award className="h-4 w-4" /> },
   { id: 'assignments', label: 'Assignments', icon: <Gem className="h-4 w-4" /> },
   { id: 'documents', label: 'Documents', icon: <FileText className="h-4 w-4" /> },
+  { id: 'comms', label: 'Comms', icon: <MessageCircle className="h-4 w-4" /> },
 ]
 
 // ═══════════════════════════════════════════════════════════
@@ -143,6 +145,7 @@ export default function PartnerDetailPage() {
         {activeTab === 'credentials' && <PartnerCredentialsTab partnerId={params.id} />}
         {activeTab === 'assignments' && <PartnerAssignmentsTab assets={data?.assets ?? []} />}
         {activeTab === 'documents' && <PartnerDocumentsTab partnerId={params.id as string} />}
+        {activeTab === 'comms' && <PartnerCommsTab partnerId={params.id as string} />}
       </div>
 
       {showEdit && partner && (
