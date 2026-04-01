@@ -16,6 +16,10 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
     { query },
     { enabled: open && query.length >= 1 }
   )
+  const { data: quickCounts } = trpc.search.getQuickFilterCounts.useQuery(
+    undefined,
+    { enabled: open }
+  )
 
   useEffect(() => {
     if (open) {
@@ -77,8 +81,29 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
 
         <div className="max-h-[400px] overflow-y-auto">
           {query.length === 0 ? (
-            <div className="px-4 py-8 text-center">
-              <p className="text-sm text-[var(--text-muted)]">Start typing to search across all entities</p>
+            <div className="px-4 py-4">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-3">Quick Filters</p>
+              <div className="flex flex-wrap gap-2">
+                {(quickCounts?.blocked ?? 0) > 0 && (
+                  <button onClick={() => { setQuery('blocked:'); }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-[var(--bg-body)] shadow-[var(--shadow-raised-sm)] text-[var(--ruby)] hover:bg-[var(--bg-elevated)] transition-colors">
+                    <span>{quickCounts?.blocked} blocked</span>
+                  </button>
+                )}
+                {(quickCounts?.overdue ?? 0) > 0 && (
+                  <button onClick={() => { setQuery('overdue:'); }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-[var(--bg-body)] shadow-[var(--shadow-raised-sm)] text-[var(--amber)] hover:bg-[var(--bg-elevated)] transition-colors">
+                    <span>{quickCounts?.overdue} overdue</span>
+                  </button>
+                )}
+                {(quickCounts?.inLead ?? 0) > 0 && (
+                  <button onClick={() => { setQuery('phase:lead'); }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-[var(--bg-body)] shadow-[var(--shadow-raised-sm)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)] transition-colors">
+                    <span>{quickCounts?.inLead} in Lead</span>
+                  </button>
+                )}
+                {(quickCounts?.blocked ?? 0) === 0 && (quickCounts?.overdue ?? 0) === 0 && (quickCounts?.inLead ?? 0) === 0 && (
+                  <p className="text-sm text-[var(--text-muted)]">Start typing to search across all entities</p>
+                )}
+              </div>
+              <p className="text-[11px] text-[var(--text-placeholder)] mt-3">Tip: type <span style={{ fontFamily: 'var(--font-mono)' }}>blocked:</span> or <span style={{ fontFamily: 'var(--font-mono)' }}>phase:lead</span> to filter</p>
             </div>
           ) : !hasResults ? (
             <div className="px-4 py-8 text-center">

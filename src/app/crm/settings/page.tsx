@@ -18,6 +18,21 @@ export default function SettingsPage() {
   })
   useEffect(() => { localStorage.setItem('pleochrome-notifs', JSON.stringify(inAppNotifs)) }, [inAppNotifs])
 
+  function usePref(key: string, defaultVal = true) {
+    const [val, setVal] = useState(() => {
+      if (typeof window === 'undefined') return defaultVal
+      const s = localStorage.getItem(`plc-notif-${key}`)
+      return s !== null ? JSON.parse(s) : defaultVal
+    })
+    const toggle = (v: boolean) => { setVal(v); localStorage.setItem(`plc-notif-${key}`, JSON.stringify(v)) }
+    return [val as boolean, toggle] as const
+  }
+  const [notifTaskAssigned, setNotifTaskAssigned] = usePref('task_assigned')
+  const [notifPhaseAdvanced, setNotifPhaseAdvanced] = usePref('phase_advanced')
+  const [notifGateBlocked, setNotifGateBlocked] = usePref('gate_blocked')
+  const [notifApprovalNeeded, setNotifApprovalNeeded] = usePref('approval_needed')
+  const [notifMentions, setNotifMentions] = usePref('mentions')
+
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
@@ -99,6 +114,25 @@ export default function SettingsPage() {
             </div>
             <NeuToggle enabled={false} onChange={() => {}} disabled />
           </div>
+          {inAppNotifs && (
+            <div className="pt-3 border-t border-[var(--border)]">
+              <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3">Notification Types</p>
+              <div className="space-y-3">
+                {([
+                  ['Task assigned to me', notifTaskAssigned, setNotifTaskAssigned],
+                  ['Phase advanced', notifPhaseAdvanced, setNotifPhaseAdvanced],
+                  ['Gate blocked', notifGateBlocked, setNotifGateBlocked],
+                  ['Approval needed', notifApprovalNeeded, setNotifApprovalNeeded],
+                  ['Mentions in comments', notifMentions, setNotifMentions],
+                ] as [string, boolean, (v: boolean) => void][]).map(([label, val, setter]) => (
+                  <div key={label} className="flex items-center justify-between">
+                    <p className="text-xs text-[var(--text-secondary)]">{label}</p>
+                    <NeuToggle enabled={val} onChange={setter} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </NeuCard>
 
