@@ -140,10 +140,14 @@ function PipelineBoardInner() {
     if (phase) setPhaseHighlight(phase)
   }, [searchParams])
 
+  const [pipelineSearch, setPipelineSearch] = useState('')
   const utils = trpc.useUtils()
-  const { data: assets = [], isLoading } = trpc.assets.listForPipeline.useQuery(
+  const { data: rawAssets = [], isLoading } = trpc.assets.listForPipeline.useQuery(
     (pathFilter || showArchived) ? { ...(pathFilter ? { valueModel: pathFilter } : {}), ...(showArchived ? { includeArchived: true } : {}) } : undefined
   )
+  const assets = pipelineSearch
+    ? rawAssets.filter(a => ((a.name ?? '') + ' ' + (a.reference_code ?? '')).toLowerCase().includes(pipelineSearch.toLowerCase()))
+    : rawAssets
   const { data: stats } = trpc.assets.getStats.useQuery(pathFilter ? { valueModel: pathFilter } : undefined)
   const updatePhase = trpc.assets.advancePhase.useMutation({
     onSuccess: () => { utils.assets.listForPipeline.invalidate(); utils.assets.getStats.invalidate() },
@@ -205,7 +209,7 @@ function PipelineBoardInner() {
       <PipelineStatsRibbon stats={stats} />
 
       {/* ─── Path Filter Pills ─── */}
-      <PipelineFilterBar pathFilter={pathFilter} onPathFilterChange={handlePathFilterChange} assetCount={assets.length} />
+      <PipelineFilterBar pathFilter={pathFilter} onPathFilterChange={handlePathFilterChange} assetCount={assets.length} search={pipelineSearch} onSearchChange={setPipelineSearch} />
 
       {/* ─── Content ─── */}
       {isLoading ? (

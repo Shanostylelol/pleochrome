@@ -1,5 +1,6 @@
 'use client'
 
+import { Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 type PathFilter = 'fractional_securities' | 'tokenization' | 'debt_instrument' | 'broker_sale' | 'barter'
@@ -17,9 +18,11 @@ interface PipelineFilterBarProps {
   pathFilter: PathFilter | null
   onPathFilterChange: (value: PathFilter | null) => void
   assetCount: number
+  search?: string
+  onSearchChange?: (v: string) => void
 }
 
-export function PipelineFilterBar({ pathFilter, onPathFilterChange, assetCount }: PipelineFilterBarProps) {
+export function PipelineFilterBar({ pathFilter, onPathFilterChange, assetCount, search = '', onSearchChange }: PipelineFilterBarProps) {
   return (
     <div className="flex items-center gap-3 flex-wrap">
       <div className="p-1 rounded-[var(--radius-lg)] bg-[var(--bg-body)] shadow-[var(--shadow-pressed)] inline-flex gap-1">
@@ -43,6 +46,18 @@ export function PipelineFilterBar({ pathFilter, onPathFilterChange, assetCount }
           )
         })}
       </div>
+      {onSearchChange && (
+        <div className="relative flex-1 min-w-[140px] max-w-xs">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--text-muted)]" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder="Filter assets…"
+            className="w-full pl-8 pr-3 py-1.5 text-sm rounded-[var(--radius-md)] bg-[var(--bg-body)] shadow-[var(--shadow-pressed)] text-[var(--text-primary)] placeholder:text-[var(--text-placeholder)] outline-none focus:ring-1 focus:ring-[var(--border-focus)]"
+          />
+        </div>
+      )}
       <span className="text-xs text-[var(--text-muted)]">{assetCount} assets</span>
     </div>
   )
