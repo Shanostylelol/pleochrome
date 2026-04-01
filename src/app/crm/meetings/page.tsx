@@ -1,13 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { Calendar, Plus, Clock, MapPin, Users, Video, Phone, User, Download } from 'lucide-react'
+import { Calendar, Plus, Clock, MapPin, Users, Video, Phone, User, Download, LayoutList, CalendarDays } from 'lucide-react'
 import { exportCSV } from '@/lib/csv-export'
 import {
   NeuCard, NeuBadge, NeuButton, NeuInput, NeuTextarea, NeuSelect, NeuModal,
 } from '@/components/ui'
 import { trpc } from '@/lib/trpc'
 import { MeetingDetail } from '@/components/crm/MeetingDetail'
+import { CalendarView } from '@/components/crm/CalendarView'
 import { ListPageSkeleton } from '@/components/crm/skeletons'
 
 const MEETING_TYPES = [
@@ -31,6 +32,7 @@ const typeColors: Record<string, 'teal' | 'amethyst' | 'sapphire' | 'gray'> = {
 export default function MeetingsPage() {
   const [showCreate, setShowCreate] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [view, setView] = useState<'list' | 'calendar'>('list')
 
   const { data: meetings = [], isLoading } = trpc.meetings.list.useQuery()
 
@@ -50,6 +52,16 @@ export default function MeetingsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <div className="flex items-center p-1 rounded-[var(--radius-md)] bg-[var(--bg-body)] shadow-[var(--shadow-pressed)]">
+            <button onClick={() => setView('list')} title="List view"
+              className={`p-1.5 rounded-[var(--radius-sm)] transition-all ${view === 'list' ? 'bg-[var(--bg-surface)] shadow-[var(--shadow-raised-sm)] text-[var(--text-primary)]' : 'text-[var(--text-muted)]'}`}>
+              <LayoutList className="h-4 w-4" />
+            </button>
+            <button onClick={() => setView('calendar')} title="Calendar view"
+              className={`p-1.5 rounded-[var(--radius-sm)] transition-all ${view === 'calendar' ? 'bg-[var(--bg-surface)] shadow-[var(--shadow-raised-sm)] text-[var(--text-primary)]' : 'text-[var(--text-muted)]'}`}>
+              <CalendarDays className="h-4 w-4" />
+            </button>
+          </div>
           <NeuButton variant="ghost" icon={<Download className="h-4 w-4" />} size="sm"
             onClick={() => exportCSV('meetings.csv', [
               { key: 'title', label: 'Title' }, { key: 'meeting_type', label: 'Type' },
@@ -63,8 +75,13 @@ export default function MeetingsPage() {
         </div>
       </div>
 
+      {/* Calendar or list */}
+      {view === 'calendar' ? (
+        isLoading ? <ListPageSkeleton /> : <CalendarView meetings={meetings} />
+      ) : null}
+
       {/* Meeting list */}
-      {isLoading ? (
+      {view === 'list' && (isLoading ? (
         <ListPageSkeleton />
       ) : meetings.length === 0 ? (
         <NeuCard variant="pressed" padding="lg" className="text-center">
@@ -92,7 +109,7 @@ export default function MeetingsPage() {
             </div>
           ))}
         </div>
-      )}
+      ))}
 
       {/* Create modal */}
       <CreateMeetingModal open={showCreate} onClose={() => setShowCreate(false)} />
