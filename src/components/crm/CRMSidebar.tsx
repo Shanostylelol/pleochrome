@@ -41,11 +41,13 @@ export function CRMSidebar() {
   const pathname = usePathname()
   const currentUser = useCurrentUser()
   const { data: reminders = [] } = trpc.reminders.list.useQuery()
+  const { data: approvalCount = 0 } = trpc.approvals.getPendingCount.useQuery()
   const overdueCount = (reminders as Record<string, unknown>[]).filter(r => new Date(r.remind_at as string).getTime() < Date.now()).length
 
   const renderNavItem = (item: (typeof mainNav)[number]) => {
     const active = isActive(pathname, item.href)
-    const badge = item.href === '/crm/reminders' && overdueCount > 0 ? overdueCount : 0
+    const badge = item.href === '/crm/reminders' && overdueCount > 0 ? overdueCount
+      : item.href === '/crm/approvals' && approvalCount > 0 ? approvalCount : 0
     return (
       <Link
         key={item.href}

@@ -4,8 +4,11 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { trpc } from '@/lib/trpc'
 import { NeuCard, NeuBadge, NeuButton, NeuInput, NeuProgress } from '@/components/ui'
-import { Plus, Search, Gem, LayoutGrid, List, Download } from 'lucide-react'
+import { Plus, Search, Gem, LayoutGrid, List, Download, ArrowUpDown, ChevronUp, ChevronDown } from 'lucide-react'
 import { exportCSV } from '@/lib/csv-export'
+import { useMemo } from 'react'
+
+type SortKey = 'name' | 'reference_code' | 'current_phase' | 'claimed_value' | 'status'
 import { cn } from '@/lib/utils'
 import { AssetCard } from '@/components/crm/AssetCard'
 import { ListPageSkeleton } from '@/components/crm/skeletons'
@@ -47,18 +50,38 @@ export default function AssetsPage() {
   const [search, setSearch] = useState('')
   const [pathFilter, setPathFilter] = useState<PathFilter | null>(null)
   const [view, setView] = useState<'grid' | 'table'>('table')
+  const [sortKey, setSortKey] = useState<SortKey>('name')
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
   const router = useRouter()
 
   const { data: assets = [], isLoading } = trpc.assets.list.useQuery(
     pathFilter ? { valueModel: pathFilter } : undefined
   )
 
-  const filtered = search
-    ? assets.filter((a) =>
-        (a.name ?? '').toLowerCase().includes(search.toLowerCase()) ||
-        (a.reference_code ?? '').toLowerCase().includes(search.toLowerCase())
-      )
-    : assets
+  const filtered = useMemo(() => {
+    let t = search
+      ? assets.filter((a) =>
+          (a.name ?? '').toLowerCase().includes(search.toLowerCase()) ||
+          (a.reference_code ?? '').toLowerCase().includes(search.toLowerCase())
+        )
+      : [...assets]
+    t = t.sort((a, b) => {
+      const av = (a as Record<string, unknown>)[sortKey] as string | number | null
+      const bv = (b as Record<string, unknown>)[sortKey] as string | number | null
+      const cmp = av == null ? 1 : bv == null ? -1 : typeof av === 'number' && typeof bv === 'number'
+        ? av - bv : String(av).localeCompare(String(bv))
+      return sortDir === 'asc' ? cmp : -cmp
+    })
+    return t
+  }, [assets, search, sortKey, sortDir])
+
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc')
+    else { setSortKey(key); setSortDir('asc') }
+  }
+  const SortIcon = ({ col }: { col: SortKey }) => sortKey !== col
+    ? <ArrowUpDown className="h-3 w-3 ml-1 opacity-40" />
+    : sortDir === 'asc' ? <ChevronUp className="h-3 w-3 ml-1" /> : <ChevronDown className="h-3 w-3 ml-1" />
 
   return (
     <div className="space-y-6">
@@ -143,13 +166,22 @@ export default function AssetsPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[var(--border)] bg-[var(--bg-body)]">
-                <th className="text-left px-4 py-3 font-semibold text-[var(--text-muted)] text-xs uppercase tracking-wider">Reference</th>
-                <th className="text-left px-4 py-3 font-semibold text-[var(--text-muted)] text-xs uppercase tracking-wider">Name</th>
-                <th className="text-left px-4 py-3 font-semibold text-[var(--text-muted)] text-xs uppercase tracking-wider hidden md:table-cell">Type</th>
-                <th className="text-left px-4 py-3 font-semibold text-[var(--text-muted)] text-xs uppercase tracking-wider hidden lg:table-cell">Path</th>
-                <th className="text-left px-4 py-3 font-semibold text-[var(--text-muted)] text-xs uppercase tracking-wider">Phase</th>
-                <th className="text-right px-4 py-3 font-semibold text-[var(--text-muted)] text-xs uppercase tracking-wider">Value</th>
-                <th className="text-left px-4 py-3 font-semibold text-[var(--text-muted)] text-xs uppercase tracking-wider hidden lg:table-cell">Status</th>
+                {([
+                  { key: 'reference_code', label: 'Reference', cls: '' },
+                  { key: 'name', label: 'Name', cls: '' },
+                  { key: null, label: 'Type', cls: 'hidden md:table-cell' },
+                  { key: null, label: 'Path', cls: 'hidden lg:table-cell' },
+                  { key: 'current_phase', label: 'Phase', cls: '' },
+                  { key: 'claimed_value', label: 'Value', cls: 'text-right' },
+                  { key: 'status', label: 'Status', cls: 'hidden lg:table-cell' },
+                ] as { key: SortKey | null; label: string; cls: string }[]).map(({ key, label, cls }) => (
+                  <th key={label} onClick={key ? () => toggleSort(key) : undefined}
+                    className={`px-4 py-3 font-semibold text-[var(--text-muted)] text-xs uppercase tracking-wider ${cls} ${key ? 'cursor-pointer hover:text-[var(--text-secondary)] select-none' : ''}`}>
+                    <span className="inline-flex items-center">
+                      {label}{key && <SortIcon col={key} />}
+                    </span>
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>

@@ -220,4 +220,13 @@ export const approvalsRouter = createRouter({
 
       return decided
     }),
+
+  getPendingCount: protectedProcedure.query(async ({ ctx }) => {
+    const { count } = await ctx.db
+      .from('approvals')
+      .select('id', { count: 'exact', head: true })
+      .eq('approver_id', ctx.user.id)
+      .eq('decision', 'pending')
+    return count ?? 0
+  }),
 })

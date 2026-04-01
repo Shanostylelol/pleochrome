@@ -32,14 +32,24 @@ const PARTNER_TYPES = [
 
 const TYPE_LABEL_MAP: Record<string, string> = Object.fromEntries(PARTNER_TYPES.map((t) => [t.value, t.label]))
 
+const DD_STATUS_OPTS = [
+  { value: '', label: 'All DD Status' },
+  { value: 'not_started', label: 'Not Started' },
+  { value: 'in_progress', label: 'In Progress' },
+  { value: 'passed', label: 'Passed' },
+  { value: 'failed', label: 'Failed' },
+]
+
 export default function PartnersPage() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [typeFilter, setTypeFilter] = useState('')
+  const [ddFilter, setDdFilter] = useState('')
   const [search, setSearch] = useState('')
-  const { data: partners = [], isLoading } = trpc.partners.list.useQuery(
+  const { data: rawPartners = [], isLoading } = trpc.partners.list.useQuery(
     { partnerType: typeFilter || undefined, search: search || undefined }
   )
+  const partners = ddFilter ? rawPartners.filter((p) => p.dd_status === ddFilter) : rawPartners
 
   // Group by type for list view
   const grouped = partners.reduce<Record<string, typeof partners>>((acc, p) => {
@@ -92,6 +102,13 @@ export default function PartnersPage() {
           {PARTNER_TYPES.map((t) => (
             <option key={t.value} value={t.value}>{t.label}</option>
           ))}
+        </NeuSelect>
+        <NeuSelect
+          value={ddFilter}
+          onChange={(e) => setDdFilter(e.target.value)}
+          className="!w-40"
+        >
+          {DD_STATUS_OPTS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
         </NeuSelect>
         <div className="ml-auto flex gap-1">
           <button
