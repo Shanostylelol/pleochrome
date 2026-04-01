@@ -14,8 +14,9 @@ import { EditContactModal } from '@/components/crm/contacts/EditContactModal'
 import { ListPageSkeleton } from '@/components/crm/skeletons'
 import {
   ChevronRight, Edit3, LayoutGrid, ShieldCheck, Network, MessageCircle,
-  Mail, Phone, User, Building2,
+  Mail, Phone, User, Building2, Bell,
 } from 'lucide-react'
+import { SetReminderModal } from '@/components/crm/SetReminderModal'
 
 // ── KYC badge color ──────────────────────────────────────
 const KYC_COLOR: Record<string, 'gray' | 'amber' | 'teal' | 'chartreuse' | 'ruby'> = {
@@ -39,6 +40,7 @@ export default function ContactDetailPage() {
   const params = useParams<{ id: string }>()
   const [activeTab, setActiveTab] = useState('overview')
   const [showEdit, setShowEdit] = useState(false)
+  const [showReminder, setShowReminder] = useState(false)
   const utils = trpc.useUtils()
 
   const { data, isLoading, error } = trpc.contacts.getById.useQuery({ contactId: params.id })
@@ -129,6 +131,9 @@ export default function ContactDetailPage() {
             <NeuButton icon={<Edit3 className="h-4 w-4" />} size="sm" fullWidth onClick={() => setShowEdit(true)}>
               Edit
             </NeuButton>
+            <NeuButton variant="ghost" icon={<Bell className="h-4 w-4" />} size="sm" fullWidth onClick={() => setShowReminder(true)}>
+              Set Reminder
+            </NeuButton>
           </div>
         </div>
       </NeuCard>
@@ -165,6 +170,11 @@ export default function ContactDetailPage() {
           onSuccess={() => utils.contacts.getById.invalidate({ contactId: params.id })}
         />
       )}
+      <SetReminderModal
+        open={showReminder}
+        onClose={() => setShowReminder(false)}
+        assetName={(ct.full_name as string) ?? (ct.entity_name as string) ?? 'Contact'}
+      />
     </div>
   )
 }
