@@ -93,10 +93,8 @@ export function OverviewTab({ asset, assetId }: OverviewTabProps) {
               <dt className="text-[var(--text-muted)]">Entity</dt>
               <dd className="text-[var(--text-primary)]">{(asset.asset_holder_entity as string) ?? '\u2014'}</dd>
             </div>
-            <div className="flex justify-between">
-              <dt className="text-[var(--text-muted)]">Description</dt>
-              <dd className="text-[var(--text-primary)] text-right max-w-[60%]">{(asset.description as string) ?? '\u2014'}</dd>
-            </div>
+            <EditableField label="Description" value={(asset.description as string) ?? ''}
+              onSave={(v) => saveField('description', v)} />
           </dl>
         </NeuCard>
 

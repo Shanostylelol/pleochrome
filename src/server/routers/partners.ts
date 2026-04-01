@@ -97,8 +97,7 @@ export const partnersRouter = createRouter({
 
       // Auto-seed onboarding items from default template for this partner type
       if (data) {
-        const { data: defaultTemplate } = await ctx.db
-          .from('partner_onboarding_templates')
+        const { data: defaultTemplate } = await (ctx.db.from as unknown as (t: string) => ReturnType<typeof ctx.db.from>)('partner_onboarding_templates')
           .select('id')
           .eq('partner_type', input.partnerType)
           .eq('is_default', true)
@@ -119,7 +118,7 @@ export const partnersRouter = createRouter({
   getOnboardingTemplates: protectedProcedure
     .input(z.object({ partnerType: z.string().optional() }).optional())
     .query(async ({ ctx, input }) => {
-      let query = ctx.db.from('partner_onboarding_templates').select('*').order('name')
+      let query = (ctx.db.from as unknown as (t: string) => ReturnType<typeof ctx.db.from>)('partner_onboarding_templates').select('*').order('name')
       if (input?.partnerType) query = query.eq('partner_type', input.partnerType)
       const { data, error } = await query
       if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
