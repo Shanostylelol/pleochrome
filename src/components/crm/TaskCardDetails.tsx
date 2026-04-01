@@ -222,12 +222,12 @@ export function TaskCardDetails({
       </div>
 
       {/* Files */}
-      <TaskDetailSection icon={<Paperclip className="h-3 w-3" />} label="Files">
+      <TaskDetailSection icon={<Paperclip className="h-3 w-3" />} label="Files" defaultOpen>
         <EntityFileList entityType="task" entityId={task.id} assetId={assetId} />
       </TaskDetailSection>
 
-      {/* Comments */}
-      <TaskDetailSection icon={<MessageCircle className="h-3 w-3" />} label="Comments">
+      {/* Notes & Comments */}
+      <TaskDetailSection icon={<MessageCircle className="h-3 w-3" />} label="Notes & Comments" defaultOpen>
         <EntityCommentThread entityType="task" entityId={task.id} assetId={assetId} currentUserId={currentUser?.id ?? ''} />
       </TaskDetailSection>
 

@@ -258,12 +258,12 @@ export function StageAccordion({
               )}
 
               {/* Stage-level files */}
-              <TaskDetailSection icon={<Paperclip className="h-3 w-3" />} label="Stage Files">
+              <TaskDetailSection icon={<Paperclip className="h-3 w-3" />} label="Stage Files" defaultOpen>
                 <EntityFileList entityType="stage" entityId={stage.id} assetId={assetId} />
               </TaskDetailSection>
 
               {/* Stage-level comments */}
-              <TaskDetailSection icon={<MessageCircle className="h-3 w-3" />} label="Stage Comments">
+              <TaskDetailSection icon={<MessageCircle className="h-3 w-3" />} label="Stage Notes & Comments" defaultOpen>
                 <EntityCommentThread entityType="stage" entityId={stage.id} assetId={assetId} currentUserId={currentUserId ?? ''} />
               </TaskDetailSection>
 

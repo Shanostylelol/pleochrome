@@ -67,12 +67,12 @@ export function SubtaskTypeRenderer(props: SubtaskTypeRendererProps) {
       <TypeSpecificForm {...props} />
 
       {/* Universal: Files */}
-      <TaskDetailSection icon={<Paperclip className="h-3 w-3" />} label="Files">
+      <TaskDetailSection icon={<Paperclip className="h-3 w-3" />} label="Files" defaultOpen>
         <EntityFileList entityType="subtask" entityId={subtask.id} taskId={taskId} assetId={assetId} />
       </TaskDetailSection>
 
-      {/* Universal: Comments */}
-      <TaskDetailSection icon={<MessageCircle className="h-3 w-3" />} label="Comments">
+      {/* Universal: Notes & Comments */}
+      <TaskDetailSection icon={<MessageCircle className="h-3 w-3" />} label="Notes & Comments" defaultOpen>
         <EntityCommentThread entityType="subtask" entityId={subtask.id} assetId={assetId} currentUserId={currentUserId} />
       </TaskDetailSection>
     </div>
