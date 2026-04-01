@@ -47,6 +47,7 @@ export const listAssetsInput = z.object({
   phase: phaseEnum.optional(),
   search: z.string().max(200).optional(),
   leadTeamMemberId: uuidSchema.optional(),
+  includeArchived: z.boolean().optional(),
   ...paginationSchema.shape,
 })
 

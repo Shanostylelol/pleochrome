@@ -1,6 +1,6 @@
 'use client'
 
-import { NeuButton } from '@/components/ui'
+import { NeuButton, NeuToggle } from '@/components/ui'
 import { Plus, LayoutGrid, List, BarChart3 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -10,9 +10,11 @@ interface PipelineHeaderProps {
   viewMode: ViewMode
   onViewModeChange: (mode: ViewMode) => void
   onNewAsset: () => void
+  showArchived?: boolean
+  onShowArchivedChange?: (v: boolean) => void
 }
 
-export function PipelineHeader({ viewMode, onViewModeChange, onNewAsset }: PipelineHeaderProps) {
+export function PipelineHeader({ viewMode, onViewModeChange, onNewAsset, showArchived = false, onShowArchivedChange }: PipelineHeaderProps) {
   return (
     <div className="sticky top-[var(--header-height)] z-20 bg-[var(--bg-body)] pb-3 max-w-full overflow-hidden">
       <div className="flex items-start justify-between gap-4">
@@ -67,6 +69,12 @@ export function PipelineHeader({ viewMode, onViewModeChange, onNewAsset }: Pipel
               <List className="h-4 w-4" />
             </button>
           </div>
+          {onShowArchivedChange && (
+            <label className="hidden lg:flex items-center gap-1.5 cursor-pointer select-none">
+              <NeuToggle enabled={showArchived} onChange={onShowArchivedChange} />
+              <span className="text-xs text-[var(--text-muted)]">Archived</span>
+            </label>
+          )}
           <NeuButton icon={<Plus className="h-4 w-4" />} onClick={onNewAsset}>
             <span className="hidden sm:inline">New Asset</span>
           </NeuButton>

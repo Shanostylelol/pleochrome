@@ -118,6 +118,7 @@ function PipelineBoardInner() {
     if (typeof window === 'undefined') return 'kanban'
     return (localStorage.getItem(LS_VIEW_KEY) as ViewMode) || 'kanban'
   })
+  const [showArchived, setShowArchived] = useState(false)
   const [activeId, setActiveId] = useState<string | null>(null)
   const [pendingMove, setPendingMove] = useState<{ assetId: string; assetName: string; fromPhase: string; toPhase: string; newPhase: string } | null>(null)
   const router = useRouter()
@@ -140,7 +141,9 @@ function PipelineBoardInner() {
   }, [searchParams])
 
   const utils = trpc.useUtils()
-  const { data: assets = [], isLoading } = trpc.assets.listForPipeline.useQuery(pathFilter ? { valueModel: pathFilter } : undefined)
+  const { data: assets = [], isLoading } = trpc.assets.listForPipeline.useQuery(
+    (pathFilter || showArchived) ? { ...(pathFilter ? { valueModel: pathFilter } : {}), ...(showArchived ? { includeArchived: true } : {}) } : undefined
+  )
   const { data: stats } = trpc.assets.getStats.useQuery(pathFilter ? { valueModel: pathFilter } : undefined)
   const updatePhase = trpc.assets.advancePhase.useMutation({
     onSuccess: () => { utils.assets.listForPipeline.invalidate(); utils.assets.getStats.invalidate() },
@@ -196,7 +199,7 @@ function PipelineBoardInner() {
   return (
     <div className="space-y-6 overflow-x-clip">
       {/* ─── Header (sticky) ─── */}
-      <PipelineHeader viewMode={viewMode} onViewModeChange={handleViewModeChange} onNewAsset={() => setShowQuickAdd(true)} />
+      <PipelineHeader viewMode={viewMode} onViewModeChange={handleViewModeChange} onNewAsset={() => setShowQuickAdd(true)} showArchived={showArchived} onShowArchivedChange={setShowArchived} />
 
       {/* ─── Stats Ribbon ─── */}
       <PipelineStatsRibbon stats={stats} />

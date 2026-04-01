@@ -36,11 +36,14 @@ export const assetsRouter = createRouter({
   listForPipeline: protectedProcedure
     .input(listAssetsInput.optional())
     .query(async ({ ctx, input }) => {
+      const statusFilter = input?.includeArchived
+        ? ['active', 'paused', 'archived'] as const
+        : ['active', 'paused'] as const
       let query = ctx.db
         .from('assets')
         .select('*, team_members!assets_lead_team_member_id_fkey(id, full_name, role)')
         .eq('is_deleted', false)
-        .in('status', ['active', 'paused'])
+        .in('status', statusFilter)
         .order('updated_at', { ascending: false })
 
       if (input?.valueModel) query = query.eq('value_model', input.valueModel)
