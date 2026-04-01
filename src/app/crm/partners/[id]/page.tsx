@@ -14,8 +14,9 @@ import { PartnerCommsTab } from '@/components/crm/partners/PartnerCommsTab'
 import { ListPageSkeleton } from '@/components/crm/skeletons'
 import {
   ChevronRight, Edit3, ExternalLink, Mail, Phone, User, Globe,
-  LayoutGrid, ClipboardCheck, Award, Gem, Calendar, FileText, MessageCircle,
+  LayoutGrid, ClipboardCheck, Award, Gem, Calendar, FileText, MessageCircle, Bell,
 } from 'lucide-react'
+import { SetReminderModal } from '@/components/crm/SetReminderModal'
 
 // ── Constants ─────────────────────────────────────────────
 const DD_COLOR: Record<string, 'gray' | 'amber' | 'chartreuse' | 'ruby'> = {
@@ -53,6 +54,7 @@ export default function PartnerDetailPage() {
   const params = useParams<{ id: string }>()
   const [activeTab, setActiveTab] = useState('overview')
   const [showEdit, setShowEdit] = useState(false)
+  const [showReminder, setShowReminder] = useState(false)
   const utils = trpc.useUtils()
 
   const { data, isLoading, error } = trpc.partners.getById.useQuery({ partnerId: params.id })
@@ -124,6 +126,9 @@ export default function PartnerDetailPage() {
             <NeuButton icon={<Edit3 className="h-4 w-4" />} size="sm" fullWidth onClick={() => setShowEdit(true)}>
               Edit
             </NeuButton>
+            <NeuButton variant="ghost" icon={<Bell className="h-4 w-4" />} size="sm" fullWidth onClick={() => setShowReminder(true)}>
+              Set Reminder
+            </NeuButton>
             {(partner.website as string) && (
               <a href={partner.website as string} target="_blank" rel="noreferrer" className="w-full">
                 <NeuButton variant="ghost" icon={<ExternalLink className="h-4 w-4" />} size="sm" fullWidth>
@@ -156,6 +161,11 @@ export default function PartnerDetailPage() {
           onSuccess={() => utils.partners.getById.invalidate({ partnerId: params.id })}
         />
       )}
+      <SetReminderModal
+        open={showReminder}
+        onClose={() => setShowReminder(false)}
+        assetName={(partner?.name as string) ?? 'Partner'}
+      />
     </div>
   )
 }
