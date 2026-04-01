@@ -140,7 +140,7 @@ export default function PartnerDetailPage() {
       {/* Tab Content */}
       <div>
         {activeTab === 'overview' && <OverviewTab partner={partner} />}
-        {activeTab === 'onboarding' && <PartnerOnboardingTab partnerId={params.id} />}
+        {activeTab === 'onboarding' && <PartnerOnboardingTab partnerId={params.id as string} partnerType={partner?.type as string} />}
         {activeTab === 'credentials' && <PartnerCredentialsTab partnerId={params.id} />}
         {activeTab === 'assignments' && <PartnerAssignmentsTab assets={data?.assets ?? []} />}
         {activeTab === 'documents' && <PartnerDocumentsTab partnerId={params.id as string} />}

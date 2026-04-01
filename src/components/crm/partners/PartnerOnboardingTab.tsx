@@ -14,7 +14,7 @@ const STAGE_LABELS: Record<string, string> = {
   integration: 'Integration', approval: 'Approval', general: 'General',
 }
 
-export function PartnerOnboardingTab({ partnerId }: { partnerId: string }) {
+export function PartnerOnboardingTab({ partnerId, partnerType }: { partnerId: string; partnerType?: string }) {
   const [showAdd, setShowAdd] = useState(false)
   const [itemName, setItemName] = useState('')
   const [itemType, setItemType] = useState('document')
@@ -35,6 +35,11 @@ export function PartnerOnboardingTab({ partnerId }: { partnerId: string }) {
     onError: (err) => toast(err.message, 'error'),
   })
 
+  const applyTemplateMut = trpc.partners.applyOnboardingTemplate.useMutation({
+    onSuccess: () => { utils.partners.getOnboardingItems.invalidate({ partnerId }); toast('Template applied', 'success') },
+    onError: (err) => toast(err.message, 'error'),
+  })
+
   const grouped = useMemo(() => {
     const map = new Map<string, Array<Record<string, unknown>>>()
     for (const item of items as Array<Record<string, unknown>>) {
@@ -48,6 +53,11 @@ export function PartnerOnboardingTab({ partnerId }: { partnerId: string }) {
   const totalItems = (items as Array<Record<string, unknown>>).length
   const verifiedItems = (items as Array<Record<string, unknown>>).filter(i => i.status === 'verified').length
   const pct = totalItems > 0 ? Math.round((verifiedItems / totalItems) * 100) : 0
+
+  const { data: templates = [] } = trpc.partners.getOnboardingTemplates.useQuery(
+    partnerType ? { partnerType } : undefined,
+    { enabled: totalItems === 0 }
+  )
 
   const toggleStage = (stage: string) => {
     const next = new Set(expandedStages)
@@ -73,7 +83,13 @@ export function PartnerOnboardingTab({ partnerId }: { partnerId: string }) {
       {totalItems === 0 ? (
         <NeuCard variant="pressed" padding="lg" className="text-center">
           <ClipboardCheck className="h-10 w-10 text-[var(--text-placeholder)] mx-auto mb-3" />
-          <p className="text-sm text-[var(--text-muted)]">No onboarding items yet</p>
+          <p className="text-sm text-[var(--text-muted)] mb-3">No onboarding items yet</p>
+          {(templates as Array<Record<string, unknown>>).length > 0 && (
+            <NeuButton size="sm" loading={applyTemplateMut.isPending}
+              onClick={() => applyTemplateMut.mutate({ partnerId, templateId: (templates as Array<Record<string, unknown>>)[0].id as string })}>
+              Apply Default Template
+            </NeuButton>
+          )}
         </NeuCard>
       ) : (
         <div className="space-y-3">
