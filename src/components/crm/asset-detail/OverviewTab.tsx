@@ -134,13 +134,17 @@ export function OverviewTab({ asset, assetId }: OverviewTabProps) {
               onSave={(v) => saveField('caratWeight', v)} />
             <EditableField label="GIA Report" value={(meta.gia_report_number as string) ?? ''} mono
               onSave={(v) => saveMetaField('gia_report_number', v)} />
+            <EditableField label="Item Count" value={String((asset.asset_count as number) ?? '')}
+              onSave={(v) => saveField('assetCount', v)} />
           </dl>
         </NeuCard>
 
         {/* Custody */}
         <NeuCard variant="raised" padding="md">
-          <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Custody</h3>
+          <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Custody &amp; Location</h3>
           <dl className="space-y-2 text-sm">
+            <EditableField label="Current Location" value={(asset.current_location as string) ?? ''}
+              onSave={(v) => saveField('currentLocation', v)} />
             <EditableField label="Vault Provider" value={(meta.vault_provider as string) ?? ''}
               onSave={(v) => saveMetaField('vault_provider', v)} />
             <EditableField label="PoR Status" value={(meta.por_status as string) ?? ''}
