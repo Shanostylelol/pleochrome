@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { trpc } from '@/lib/trpc'
+import { getRecentAssets } from '@/lib/recently-viewed'
 import { NeuCard } from '@/components/ui'
 import { Search, Gem, Handshake, FileText, CheckSquare, Calendar, Users2, Plus, Bell } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -10,6 +11,7 @@ import { cn } from '@/lib/utils'
 export function CommandPalette({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [query, setQuery] = useState('')
   const [selectedIndex, setSelectedIndex] = useState(-1)
+  const [recentAssets, setRecentAssets] = useState<ReturnType<typeof getRecentAssets>>([])
   const inputRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
@@ -24,7 +26,11 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
   )
 
   useEffect(() => {
-    if (open) { setQuery(''); setSelectedIndex(-1); setTimeout(() => inputRef.current?.focus(), 100) }
+    if (open) {
+      setQuery(''); setSelectedIndex(-1)
+      setRecentAssets(getRecentAssets())
+      setTimeout(() => inputRef.current?.focus(), 100)
+    }
   }, [open])
 
   // Reset selection when query or results change
@@ -117,6 +123,22 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
         <div ref={listRef} className="max-h-[400px] overflow-y-auto">
           {query.length === 0 ? (
             <div className="px-4 py-4">
+              {/* Recently Viewed */}
+              {recentAssets.length > 0 && (
+                <div className="mb-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-2">Recently Viewed</p>
+                  <div className="space-y-0.5">
+                    {recentAssets.slice(0, 5).map((a) => (
+                      <button key={a.id} onClick={() => navigate(`/crm/assets/${a.id}`)}
+                        className="flex items-center gap-2.5 w-full px-2 py-1.5 text-xs rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)] transition-colors">
+                        <Gem className="h-3.5 w-3.5 text-[var(--teal)] shrink-0" />
+                        <span className="flex-1 truncate text-left">{a.name}</span>
+                        {a.reference_code && <span className="text-[var(--text-muted)] shrink-0" style={{ fontFamily: 'var(--font-mono)' }}>{a.reference_code}</span>}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
               <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-3">Quick Filters</p>
               <div className="flex flex-wrap gap-2">
                 {(quickCounts?.blocked ?? 0) > 0 && (

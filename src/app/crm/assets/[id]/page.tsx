@@ -5,6 +5,7 @@ import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { saveAs } from 'file-saver'
 import { trpc } from '@/lib/trpc'
+import { trackAssetView } from '@/lib/recently-viewed'
 import { NeuCard, NeuBadge, NeuButton, NeuTabs, NeuAvatar, NeuSkeleton, NeuConfirmDialog } from '@/components/ui'
 import { PhaseTimeline } from '@/components/crm/PhaseTimeline'
 import {
@@ -131,6 +132,16 @@ export default function AssetDetailPage() {
 
   const { asset, stages, tasks, subtasks, documents, activity, comments, partners } = data
   const meta = (asset.metadata ?? {}) as Record<string, unknown>
+
+  // Track recently viewed
+  if (typeof window !== 'undefined') {
+    trackAssetView({
+      id: asset.id as string,
+      name: asset.name as string,
+      reference_code: asset.reference_code as string | null,
+      current_phase: asset.current_phase as string | null,
+    })
+  }
 
   const typedStages: Stage[] = stages.map((s) => ({
     id: s.id, name: s.name, status: s.status as Stage['status'],
