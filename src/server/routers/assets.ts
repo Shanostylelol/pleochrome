@@ -426,6 +426,101 @@ export const assetsRouter = createRouter({
       return data
     }),
 
+  // ── Pivot value model (archive old phases 4-6, instantiate new) ──
+  pivotValueModel: protectedProcedure
+    .input(z.object({
+      assetId: z.string().uuid(),
+      newValueModel: z.enum(['tokenization', 'fractional_securities', 'debt_instrument', 'broker_sale', 'barter']),
+      reason: z.string().min(1).max(2000),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      // 1. Get current asset
+      const { data: asset } = await ctx.db.from('assets')
+        .select('id, value_model, asset_type, name').eq('id', input.assetId).single()
+      if (!asset) throw new TRPCError({ code: 'NOT_FOUND', message: 'Asset not found' })
+
+      const oldModel = asset.value_model
+      if (oldModel === input.newValueModel) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'New value model is the same as current' })
+      }
+
+      // 2. Count in-progress/done tasks in phases 4-6 (impact check)
+      const { data: impactedTasks } = await ctx.db.from('tasks')
+        .select('id, title, status, stage_id')
+        .eq('asset_id', input.assetId)
+        .eq('is_deleted', false)
+        .in('status', ['in_progress', 'done', 'blocked'] as never[])
+
+      const { data: phase456Stages } = await ctx.db.from('asset_stages')
+        .select('id, phase, name, status')
+        .eq('asset_id', input.assetId)
+        .in('phase', ['security', 'value_creation', 'distribution'] as never[])
+        .eq('is_hidden', false)
+
+      const phase456Ids = new Set((phase456Stages ?? []).map(s => s.id))
+      const affectedTasks = (impactedTasks ?? []).filter(t => phase456Ids.has(t.stage_id))
+
+      // 3. Archive old phases 4-6: mark stages as skipped + hidden
+      if (phase456Stages && phase456Stages.length > 0) {
+        const stageIds = phase456Stages.map(s => s.id)
+        await ctx.db.from('asset_stages')
+          .update({ status: 'skipped', is_hidden: true } as never)
+          .in('id', stageIds)
+
+        // Also mark their tasks as cancelled
+        await ctx.db.from('tasks')
+          .update({ status: 'cancelled' } as never)
+          .in('stage_id', stageIds)
+          .eq('is_deleted', false)
+          .in('status', ['todo', 'in_progress', 'blocked'] as never[])
+      }
+
+      // 4. Find and apply new model-specific template (phases 4-6 only)
+      const { data: newTemplate } = await ctx.db.from('workflow_templates')
+        .select('id')
+        .eq('value_model', input.newValueModel as never)
+        .eq('is_default', true)
+        .eq('is_system', true)
+        .maybeSingle()
+
+      let stagesCreated = 0
+      if (newTemplate) {
+        await ctx.db.rpc('instantiate_from_template', {
+          p_asset_id: input.assetId,
+          p_template_id: newTemplate.id,
+        })
+        const { count } = await ctx.db.from('asset_stages')
+          .select('id', { count: 'exact', head: true })
+          .eq('asset_id', input.assetId)
+          .in('phase', ['security', 'value_creation', 'distribution'] as never[])
+          .eq('is_hidden', false)
+        stagesCreated = count ?? 0
+      }
+
+      // 5. Update asset value_model
+      await ctx.db.from('assets')
+        .update({ value_model: input.newValueModel } as never)
+        .eq('id', input.assetId)
+
+      // 6. Log the pivot
+      await ctx.db.from('activity_log').insert({
+        asset_id: input.assetId,
+        entity_type: 'asset',
+        action: 'value_model_pivoted' as never,
+        detail: `Pivoted from ${oldModel ?? 'undecided'} to ${input.newValueModel}. Reason: ${input.reason}. ${(phase456Stages ?? []).length} stages archived, ${stagesCreated} new stages created. ${affectedTasks.length} in-progress tasks affected.`,
+        performed_by: ctx.user.id,
+        performed_at: new Date().toISOString(),
+      } as never)
+
+      return {
+        oldModel,
+        newModel: input.newValueModel,
+        archivedStages: (phase456Stages ?? []).length,
+        newStages: stagesCreated,
+        affectedTasks: affectedTasks.length,
+      }
+    }),
+
   // ── Duplicate asset ────────────────────────────────────────────
   duplicate: protectedProcedure
     .input(assetIdInput)

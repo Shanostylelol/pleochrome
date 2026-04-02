@@ -16,6 +16,7 @@ import {
 } from '@/components/crm/asset-detail'
 import { GateWarningModal, type GateWarning } from '@/components/crm/GateWarningModal'
 import { SetReminderModal } from '@/components/crm/SetReminderModal'
+import { PivotValueModelModal } from '@/components/crm/PivotValueModelModal'
 import {
   ChevronRight, Edit3, FileUp, MessageSquare, Download, LayoutGrid,
   Shield, FileText, CheckSquare, Activity, Lock, DollarSign,
@@ -66,6 +67,7 @@ export default function AssetDetailPage() {
   const [confirmAdvance, setConfirmAdvance] = useState(false)
   const [confirmDuplicate, setConfirmDuplicate] = useState(false)
   const [showReminder, setShowReminder] = useState(false)
+  const [showPivot, setShowPivot] = useState(false)
 
   const heroRef = useRef<HTMLDivElement>(null)
 
@@ -351,6 +353,7 @@ export default function AssetDetailPage() {
                 )}
                 <NeuButton variant="ghost" icon={<Bell className="h-4 w-4" />} size="sm" fullWidth onClick={() => setShowReminder(true)}>Set Reminder</NeuButton>
                 <NeuButton variant="ghost" icon={<Copy className="h-4 w-4" />} size="sm" fullWidth onClick={() => setConfirmDuplicate(true)} loading={duplicateMutation.isPending}>Duplicate</NeuButton>
+                <NeuButton variant="ghost" icon={<ArrowRight className="h-4 w-4" />} size="sm" fullWidth onClick={() => setShowPivot(true)}>Pivot Model</NeuButton>
                 <NeuButton variant="ghost" icon={<Copy className="h-4 w-4" />} size="sm" fullWidth onClick={() => setShowSaveTemplate(true)}>Save Template</NeuButton>
                 <NeuButton variant="ghost" icon={<FileUp className="h-4 w-4" />} size="sm" fullWidth onClick={() => setActiveTab('documents')}>Add Doc</NeuButton>
                 <NeuButton variant="ghost" icon={<MessageSquare className="h-4 w-4" />} size="sm" fullWidth onClick={() => setActiveTab('comments')}>Comment</NeuButton>
@@ -383,6 +386,7 @@ export default function AssetDetailPage() {
                     <div className="absolute right-0 top-full mt-1 z-20 neu-raised-sm p-1 min-w-[160px]">
                       <button onClick={() => { setShowReminder(true); setShowActions(false) }} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"><Bell className="h-3.5 w-3.5" /> Set Reminder</button>
                       <button onClick={() => { setConfirmDuplicate(true); setShowActions(false) }} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"><Copy className="h-3.5 w-3.5" /> Duplicate</button>
+                      <button onClick={() => { setShowPivot(true); setShowActions(false) }} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"><ArrowRight className="h-3.5 w-3.5" /> Pivot Model</button>
                       <button onClick={() => { setShowSaveTemplate(true); setShowActions(false) }} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"><Copy className="h-3.5 w-3.5" /> Save Template</button>
                       <button onClick={() => { setActiveTab('documents'); setShowActions(false) }} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"><FileUp className="h-3.5 w-3.5" /> Add Doc</button>
                       <button onClick={() => { setActiveTab('comments'); setShowActions(false) }} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"><MessageSquare className="h-3.5 w-3.5" /> Comment</button>
@@ -430,6 +434,13 @@ export default function AssetDetailPage() {
       {showEdit && <EditAssetModal asset={asset} assetId={params.id} onClose={() => setShowEdit(false)} />}
       <SaveTemplateModal open={showSaveTemplate} onClose={() => setShowSaveTemplate(false)} assetId={params.id} />
       <SetReminderModal open={showReminder} onClose={() => setShowReminder(false)} assetId={params.id} assetName={asset.name as string} />
+      <PivotValueModelModal
+        open={showPivot}
+        onClose={() => setShowPivot(false)}
+        assetId={params.id}
+        assetName={asset.name as string}
+        currentModel={asset.value_model as string | null}
+      />
       <GateWarningModal
         open={showGateModal}
         onClose={() => setShowGateModal(false)}
