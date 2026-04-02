@@ -258,9 +258,15 @@ export default function AssetDetailPage() {
                     <h1 className="text-xl lg:text-2xl font-semibold text-[var(--text-primary)] truncate" style={{ fontFamily: 'var(--font-display)' }}>
                       {asset.name}
                     </h1>
-                    <p className="text-[11px] text-[var(--text-muted)]" style={{ fontFamily: 'var(--font-mono)' }}>
+                    <button
+                      onClick={() => { navigator.clipboard.writeText(asset.reference_code as string); }}
+                      title="Copy reference code"
+                      className="text-[11px] text-[var(--text-muted)] hover:text-[var(--teal)] transition-colors flex items-center gap-1 group"
+                      style={{ fontFamily: 'var(--font-mono)' }}
+                    >
                       {asset.reference_code}
-                    </p>
+                      <Copy className="h-2.5 w-2.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </button>
                   </div>
                 </div>
 
