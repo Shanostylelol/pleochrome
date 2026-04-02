@@ -23,6 +23,9 @@ export function CommentsTab({ assetId, currentUserId, tasks = [], stages = [] }:
   const deleteComment = trpc.comments.delete.useMutation({
     onSuccess: () => { utils.comments.listAllForAsset.invalidate({ assetId }) },
   })
+  const editComment = trpc.comments.edit.useMutation({
+    onSuccess: () => { utils.comments.listAllForAsset.invalidate({ assetId }) },
+  })
 
   // Build lookup maps for context
   const taskMap = new Map(tasks.map(t => [t.id, t]))
@@ -92,6 +95,7 @@ export function CommentsTab({ assetId, currentUserId, tasks = [], stages = [] }:
         onPost={(body) => createComment.mutate({ body, assetId })}
         onReply={(commentId, body) => createComment.mutate({ body, assetId, parentCommentId: commentId })}
         onDelete={(commentId) => deleteComment.mutate({ commentId })}
+        onEdit={(commentId, body) => editComment.mutate({ commentId, body })}
         currentUserId={currentUserId}
       />
     </NeuCard>
