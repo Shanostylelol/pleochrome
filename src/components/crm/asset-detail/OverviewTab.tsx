@@ -143,10 +143,8 @@ export function OverviewTab({ asset, assetId }: OverviewTabProps) {
           <dl className="space-y-2 text-sm">
             <EditableField label="Vault Provider" value={(meta.vault_provider as string) ?? ''}
               onSave={(v) => saveMetaField('vault_provider', v)} />
-            <div className="flex justify-between">
-              <dt className="text-[var(--text-muted)]">PoR Status</dt>
-              <dd><NeuBadge color="gray" size="sm">{(meta.por_status as string) ?? 'Pending'}</NeuBadge></dd>
-            </div>
+            <EditableField label="PoR Status" value={(meta.por_status as string) ?? ''}
+              onSave={(v) => saveMetaField('por_status', v)} />
           </dl>
         </NeuCard>
 
@@ -158,6 +156,10 @@ export function OverviewTab({ asset, assetId }: OverviewTabProps) {
               onSave={(v) => saveField('spvName', v)} />
             <EditableField label="SPV EIN" value={(asset.spv_ein as string) ?? ''} mono
               onSave={(v) => saveField('spvEin', v)} />
+            <EditableField label="Insurance Provider" value={(meta.insurance_provider as string) ?? ''}
+              onSave={(v) => saveMetaField('insurance_provider', v)} />
+            <EditableField label="Insurance Value" value={(meta.insurance_value as string) ?? ''}
+              onSave={(v) => saveMetaField('insurance_value', v)} />
           </dl>
         </NeuCard>
       </div>
