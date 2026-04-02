@@ -5,6 +5,7 @@ import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { saveAs } from 'file-saver'
 import { trpc } from '@/lib/trpc'
+import { createClient } from '@/lib/supabase'
 import { trackAssetView } from '@/lib/recently-viewed'
 import { NeuCard, NeuBadge, NeuButton, NeuTabs, NeuAvatar, NeuSkeleton, NeuConfirmDialog } from '@/components/ui'
 import { PhaseTimeline } from '@/components/crm/PhaseTimeline'
@@ -82,8 +83,24 @@ export default function AssetDetailPage() {
   const utils = trpc.useUtils()
   const { data, isLoading, error } = trpc.assets.getById.useQuery({ assetId: params.id })
 
+  // Realtime: invalidate when tasks/stages/documents change for this asset
+  useEffect(() => {
+    const supabase = createClient()
+    const channel = supabase.channel(`asset-detail-${params.id}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks', filter: `asset_id=eq.${params.id}` },
+        () => utils.assets.getById.invalidate({ assetId: params.id }))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'asset_stages', filter: `asset_id=eq.${params.id}` },
+        () => utils.assets.getById.invalidate({ assetId: params.id }))
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
+  }, [params.id, utils])
+
   const [exportLoading, setExportLoading] = useState(false)
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
+
+  const updateStatusMutation = trpc.assets.update.useMutation({
+    onSuccess: () => utils.assets.getById.invalidate({ assetId: params.id }),
+  })
 
   const duplicateMutation = trpc.assets.duplicate.useMutation({
     onSuccess: (newAsset) => {
@@ -133,15 +150,16 @@ export default function AssetDetailPage() {
   const { asset, stages, tasks, subtasks, documents, activity, comments, partners } = data
   const meta = (asset.metadata ?? {}) as Record<string, unknown>
 
-  // Track recently viewed
-  if (typeof window !== 'undefined') {
+  // Track recently viewed (once per asset ID, not on every render)
+  useEffect(() => {
     trackAssetView({
       id: asset.id as string,
       name: asset.name as string,
       reference_code: asset.reference_code as string | null,
       current_phase: asset.current_phase as string | null,
     })
-  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [asset.id])
 
   const typedStages: Stage[] = stages.map((s) => ({
     id: s.id, name: s.name, status: s.status as Stage['status'],
@@ -315,6 +333,18 @@ export default function AssetDetailPage() {
                   onClick={() => { if (nextPhase) setConfirmAdvance(true) }}>
                   {nextPhase ? `Advance to ${PHASES[nextPhase].label}` : 'Final Phase'}
                 </NeuButton>
+                {asset.status === 'active' && (
+                  <NeuButton variant="ghost" size="sm" fullWidth onClick={() => updateStatusMutation.mutate({ assetId: params.id, status: 'paused' })}
+                    loading={updateStatusMutation.isPending}>
+                    Pause Asset
+                  </NeuButton>
+                )}
+                {asset.status === 'paused' && (
+                  <NeuButton variant="ghost" size="sm" fullWidth onClick={() => updateStatusMutation.mutate({ assetId: params.id, status: 'active' })}
+                    loading={updateStatusMutation.isPending}>
+                    Resume Asset
+                  </NeuButton>
+                )}
                 <NeuButton variant="ghost" icon={<Bell className="h-4 w-4" />} size="sm" fullWidth onClick={() => setShowReminder(true)}>Set Reminder</NeuButton>
                 <NeuButton variant="ghost" icon={<Copy className="h-4 w-4" />} size="sm" fullWidth onClick={() => setConfirmDuplicate(true)} loading={duplicateMutation.isPending}>Duplicate</NeuButton>
                 <NeuButton variant="ghost" icon={<Copy className="h-4 w-4" />} size="sm" fullWidth onClick={() => setShowSaveTemplate(true)}>Save Template</NeuButton>

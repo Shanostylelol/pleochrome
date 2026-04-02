@@ -32,6 +32,7 @@ export const updateAssetInput = z.object({
   targetCompletionDate: z.string().datetime({ offset: true }).nullable().optional(),
   assetType: z.string().min(1).max(100).optional(),
   holderEntity: z.string().min(1).max(255).optional(),
+  status: assetStatusEnum.optional(),
 })
 
 export const advancePhaseInput = z.object({
