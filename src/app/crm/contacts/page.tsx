@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { trpc } from '@/lib/trpc'
 import { cn } from '@/lib/utils'
 import { NeuCard, NeuBadge, NeuButton, NeuTabs, NeuInput, NeuModal, NeuSelect } from '@/components/ui'
-import { Plus, Search, Users, User, Building2, Mail, Download, ArrowUpDown, ChevronUp, ChevronDown } from 'lucide-react'
+import { Plus, Search, Users, User, Building2, Mail, Download, ArrowUpDown, ChevronUp, ChevronDown, Phone } from 'lucide-react'
 import { exportCSV } from '@/lib/csv-export'
 import { useMemo } from 'react'
 
@@ -159,11 +159,12 @@ export default function ContactsListPage() {
                   { key: 'full_name' as ContactSortKey, label: 'Name' },
                   { key: 'contact_type' as ContactSortKey, label: 'Type' },
                   { key: null, label: 'Email' },
-                  { key: null, label: 'Role' },
+                  { key: null, label: 'Phone', cls: 'hidden lg:table-cell' },
+                  { key: null, label: 'Role', cls: 'hidden md:table-cell' },
                   { key: 'kyc_status' as ContactSortKey, label: 'KYC Status' },
-                ]).map(({ key, label }) => (
+                ] as { key: ContactSortKey | null; label: string; cls?: string }[]).map(({ key, label, cls }) => (
                   <th key={label} onClick={key ? () => toggleSort(key) : undefined}
-                    className={`text-left px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] ${key ? 'cursor-pointer hover:text-[var(--text-secondary)] select-none' : ''}`}>
+                    className={`text-left px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] ${cls ?? ''} ${key ? 'cursor-pointer hover:text-[var(--text-secondary)] select-none' : ''}`}>
                     <span className="inline-flex items-center">
                       {label}{key && <SortIcon col={key} />}
                     </span>
@@ -201,7 +202,16 @@ export default function ContactsListPage() {
                         </a>
                       ) : '---'}
                     </td>
-                    <td className="px-4 py-3 text-[var(--text-secondary)] capitalize">
+                    <td className="px-4 py-3 hidden lg:table-cell">
+                      {(c.phone as string) ? (
+                        <a href={`tel:${c.phone}`} onClick={(e) => e.stopPropagation()}
+                          className="flex items-center gap-1 text-[var(--text-secondary)] hover:text-[var(--teal)] transition-colors group text-sm">
+                          <Phone className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 shrink-0" />
+                          {c.phone as string}
+                        </a>
+                      ) : '---'}
+                    </td>
+                    <td className="px-4 py-3 text-[var(--text-secondary)] capitalize hidden md:table-cell">
                       {((c.role as string) ?? '---').replace(/_/g, ' ')}
                     </td>
                     <td className="px-4 py-3">
