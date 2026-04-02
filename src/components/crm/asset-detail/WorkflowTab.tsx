@@ -223,6 +223,7 @@ export function WorkflowTab({ assetId, stages, tasks, subtasks, focusTaskId }: W
           tasksByStage={tasksByStage}
           subtasksByTask={subtasksByTask}
           onUpdateTaskStatus={handleUpdateTaskStatus}
+          onUpdateStageStatus={handleUpdateStageStatus}
           onSelectTask={(task, stage) => setDrawerTask({ task, stage })}
         />
       ) : (

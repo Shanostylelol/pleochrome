@@ -16,8 +16,11 @@ interface CompactWorkflowViewProps {
   tasksByStage: Map<string, Task[]>
   subtasksByTask: Map<string, Subtask[]>
   onUpdateTaskStatus?: (taskId: string, status: TaskStatusKey) => void
+  onUpdateStageStatus?: (stageId: string, status: 'not_started' | 'in_progress' | 'completed' | 'skipped') => void
   onSelectTask: (task: Task, stage: Stage) => void
 }
+
+const STAGE_STATUS_CYCLE: Array<'not_started' | 'in_progress' | 'completed'> = ['not_started', 'in_progress', 'completed']
 
 const statusIcon: Record<string, React.ReactNode> = {
   todo: <Circle className="h-3 w-3 text-[var(--text-muted)]" />,
@@ -32,7 +35,7 @@ const statusBadge: Record<StageStatusKey, 'gray' | 'teal' | 'chartreuse'> = {
 
 const STATUS_OPTIONS = Object.entries(TASK_STATUSES).map(([k, v]) => ({ value: k, label: v.label }))
 
-export function CompactWorkflowView({ stagesByPhase, tasksByStage, subtasksByTask, onUpdateTaskStatus, onSelectTask }: CompactWorkflowViewProps) {
+export function CompactWorkflowView({ stagesByPhase, tasksByStage, subtasksByTask, onUpdateTaskStatus, onUpdateStageStatus, onSelectTask }: CompactWorkflowViewProps) {
   const phases = Array.from(stagesByPhase.entries())
 
   return (
@@ -57,7 +60,22 @@ export function CompactWorkflowView({ stagesByPhase, tasksByStage, subtasksByTas
                   <div className="w-1 h-4 rounded-full shrink-0" style={{ background: `var(--phase-${phaseKey.replace(/_/g, '-')})` }} />
                   <span className="text-xs font-semibold text-[var(--text-primary)] flex-1 truncate">{stage.name}</span>
                   {stage.is_gate && <NeuBadge color="amber" size="sm">Gate</NeuBadge>}
-                  <NeuBadge color={statusBadge[stage.status]} size="sm">{stCfg.label}</NeuBadge>
+                  {onUpdateStageStatus ? (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        const idx = STAGE_STATUS_CYCLE.indexOf(stage.status as typeof STAGE_STATUS_CYCLE[number])
+                        const next = STAGE_STATUS_CYCLE[(idx + 1) % STAGE_STATUS_CYCLE.length]
+                        onUpdateStageStatus(stage.id, next)
+                      }}
+                      title="Click to advance stage status"
+                      className="shrink-0 transition-transform hover:scale-105"
+                    >
+                      <NeuBadge color={statusBadge[stage.status]} size="sm">{stCfg.label}</NeuBadge>
+                    </button>
+                  ) : (
+                    <NeuBadge color={statusBadge[stage.status]} size="sm">{stCfg.label}</NeuBadge>
+                  )}
                   <span className="text-[11px] text-[var(--text-muted)] tabular-nums">{completed}/{tasks.length}</span>
                 </div>
 
