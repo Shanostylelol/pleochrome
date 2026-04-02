@@ -170,9 +170,13 @@ function MeetingCard({ meeting, onClick }: { meeting: any; onClick: () => void }
           <div className="flex items-center gap-3 mt-1 flex-wrap">
             <span className="text-xs text-[var(--text-muted)] flex items-center gap-1">
               <Clock className="h-3 w-3" />
-              {new Date(meeting.meeting_date).toLocaleDateString('en-US', {
-                weekday: 'short', month: 'short', day: 'numeric', year: 'numeric',
-              })}
+              {(() => {
+                const d = new Date(meeting.meeting_date)
+                let s = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })
+                const h = d.getHours(), m = d.getMinutes()
+                if (h !== 0 || m !== 0) s += ` at ${d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`
+                return s
+              })()}
             </span>
             {meeting.duration_minutes && (
               <span className="text-xs text-[var(--text-muted)]">
