@@ -130,6 +130,14 @@ function TemplateCard({ template, isSelected, onClick }: {
             {VALUE_MODELS[vm as ValueModelKey]?.label ?? vm}
           </NeuBadge>
         )}
+        {(template.asset_type as string | null) && (
+          <NeuBadge color="teal" size="sm">
+            {(template.asset_type as string).replace(/_/g, ' ')}
+          </NeuBadge>
+        )}
+        {!vm && !(template.asset_type as string | null) && (
+          <NeuBadge color="gray" size="sm">Universal</NeuBadge>
+        )}
       </div>
     </NeuCard>
   )
@@ -139,6 +147,7 @@ function CreateTemplateModal({ open, onClose }: { open: boolean; onClose: () => 
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [valueModel, setValueModel] = useState('')
+  const [assetType, setAssetType] = useState('')
   const utils = trpc.useUtils()
 
   const mutation = trpc.templates.create.useMutation({
@@ -149,7 +158,7 @@ function CreateTemplateModal({ open, onClose }: { open: boolean; onClose: () => 
   })
 
   const resetAndClose = () => {
-    setName(''); setDescription(''); setValueModel('')
+    setName(''); setDescription(''); setValueModel(''); setAssetType('')
     onClose()
   }
 
@@ -169,16 +178,29 @@ function CreateTemplateModal({ open, onClose }: { open: boolean; onClose: () => 
           onChange={(e) => setDescription(e.target.value)}
           rows={3}
         />
-        <NeuSelect
-          label="Value Model"
-          value={valueModel}
-          onChange={(e) => setValueModel(e.target.value)}
-          placeholder="Select value model (optional)..."
-          options={Object.entries(VALUE_MODELS).map(([key, cfg]) => ({
-            value: key,
-            label: cfg.label,
-          }))}
-        />
+        <div className="grid grid-cols-2 gap-3">
+          <NeuSelect
+            label="Value Model"
+            value={valueModel}
+            onChange={(e) => setValueModel(e.target.value)}
+            options={[{ value: '', label: 'Universal' }, ...Object.entries(VALUE_MODELS).map(([key, cfg]) => ({
+              value: key, label: cfg.label,
+            }))]}
+          />
+          <NeuSelect
+            label="Asset Type"
+            value={assetType}
+            onChange={(e) => setAssetType(e.target.value)}
+            options={[
+              { value: '', label: 'Universal' },
+              { value: 'gemstone', label: 'Gemstone' },
+              { value: 'real_estate', label: 'Real Estate' },
+              { value: 'precious_metal', label: 'Precious Metal' },
+              { value: 'mineral_rights', label: 'Mineral Rights' },
+              { value: 'other', label: 'Other' },
+            ]}
+          />
+        </div>
       </div>
       <div className="flex gap-3 pt-4">
         <NeuButton variant="ghost" onClick={resetAndClose} fullWidth>Cancel</NeuButton>
@@ -187,6 +209,7 @@ function CreateTemplateModal({ open, onClose }: { open: boolean; onClose: () => 
             name: name.trim(),
             description: description.trim() || undefined,
             valueModel: valueModel || undefined,
+            assetType: assetType || undefined,
           })}
           loading={mutation.isPending}
           disabled={!name.trim()}
