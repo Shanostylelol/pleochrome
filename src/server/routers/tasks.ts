@@ -335,6 +335,35 @@ export const tasksRouter = createRouter({
         .single()
 
       if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
+
+      // Auto-start stage when first task goes in_progress
+      if (data && input.status === 'in_progress') {
+        const stageId = (data as Record<string, unknown>).stage_id as string | null
+        if (stageId) {
+          await ctx.db.from('asset_stages')
+            .update({ status: 'in_progress' } as never)
+            .eq('id', stageId)
+            .eq('status', 'not_started')
+        }
+      }
+
+      // Auto-complete stage when all tasks done via updateStatus
+      if (data && input.status === 'done') {
+        const stageId = (data as Record<string, unknown>).stage_id as string | null
+        if (stageId) {
+          const { data: stageTasks } = await ctx.db
+            .from('tasks').select('status')
+            .eq('stage_id', stageId).eq('is_deleted', false).eq('is_hidden', false)
+          const nonCancelled = (stageTasks ?? []).filter(t => t.status !== 'cancelled')
+          if (nonCancelled.length > 0 && nonCancelled.every(t => t.status === 'done')) {
+            await ctx.db.from('asset_stages')
+              .update({ status: 'completed' } as never)
+              .eq('id', stageId)
+              .in('status', ['not_started', 'in_progress'] as never[])
+          }
+        }
+      }
+
       return data
     }),
 
