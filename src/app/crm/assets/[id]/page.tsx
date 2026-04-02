@@ -394,6 +394,17 @@ export default function AssetDetailPage() {
         {/* Tabs (non-sticky instance — the sticky copy is above) */}
         <NeuTabs tabs={tabsWithCounts} activeTab={activeTab} onTabChange={setActiveTab} />
 
+        {/* No workflow nudge — visible on overview when no stages exist */}
+        {stages.length === 0 && activeTab === 'overview' && (
+          <div className="flex items-center gap-3 px-4 py-2.5 rounded-[var(--radius-md)] bg-[var(--amber-bg)] border border-[var(--amber)] border-opacity-30">
+            <span className="text-xs text-[var(--amber)]">⚡ No workflow stages yet.</span>
+            <button onClick={() => setActiveTab('workflow')}
+              className="text-xs font-semibold text-[var(--amber)] hover:text-[var(--text-primary)] underline transition-colors">
+              Go to Workflow tab to apply a template →
+            </button>
+          </div>
+        )}
+
         {/* Tab Content */}
         <div>
           {activeTab === 'overview' && <OverviewTab asset={asset} assetId={params.id} />}
