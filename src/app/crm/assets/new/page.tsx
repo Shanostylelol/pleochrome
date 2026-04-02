@@ -21,6 +21,8 @@ interface WizardData {
   valuePath: ValuePath
   estimatedValue: string
   origin: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any // allow asset-type-specific extra fields
 }
 
 // ─── Constants ─────────────────────────────────────────
@@ -314,26 +316,88 @@ export default function NewAssetPage() {
               className="text-lg font-semibold text-[var(--text-primary)]"
               style={{ fontFamily: 'var(--font-display)' }}
             >
-              Valuation
+              Valuation &amp; Details
             </h2>
             <p className="text-sm text-[var(--text-muted)]">
-              Provide initial valuation data. These values will be refined during the certification phase.
+              Provide initial valuation data and key details for this {data.assetType.replace(/_/g, ' ')}.
             </p>
             <NeuInput
-              label="Estimated Value"
+              label="Estimated Value (USD)"
               placeholder="e.g., 15400000"
               type="number"
               value={data.estimatedValue}
               onChange={(e) => update({ estimatedValue: e.target.value })}
-              helperText="Enter the claimed or appraised value in USD"
+              helperText="Claimed or appraised value"
             />
-            <NeuInput
-              label="Origin"
-              placeholder="e.g., Muzo Mine, Colombia"
-              value={data.origin}
-              onChange={(e) => update({ origin: e.target.value })}
-              helperText="Geographic origin or provenance of the asset"
-            />
+
+            {/* Asset-type-specific fields */}
+            {data.assetType === 'gemstone' && (
+              <>
+                <NeuInput label="Origin" placeholder="e.g., Muzo Mine, Colombia" value={data.origin}
+                  onChange={(e) => update({ origin: e.target.value })} helperText="Geographic origin / provenance" />
+                <div className="grid grid-cols-2 gap-3">
+                  <NeuInput label="Carat Weight" type="number" placeholder="e.g., 45.2"
+                    value={String((data as Record<string, unknown>).caratWeight ?? '')}
+                    onChange={(e) => update({ caratWeight: e.target.value } as Partial<WizardData>)} />
+                  <NeuInput label="GIA Report #" placeholder="e.g., 1234567890"
+                    value={String((data as Record<string, unknown>).giaReport ?? '')}
+                    onChange={(e) => update({ giaReport: e.target.value } as Partial<WizardData>)} />
+                </div>
+              </>
+            )}
+
+            {data.assetType === 'real_estate' && (
+              <>
+                <NeuInput label="Property Address" placeholder="123 Main St, City, State ZIP"
+                  value={String((data as Record<string, unknown>).propertyAddress ?? '')}
+                  onChange={(e) => update({ propertyAddress: e.target.value } as Partial<WizardData>)} />
+                <div className="grid grid-cols-2 gap-3">
+                  <NeuInput label="Property Type" placeholder="e.g., Commercial, Residential"
+                    value={String((data as Record<string, unknown>).propertyType ?? '')}
+                    onChange={(e) => update({ propertyType: e.target.value } as Partial<WizardData>)} />
+                  <NeuInput label="Square Footage" type="number" placeholder="e.g., 2500"
+                    value={String((data as Record<string, unknown>).sqFootage ?? '')}
+                    onChange={(e) => update({ sqFootage: e.target.value } as Partial<WizardData>)} />
+                </div>
+              </>
+            )}
+
+            {data.assetType === 'precious_metal' && (
+              <>
+                <div className="grid grid-cols-2 gap-3">
+                  <NeuInput label="Metal Type" placeholder="e.g., Gold, Silver, Platinum"
+                    value={String((data as Record<string, unknown>).metalType ?? '')}
+                    onChange={(e) => update({ metalType: e.target.value } as Partial<WizardData>)} />
+                  <NeuInput label="Weight (Troy oz)" type="number" placeholder="e.g., 100"
+                    value={String((data as Record<string, unknown>).troyOzWeight ?? '')}
+                    onChange={(e) => update({ troyOzWeight: e.target.value } as Partial<WizardData>)} />
+                </div>
+                <NeuInput label="Purity / Fineness" placeholder="e.g., 999.9 (24K)"
+                  value={String((data as Record<string, unknown>).metalPurity ?? '')}
+                  onChange={(e) => update({ metalPurity: e.target.value } as Partial<WizardData>)} />
+              </>
+            )}
+
+            {data.assetType === 'mineral_rights' && (
+              <>
+                <div className="grid grid-cols-2 gap-3">
+                  <NeuInput label="Net Mineral Acres" type="number" placeholder="e.g., 640"
+                    value={String((data as Record<string, unknown>).netMineralAcres ?? '')}
+                    onChange={(e) => update({ netMineralAcres: e.target.value } as Partial<WizardData>)} />
+                  <NeuInput label="Royalty Rate (%)" placeholder="e.g., 12.5"
+                    value={String((data as Record<string, unknown>).royaltyRate ?? '')}
+                    onChange={(e) => update({ royaltyRate: e.target.value } as Partial<WizardData>)} />
+                </div>
+                <NeuInput label="County / State" placeholder="e.g., Midland County, TX"
+                  value={String((data as Record<string, unknown>).countyState ?? '')}
+                  onChange={(e) => update({ countyState: e.target.value } as Partial<WizardData>)} />
+              </>
+            )}
+
+            {data.assetType === 'other' && (
+              <NeuInput label="Origin / Source" placeholder="Source or provenance description" value={data.origin}
+                onChange={(e) => update({ origin: e.target.value })} />
+            )}
           </div>
         )}
 

@@ -88,6 +88,93 @@ function EditableField({ label, value, onSave, mono, multiline }: {
   )
 }
 
+// ── Asset-type-specific fields ────────────────────────────
+function AssetTypeFields({ assetType, asset, meta, saveField, saveMetaField }: {
+  assetType: string
+  asset: Record<string, unknown>
+  meta: Record<string, unknown>
+  saveField: (field: string, value: string) => void
+  saveMetaField: (field: string, value: string) => void
+}) {
+  if (assetType === 'gemstone') {
+    return (
+      <NeuCard variant="raised" padding="md">
+        <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Gemstone Certification</h3>
+        <dl className="space-y-2 text-sm">
+          <EditableField label="Origin" value={(meta.origin as string) ?? (asset.origin as string) ?? ''} onSave={(v) => saveField('origin', v)} />
+          <EditableField label="Carat Weight" value={String((meta.carat_weight as number) ?? (asset.carat_weight as number) ?? '')} onSave={(v) => saveField('caratWeight', v)} />
+          <EditableField label="GIA Report #" value={(meta.gia_report_number as string) ?? ''} mono onSave={(v) => saveMetaField('gia_report_number', v)} />
+          <EditableField label="Color Grade" value={(meta.color_grade as string) ?? ''} onSave={(v) => saveMetaField('color_grade', v)} />
+          <EditableField label="Clarity Grade" value={(meta.clarity_grade as string) ?? ''} onSave={(v) => saveMetaField('clarity_grade', v)} />
+          <EditableField label="Cut Grade" value={(meta.cut_grade as string) ?? ''} onSave={(v) => saveMetaField('cut_grade', v)} />
+        </dl>
+      </NeuCard>
+    )
+  }
+
+  if (assetType === 'real_estate') {
+    return (
+      <NeuCard variant="raised" padding="md">
+        <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Property Details</h3>
+        <dl className="space-y-2 text-sm">
+          <EditableField label="Property Address" value={(meta.property_address as string) ?? ''} onSave={(v) => saveMetaField('property_address', v)} />
+          <EditableField label="Property Type" value={(meta.property_type as string) ?? ''} onSave={(v) => saveMetaField('property_type', v)} />
+          <EditableField label="Zoning" value={(meta.zoning as string) ?? ''} onSave={(v) => saveMetaField('zoning', v)} />
+          <EditableField label="Square Footage" value={(meta.sq_footage as string) ?? ''} onSave={(v) => saveMetaField('sq_footage', v)} />
+          <EditableField label="Lot Size (acres)" value={(meta.lot_size as string) ?? ''} onSave={(v) => saveMetaField('lot_size', v)} />
+          <EditableField label="Year Built" value={(meta.year_built as string) ?? ''} onSave={(v) => saveMetaField('year_built', v)} />
+          <EditableField label="Title Company" value={(meta.title_company as string) ?? ''} onSave={(v) => saveMetaField('title_company', v)} />
+        </dl>
+      </NeuCard>
+    )
+  }
+
+  if (assetType === 'precious_metal') {
+    return (
+      <NeuCard variant="raised" padding="md">
+        <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Metal Specification</h3>
+        <dl className="space-y-2 text-sm">
+          <EditableField label="Metal Type" value={(meta.metal_type as string) ?? ''} onSave={(v) => saveMetaField('metal_type', v)} />
+          <EditableField label="Purity / Fineness" value={(meta.metal_purity as string) ?? ''} onSave={(v) => saveMetaField('metal_purity', v)} />
+          <EditableField label="Weight (Troy oz)" value={String((meta.troy_oz_weight as number) ?? (asset.carat_weight as number) ?? '')} onSave={(v) => saveMetaField('troy_oz_weight', v)} />
+          <EditableField label="Assay Certificate #" value={(meta.assay_certificate as string) ?? ''} mono onSave={(v) => saveMetaField('assay_certificate', v)} />
+          <EditableField label="Mint / Refiner" value={(meta.mint_refiner as string) ?? ''} onSave={(v) => saveMetaField('mint_refiner', v)} />
+          <EditableField label="Serial / Bar #" value={(meta.bar_serial as string) ?? ''} mono onSave={(v) => saveMetaField('bar_serial', v)} />
+        </dl>
+      </NeuCard>
+    )
+  }
+
+  if (assetType === 'mineral_rights') {
+    return (
+      <NeuCard variant="raised" padding="md">
+        <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Mineral Rights Details</h3>
+        <dl className="space-y-2 text-sm">
+          <EditableField label="Net Mineral Acres" value={(meta.net_mineral_acres as string) ?? ''} onSave={(v) => saveMetaField('net_mineral_acres', v)} />
+          <EditableField label="Royalty Rate (%)" value={(meta.royalty_rate as string) ?? ''} onSave={(v) => saveMetaField('royalty_rate', v)} />
+          <EditableField label="Lease Type" value={(meta.lease_type as string) ?? ''} onSave={(v) => saveMetaField('lease_type', v)} />
+          <EditableField label="County / State" value={(meta.county_state as string) ?? ''} onSave={(v) => saveMetaField('county_state', v)} />
+          <EditableField label="Producing Wells" value={(meta.producing_wells as string) ?? ''} onSave={(v) => saveMetaField('producing_wells', v)} />
+          <EditableField label="Formation" value={(meta.formation as string) ?? ''} onSave={(v) => saveMetaField('formation', v)} />
+          <EditableField label="API Number" value={(meta.api_number as string) ?? ''} mono onSave={(v) => saveMetaField('api_number', v)} />
+        </dl>
+      </NeuCard>
+    )
+  }
+
+  // "other" or unknown — generic certification
+  return (
+    <NeuCard variant="raised" padding="md">
+      <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Asset Details</h3>
+      <dl className="space-y-2 text-sm">
+        <EditableField label="Origin" value={(meta.origin as string) ?? (asset.origin as string) ?? ''} onSave={(v) => saveField('origin', v)} />
+        <EditableField label="Certificate #" value={(meta.certificate_number as string) ?? ''} mono onSave={(v) => saveMetaField('certificate_number', v)} />
+        <EditableField label="Condition" value={(meta.condition as string) ?? ''} onSave={(v) => saveMetaField('condition', v)} />
+      </dl>
+    </NeuCard>
+  )
+}
+
 // ── Component ─────────────────────────────────────────────
 export function OverviewTab({ asset, assetId }: OverviewTabProps) {
   const meta = (asset.metadata ?? {}) as Record<string, unknown>
@@ -124,22 +211,11 @@ export function OverviewTab({ asset, assetId }: OverviewTabProps) {
           </dl>
         </NeuCard>
 
-        {/* Certification */}
-        <NeuCard variant="raised" padding="md">
-          <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Certification</h3>
-          <dl className="space-y-2 text-sm">
-            <EditableField label="Origin" value={(meta.origin as string) ?? (asset.origin as string) ?? ''}
-              onSave={(v) => saveField('origin', v)} />
-            <EditableField label="Carat Weight" value={String((meta.carat_weight as number) ?? (asset.carat_weight as number) ?? '')}
-              onSave={(v) => saveField('caratWeight', v)} />
-            <EditableField label="GIA Report" value={(meta.gia_report_number as string) ?? ''} mono
-              onSave={(v) => saveMetaField('gia_report_number', v)} />
-            <EditableField label="Item Count" value={String((asset.asset_count as number) ?? '')}
-              onSave={(v) => saveField('assetCount', v)} />
-          </dl>
-        </NeuCard>
+        {/* Asset-type-specific details */}
+        <AssetTypeFields assetType={(asset.asset_type as string) ?? 'other'} asset={asset} meta={meta}
+          saveField={saveField} saveMetaField={saveMetaField} />
 
-        {/* Custody */}
+        {/* Custody & Location (universal) */}
         <NeuCard variant="raised" padding="md">
           <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Custody &amp; Location</h3>
           <dl className="space-y-2 text-sm">
@@ -149,6 +225,8 @@ export function OverviewTab({ asset, assetId }: OverviewTabProps) {
               onSave={(v) => saveMetaField('vault_provider', v)} />
             <EditableField label="PoR Status" value={(meta.por_status as string) ?? ''}
               onSave={(v) => saveMetaField('por_status', v)} />
+            <EditableField label="Item Count" value={String((asset.asset_count as number) ?? '')}
+              onSave={(v) => saveField('assetCount', v)} />
           </dl>
         </NeuCard>
 

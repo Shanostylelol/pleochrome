@@ -412,7 +412,7 @@ export default function AssetDetailPage() {
         {/* Tab Content */}
         <div>
           {activeTab === 'overview' && <OverviewTab asset={asset} assetId={params.id} />}
-          {activeTab === 'workflow' && <WorkflowTab assetId={params.id} stages={typedStages} tasks={typedTasks} subtasks={typedSubtasks} focusTaskId={searchParams.get('taskId')} />}
+          {activeTab === 'workflow' && <WorkflowTab assetId={params.id} assetType={asset.asset_type as string} valueModel={asset.value_model as string | null} stages={typedStages} tasks={typedTasks} subtasks={typedSubtasks} focusTaskId={searchParams.get('taskId')} />}
           {activeTab === 'documents' && <DocumentsTab assetId={params.id} documents={documents} stages={typedStages} />}
           {activeTab === 'comments' && <CommentsTab assetId={params.id} currentUserId={currentUserId}
             tasks={typedTasks.map(t => ({ id: t.id, title: t.title, stage_id: (t as unknown as { stage_id: string }).stage_id }))}

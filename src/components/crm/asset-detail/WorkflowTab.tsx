@@ -17,12 +17,15 @@ import { CompactWorkflowView } from '@/components/crm/CompactWorkflowView'
 import { TaskDetailDrawer } from '@/components/crm/TaskDetailDrawer'
 import { BulkActionBar } from '@/components/crm/BulkActionBar'
 import { trpc } from '@/lib/trpc'
+import { useToast } from '@/components/ui/NeuToast'
 import type { Task } from '@/components/crm/TaskCard'
 import type { Subtask } from '@/components/crm/SubtaskChecklist'
 
 // ── Types ─────────────────────────────────────────────────
 interface WorkflowTabProps {
   assetId: string
+  assetType?: string | null
+  valueModel?: string | null
   stages: Stage[]
   tasks: Task[]
   subtasks: Array<{ id: string; task_id: string; title: string; status: string; subtask_type?: string; notes?: string; assignee?: { name: string; avatar_url?: string } }>
@@ -35,7 +38,7 @@ const STATUS_FILTERS = [
 ]
 
 // ── Component ─────────────────────────────────────────────
-export function WorkflowTab({ assetId, stages, tasks, subtasks, focusTaskId }: WorkflowTabProps) {
+export function WorkflowTab({ assetId, assetType, valueModel, stages, tasks, subtasks, focusTaskId }: WorkflowTabProps) {
   const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set())
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
@@ -50,6 +53,16 @@ export function WorkflowTab({ assetId, stages, tasks, subtasks, focusTaskId }: W
   const [viewMode, setViewMode] = useState<'accordion' | 'compact'>('accordion')
   const [drawerTask, setDrawerTask] = useState<{ task: Task; stage: Stage } | null>(null)
   const [showApplyTemplate, setShowApplyTemplate] = useState(false)
+  const utils = trpc.useUtils()
+  const { toast } = useToast()
+  const applyFullWorkflow = trpc.assets.instantiateWorkflow.useMutation({
+    onSuccess: (result) => {
+      utils.assets.getById.invalidate({ assetId })
+      const r = result as Record<string, unknown>
+      toast(`Workflow applied: ${r.stages_created ?? 0} stages, ${r.tasks_created ?? 0} tasks`, 'success')
+    },
+    onError: (err) => toast(err.message, 'error'),
+  })
   const { data: currentUser } = trpc.team.getCurrentUser.useQuery()
   const currentUserId = currentUser?.id ?? ''
 
@@ -210,10 +223,30 @@ export function WorkflowTab({ assetId, stages, tasks, subtasks, focusTaskId }: W
             <Layers className="h-10 w-10 mx-auto" />
           </div>
           <p className="text-sm font-medium text-[var(--text-muted)]">No workflow stages yet</p>
-          <p className="text-xs text-[var(--text-placeholder)] mt-1 mb-4">Apply a template to get started quickly, or add stages manually below</p>
-          <NeuButton icon={<BookOpen className="h-4 w-4" />} onClick={() => setShowApplyTemplate(true)} size="sm">
-            Apply Template
-          </NeuButton>
+          <p className="text-xs text-[var(--text-placeholder)] mt-1 mb-4">
+            {valueModel
+              ? 'Apply the full workflow for your value model, or pick individual templates'
+              : 'Select a value model first, or apply templates manually'}
+          </p>
+          <div className="flex items-center justify-center gap-3">
+            {valueModel && (
+              <NeuButton
+                icon={<Layers className="h-4 w-4" />}
+                onClick={() => applyFullWorkflow.mutate({
+                  assetId,
+                  valueModel: valueModel as 'tokenization' | 'fractional_securities' | 'debt_instrument' | 'broker_sale' | 'barter',
+                  assetType: assetType ?? undefined,
+                })}
+                loading={applyFullWorkflow.isPending}
+                size="sm"
+              >
+                Apply Full Workflow
+              </NeuButton>
+            )}
+            <NeuButton variant="ghost" icon={<BookOpen className="h-4 w-4" />} onClick={() => setShowApplyTemplate(true)} size="sm">
+              Pick Template
+            </NeuButton>
+          </div>
         </NeuCard>
       )}
 

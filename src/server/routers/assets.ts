@@ -1,4 +1,5 @@
 import { TRPCError } from '@trpc/server'
+import { z } from 'zod'
 import { createRouter, protectedProcedure } from '../trpc'
 import {
   createAssetInput, updateAssetInput, advancePhaseInput,
@@ -207,11 +208,13 @@ export const assetsRouter = createRouter({
       if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
 
       // Instantiate workflow from templates (if value model selected)
+      // Passes asset_type so asset-type-specific templates take precedence if they exist
       let workflowResult = null
       if (input.valueModel) {
         const { data: rpcResult } = await ctx.db.rpc('instantiate_workflow', {
           p_asset_id: asset.id,
           p_value_model: input.valueModel,
+          p_asset_type: input.assetType ?? null,
         })
         workflowResult = rpcResult
       }
@@ -409,14 +412,17 @@ export const assetsRouter = createRouter({
   instantiateWorkflow: protectedProcedure
     .input(assetIdInput.extend({
       valueModel: createAssetInput.shape.valueModel.unwrap(),
+      assetType: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
       const { data, error } = await ctx.db.rpc('instantiate_workflow', {
         p_asset_id: input.assetId,
         p_value_model: input.valueModel,
+        p_asset_type: input.assetType ?? null,
       })
 
       if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
+      // Invalidate from caller side
       return data
     }),
 
