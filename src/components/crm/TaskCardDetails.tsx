@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Clock, Paperclip, MessageCircle, Activity } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { TASK_TYPES, type TaskTypeKey } from '@/lib/constants'
@@ -13,6 +13,48 @@ import { TaskActivityList } from './TaskActivityList'
 import { TaskAssigneeSelect } from './TaskAssigneeSelect'
 import { TaskDetailSection } from './TaskDetailSection'
 import type { Task } from './TaskCard'
+
+// ── Inline editable textarea ──────────────────────────────
+function InlineTextarea({ label, value, placeholder, onSave }: {
+  label: string; value: string; placeholder: string; onSave: (v: string) => void
+}) {
+  const [editing, setEditing] = useState(false)
+  const [draft, setDraft] = useState(value)
+  const ref = useRef<HTMLTextAreaElement>(null)
+  useEffect(() => { if (editing) ref.current?.focus() }, [editing])
+  useEffect(() => { setDraft(value) }, [value])
+
+  function commit() {
+    if (draft.trim() !== value) onSave(draft.trim())
+    setEditing(false)
+  }
+
+  return (
+    <div>
+      <button onClick={() => { setDraft(value); setEditing(!editing) }}
+        className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] hover:text-[var(--text-secondary)] mb-0.5 block transition-colors">
+        {label} {!editing && <span className="font-normal opacity-60">▸</span>}
+      </button>
+      {editing ? (
+        <textarea ref={ref} value={draft} onChange={(e) => setDraft(e.target.value)}
+          onBlur={commit}
+          onKeyDown={(e) => { if (e.key === 'Escape') { setDraft(value); setEditing(false) } }}
+          placeholder={placeholder} rows={2}
+          className="w-full text-sm rounded-[var(--radius-sm)] px-2 py-1.5 resize-none bg-[var(--bg-input)] text-[var(--text-primary)] placeholder:text-[var(--text-placeholder)] shadow-[var(--shadow-pressed)] border border-[var(--teal)] focus:outline-none" />
+      ) : value ? (
+        <p className="text-sm text-[var(--text-secondary)] cursor-pointer hover:text-[var(--text-primary)] transition-colors whitespace-pre-wrap"
+          onClick={() => { setDraft(value); setEditing(true) }}>
+          {value}
+        </p>
+      ) : (
+        <p className="text-xs text-[var(--text-placeholder)] italic cursor-pointer hover:text-[var(--text-muted)] transition-colors"
+          onClick={() => { setDraft(''); setEditing(true) }}>
+          {placeholder}
+        </p>
+      )}
+    </div>
+  )
+}
 
 // ── Types ─────────────────────────────────────────────────
 export interface TaskCardDetailsProps {
@@ -111,17 +153,21 @@ export function TaskCardDetails({
         )}
       </div>
 
-      {task.description && (
-        <p className="text-sm text-[var(--text-secondary)]">{task.description}</p>
-      )}
-      {task.notes && (
-        <div>
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-            Notes
-          </span>
-          <p className="text-sm text-[var(--text-secondary)] mt-0.5">{task.notes}</p>
-        </div>
-      )}
+      {/* Inline editable description */}
+      <InlineTextarea
+        label="Description"
+        value={task.description ?? ''}
+        placeholder="Add task description..."
+        onSave={(v) => onUpdate?.(task.id, { description: v || undefined })}
+      />
+
+      {/* Inline editable notes */}
+      <InlineTextarea
+        label="Notes"
+        value={task.notes ?? ''}
+        placeholder="Add internal notes..."
+        onSave={(v) => onUpdate?.(task.id, { notes: v || undefined })}
+      />
 
       {/* Due date editor */}
       <div>
