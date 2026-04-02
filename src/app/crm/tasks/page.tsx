@@ -33,6 +33,7 @@ export default function TasksPage() {
   const [view, setView] = useState<'kanban' | 'list'>('kanban')
   const [search, setSearch] = useState('')
   const [sortKey, setSortKey] = useState<SortKey>('due_date')
+  const [typeFilter, setTypeFilter] = useState('')
   const [showCreate, setShowCreate] = useState(false)
   const utils = trpc.useUtils()
 
@@ -68,6 +69,9 @@ export default function TasksPage() {
       const q = search.toLowerCase()
       t = t.filter(task => ((task.title as string) ?? '').toLowerCase().includes(q))
     }
+    if (typeFilter) {
+      t = t.filter(task => (task.task_type as string) === typeFilter)
+    }
     t = [...t].sort((a, b) => {
       if (sortKey === 'due_date') {
         const da = a.due_date as string | null, db = b.due_date as string | null
@@ -80,7 +84,7 @@ export default function TasksPage() {
       return ((a.title as string) ?? '').localeCompare((b.title as string) ?? '')
     })
     return t
-  }, [rawTasks, search, sortKey])
+  }, [rawTasks, search, sortKey, typeFilter])
 
   return (
     <div className="space-y-6">
@@ -123,6 +127,11 @@ export default function TasksPage() {
             className="w-full pl-9 pr-3 py-1.5 text-sm rounded-[var(--radius-md)] bg-[var(--bg-body)] shadow-[var(--shadow-pressed)] text-[var(--text-primary)] placeholder:text-[var(--text-placeholder)] outline-none focus:ring-1 focus:ring-[var(--border-focus)]"
           />
         </div>
+        <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}
+          className="h-8 text-xs rounded-[var(--radius-sm)] px-2 bg-[var(--bg-input)] text-[var(--text-muted)] border border-[var(--border)] shadow-[var(--shadow-pressed)] focus:outline-none focus:border-[var(--teal)]">
+          <option value="">All Types</option>
+          {TASK_TYPE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+        </select>
         <div className="flex items-center gap-1.5">
           <ArrowUpDown className="h-3.5 w-3.5 text-[var(--text-muted)]" />
           {(['due_date', 'status', 'title'] as SortKey[]).map((k) => (
