@@ -339,6 +339,7 @@ function PipelineBoardInner() {
 // ─── Droppable Column ──────────────────────────────────
 function DroppableColumn({ col, assets, highlighted }: { col: KanbanColumn; assets: PipelineBoard[]; highlighted?: boolean }) {
   const { setNodeRef } = useSortable({ id: col.id })
+  const overdueTotal = assets.reduce((sum, a) => sum + ((a.taskProgress?.overdueCount as number) ?? 0), 0)
 
   return (
     <div className="flex-shrink-0 w-[280px] lg:w-[320px]">
@@ -347,6 +348,11 @@ function DroppableColumn({ col, assets, highlighted }: { col: KanbanColumn; asse
         <span className="text-sm font-semibold text-[var(--text-primary)]">{col.label}</span>
         {highlighted && <span className="text-[10px] font-bold uppercase tracking-wider ml-1" style={{ color: col.color }}>Filtered</span>}
         <span className="text-xs text-[var(--text-muted)] ml-auto">{assets.length}</span>
+        {overdueTotal > 0 && (
+          <span className="text-[10px] font-bold text-[var(--ruby)] ml-1" title={`${overdueTotal} overdue tasks`}>
+            {overdueTotal} overdue
+          </span>
+        )}
       </div>
       <div
         ref={setNodeRef}
