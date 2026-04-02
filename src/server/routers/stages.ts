@@ -167,4 +167,17 @@ export const stagesRouter = createRouter({
       if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
       return data
     }),
+
+  rename: protectedProcedure
+    .input(z.object({ stageId: uuidSchema, name: z.string().min(1).max(255) }))
+    .mutation(async ({ ctx, input }) => {
+      const { data, error } = await ctx.db
+        .from('asset_stages')
+        .update({ name: input.name } as never)
+        .eq('id', input.stageId)
+        .select()
+        .single()
+      if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
+      return data
+    }),
 })

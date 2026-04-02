@@ -9,6 +9,7 @@ import { NeuBadge } from '@/components/ui/NeuBadge'
 import { NeuButton } from '@/components/ui/NeuButton'
 import { NeuProgress } from '@/components/ui/NeuProgress'
 import { STAGE_STATUSES, type StageStatusKey, type PhaseKey, type TaskStatusKey, type TaskTypeKey } from '@/lib/constants'
+import { trpc } from '@/lib/trpc'
 import { type Task } from './TaskCard'
 import { type Subtask } from './SubtaskChecklist'
 import { SortableTaskItem } from './SortableTaskItem'
@@ -105,6 +106,12 @@ export function StageAccordion({
   currentUserId,
 }: StageAccordionProps) {
   const [activeDragId, setActiveDragId] = useState<string | null>(null)
+  const [editingName, setEditingName] = useState(false)
+  const [nameDraft, setNameDraft] = useState(stage.name)
+  const utils = trpc.useUtils()
+  const renameMut = trpc.stages.rename.useMutation({
+    onSuccess: () => utils.assets.getById.invalidate(),
+  })
   const statusCfg = STAGE_STATUSES[stage.status]
   const taskCount = tasks.length
   const completedCount = tasks.filter((t) => t.status === 'done').length
@@ -155,9 +162,33 @@ export function StageAccordion({
                   <Shield className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-[var(--amber)]" />
                 </div>
               )}
-              <span className="text-sm font-semibold text-[var(--text-primary)] truncate flex-1">
-                {stage.name}
-              </span>
+              {editingName ? (
+                <input
+                  autoFocus
+                  value={nameDraft}
+                  onChange={(e) => setNameDraft(e.target.value)}
+                  onBlur={() => {
+                    if (nameDraft.trim() && nameDraft.trim() !== stage.name) {
+                      renameMut.mutate({ stageId: stage.id, name: nameDraft.trim() })
+                    }
+                    setEditingName(false)
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') { e.currentTarget.blur() }
+                    if (e.key === 'Escape') { setNameDraft(stage.name); setEditingName(false) }
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="flex-1 text-sm font-semibold bg-transparent border-b border-[var(--teal)] text-[var(--text-primary)] outline-none px-0.5 min-w-0"
+                />
+              ) : (
+                <span
+                  className="text-sm font-semibold text-[var(--text-primary)] truncate flex-1 cursor-pointer"
+                  onDoubleClick={(e) => { e.stopPropagation(); setNameDraft(stage.name); setEditingName(true) }}
+                  title="Double-click to rename"
+                >
+                  {stage.name}
+                </span>
+              )}
               {stage.is_gate && (
                 <NeuBadge color="amber" size="sm">Gate</NeuBadge>
               )}
