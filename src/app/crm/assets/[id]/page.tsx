@@ -218,6 +218,9 @@ export default function AssetDetailPage() {
           <div className="flex items-center gap-1.5 shrink-0">
             <NeuBadge color={STATUS_COLOR[statusKey] ?? 'gray'} size="sm">{ASSET_STATUSES[statusKey]?.label ?? asset.status}</NeuBadge>
             <span className="text-[10px] text-[var(--text-muted)] font-mono">{PHASES[asset.current_phase as PhaseKey]?.label ?? asset.current_phase}</span>
+            {targetDateStr && targetDaysLeft !== null && (
+              <span className="text-[10px] font-bold" style={{ color: targetColor }}>{targetLabel}</span>
+            )}
           </div>
           <div className="flex items-center gap-1 shrink-0">
             <NeuButton variant="ghost" size="sm" className="!h-7 !px-2" onClick={() => setShowEdit(true)}>
