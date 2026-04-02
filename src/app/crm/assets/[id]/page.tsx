@@ -99,7 +99,11 @@ export default function AssetDetailPage() {
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
 
   const updateStatusMutation = trpc.assets.update.useMutation({
-    onSuccess: () => utils.assets.getById.invalidate({ assetId: params.id }),
+    onSuccess: () => {
+      utils.assets.getById.invalidate({ assetId: params.id })
+      utils.assets.listForPipeline.invalidate()
+      utils.assets.list.invalidate()
+    },
   })
 
   const duplicateMutation = trpc.assets.duplicate.useMutation({
