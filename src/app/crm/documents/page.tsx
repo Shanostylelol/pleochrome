@@ -316,8 +316,16 @@ export default function DocumentsPage() {
                           className="rounded border-[var(--border)] accent-[var(--teal)]" />
                       </td>
                       <td className="px-3 py-2">
-                        <p className="font-medium text-[var(--text-primary)] truncate max-w-[200px]">{doc.title}</p>
+                        <div className="flex items-center gap-1.5">
+                          <p className="font-medium text-[var(--text-primary)] truncate max-w-[180px]">{doc.title}</p>
+                          {Boolean((doc as Record<string, unknown>).notes) && (
+                            <span title="Has notes" className="text-[var(--teal)] text-[10px] shrink-0">📝</span>
+                          )}
+                        </div>
                         <p className="text-xs text-[var(--text-muted)] truncate">{doc.filename}</p>
+                        {Boolean((doc as Record<string, unknown>).notes) && (
+                          <p className="text-[10px] text-[var(--text-muted)] truncate italic">{String((doc as Record<string, unknown>).notes)}</p>
+                        )}
                       </td>
                       <td className="px-3 py-2 hidden md:table-cell">
                         <NeuBadge color="gray" size="sm">{doc.document_type}</NeuBadge>

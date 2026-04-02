@@ -24,14 +24,20 @@ interface OverviewTabProps {
 }
 
 // ── Inline editable field ────────────────────────────────
-function EditableField({ label, value, onSave, mono }: {
-  label: string; value: string; onSave: (v: string) => void; mono?: boolean
+function EditableField({ label, value, onSave, mono, multiline }: {
+  label: string; value: string; onSave: (v: string) => void; mono?: boolean; multiline?: boolean
 }) {
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(value)
-  const ref = useRef<HTMLInputElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  useEffect(() => { if (editing) ref.current?.focus() }, [editing])
+  useEffect(() => {
+    if (editing) {
+      if (multiline) textareaRef.current?.focus()
+      else inputRef.current?.focus()
+    }
+  }, [editing, multiline])
 
   function commit() {
     const trimmed = draft.trim()
@@ -39,11 +45,33 @@ function EditableField({ label, value, onSave, mono }: {
     setEditing(false)
   }
 
+  if (multiline) {
+    return (
+      <div className="space-y-1">
+        <dt className="text-[var(--text-muted)]">{label}</dt>
+        {editing ? (
+          <textarea ref={textareaRef} value={draft} onChange={(e) => setDraft(e.target.value)}
+            onBlur={commit}
+            onKeyDown={(e) => { if (e.key === 'Escape') { setDraft(value); setEditing(false) } }}
+            rows={3}
+            className="w-full text-sm bg-transparent border border-[var(--teal)] rounded-[var(--radius-sm)] text-[var(--text-primary)] outline-none px-2 py-1 resize-none"
+          />
+        ) : (
+          <dd onClick={() => { setDraft(value); setEditing(true) }}
+            className="text-[var(--text-primary)] text-sm cursor-pointer hover:text-[var(--teal)] transition-colors whitespace-pre-wrap"
+            title="Click to edit">
+            {value || <span className="text-[var(--text-placeholder)] italic">Click to add...</span>}
+          </dd>
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className="flex justify-between">
       <dt className="text-[var(--text-muted)]">{label}</dt>
       {editing ? (
-        <input ref={ref} value={draft} onChange={(e) => setDraft(e.target.value)}
+        <input ref={inputRef} value={draft} onChange={(e) => setDraft(e.target.value)}
           onBlur={commit}
           onKeyDown={(e) => { if (e.key === 'Enter') commit(); if (e.key === 'Escape') { setDraft(value); setEditing(false) } }}
           className="text-right text-sm bg-transparent border-b border-[var(--teal)] text-[var(--text-primary)] outline-none w-[60%] px-1"
@@ -92,7 +120,7 @@ export function OverviewTab({ asset, assetId }: OverviewTabProps) {
             <EditableField label="Entity" value={(asset.asset_holder_entity as string) ?? ''}
               onSave={(v) => updateAsset.mutate({ assetId, holderEntity: v || undefined } as never)} />
             <EditableField label="Description" value={(asset.description as string) ?? ''}
-              onSave={(v) => saveField('description', v)} />
+              onSave={(v) => saveField('description', v)} multiline />
           </dl>
         </NeuCard>
 
