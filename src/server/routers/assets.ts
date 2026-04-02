@@ -444,7 +444,37 @@ export const assetsRouter = createRouter({
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'New value model is the same as current' })
       }
 
-      // 2. Count in-progress/done tasks in phases 4-6 (impact check)
+      // 2. VALIDATE: Find new model template BEFORE archiving anything
+      // Prefer asset-type-specific template, fall back to universal
+      let newTemplate: { id: string } | null = null
+      if (asset.asset_type) {
+        const { data: typeSpecific } = await ctx.db.from('workflow_templates')
+          .select('id')
+          .eq('value_model', input.newValueModel as never)
+          .eq('is_default', true).eq('is_system', true)
+          .eq('asset_type' as never, asset.asset_type)
+          .maybeSingle()
+        newTemplate = typeSpecific
+      }
+      if (!newTemplate) {
+        const { data: universal } = await ctx.db.from('workflow_templates')
+          .select('id')
+          .eq('value_model', input.newValueModel as never)
+          .eq('is_default', true).eq('is_system', true)
+          .is('asset_type' as never, null)
+          .maybeSingle()
+        newTemplate = universal
+      }
+
+      // FAIL EARLY if no template exists — don't archive old work for nothing
+      if (!newTemplate) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: `No default template found for ${input.newValueModel.replace(/_/g, ' ')}. Cannot pivot without a target template.`,
+        })
+      }
+
+      // 3. Count in-progress/done tasks in phases 4-6 (impact check)
       const { data: impactedTasks } = await ctx.db.from('tasks')
         .select('id, title, status, stage_id')
         .eq('asset_id', input.assetId)
@@ -460,14 +490,14 @@ export const assetsRouter = createRouter({
       const phase456Ids = new Set((phase456Stages ?? []).map(s => s.id))
       const affectedTasks = (impactedTasks ?? []).filter(t => phase456Ids.has(t.stage_id))
 
-      // 3. Archive old phases 4-6: mark stages as skipped + hidden
+      // 4. Archive old phases 4-6: mark stages as skipped + hidden
       if (phase456Stages && phase456Stages.length > 0) {
         const stageIds = phase456Stages.map(s => s.id)
         await ctx.db.from('asset_stages')
           .update({ status: 'skipped', is_hidden: true } as never)
           .in('id', stageIds)
 
-        // Also mark their tasks as cancelled
+        // Cancel only OPEN tasks (preserves 'done' tasks for audit trail)
         await ctx.db.from('tasks')
           .update({ status: 'cancelled' } as never)
           .in('stage_id', stageIds)
@@ -475,39 +505,28 @@ export const assetsRouter = createRouter({
           .in('status', ['todo', 'in_progress', 'blocked'] as never[])
       }
 
-      // 4. Find and apply new model-specific template (phases 4-6 only)
-      const { data: newTemplate } = await ctx.db.from('workflow_templates')
-        .select('id')
-        .eq('value_model', input.newValueModel as never)
-        .eq('is_default', true)
-        .eq('is_system', true)
-        .maybeSingle()
+      // 5. Instantiate new model template (phases 4-6 only)
+      await ctx.db.rpc('instantiate_from_template', {
+        p_asset_id: input.assetId,
+        p_template_id: newTemplate.id,
+      })
+      const { count: stagesCreated } = await ctx.db.from('asset_stages')
+        .select('id', { count: 'exact', head: true })
+        .eq('asset_id', input.assetId)
+        .in('phase', ['security', 'value_creation', 'distribution'] as never[])
+        .eq('is_hidden', false)
 
-      let stagesCreated = 0
-      if (newTemplate) {
-        await ctx.db.rpc('instantiate_from_template', {
-          p_asset_id: input.assetId,
-          p_template_id: newTemplate.id,
-        })
-        const { count } = await ctx.db.from('asset_stages')
-          .select('id', { count: 'exact', head: true })
-          .eq('asset_id', input.assetId)
-          .in('phase', ['security', 'value_creation', 'distribution'] as never[])
-          .eq('is_hidden', false)
-        stagesCreated = count ?? 0
-      }
-
-      // 5. Update asset value_model
+      // 6. Update asset value_model
       await ctx.db.from('assets')
         .update({ value_model: input.newValueModel } as never)
         .eq('id', input.assetId)
 
-      // 6. Log the pivot
+      // 7. Log the pivot with full audit detail
       await ctx.db.from('activity_log').insert({
         asset_id: input.assetId,
         entity_type: 'asset',
         action: 'value_model_pivoted' as never,
-        detail: `Pivoted from ${oldModel ?? 'undecided'} to ${input.newValueModel}. Reason: ${input.reason}. ${(phase456Stages ?? []).length} stages archived, ${stagesCreated} new stages created. ${affectedTasks.length} in-progress tasks affected.`,
+        detail: `Pivoted from ${oldModel ?? 'undecided'} to ${input.newValueModel}. Reason: ${input.reason}. ${(phase456Stages ?? []).length} stages archived, ${stagesCreated ?? 0} new stages created. ${affectedTasks.length} in-progress tasks affected.`,
         performed_by: ctx.user.id,
         performed_at: new Date().toISOString(),
       } as never)
@@ -516,7 +535,7 @@ export const assetsRouter = createRouter({
         oldModel,
         newModel: input.newValueModel,
         archivedStages: (phase456Stages ?? []).length,
-        newStages: stagesCreated,
+        newStages: stagesCreated ?? 0,
         affectedTasks: affectedTasks.length,
       }
     }),
