@@ -40,14 +40,25 @@ const DD_STATUS_OPTS = [
   { value: 'failed', label: 'Failed' },
 ]
 
+const ENGAGEMENT_OPTS = [
+  { value: '', label: 'All Engagement' },
+  { value: 'prospecting', label: 'Prospecting' },
+  { value: 'evaluating', label: 'Evaluating' },
+  { value: 'onboarding', label: 'Onboarding' },
+  { value: 'active', label: 'Active' },
+  { value: 'paused', label: 'Paused' },
+  { value: 'terminated', label: 'Terminated' },
+]
+
 export default function PartnersPage() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [typeFilter, setTypeFilter] = useState('')
   const [ddFilter, setDdFilter] = useState('')
+  const [engagementFilter, setEngagementFilter] = useState('')
   const [search, setSearch] = useState('')
   const { data: rawPartners = [], isLoading } = trpc.partners.list.useQuery(
-    { partnerType: typeFilter || undefined, search: search || undefined }
+    { partnerType: typeFilter || undefined, search: search || undefined, engagementStatus: engagementFilter || undefined }
   )
   const partners = ddFilter ? rawPartners.filter((p) => p.dd_status === ddFilter) : rawPartners
 
@@ -109,6 +120,13 @@ export default function PartnersPage() {
           className="!w-40"
         >
           {DD_STATUS_OPTS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+        </NeuSelect>
+        <NeuSelect
+          value={engagementFilter}
+          onChange={(e) => setEngagementFilter(e.target.value)}
+          className="!w-44"
+        >
+          {ENGAGEMENT_OPTS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
         </NeuSelect>
         <div className="ml-auto flex gap-1">
           <button
