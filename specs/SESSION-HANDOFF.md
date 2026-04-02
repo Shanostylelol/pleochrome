@@ -1,6 +1,6 @@
 # Session Handoff — PleoChrome Powerhouse CRM V2
 
-**Last Updated:** 2026-04-01 (Sessions 7-8 final)
+**Last Updated:** 2026-04-01 (Sessions 8-9 final)
 **Purpose:** Read this FIRST on any machine. Tells you exactly where to pick up.
 
 ---
@@ -15,44 +15,49 @@ npx supabase db push   # Apply: add_target_completion_date migration
 npm run dev            # :3000
 ```
 
+**Latest commit: `375bb11`** — Build clean, zero TS errors.
+
 ---
 
-## CURRENT STATE — FEATURE COMPLETE
+## CURRENT STATE — FEATURE COMPLETE + QUALITY COMPLETE
 
-**Latest commit: `70bf78b`** — Build clean, zero TS errors.
+### Session 9 Changes (most recent)
 
-### Session 8 Changes (most recent)
+**Workflow automation:**
+- `tasks.complete` + `tasks.updateStatus`: auto-start stage (first task → in_progress) and auto-complete stage (all tasks done)
+- Stage inline rename: double-click stage name to edit in-place
+- `stages.rename` mutation added
 
-**Notes/Comments consistency at all levels:**
-- Per-file notes on ALL document attachments (stage/task/subtask) — hover sticky-note icon, inline edit
-- Document preview modal: shows/edits notes field (saved to documents.notes)
-- Global documents table: shows 📝 indicator and notes preview
-- Asset detail DocCard: shows 📝 indicator + description in card
-- `TaskDetailSection`: `defaultOpen` prop — stage/task/subtask files and comments now default open
-- Stage "Notes & Comments" visible by default (was collapsed)
-- Subtask files and comments visible by default (was collapsed)
+**UI improvements:**
+- Task description + notes: inline editable textareas in TaskCardDetails
+- Meeting create forms: datetime-local for date+time, attendees textarea
+- Meeting card/detail: shows time (e.g. "at 2:00 PM") when non-midnight
+- Asset hero: reference code is clickable to copy to clipboard
+- Target date shown in compact sticky header when set
+- Compliance page: fixed tab link (?tab=governance → ?tab=gates), clickable partner/contact names
+- Partner credentials: delete button (soft-delete via is_active=false)
+- Contacts list: phone column added with tel: link
 
-**UX improvements:**
-- CommandPalette: "Recently Viewed" section (localStorage, top 5 assets)
-  + "Quick Actions" section (New Asset/Meeting/Reminder/Contact/Partner)
-- Pipeline kanban: column headers show total overdue task count in ruby
-- CompactWorkflowView: stage status badge is clickable (cycles not_started→in_progress→completed)
-- OverviewTab: description now uses multiline textarea, PoR status editable
-  + Current Location + Item Count added to their sections
-  + Insurance Provider/Value added to Legal section
+**Filter improvements:**
+- Tasks page: type filter dropdown (All Types + all task types)
+- EntityFileList: document type selector before upload (General/Appraisal/Certificate/etc.)
 
-### All Features Complete (Sessions 1-8)
+**Data quality:**
+- `partners.deleteCredential` mutation
+- Auto-stage-start/complete wired to both `tasks.complete` and `tasks.updateStatus`
 
-Every planned item done + major quality sweep across 8 sessions.
+### All Features (Sessions 1-9) — All Complete
 
-### Remaining (Genuinely Deferred)
+Every planned phase done + extensive quality improvements across 9 sessions.
+
+### Truly Remaining (Genuinely Deferred)
 
 | Feature | Notes |
 |---------|-------|
-| Email digests | Requires Resend/email setup |
+| Email digests | Requires Resend setup |
 | Push notifications | Requires service worker push API |
 | Investor portal | FEATURE-PIPELINE.md |
-| Audit certification PDF | FEATURE-PIPELINE.md |
+| Audit PDF export | FEATURE-PIPELINE.md |
 
 ---
 
@@ -61,12 +66,11 @@ Every planned item done + major quality sweep across 8 sessions.
 - **Stack**: Next.js 16 + React 19 + TypeScript + Tailwind v4 + Supabase + tRPC + motion v12
 - **tRPC**: 25 routers in `src/server/routers/`
 - **localStorage**: `plc-pipeline-filter`, `plc-pipeline-view`, `plc-recently-viewed`, `pleochrome-notifs`, `plc-notif-*`
-- **useSearchParams** → `<Suspense>` wrapper required (pipeline page)
-- **motion** → import from `motion/react`
-- **New DB fields** → `(asset as Record<string, unknown>).field` until gen types re-run
+- **Auto-stage logic**: in `tasks.complete` and `tasks.updateStatus` — auto-starts/completes stages
+- **Stage rename**: `stages.rename` mutation, double-click on stage name in accordion
 - **Per-file notes**: `documents.update { notes }` — available at stage/task/subtask level
 - **Stage comments**: `EntityCommentThread entityType="stage"` in StageAccordion (defaultOpen)
-- **TaskDetailSection**: `defaultOpen` prop added, `count` badge prop available
+- **Document type on upload**: EntityFileList has type dropdown before "Attach File"
 
 ---
 
