@@ -182,8 +182,24 @@ export default function PartnersPage() {
                           </Link>
                         </td>
                         <td className="px-4 py-3 text-[var(--text-secondary)] hidden sm:table-cell">{p.contact_name ?? '—'}</td>
-                        <td className="px-4 py-3 text-[var(--text-secondary)] hidden md:table-cell">{p.contact_email ?? '—'}</td>
-                        <td className="px-4 py-3 text-[var(--text-secondary)] hidden lg:table-cell">{p.contact_phone ?? '—'}</td>
+                        <td className="px-4 py-3 hidden md:table-cell">
+                          {p.contact_email ? (
+                            <a href={`mailto:${p.contact_email}`} onClick={(e) => e.stopPropagation()}
+                              className="flex items-center gap-1 text-[var(--text-secondary)] hover:text-[var(--teal)] transition-colors group text-sm">
+                              <Mail className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 shrink-0" />
+                              {p.contact_email}
+                            </a>
+                          ) : '—'}
+                        </td>
+                        <td className="px-4 py-3 hidden lg:table-cell">
+                          {p.contact_phone ? (
+                            <a href={`tel:${p.contact_phone}`} onClick={(e) => e.stopPropagation()}
+                              className="flex items-center gap-1 text-[var(--text-secondary)] hover:text-[var(--teal)] transition-colors group text-sm">
+                              <Phone className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 shrink-0" />
+                              {p.contact_phone}
+                            </a>
+                          ) : '—'}
+                        </td>
                         <td className="px-4 py-3">
                           <NeuBadge color={ddColorMap[p.dd_status] ?? 'gray'} size="sm">{p.dd_status}</NeuBadge>
                         </td>
