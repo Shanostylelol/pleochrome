@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { trpc } from '@/lib/trpc'
 import { NeuCard } from '@/components/ui'
-import { Search, Gem, Handshake, FileText, CheckSquare, Calendar, Users2 } from 'lucide-react'
+import { Search, Gem, Handshake, FileText, CheckSquare, Calendar, Users2, Plus, Bell } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function CommandPalette({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -137,6 +137,26 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
                 {(quickCounts?.blocked ?? 0) === 0 && (quickCounts?.overdue ?? 0) === 0 && (quickCounts?.inLead ?? 0) === 0 && (
                   <p className="text-sm text-[var(--text-muted)]">Start typing to search across all entities</p>
                 )}
+              </div>
+              {/* Quick actions */}
+              <div className="mt-4 pt-3 border-t border-[var(--border)]">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-2">Quick Actions</p>
+                <div className="space-y-0.5">
+                  {[
+                    { label: 'New Asset', icon: <Gem className="h-3.5 w-3.5" />, href: '/crm/assets/new' },
+                    { label: 'New Meeting', icon: <Calendar className="h-3.5 w-3.5" />, href: '/crm/meetings' },
+                    { label: 'New Reminder', icon: <Bell className="h-3.5 w-3.5" />, href: '/crm/reminders' },
+                    { label: 'Add Contact', icon: <Users2 className="h-3.5 w-3.5" />, href: '/crm/contacts' },
+                    { label: 'Add Partner', icon: <Handshake className="h-3.5 w-3.5" />, href: '/crm/partners' },
+                  ].map(({ label, icon, href }) => (
+                    <button key={label} onClick={() => navigate(href)}
+                      className="flex items-center gap-2.5 w-full px-2 py-1.5 text-xs rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)] transition-colors">
+                      <span className="text-[var(--text-muted)]">{icon}</span>
+                      <span>{label}</span>
+                      <Plus className="h-3 w-3 ml-auto text-[var(--text-placeholder)]" />
+                    </button>
+                  ))}
+                </div>
               </div>
               <p className="text-[11px] text-[var(--text-placeholder)] mt-3">
                 Tip: <code style={{ fontFamily: 'var(--font-mono)' }}>blocked:</code> · <code style={{ fontFamily: 'var(--font-mono)' }}>overdue:</code> · <code style={{ fontFamily: 'var(--font-mono)' }}>phase:lead</code>
