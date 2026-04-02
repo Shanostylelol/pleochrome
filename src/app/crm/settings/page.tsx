@@ -163,6 +163,29 @@ export default function SettingsPage() {
           </div>
         </div>
       </NeuCard>
+
+      {/* Keyboard Shortcuts */}
+      <NeuCard variant="raised" padding="md">
+        <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-4">Keyboard Shortcuts</h2>
+        <div className="space-y-2">
+          {[
+            ['⌘ K', 'Open command palette (search, quick actions, recently viewed)'],
+            ['↑ ↓', 'Navigate command palette results'],
+            ['↵', 'Select highlighted result'],
+            ['Esc', 'Close command palette / cancel edit'],
+            ['Enter (in comment)', 'Post comment (Shift+Enter for new line)'],
+            ['Double-click stage name', 'Rename stage inline'],
+            ['Double-click task title', 'Edit task title inline'],
+          ].map(([key, desc]) => (
+            <div key={key} className="flex items-center gap-3">
+              <kbd className="shrink-0 px-2 py-0.5 rounded-[var(--radius-sm)] text-[11px] font-mono bg-[var(--bg-body)] shadow-[var(--shadow-raised-sm)] text-[var(--text-primary)] whitespace-nowrap">
+                {key}
+              </kbd>
+              <span className="text-xs text-[var(--text-secondary)]">{desc}</span>
+            </div>
+          ))}
+        </div>
+      </NeuCard>
     </div>
   )
 }
