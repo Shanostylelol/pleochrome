@@ -74,7 +74,15 @@ export function MeetingDetail({ meeting, onClose }: MeetingDetailProps) {
               {new Date(meeting.meeting_date).toLocaleDateString('en-US', {
                 weekday: 'short', month: 'short', day: 'numeric', year: 'numeric',
               })}
-              {meeting.duration_minutes && ` - ${meeting.duration_minutes}min`}
+              {(() => {
+                const d = new Date(meeting.meeting_date)
+                const h = d.getHours(), m = d.getMinutes()
+                if (h !== 0 || m !== 0) {
+                  return ` at ${d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`
+                }
+                return ''
+              })()}
+              {meeting.duration_minutes && ` · ${meeting.duration_minutes}min`}
             </span>
             {meeting.location && (
               <span className="text-xs text-[var(--text-muted)] flex items-center gap-1">

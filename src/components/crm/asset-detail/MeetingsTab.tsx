@@ -201,8 +201,8 @@ function CreateAssetMeetingModal({ open, onClose, assetId }: {
           onChange={(e) => setTitle(e.target.value)}
         />
         <NeuInput
-          label="Date *"
-          type="date"
+          label="Date &amp; Time *"
+          type="datetime-local"
           value={meetingDate}
           onChange={(e) => setMeetingDate(e.target.value)}
         />

@@ -279,8 +279,8 @@ function CreateMeetingModal({ open, onClose }: { open: boolean; onClose: () => v
           onChange={(e) => setTitle(e.target.value)}
         />
         <NeuInput
-          label="Date *"
-          type="date"
+          label="Date &amp; Time *"
+          type="datetime-local"
           value={meetingDate}
           onChange={(e) => setMeetingDate(e.target.value)}
         />
