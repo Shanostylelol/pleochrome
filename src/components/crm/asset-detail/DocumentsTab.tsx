@@ -26,20 +26,27 @@ function formatBytes(bytes: number): string {
 }
 
 function DocCard({ doc, onClick }: { doc: Record<string, unknown>; onClick: () => void }) {
+  const hasNotes = Boolean(doc.notes)
+  const hasDescription = Boolean(doc.description)
   return (
-    <NeuCard variant="raised-sm" padding="sm" className="flex items-center gap-3 cursor-pointer" onClick={onClick}>
-      <div className="w-9 h-9 rounded-[var(--radius-md)] bg-[var(--teal-bg)] text-[var(--teal)] flex items-center justify-center shrink-0">
+    <NeuCard variant="raised-sm" padding="sm" hoverable className="flex items-start gap-3 cursor-pointer" onClick={onClick}>
+      <div className="w-9 h-9 rounded-[var(--radius-md)] bg-[var(--teal-bg)] text-[var(--teal)] flex items-center justify-center shrink-0 mt-0.5">
         <FileText className="h-4 w-4" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-[var(--text-primary)] truncate">{(doc.title ?? doc.filename) as string}</p>
+        <div className="flex items-center gap-2">
+          <p className="text-sm font-medium text-[var(--text-primary)] truncate">{(doc.title ?? doc.filename) as string}</p>
+          {hasNotes && <span title="Has notes" className="text-[var(--teal)] shrink-0 text-[10px]">📝</span>}
+        </div>
         <p className="text-xs text-[var(--text-muted)]">
           {doc.document_type as string}
-          {doc.file_size_bytes ? ` \u00B7 ${formatBytes(doc.file_size_bytes as number)}` : ''}
-          {doc.created_at ? ` \u00B7 ${new Date(doc.created_at as string).toLocaleDateString()}` : ''}
+          {doc.file_size_bytes ? ` · ${formatBytes(doc.file_size_bytes as number)}` : ''}
+          {doc.created_at ? ` · ${new Date(doc.created_at as string).toLocaleDateString()}` : ''}
         </p>
+        {hasDescription && (
+          <p className="text-[11px] text-[var(--text-muted)] truncate italic mt-0.5">{doc.description as string}</p>
+        )}
       </div>
-      <NeuBadge color="gray" size="sm">{doc.document_type as string}</NeuBadge>
     </NeuCard>
   )
 }
