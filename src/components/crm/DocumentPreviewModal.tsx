@@ -43,6 +43,7 @@ export function DocumentPreviewModal({ open, onClose, document: doc, onUpdate }:
   const [editTitle, setEditTitle] = useState('')
   const [editType, setEditType] = useState('')
   const [editDescription, setEditDescription] = useState('')
+  const [editNotes, setEditNotes] = useState('')
 
   const docId = doc?.id as string
   const mimeType = (doc?.mime_type as string) ?? ''
@@ -69,6 +70,7 @@ export function DocumentPreviewModal({ open, onClose, document: doc, onUpdate }:
       setEditTitle((doc.title as string) ?? '')
       setEditType((doc.document_type as string) ?? 'general')
       setEditDescription((doc.description as string) ?? '')
+      setEditNotes((doc.notes as string) ?? '')
       setIsEditing(false)
     }
   }, [doc])
@@ -118,6 +120,7 @@ export function DocumentPreviewModal({ open, onClose, document: doc, onUpdate }:
       title: editTitle.trim() || undefined,
       documentType: editType || undefined,
       description: editDescription.trim() || null,
+      notes: editNotes.trim() || null,
     })
   }
 
@@ -196,20 +199,40 @@ export function DocumentPreviewModal({ open, onClose, document: doc, onUpdate }:
                   'shadow-[var(--shadow-pressed)] border border-[var(--border)]',
                   'focus:outline-none focus:border-[var(--teal)]')} />
             </div>
+            <div>
+              <label className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-1 block">Notes</label>
+              <textarea value={editNotes} onChange={(e) => setEditNotes(e.target.value)} rows={3}
+                placeholder="Add notes, annotations, or context about this document..."
+                className={cn('w-full text-sm rounded-[var(--radius-sm)] px-2 py-1.5 resize-none',
+                  'bg-[var(--bg-input)] text-[var(--text-primary)] placeholder:text-[var(--text-placeholder)]',
+                  'shadow-[var(--shadow-pressed)] border border-[var(--border)]',
+                  'focus:outline-none focus:border-[var(--teal)]')} />
+            </div>
             <div className="flex gap-2">
               <NeuButton size="sm" icon={<Save className="h-3.5 w-3.5" />} loading={updateMutation.isPending} onClick={handleSave}>Save</NeuButton>
               <NeuButton size="sm" variant="ghost" onClick={() => setIsEditing(false)}>Cancel</NeuButton>
             </div>
           </div>
         ) : (
-          <div className="flex flex-wrap items-center gap-3 text-xs text-[var(--text-muted)]">
-            <NeuBadge color="teal" size="sm">{(doc.document_type as string) ?? 'general'}</NeuBadge>
-            <span>{formatBytes(doc.file_size_bytes as number)}</span>
-            <span>{doc.uploaded_at ? new Date(doc.uploaded_at as string).toLocaleDateString() : '—'}</span>
-            <span>by {uploaderName}</span>
-            {assetInfo && <span className="text-[var(--teal)]">{assetInfo.name as string}</span>}
-            {isLocked && <NeuBadge color="ruby" size="sm"><Lock className="h-3 w-3 inline mr-0.5" />Locked</NeuBadge>}
-            {typeof doc.version === 'number' && doc.version > 1 && <NeuBadge color="gray" size="sm">v{doc.version}</NeuBadge>}
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center gap-3 text-xs text-[var(--text-muted)]">
+              <NeuBadge color="teal" size="sm">{(doc.document_type as string) ?? 'general'}</NeuBadge>
+              <span>{formatBytes(doc.file_size_bytes as number)}</span>
+              <span>{doc.uploaded_at ? new Date(doc.uploaded_at as string).toLocaleDateString() : '—'}</span>
+              <span>by {uploaderName}</span>
+              {assetInfo && <span className="text-[var(--teal)]">{assetInfo.name as string}</span>}
+              {isLocked && <NeuBadge color="ruby" size="sm"><Lock className="h-3 w-3 inline mr-0.5" />Locked</NeuBadge>}
+              {typeof doc.version === 'number' && doc.version > 1 && <NeuBadge color="gray" size="sm">v{doc.version}</NeuBadge>}
+            </div>
+            {Boolean(doc.description) && (
+              <p className="text-xs text-[var(--text-secondary)] italic">{doc.description as string}</p>
+            )}
+            {Boolean(doc.notes) && (
+              <div className="p-2 rounded-[var(--radius-sm)] bg-[var(--bg-elevated)] border border-[var(--border)]">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-1">Notes</p>
+                <p className="text-xs text-[var(--text-secondary)] whitespace-pre-wrap">{doc.notes as string}</p>
+              </div>
+            )}
           </div>
         )}
 
