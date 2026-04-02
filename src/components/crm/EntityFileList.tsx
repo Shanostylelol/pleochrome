@@ -92,8 +92,21 @@ function FileRow({ doc, onDownload, onDelete, onUpdateNote }: {
   )
 }
 
+const DOC_TYPES = [
+  { value: 'general', label: 'General' },
+  { value: 'appraisal', label: 'Appraisal' },
+  { value: 'certificate', label: 'Certificate' },
+  { value: 'legal', label: 'Legal' },
+  { value: 'financial', label: 'Financial' },
+  { value: 'insurance', label: 'Insurance' },
+  { value: 'compliance', label: 'Compliance' },
+  { value: 'report', label: 'Report' },
+  { value: 'other', label: 'Other' },
+]
+
 export function EntityFileList({ entityType, entityId, taskId, assetId }: EntityFileListProps) {
   const [uploading, setUploading] = useState(false)
+  const [docType, setDocType] = useState('general')
   const [error, setError] = useState<string | null>(null)
   const { toast } = useToast()
   const utils = trpc.useUtils()
@@ -136,7 +149,7 @@ export function EntityFileList({ entityType, entityId, taskId, assetId }: Entity
         title: file.name, filename: file.name,
         storagePath: path, storageBucket: 'documents',
         mimeType: file.type || 'application/octet-stream',
-        fileSizeBytes: file.size, documentType: 'general',
+        fileSizeBytes: file.size, documentType: docType,
         ...(entityType === 'task' ? { taskId: entityId } : {}),
         ...(entityType === 'subtask' ? { subtaskId: entityId, taskId } : {}),
         ...(entityType === 'stage' ? { stageId: entityId } : {}),
@@ -180,10 +193,19 @@ export function EntityFileList({ entityType, entityId, taskId, assetId }: Entity
           ))}
         </div>
       )}
-      <NeuButton variant="ghost" size="sm" onClick={handleFileInput} loading={uploading}
-        icon={<Paperclip className="h-3.5 w-3.5" />} className="!h-7 !px-2 text-[var(--text-secondary)]">
-        Attach File
-      </NeuButton>
+      <div className="flex items-center gap-1.5">
+        <select
+          value={docType}
+          onChange={(e) => setDocType(e.target.value)}
+          className="h-7 text-[11px] rounded-[var(--radius-sm)] px-1.5 bg-[var(--bg-input)] text-[var(--text-muted)] border border-[var(--border)] shadow-[var(--shadow-pressed)] focus:outline-none focus:border-[var(--teal)]"
+        >
+          {DOC_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+        </select>
+        <NeuButton variant="ghost" size="sm" onClick={handleFileInput} loading={uploading}
+          icon={<Paperclip className="h-3.5 w-3.5" />} className="!h-7 !px-2 text-[var(--text-secondary)]">
+          Attach File
+        </NeuButton>
+      </div>
       {error && <p className="text-xs text-[var(--ruby)] mt-1">{error}</p>}
     </div>
   )
