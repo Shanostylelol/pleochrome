@@ -108,7 +108,7 @@ export const kycRouter = createRouter({
         .from('contacts')
         .select('id, full_name, contact_type, kyc_status')
         .eq('is_deleted', false)
-        .in('kyc_status', ['not_started', 'pending'] as never[])
+        .in('kyc_status', ['not_started', 'pending', 'rejected', 'expired'] as never[])
         .order('full_name')
 
       if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
