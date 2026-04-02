@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { trpc } from '@/lib/trpc'
 import { NeuCard, NeuBadge, NeuButton, NeuModal, NeuInput, NeuSelect, NeuSkeleton } from '@/components/ui'
-import { Plus, Award, AlertTriangle } from 'lucide-react'
+import { useToast } from '@/components/ui/NeuToast'
+import { Plus, Award, AlertTriangle, Trash2 } from 'lucide-react'
 
 function formatDate(date: string | null | undefined): string {
   if (!date) return '---'
@@ -32,7 +33,12 @@ export function PartnerCredentialsTab({ partnerId }: { partnerId: string }) {
 
   const { data: creds = [], isLoading } = trpc.partners.getCredentials.useQuery({ partnerId })
   const utils = trpc.useUtils()
+  const { toast } = useToast()
 
+  const deleteMut = trpc.partners.deleteCredential.useMutation({
+    onSuccess: () => { utils.partners.getCredentials.invalidate({ partnerId }); utils.partners.getById.invalidate({ partnerId }); toast('Credential removed', 'success') },
+    onError: (err) => toast(err.message, 'error'),
+  })
   const addMut = trpc.partners.addCredential.useMutation({
     onSuccess: () => {
       utils.partners.getCredentials.invalidate({ partnerId })
@@ -79,7 +85,7 @@ export function PartnerCredentialsTab({ partnerId }: { partnerId: string }) {
                 key={cr.id as string}
                 variant="raised"
                 padding="md"
-                className={expired ? 'border border-[var(--ruby)] border-opacity-40' : expiring ? 'border border-[var(--amber)] border-opacity-40' : ''}
+                className={`group ${expired ? 'border border-[var(--ruby)] border-opacity-40' : expiring ? 'border border-[var(--amber)] border-opacity-40' : ''}`}
               >
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <div>
@@ -90,12 +96,19 @@ export function PartnerCredentialsTab({ partnerId }: { partnerId: string }) {
                       {(cr.credential_type as string)?.replace(/_/g, ' ')}
                     </p>
                   </div>
+                  <div className="flex items-center gap-1">
                   {expired && <NeuBadge color="ruby" size="sm">Expired</NeuBadge>}
                   {expiring && !expired && (
                     <NeuBadge color="amber" size="sm">
                       <AlertTriangle className="h-3 w-3 mr-1 inline" />Expiring
                     </NeuBadge>
                   )}
+                  <button onClick={() => deleteMut.mutate({ credentialId: cr.id as string })}
+                    aria-label="Remove credential"
+                    className="p-1 text-[var(--text-muted)] hover:text-[var(--ruby)] transition-colors opacity-0 group-hover:opacity-100">
+                    <Trash2 className="h-3 w-3" />
+                  </button>
+                </div>
                 </div>
                 <dl className="space-y-1.5 text-xs">
                   {(cr.issuing_body as string) && (

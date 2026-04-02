@@ -279,6 +279,17 @@ export const partnersRouter = createRouter({
       return data
     }),
 
+  deleteCredential: protectedProcedure
+    .input(z.object({ credentialId: uuidSchema }))
+    .mutation(async ({ ctx, input }) => {
+      const { error } = await ctx.db
+        .from('partner_credentials')
+        .update({ is_active: false } as never)
+        .eq('id', input.credentialId)
+      if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
+      return { success: true }
+    }),
+
   getExpiringCredentials: protectedProcedure
     .input(z.object({ daysAhead: z.number().int().min(1).max(365).default(60) }))
     .query(async ({ ctx, input }) => {
