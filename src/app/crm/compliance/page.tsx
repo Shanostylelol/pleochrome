@@ -134,7 +134,7 @@ export default function CompliancePage() {
                             </div>
                           </td>
                           <td className="px-4 py-2.5 text-right">
-                            <Link href={`/crm/assets/${a.id}?tab=governance`}>
+                            <Link href={`/crm/assets/${a.id}?tab=gates`}>
                               <NeuBadge color="teal" size="sm">View</NeuBadge>
                             </Link>
                           </td>
@@ -169,9 +169,10 @@ export default function CompliancePage() {
                     <div key={cred.id} className="flex items-center gap-3 px-4 py-3 hover:bg-[var(--bg-elevated)] transition-colors">
                       <AlertTriangle className={`h-4 w-4 shrink-0 ${days < 7 ? 'text-[var(--ruby)]' : 'text-[var(--amber)]'}`} />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-[var(--text-primary)] truncate">
+                        <Link href={partner?.id ? `/crm/partners/${partner.id}?tab=credentials` : '#'}
+                          className="text-sm font-medium text-[var(--text-primary)] hover:text-[var(--teal)] truncate block transition-colors">
                           {partner?.name ?? 'Unknown Partner'}
-                        </p>
+                        </Link>
                         <p className="text-xs text-[var(--text-muted)]">
                           {cred.credential_name} &middot; Expires {new Date(cred.expires_at!).toLocaleDateString()}
                         </p>
@@ -204,9 +205,10 @@ export default function CompliancePage() {
                   <div key={contact.id} className="flex items-center gap-3 px-4 py-3 hover:bg-[var(--bg-elevated)] transition-colors">
                     <UserX className="h-4 w-4 text-[var(--ruby)] shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-[var(--text-primary)] truncate">
+                      <Link href={`/crm/contacts/${contact.id}?tab=kyc`}
+                        className="text-sm font-medium text-[var(--text-primary)] hover:text-[var(--teal)] truncate block transition-colors">
                         {contact.full_name}
-                      </p>
+                      </Link>
                       <p className="text-xs text-[var(--text-muted)] capitalize">
                         {(contact.contact_type ?? '').replace(/_/g, ' ')}
                       </p>
