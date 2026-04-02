@@ -159,6 +159,7 @@ function CreateAssetMeetingModal({ open, onClose, assetId }: {
   const [location, setLocation] = useState('')
   const [meetingType, setMeetingType] = useState('')
   const [agenda, setAgenda] = useState('')
+  const [attendeesText, setAttendeesText] = useState('')
   const utils = trpc.useUtils()
 
   const mutation = trpc.meetings.create.useMutation({
@@ -170,7 +171,7 @@ function CreateAssetMeetingModal({ open, onClose, assetId }: {
 
   const resetAndClose = () => {
     setTitle(''); setMeetingDate(''); setDuration('')
-    setLocation(''); setMeetingType(''); setAgenda('')
+    setLocation(''); setMeetingType(''); setAgenda(''); setAttendeesText('')
     onClose()
   }
 
@@ -184,6 +185,9 @@ function CreateAssetMeetingModal({ open, onClose, assetId }: {
       meetingType: meetingType || undefined,
       assetId,
       agenda: agenda.trim() || undefined,
+      attendees: attendeesText.trim()
+        ? attendeesText.split('\n').map(s => s.trim()).filter(Boolean).map(name => ({ name }))
+        : undefined,
     })
   }
 
@@ -223,6 +227,14 @@ function CreateAssetMeetingModal({ open, onClose, assetId }: {
           options={MEETING_TYPES}
         />
       </div>
+      <NeuTextarea
+        label="Attendees (one per line)"
+        placeholder="Shane Pierson&#10;David Smith&#10;..."
+        value={attendeesText}
+        onChange={(e) => setAttendeesText(e.target.value)}
+        rows={2}
+        className="mt-3"
+      />
       <NeuTextarea
         label="Agenda"
         placeholder="Meeting agenda..."
