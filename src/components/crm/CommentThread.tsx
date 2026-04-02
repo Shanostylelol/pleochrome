@@ -21,6 +21,7 @@ export interface CommentThreadProps {
   onPost: (body: string, parentId?: string) => void
   onReply: (commentId: string, body: string) => void
   onDelete: (commentId: string) => void
+  onEdit?: (commentId: string, body: string) => void
   currentUserId: string
 }
 
@@ -55,14 +56,25 @@ function CommentBubble({
   isOwn,
   onReplyClick,
   onDelete,
+  onEdit,
   depth,
 }: {
   comment: Comment
   isOwn: boolean
   onReplyClick: () => void
   onDelete: (id: string) => void
+  onEdit?: (id: string, body: string) => void
   depth: number
 }) {
+  const [editing, setEditing] = useState(false)
+  const [editVal, setEditVal] = useState(comment.body)
+
+  function submitEdit() {
+    const trimmed = editVal.trim()
+    if (trimmed && trimmed !== comment.body) onEdit?.(comment.id, trimmed)
+    setEditing(false)
+  }
+
   return (
     <div
       className="flex gap-2.5"
@@ -81,19 +93,33 @@ function CommentBubble({
             <span className="text-[10px] italic text-[var(--text-placeholder)]">(edited)</span>
           )}
         </div>
-        <p className="text-sm text-[var(--text-secondary)] mt-0.5 whitespace-pre-wrap break-words">
-          {renderBody(comment.body)}
-        </p>
+        {editing ? (
+          <div className="mt-1 space-y-1.5">
+            <textarea value={editVal} onChange={(e) => setEditVal(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitEdit() } if (e.key === 'Escape') setEditing(false) }}
+              rows={2} autoFocus
+              className="w-full text-sm rounded-[var(--radius-sm)] px-2 py-1.5 resize-none bg-[var(--bg-input)] text-[var(--text-primary)] shadow-[var(--shadow-pressed)] border border-[var(--teal)] focus:outline-none" />
+            <div className="flex gap-2">
+              <button onClick={submitEdit} className="text-[11px] font-semibold text-[var(--teal)] hover:underline">Save</button>
+              <button onClick={() => { setEditing(false); setEditVal(comment.body) }} className="text-[11px] text-[var(--text-muted)] hover:underline">Cancel</button>
+            </div>
+          </div>
+        ) : (
+          <p className="text-sm text-[var(--text-secondary)] mt-0.5 whitespace-pre-wrap break-words">
+            {renderBody(comment.body)}
+          </p>
+        )}
         <div className="flex items-center gap-3 mt-1">
-          <button
+          {!editing && <button
             onClick={onReplyClick}
             className="flex items-center gap-1 text-[11px] text-[var(--text-muted)] hover:text-[var(--teal)] transition-colors"
           >
             <Reply className="h-3 w-3" /> Reply
-          </button>
-          {isOwn && (
+          </button>}
+          {isOwn && !editing && onEdit && (
             <>
-              <button className="flex items-center gap-1 text-[11px] text-[var(--text-muted)] hover:text-[var(--amber)] transition-colors">
+              <button onClick={() => { setEditVal(comment.body); setEditing(true) }}
+                className="flex items-center gap-1 text-[11px] text-[var(--text-muted)] hover:text-[var(--amber)] transition-colors">
                 <Pencil className="h-3 w-3" /> Edit
               </button>
               <button
@@ -158,7 +184,7 @@ function CommentInput({
 }
 
 // ── Main thread ───────────────────────────────────────────
-export function CommentThread({ comments, onPost, onReply, onDelete, currentUserId }: CommentThreadProps) {
+export function CommentThread({ comments, onPost, onReply, onDelete, onEdit, currentUserId }: CommentThreadProps) {
   const [replyingTo, setReplyingTo] = useState<string | null>(null)
 
   // Build parent -> replies map
@@ -181,6 +207,7 @@ export function CommentThread({ comments, onPost, onReply, onDelete, currentUser
           isOwn={comment.author.id === currentUserId}
           onReplyClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
           onDelete={onDelete}
+          onEdit={onEdit}
           depth={depth}
         />
         {replyingTo === comment.id && (

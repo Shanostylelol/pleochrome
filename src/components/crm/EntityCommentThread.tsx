@@ -31,6 +31,10 @@ export function EntityCommentThread({ entityType, entityId, assetId, currentUser
     onSuccess: () => { utils.comments.listByEntity.invalidate(queryInput); toast('Comment deleted', 'success') },
     onError: (err) => toast(err.message, 'error'),
   })
+  const editComment = trpc.comments.edit.useMutation({
+    onSuccess: () => { utils.comments.listByEntity.invalidate(queryInput) },
+    onError: (err) => toast(err.message, 'error'),
+  })
 
   const comments: Comment[] = (rawComments as Array<{
     id: string; body: string; created_at: string; is_edited: boolean;
@@ -51,6 +55,7 @@ export function EntityCommentThread({ entityType, entityId, assetId, currentUser
       onPost={(body) => postComment.mutate({ ...createInput, body })}
       onReply={(parentId, body) => postComment.mutate({ ...createInput, body, parentCommentId: parentId })}
       onDelete={(commentId) => deleteComment.mutate({ commentId })}
+      onEdit={(commentId, body) => editComment.mutate({ commentId, body })}
     />
   )
 }
