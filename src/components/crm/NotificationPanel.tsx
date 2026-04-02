@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Bell, Check, CheckCheck, X, ExternalLink } from 'lucide-react'
 import { trpc } from '@/lib/trpc'
 import { NeuCard } from '@/components/ui/NeuCard'
@@ -33,6 +34,7 @@ function timeAgo(iso: string): string {
 export function NotificationPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [filter, setFilter] = useState<'all' | 'unread'>('all')
   const utils = trpc.useUtils()
+  const router = useRouter()
 
   const { data: notifications = [] } = trpc.notifications.list.useQuery(
     { unreadOnly: filter === 'unread', limit: 30 },
@@ -110,7 +112,7 @@ export function NotificationPanel({ open, onClose }: { open: boolean; onClose: (
                   )}
                   onClick={() => {
                     if (!n.is_read) markRead.mutate({ notificationId: n.id })
-                    if (n.asset_id) window.location.href = `/crm/assets/${n.asset_id}`
+                    if (n.asset_id) { onClose(); router.push(`/crm/assets/${n.asset_id}`) }
                   }}
                 >
                   <div
