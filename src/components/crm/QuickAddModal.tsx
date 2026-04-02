@@ -20,7 +20,12 @@ export function QuickAddModal({ onClose }: QuickAddModalProps) {
 
   const utils = trpc.useUtils()
   const createMutation = trpc.assets.create.useMutation({
-    onSuccess: () => { utils.assets.listForPipeline.invalidate(); utils.assets.getStats.invalidate(); onClose() },
+    onSuccess: () => {
+      utils.assets.listForPipeline.invalidate()
+      utils.assets.list.invalidate()
+      utils.assets.getStats.invalidate()
+      onClose()
+    },
   })
 
   const nameErr = submitted && !name.trim() ? 'Asset name is required' : undefined

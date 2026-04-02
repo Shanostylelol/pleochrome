@@ -73,7 +73,7 @@ export function AssetCard({ asset }: { asset: any }) {
   const [confirmArchive, setConfirmArchive] = useState(false)
 
   const archiveMut = trpc.assets.archive.useMutation({
-    onSuccess: () => { utils.assets.listForPipeline.invalidate(); toast('Asset archived', 'success') },
+    onSuccess: () => { utils.assets.listForPipeline.invalidate(); utils.assets.list.invalidate(); toast('Asset archived', 'success') },
     onError: (err) => toast(err.message, 'error'),
   })
   const advanceMut = trpc.assets.advancePhase.useMutation({
