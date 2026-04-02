@@ -201,7 +201,8 @@ export const assetsRouter = createRouter({
           current_phase: 'lead' as const,
           status: 'active' as const,
           lead_team_member_id: input.leadTeamMemberId ?? ctx.user.id,
-        })
+          metadata: (input.metadata ?? {}) as never,
+        } as never)
         .select()
         .single()
 

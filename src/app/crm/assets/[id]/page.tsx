@@ -353,7 +353,7 @@ export default function AssetDetailPage() {
                 )}
                 <NeuButton variant="ghost" icon={<Bell className="h-4 w-4" />} size="sm" fullWidth onClick={() => setShowReminder(true)}>Set Reminder</NeuButton>
                 <NeuButton variant="ghost" icon={<Copy className="h-4 w-4" />} size="sm" fullWidth onClick={() => setConfirmDuplicate(true)} loading={duplicateMutation.isPending}>Duplicate</NeuButton>
-                <NeuButton variant="ghost" icon={<ArrowRight className="h-4 w-4" />} size="sm" fullWidth onClick={() => setShowPivot(true)}>Pivot Model</NeuButton>
+                <NeuButton variant="ghost" icon={<ArrowRight className="h-4 w-4" />} size="sm" fullWidth onClick={() => setShowPivot(true)}>Change Approach</NeuButton>
                 <NeuButton variant="ghost" icon={<Copy className="h-4 w-4" />} size="sm" fullWidth onClick={() => setShowSaveTemplate(true)}>Save Template</NeuButton>
                 <NeuButton variant="ghost" icon={<FileUp className="h-4 w-4" />} size="sm" fullWidth onClick={() => setActiveTab('documents')}>Add Doc</NeuButton>
                 <NeuButton variant="ghost" icon={<MessageSquare className="h-4 w-4" />} size="sm" fullWidth onClick={() => setActiveTab('comments')}>Comment</NeuButton>
@@ -386,7 +386,7 @@ export default function AssetDetailPage() {
                     <div className="absolute right-0 top-full mt-1 z-20 neu-raised-sm p-1 min-w-[160px]">
                       <button onClick={() => { setShowReminder(true); setShowActions(false) }} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"><Bell className="h-3.5 w-3.5" /> Set Reminder</button>
                       <button onClick={() => { setConfirmDuplicate(true); setShowActions(false) }} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"><Copy className="h-3.5 w-3.5" /> Duplicate</button>
-                      <button onClick={() => { setShowPivot(true); setShowActions(false) }} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"><ArrowRight className="h-3.5 w-3.5" /> Pivot Model</button>
+                      <button onClick={() => { setShowPivot(true); setShowActions(false) }} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"><ArrowRight className="h-3.5 w-3.5" /> Change Approach</button>
                       <button onClick={() => { setShowSaveTemplate(true); setShowActions(false) }} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"><Copy className="h-3.5 w-3.5" /> Save Template</button>
                       <button onClick={() => { setActiveTab('documents'); setShowActions(false) }} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"><FileUp className="h-3.5 w-3.5" /> Add Doc</button>
                       <button onClick={() => { setActiveTab('comments'); setShowActions(false) }} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"><MessageSquare className="h-3.5 w-3.5" /> Comment</button>

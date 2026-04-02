@@ -47,14 +47,14 @@ export function PivotValueModelModal({ open, onClose, assetId, assetName, curren
   const newLabel = newModel ? VALUE_MODELS[newModel as ValueModelKey]?.label ?? newModel : ''
 
   return (
-    <NeuModal open={open} onClose={onClose} title="Pivot Value Model" maxWidth="md">
+    <NeuModal open={open} onClose={onClose} title="Change Value Creation Approach" maxWidth="md">
       <div className="space-y-4">
         <NeuCard variant="pressed" padding="sm">
           <div className="flex items-center gap-2">
             <AlertTriangle className="h-4 w-4 text-[var(--amber)] shrink-0" />
             <p className="text-xs text-[var(--text-secondary)]">
               Pivoting changes the asset&apos;s value creation path. <strong>Phase 1-3 work is preserved.</strong>{' '}
-              Phase 4-6 stages for the current model will be archived (not deleted) and new stages for the selected model will be created.
+              This changes how you&apos;ll monetize this asset. All your early work (sourcing, KYC, appraisal) stays intact. Only the later steps (legal structuring, offering, distribution) will be swapped out for the new approach.
             </p>
           </div>
         </NeuCard>
@@ -63,13 +63,13 @@ export function PivotValueModelModal({ open, onClose, assetId, assetName, curren
 
         <div className="flex items-center gap-3">
           <div className="flex-1">
-            <p className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] mb-1">Current Model</p>
+            <p className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] mb-1">Current Approach</p>
             <p className="text-sm font-semibold text-[var(--text-primary)]">{currentLabel}</p>
           </div>
           <ArrowRight className="h-4 w-4 text-[var(--text-muted)] shrink-0" />
           <div className="flex-1">
             <NeuSelect
-              label="New Model *"
+              label="New Approach *"
               value={newModel}
               onChange={(e) => setNewModel(e.target.value)}
               options={[{ value: '', label: 'Select new model...' }, ...availableModels]}
@@ -78,8 +78,8 @@ export function PivotValueModelModal({ open, onClose, assetId, assetName, curren
         </div>
 
         <NeuTextarea
-          label="Reason for Pivot *"
-          placeholder="Why is this value model changing? This is logged to the audit trail."
+          label="Why are you changing the approach? *"
+          placeholder="e.g., Direct buyer identified at AGTA show, switching from tokenization to broker sale"
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           rows={3}
@@ -87,13 +87,13 @@ export function PivotValueModelModal({ open, onClose, assetId, assetName, curren
 
         {newModel && (
           <NeuCard variant="pressed" padding="sm">
-            <p className="text-xs text-[var(--text-muted)]">What will happen:</p>
-            <ul className="text-xs text-[var(--text-secondary)] mt-1 space-y-0.5 list-disc list-inside">
-              <li>Phases 1-3 (Lead, Intake, Asset Maturity) — <span className="text-[var(--chartreuse)]">preserved</span></li>
-              <li>Phases 4-6 stages for <strong>{currentLabel}</strong> — <span className="text-[var(--amber)]">archived</span> (visible in audit)</li>
-              <li>New Phase 4-6 stages for <strong>{newLabel}</strong> — <span className="text-[var(--teal)]">created</span></li>
-              <li>Open tasks in archived stages — <span className="text-[var(--amber)]">cancelled</span></li>
-              <li>Completed tasks — <span className="text-[var(--chartreuse)]">preserved in history</span></li>
+            <p className="text-xs font-semibold text-[var(--text-muted)]">Here&apos;s what happens:</p>
+            <ul className="text-xs text-[var(--text-secondary)] mt-1.5 space-y-1 list-disc list-inside">
+              <li>Your sourcing, KYC, and appraisal work — <span className="font-semibold text-[var(--chartreuse)]">kept as-is</span></li>
+              <li>Current {currentLabel} legal/offering/distribution steps — <span className="font-semibold text-[var(--amber)]">saved to history</span></li>
+              <li>New {newLabel} steps — <span className="font-semibold text-[var(--teal)]">added to your workflow</span></li>
+              <li>Tasks you hadn&apos;t started yet — <span className="text-[var(--text-muted)]">replaced by the new steps</span></li>
+              <li>Tasks you already completed — <span className="font-semibold text-[var(--chartreuse)]">permanently saved</span></li>
             </ul>
           </NeuCard>
         )}
@@ -111,7 +111,7 @@ export function PivotValueModelModal({ open, onClose, assetId, assetName, curren
             disabled={!newModel || !reason.trim()}
             fullWidth
           >
-            Pivot to {newLabel || '...'}
+            Switch to {newLabel || '...'}
           </NeuButton>
         </div>
       </div>

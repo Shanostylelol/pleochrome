@@ -12,6 +12,7 @@ export const createAssetInput = z.object({
   caratWeight: z.number().positive().optional(),
   assetCount: z.number().int().positive().optional(),
   leadTeamMemberId: uuidSchema.optional(),
+  metadata: z.record(z.unknown()).optional(),
 })
 
 export const updateAssetInput = z.object({

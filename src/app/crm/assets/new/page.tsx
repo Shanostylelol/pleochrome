@@ -141,6 +141,25 @@ export default function NewAssetPage() {
 
   const handleSubmit = () => {
     if (!data.name.trim() || !data.holderEntity.trim()) return
+
+    // Collect asset-type-specific metadata from wizard fields
+    const typeMetadata: Record<string, unknown> = {}
+    if (data.assetType === 'gemstone') {
+      if (data.giaReport) typeMetadata.gia_report_number = data.giaReport
+    } else if (data.assetType === 'real_estate') {
+      if (data.propertyAddress) typeMetadata.property_address = data.propertyAddress
+      if (data.propertyType) typeMetadata.property_type = data.propertyType
+      if (data.sqFootage) typeMetadata.sq_footage = data.sqFootage
+    } else if (data.assetType === 'precious_metal') {
+      if (data.metalType) typeMetadata.metal_type = data.metalType
+      if (data.troyOzWeight) typeMetadata.troy_oz_weight = parseFloat(data.troyOzWeight)
+      if (data.metalPurity) typeMetadata.metal_purity = data.metalPurity
+    } else if (data.assetType === 'mineral_rights') {
+      if (data.netMineralAcres) typeMetadata.net_mineral_acres = data.netMineralAcres
+      if (data.royaltyRate) typeMetadata.royalty_rate = data.royaltyRate
+      if (data.countyState) typeMetadata.county_state = data.countyState
+    }
+
     createMutation.mutate({
       name: data.name.trim(),
       assetType: data.assetType,
@@ -148,6 +167,9 @@ export default function NewAssetPage() {
       holderEntity: data.holderEntity.trim(),
       claimedValue: data.estimatedValue ? parseFloat(data.estimatedValue) : undefined,
       description: data.description.trim() || undefined,
+      origin: data.origin?.trim() || undefined,
+      caratWeight: data.caratWeight ? parseFloat(data.caratWeight) : undefined,
+      ...(Object.keys(typeMetadata).length > 0 ? { metadata: typeMetadata } : {}),
     } as any)
   }
 
