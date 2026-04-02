@@ -6,10 +6,11 @@ import { uuidSchema, phaseEnum, taskTypeEnum } from '@/lib/validation/shared'
 export const templatesRouter = createRouter({
   // ── List templates ─────────────────────────────────────────────
   list: protectedProcedure
-    .input(z.object({ valueModel: z.string().optional() }).optional())
+    .input(z.object({ valueModel: z.string().optional(), assetType: z.string().optional() }).optional())
     .query(async ({ ctx, input }) => {
       let query = ctx.db.from('workflow_templates').select('*').order('name')
       if (input?.valueModel) query = query.eq('value_model', input.valueModel as never)
+      if (input?.assetType) query = query.eq('asset_type' as never, input.assetType)
 
       const { data, error } = await query
       if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
@@ -46,12 +47,14 @@ export const templatesRouter = createRouter({
       name: z.string().min(1).max(255),
       description: z.string().max(2000).optional(),
       valueModel: z.string().optional(),
+      assetType: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
       const { data, error } = await ctx.db.from('workflow_templates').insert({
         name: input.name,
         description: input.description ?? null,
         value_model: input.valueModel ?? null,
+        asset_type: input.assetType ?? null,
         created_by: ctx.user.id,
       } as never).select().single()
 

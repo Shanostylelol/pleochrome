@@ -427,18 +427,27 @@ function ApplyTemplateModal({ open, onClose, assetId }: { open: boolean; onClose
           </div>
         ) : (
           <div className="space-y-2 max-h-64 overflow-y-auto">
-            {(templates as Record<string, unknown>[]).map((t) => (
-              <NeuCard key={t.id as string} variant="raised-sm" hoverable padding="sm"
-                className="cursor-pointer" onClick={() => applyMut.mutate({ assetId, templateId: t.id as string })}>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-[var(--text-primary)]">{t.name as string}</p>
-                    {Boolean(t.description) && <p className="text-xs text-[var(--text-muted)] truncate">{String(t.description)}</p>}
+            {(templates as Record<string, unknown>[]).map((t) => {
+              const vm = t.value_model as string | null
+              const at = t.asset_type as string | null
+              return (
+                <NeuCard key={t.id as string} variant="raised-sm" hoverable padding="sm"
+                  className="cursor-pointer" onClick={() => applyMut.mutate({ assetId, templateId: t.id as string })}>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-[var(--text-primary)]">{t.name as string}</p>
+                      {Boolean(t.description) && <p className="text-xs text-[var(--text-muted)] truncate">{String(t.description)}</p>}
+                      <div className="flex gap-1 mt-1 flex-wrap">
+                        {vm && <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--bg-body)] text-[var(--text-muted)]">{vm.replace(/_/g, ' ')}</span>}
+                        {at && <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--bg-body)] text-[var(--teal)]">{at.replace(/_/g, ' ')}</span>}
+                        {!vm && !at && <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--bg-body)] text-[var(--text-placeholder)]">Universal</span>}
+                      </div>
+                    </div>
+                    {applyMut.isPending && <span className="text-xs text-[var(--text-muted)] shrink-0">Applying…</span>}
                   </div>
-                  {applyMut.isPending && <span className="text-xs text-[var(--text-muted)]">Applying…</span>}
-                </div>
-              </NeuCard>
-            ))}
+                </NeuCard>
+              )
+            })}
           </div>
         )}
         <NeuButton variant="ghost" onClick={onClose} fullWidth>Cancel</NeuButton>
