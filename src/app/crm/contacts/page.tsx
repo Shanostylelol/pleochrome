@@ -193,7 +193,13 @@ export default function ContactsListPage() {
                       </NeuBadge>
                     </td>
                     <td className="px-4 py-3 text-[var(--text-secondary)]">
-                      {(c.email as string) || '---'}
+                      {(c.email as string) ? (
+                        <a href={`mailto:${c.email}`} onClick={(e) => e.stopPropagation()}
+                          className="flex items-center gap-1 text-[var(--text-secondary)] hover:text-[var(--teal)] transition-colors group">
+                          <Mail className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 shrink-0 transition-opacity" />
+                          {c.email as string}
+                        </a>
+                      ) : '---'}
                     </td>
                     <td className="px-4 py-3 text-[var(--text-secondary)] capitalize">
                       {((c.role as string) ?? '---').replace(/_/g, ' ')}
