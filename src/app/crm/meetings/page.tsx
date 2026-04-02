@@ -216,6 +216,7 @@ function CreateMeetingModal({ open, onClose }: { open: boolean; onClose: () => v
   const [assetId, setAssetId] = useState('')
   const [partnerId, setPartnerId] = useState('')
   const [agenda, setAgenda] = useState('')
+  const [attendeesText, setAttendeesText] = useState('')
   const [durationError, setDurationError] = useState('')
   const utils = trpc.useUtils()
 
@@ -246,7 +247,7 @@ function CreateMeetingModal({ open, onClose }: { open: boolean; onClose: () => v
 
   const resetAndClose = () => {
     setTitle(''); setMeetingDate(''); setDuration(''); setLocation('')
-    setMeetingType(''); setAssetId(''); setPartnerId(''); setAgenda('')
+    setMeetingType(''); setAssetId(''); setPartnerId(''); setAgenda(''); setAttendeesText('')
     setDurationError('')
     onClose()
   }
@@ -262,6 +263,9 @@ function CreateMeetingModal({ open, onClose }: { open: boolean; onClose: () => v
       assetId: assetId || undefined,
       partnerId: partnerId || undefined,
       agenda: agenda.trim() || undefined,
+      attendees: attendeesText.trim()
+        ? attendeesText.split('\n').map(s => s.trim()).filter(Boolean).map(name => ({ name }))
+        : undefined,
     })
   }
 
@@ -324,7 +328,14 @@ function CreateMeetingModal({ open, onClose }: { open: boolean; onClose: () => v
           }))}
         />
       </div>
-      <div className="mt-3">
+      <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+        <NeuTextarea
+          label="Attendees (one per line)"
+          placeholder="Shane Pierson&#10;David Smith&#10;..."
+          value={attendeesText}
+          onChange={(e) => setAttendeesText(e.target.value)}
+          rows={3}
+        />
         <NeuTextarea
           label="Agenda"
           placeholder="Meeting agenda..."
