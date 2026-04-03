@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
-import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase-server'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+import { createAdminClient } from '@/lib/supabase-server'
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
@@ -9,7 +11,26 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/login?error=no_code`)
   }
 
-  const supabase = await createServerSupabaseClient()
+  const cookieStore = await cookies()
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        setAll(cookiesToSet: any[]) {
+          cookiesToSet.forEach(({ name, value, options }: { name: string; value: string; options: Record<string, unknown> }) => {
+            cookieStore.set(name, value, options as Parameters<typeof cookieStore.set>[2])
+          })
+        },
+      },
+    }
+  )
+
   const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
 
   if (exchangeError) {
@@ -20,7 +41,6 @@ export async function GET(request: Request) {
   const { data: { user: authUser } } = await supabase.auth.getUser()
 
   if (!authUser?.email) {
-    await supabase.auth.signOut()
     return NextResponse.redirect(`${origin}/login?error=no_email`)
   }
 
@@ -40,7 +60,6 @@ export async function GET(request: Request) {
     .single()
 
   if (!teamMember) {
-    // Email is @pleochrome.com but no team_member row — reject
     await supabase.auth.signOut()
     return NextResponse.redirect(`${origin}/login?error=not_team_member`)
   }
