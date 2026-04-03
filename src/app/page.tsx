@@ -237,6 +237,15 @@ function HeroSection() {
       <ShaderAnimation />
       <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60 z-[1]" />
 
+      {/* Top bar — login link */}
+      <nav className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-6 py-4">
+        <span />
+        <a href="/login"
+          className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs tracking-[0.15em] uppercase text-white/70 hover:text-white border border-white/10 hover:border-white/25 bg-white/[0.04] hover:bg-white/[0.08] backdrop-blur-sm transition-all duration-300">
+          Sign In
+        </a>
+      </nav>
+
       <div className="relative z-10 flex flex-col items-center text-center px-4 sm:px-6 w-full">
         <div className={cn(
           "transition-all duration-[1.4s] ease-[cubic-bezier(0.16,1,0.3,1)] w-full flex justify-center",
@@ -274,15 +283,24 @@ function HeroSection() {
           "mt-8 sm:mt-12 transition-all duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)]",
           stage >= 4 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
         )}>
-          <a href="#paths" className="group relative inline-flex items-center gap-2 sm:gap-3 border border-white/15 rounded-full px-6 py-3 sm:px-8 sm:py-3.5
-            text-xs sm:text-sm tracking-[0.15em] sm:tracking-[0.2em] uppercase text-white/70 hover:text-white
-            bg-white/[0.03] hover:bg-white/[0.06] backdrop-blur-sm
-            transition-all duration-500 hover:border-white/25 hover:shadow-[0_0_30px_rgba(26,139,122,0.1)]">
-            <span>Explore the Paths</span>
-            <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3" />
-            </svg>
-          </a>
+          <div className="flex items-center gap-4">
+            <a href="#paths" className="group relative inline-flex items-center gap-2 sm:gap-3 border border-white/15 rounded-full px-6 py-3 sm:px-8 sm:py-3.5
+              text-xs sm:text-sm tracking-[0.15em] sm:tracking-[0.2em] uppercase text-white/70 hover:text-white
+              bg-white/[0.03] hover:bg-white/[0.06] backdrop-blur-sm
+              transition-all duration-500 hover:border-white/25 hover:shadow-[0_0_30px_rgba(26,139,122,0.1)]">
+              <span>Explore the Paths</span>
+              <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3" />
+              </svg>
+            </a>
+            <a href="/login" className="inline-flex items-center gap-2 rounded-full px-6 py-3 sm:px-8 sm:py-3.5
+              text-xs sm:text-sm tracking-[0.15em] sm:tracking-[0.2em] uppercase text-white
+              bg-[#1A8B7A]/80 hover:bg-[#1A8B7A] backdrop-blur-sm
+              transition-all duration-500 shadow-[0_0_20px_rgba(26,139,122,0.2)] hover:shadow-[0_0_30px_rgba(26,139,122,0.4)]">
+              <span>Team Login</span>
+              <ArrowRight className="w-4 h-4" />
+            </a>
+          </div>
         </div>
       </div>
 
