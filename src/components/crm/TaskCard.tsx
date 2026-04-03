@@ -179,19 +179,19 @@ export function TaskCard({
 
   return (
     <NeuCard variant={isDone ? 'flat' : 'raised-sm'} padding="none"
-      className={cn('overflow-hidden transition-opacity', isDone && 'opacity-70')}>
+      className={cn('overflow-hidden transition-opacity sm:rounded-[var(--radius-md)]', isDone && 'opacity-70', 'rounded-[var(--radius-sm)]')}>
       <div className="flex">
-        <div className="w-1 shrink-0 rounded-l-[var(--radius-md)]" style={{ background: typeConfig.color }} />
-        <div className="flex-1 p-3">
+        <div className="w-1 shrink-0 sm:rounded-l-[var(--radius-md)] rounded-l-[var(--radius-sm)]" style={{ background: typeConfig.color }} />
+        <div className="flex-1 p-2 sm:p-3">
           <div className="flex items-start gap-2">
             {/* Selection checkbox */}
             {selectable && (
               <NeuCheckbox checked={!!selected} onChange={() => onSelect?.(task.id)} color="teal" />
             )}
             {/* Type icon */}
-            <div className="flex items-center justify-center w-7 h-7 rounded-[var(--radius-sm)] shrink-0"
+            <div className="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-[var(--radius-sm)] shrink-0"
               style={{ background: `color-mix(in srgb, ${typeConfig.color} 15%, transparent)` }}>
-              <TaskIcon className="h-4 w-4" style={{ color: typeConfig.color }} />
+              <TaskIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" style={{ color: typeConfig.color }} />
             </div>
             {/* Title + meta */}
             <div className="flex-1 min-w-0">
@@ -210,7 +210,7 @@ export function TaskCard({
                   onDoubleClick={(e) => { e.preventDefault(); if (onUpdate) setEditingTitle(true) }}
                   className="flex items-center gap-1.5 text-left w-full group">
                   {isDone && <Check className="h-4 w-4 text-[var(--chartreuse)] shrink-0" />}
-                  <span className={cn('text-sm font-medium truncate', isDone
+                  <span className={cn('text-xs sm:text-sm font-medium truncate', isDone
                     ? 'line-through text-[var(--text-muted)]'
                     : 'text-[var(--text-primary)] group-hover:text-[var(--teal)]')}>
                     {task.title}

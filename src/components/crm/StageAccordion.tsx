@@ -243,7 +243,7 @@ export function StageAccordion({
               transition={{ duration: 0.2, ease: 'easeInOut' }}
               style={{ overflow: 'hidden' }}
             >
-            <div className="px-4 pb-4 pt-1 border-t border-[var(--border)]">
+            <div className="px-1.5 sm:px-4 pb-3 sm:pb-4 pt-1 border-t border-[var(--border)]">
               {/* Task list with DnD */}
               {tasks.length === 0 ? (
                 <p className="text-sm text-[var(--text-muted)] text-center py-6">
@@ -257,7 +257,7 @@ export function StageAccordion({
                   onDragEnd={handleDragEnd}
                 >
                   <SortableContext items={taskIds} strategy={verticalListSortingStrategy}>
-                    <div className="space-y-2 mt-2">
+                    <div className="space-y-1.5 sm:space-y-2 mt-1.5 sm:mt-2">
                       {tasks.map((task) => (
                         <SortableTaskItem
                           key={task.id}

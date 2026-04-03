@@ -85,15 +85,15 @@ export function SortableSubtaskRow({ st, taskId, assetId, currentUserId, autoExp
 
         {/* Expand chevron */}
         <button onClick={(e) => { e.stopPropagation(); setExpanded(!expanded) }} aria-label="Expand subtask"
-          className="p-1.5 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors shrink-0">
+          className="p-1 sm:p-1.5 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors shrink-0">
           {expanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
         </button>
 
         {/* Checkbox */}
         <NeuCheckbox checked={isDone} onChange={() => onComplete(st.id)} color={isDone ? 'emerald' : 'teal'} />
 
-        {/* Type badge dropdown */}
-        <div className="relative shrink-0">
+        {/* Type badge dropdown — hidden on small mobile */}
+        <div className="relative shrink-0 hidden sm:block">
           <button onClick={(e) => { e.stopPropagation(); setTypeMenuOpen(!typeMenuOpen) }}
             className={cn(
               'inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[var(--radius-sm)] text-[10px] font-medium transition-colors',
