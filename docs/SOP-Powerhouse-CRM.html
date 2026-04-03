@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PleoChrome Powerhouse CRM — Standard Operating Procedure</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Cormorant+Garamond:wght@500;600&display=swap');
+
+  :root {
+    --navy: #0A0F1A;
+    --surface: #141B2D;
+    --teal: #1A8B7A;
+    --emerald: #1B6B4A;
+    --text: #E8EDF2;
+    --text-muted: #8892A4;
+    --border: #1E2842;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    background: var(--navy);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 14px;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 32px;
+  }
+
+  @media print {
+    body { background: white; color: #1a1a1a; padding: 20px; font-size: 11pt; }
+    h1, h2, h3 { color: #0A0F1A; }
+    .cover { background: #0A0F1A !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .cover h1, .cover p { color: white !important; }
+    .badge { background: #f0f0f0 !important; color: #333 !important; }
+    hr { border-color: #ddd; }
+    a { color: #1A8B7A; }
+    .page-break { page-break-before: always; }
+  }
+
+  .cover {
+    text-align: center;
+    padding: 80px 20px;
+    margin: -40px -32px 40px;
+    background: linear-gradient(135deg, #0A0F1A 0%, #141B2D 100%);
+    border-bottom: 3px solid var(--teal);
+  }
+  .cover h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.8em;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    margin-bottom: 8px;
+  }
+  .cover .subtitle {
+    font-size: 1.1em;
+    color: var(--teal);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+  .cover .tagline {
+    color: var(--text-muted);
+    font-size: 0.95em;
+  }
+  .cover .version {
+    margin-top: 40px;
+    font-size: 0.8em;
+    color: var(--text-muted);
+  }
+
+  h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6em;
+    font-weight: 600;
+    margin-top: 48px;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--border);
+    color: var(--teal);
+  }
+
+  h3 {
+    font-size: 1.1em;
+    font-weight: 600;
+    margin-top: 28px;
+    margin-bottom: 10px;
+  }
+
+  p { margin-bottom: 12px; }
+
+  ul, ol { margin-bottom: 12px; padding-left: 24px; }
+  li { margin-bottom: 6px; }
+
+  strong { font-weight: 600; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: 600;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    margin: 0 2px;
+  }
+  .badge-teal { color: var(--teal); border-color: var(--teal); }
+  .badge-emerald { color: var(--emerald); border-color: var(--emerald); }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 0.9em;
+  }
+  th, td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    font-weight: 600;
+    color: var(--teal);
+    text-transform: uppercase;
+    font-size: 0.85em;
+    letter-spacing: 0.05em;
+  }
+
+  .callout {
+    padding: 16px 20px;
+    border-radius: 8px;
+    background: var(--surface);
+    border-left: 3px solid var(--teal);
+    margin: 16px 0;
+  }
+
+  code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.9em;
+    background: var(--surface);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 32px 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- Cover -->
+<div class="cover">
+  <h1>PleoChrome</h1>
+  <p class="subtitle">Powerhouse CRM</p>
+  <p class="tagline">Standard Operating Procedure</p>
+  <p class="version">Version 1.0 &mdash; April 2026<br>Value from Every Angle</p>
+</div>
+
+<!-- TOC -->
+<h2>Table of Contents</h2>
+<ol>
+  <li><a href="#start">Getting Started</a></li>
+  <li><a href="#concepts">Core Concepts</a></li>
+  <li><a href="#workflow">Daily Workflow</a></li>
+  <li><a href="#features">Feature Guide</a></li>
+  <li><a href="#partners">Partners</a></li>
+  <li><a href="#templates">Templates</a></li>
+  <li><a href="#tips">Tips &amp; Shortcuts</a></li>
+</ol>
+
+<hr>
+
+<!-- 1. Getting Started -->
+<h2 id="start">1. Getting Started</h2>
+
+<h3>What Is This?</h3>
+<p>Powerhouse is PleoChrome's internal CRM for managing real-world assets through their entire lifecycle &mdash; from sourcing to distribution. Every gemstone, property, mineral right, or other asset you work with flows through a structured pipeline of phases, stages, and tasks.</p>
+
+<h3>Who Has Access?</h3>
+<table>
+  <tr><th>Name</th><th>Role</th><th>Email</th></tr>
+  <tr><td>Shane Pierson</td><td>CEO / CCO</td><td>shane@pleochrome.com</td></tr>
+  <tr><td>David Whiting</td><td>CTO / COO</td><td>david@pleochrome.com</td></tr>
+  <tr><td>Chris Ramsey</td><td>CRO</td><td>chris@pleochrome.com</td></tr>
+</table>
+
+<h3>How to Log In</h3>
+<ol>
+  <li>Go to <strong>pleochrome.com/login</strong></li>
+  <li>Click <strong>Continue with Google</strong></li>
+  <li>Sign in with your @pleochrome.com Google Workspace account</li>
+  <li>You'll land on the Pipeline board</li>
+</ol>
+
+<h3>Mobile Access</h3>
+<p>The app works on your phone's browser. Save it to your home screen for native app-like experience:</p>
+<ul>
+  <li><strong>iPhone:</strong> Safari &gt; Share &gt; Add to Home Screen</li>
+  <li><strong>Android:</strong> Chrome &gt; Menu &gt; Add to Home Screen</li>
+</ul>
+
+<div class="page-break"></div>
+
+<!-- 2. Core Concepts -->
+<h2 id="concepts">2. Core Concepts</h2>
+
+<h3>Assets</h3>
+<p>An asset is any real-world item PleoChrome is working to monetize. Each asset has a <strong>name</strong>, <strong>asset type</strong> (gemstone, real estate, precious metal, mineral rights, or other), a <strong>value model</strong> (how you plan to monetize it), and an auto-generated <strong>reference code</strong>.</p>
+
+<h3>The Six Phases</h3>
+<p>Every asset moves through six phases in order:</p>
+<table>
+  <tr><th>#</th><th>Phase</th><th>What Happens</th></tr>
+  <tr><td>1</td><td><strong>Lead</strong></td><td>Initial sourcing and identification</td></tr>
+  <tr><td>2</td><td><strong>Intake</strong></td><td>KYC/KYB verification, holder screening, preliminary assessment</td></tr>
+  <tr><td>3</td><td><strong>Maturity</strong></td><td>Full appraisal, custody arrangement, insurance</td></tr>
+  <tr><td>4</td><td><strong>Security</strong></td><td>Legal structuring (SPV, securities filings, compliance)</td></tr>
+  <tr><td>5</td><td><strong>Value Creation</strong></td><td>Token/share creation, smart contracts, offering setup</td></tr>
+  <tr><td>6</td><td><strong>Distribution</strong></td><td>Marketing, investor onboarding, trading/settlement</td></tr>
+</table>
+
+<h3>Stages, Tasks, and Subtasks</h3>
+<p>Within each phase:</p>
+<ul>
+  <li><strong>Stages</strong> are major milestones (e.g., "Holder Qualification &amp; Screening")</li>
+  <li><strong>Tasks</strong> are specific work items within a stage (e.g., "Run OFAC/SDN screening")</li>
+  <li><strong>Subtasks</strong> break tasks into smaller checkable items</li>
+</ul>
+<p>All stage names, task titles, and subtask titles can be renamed at any time to match your specific situation.</p>
+
+<h3>Value Models</h3>
+<table>
+  <tr><th>Model</th><th>Description</th></tr>
+  <tr><td><span class="badge badge-emerald">Fractional Securities</span></td><td>Reg D 506(c) fractional LLC units, lower minimums</td></tr>
+  <tr><td><span class="badge badge-teal">Tokenization</span></td><td>ERC-3643/7518 security tokens on blockchain</td></tr>
+  <tr><td><span class="badge">Debt Instrument</span></td><td>Asset-backed lending, UCC Article 9</td></tr>
+  <tr><td><span class="badge">Broker Sale</span></td><td>Direct sale through broker/dealer</td></tr>
+  <tr><td><span class="badge">Barter</span></td><td>Asset-for-asset exchange</td></tr>
+</table>
+<p>You can change the value model mid-lifecycle using <strong>Change Approach</strong>. Phases 1&ndash;3 work is preserved; phases 4&ndash;6 get swapped out.</p>
+
+<div class="page-break"></div>
+
+<!-- 3. Daily Workflow -->
+<h2 id="workflow">3. Daily Workflow</h2>
+
+<h3>Creating a New Asset</h3>
+<ol>
+  <li>Click <strong>+ New Asset</strong> from the Pipeline page</li>
+  <li>Fill in the wizard:
+    <ul>
+      <li><strong>Step 1:</strong> Name, asset type, holder entity</li>
+      <li><strong>Step 2:</strong> Value model selection</li>
+      <li><strong>Step 3:</strong> Type-specific details (carat weight, property address, etc.)</li>
+      <li><strong>Step 4:</strong> Review and create</li>
+    </ul>
+  </li>
+  <li>The system automatically applies the appropriate workflow template</li>
+</ol>
+
+<h3>Working Through the Workflow</h3>
+<ol>
+  <li>Open an asset from the Pipeline or Assets list</li>
+  <li>You land on the <strong>Workflow</strong> tab &mdash; this is where you do your work</li>
+  <li>Tap/click a <strong>stage</strong> to see its tasks</li>
+  <li>For each task:
+    <ul>
+      <li>Open to see full details, subtasks, files, comments</li>
+      <li>Mark subtasks as complete with the checkbox</li>
+      <li>Add notes, attach files, leave comments</li>
+      <li>Change status: To Do &rarr; Active &rarr; Done</li>
+    </ul>
+  </li>
+  <li>When all tasks in a stage are done, mark the stage as complete</li>
+  <li>When a phase is complete, advance to the next phase</li>
+</ol>
+
+<div class="callout">
+  <strong>On Mobile:</strong> The workflow uses a flat drill-down &mdash; tap a stage to enter it, tap a task to see details. Use the back arrow to navigate up. Tap the pencil icon to rename any stage or task.
+</div>
+
+<h3>Advancing Phases</h3>
+<p>Click <strong>Advance to [Phase]</strong> (desktop) or find it in the <strong>...</strong> menu (mobile). The system warns if tasks are incomplete &mdash; you can override with a reason that gets logged for audit.</p>
+
+<div class="page-break"></div>
+
+<!-- 4. Feature Guide -->
+<h2 id="features">4. Feature Guide</h2>
+
+<h3>Pipeline Board</h3>
+<p>The main dashboard showing all active assets organized by phase. Filter by value model, search by name, drag assets between phases (desktop).</p>
+
+<h3>Tabs on Each Asset</h3>
+<table>
+  <tr><th>Tab</th><th>What It Does</th></tr>
+  <tr><td><strong>Workflow</strong></td><td>Your daily workspace &mdash; stages, tasks, subtasks, all work happens here</td></tr>
+  <tr><td><strong>Overview</strong></td><td>Asset details: holder info, type-specific fields, custody, legal, owners</td></tr>
+  <tr><td><strong>Documents</strong></td><td>Required documents checklist + uploaded files, grouped by stage</td></tr>
+  <tr><td><strong>Comments</strong></td><td>Asset-level conversation thread with @mentions</td></tr>
+  <tr><td><strong>Comms</strong></td><td>Meetings + communication logs (calls, emails, texts) in unified timeline</td></tr>
+  <tr><td><strong>Activity</strong></td><td>Immutable audit trail &mdash; every action auto-logged</td></tr>
+  <tr><td><strong>Gates</strong></td><td>Phase advancement gates that must be completed before moving forward</td></tr>
+  <tr><td><strong>Financials</strong></td><td>Claimed/appraised values, payment tracking, revenue projections</td></tr>
+  <tr><td><strong>Partners</strong></td><td>Service providers assigned to this asset with their roles</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<!-- 5. Partners -->
+<h2 id="partners">5. Partners</h2>
+<p>The Partners section manages all service providers (appraisers, custodians, broker-dealers, legal counsel, etc.).</p>
+
+<h3>Partner Detail Tabs</h3>
+<table>
+  <tr><th>Tab</th><th>What It Does</th></tr>
+  <tr><td><strong>Overview</strong></td><td>Description, engagement status, timeline</td></tr>
+  <tr><td><strong>Onboarding</strong></td><td>Onboarding checklist items</td></tr>
+  <tr><td><strong>Assignments</strong></td><td>Which assets this partner is assigned to</td></tr>
+  <tr><td><strong>Documents</strong></td><td>Credentials (licenses with expiry tracking) + uploaded files</td></tr>
+  <tr><td><strong>Comms</strong></td><td>Communication logs and meetings</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<!-- 6. Templates -->
+<h2 id="templates">6. Templates</h2>
+
+<h3>How Templates Work</h3>
+<p>When you create an asset and select a value model, the system applies two templates:</p>
+<ol>
+  <li><strong>Shared Pipeline</strong> &mdash; phases 1&ndash;3, universal for all value models</li>
+  <li><strong>Value Model template</strong> &mdash; phases 4&ndash;6, specific to your chosen monetization path</li>
+</ol>
+
+<h3>Customizing After Application</h3>
+<p>Once applied, all stages, tasks, and subtasks are <strong>independent copies</strong>. You can freely:</p>
+<ul>
+  <li>Rename any stage, task, or subtask</li>
+  <li>Add new stages, tasks, or subtasks</li>
+  <li>Delete irrelevant items</li>
+  <li>Reorder items (desktop: drag-and-drop)</li>
+</ul>
+<p>Changes do NOT affect the template or other assets.</p>
+
+<!-- 7. Tips -->
+<h2 id="tips">7. Tips &amp; Shortcuts</h2>
+
+<h3>Keyboard Shortcuts (Desktop)</h3>
+<table>
+  <tr><th>Shortcut</th><th>Action</th></tr>
+  <tr><td><code>Cmd+K</code></td><td>Open search (assets, tasks, partners, contacts)</td></tr>
+  <tr><td><code>Cmd+N</code></td><td>Quick add asset (from Pipeline page)</td></tr>
+</table>
+
+<h3>Quick Actions (from any asset)</h3>
+<p>The <strong>...</strong> menu gives you: Pause/Resume, Set Reminder, Duplicate, Change Approach, Save as Template, Export (JSON/CSV).</p>
+
+<h3>Notifications</h3>
+<p>The bell icon shows unread notifications. You'll be notified when assigned a task, @mentioned in a comment, or a phase is advanced.</p>
+
+<hr>
+<p style="text-align: center; color: var(--text-muted); font-size: 0.85em; margin-top: 40px;">
+  PleoChrome Powerhouse CRM &mdash; Standard Operating Procedure v1.0<br>
+  April 2026 &bull; Confidential &bull; For internal use only
+</p>
+
+</body>
+</html>
