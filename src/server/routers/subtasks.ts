@@ -98,7 +98,7 @@ export const subtasksRouter = createRouter({
         .update(updates as never)
         .eq('id', subtaskId)
         .select()
-        .single()
+        .maybeSingle()
 
       if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
 

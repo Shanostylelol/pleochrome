@@ -188,9 +188,10 @@ export const tasksRouter = createRouter({
         } as never)
         .eq('id', input.taskId)
         .select()
-        .single()
+        .maybeSingle()
 
       if (error) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message })
+      if (!data) throw new TRPCError({ code: 'NOT_FOUND', message: 'Task not found' })
 
       // KYC Bridge: if this is a KYC-related task, auto-update owner's KYC status
       if (data) {
