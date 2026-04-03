@@ -6,15 +6,15 @@ import Link from 'next/link'
 import { trpc } from '@/lib/trpc'
 import { NeuCard, NeuBadge, NeuButton, NeuTabs, NeuAvatar } from '@/components/ui'
 import { PartnerOnboardingTab } from '@/components/crm/partners/PartnerOnboardingTab'
-import { PartnerCredentialsTab } from '@/components/crm/partners/PartnerCredentialsTab'
+// Credentials merged into Documents tab
 import { PartnerAssignmentsTab } from '@/components/crm/partners/PartnerAssignmentsTab'
 import { EditPartnerModal } from '@/components/crm/partners/EditPartnerModal'
 import { PartnerDocumentsTab } from '@/components/crm/partners/PartnerDocumentsTab'
 import { PartnerCommsTab } from '@/components/crm/partners/PartnerCommsTab'
 import { ListPageSkeleton } from '@/components/crm/skeletons'
 import {
-  ChevronRight, Edit3, ExternalLink, Mail, Phone, User, Globe,
-  LayoutGrid, ClipboardCheck, Award, Gem, Calendar, FileText, MessageCircle, Bell,
+  ChevronRight, Edit3, ExternalLink, Mail, Phone,
+  LayoutGrid, ClipboardCheck, Gem, Calendar, FileText, MessageCircle, Bell,
 } from 'lucide-react'
 import { SetReminderModal } from '@/components/crm/SetReminderModal'
 
@@ -28,9 +28,6 @@ const DD_LABEL: Record<string, string> = {
 const ENGAGEMENT_COLOR: Record<string, 'gray' | 'teal' | 'amber' | 'ruby' | 'chartreuse'> = {
   prospecting: 'gray', evaluating: 'amber', onboarding: 'teal', active: 'chartreuse', paused: 'ruby', terminated: 'ruby',
 }
-const RISK_COLOR: Record<string, 'gray' | 'chartreuse' | 'amber' | 'ruby'> = {
-  low: 'chartreuse', medium: 'amber', high: 'ruby', unknown: 'gray',
-}
 
 function fmt(s: string): string {
   return s.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
@@ -43,7 +40,6 @@ function fmtDate(d: string | null | undefined): string {
 const TABS = [
   { id: 'overview', label: 'Overview', icon: <LayoutGrid className="h-4 w-4" /> },
   { id: 'onboarding', label: 'Onboarding', icon: <ClipboardCheck className="h-4 w-4" /> },
-  { id: 'credentials', label: 'Credentials', icon: <Award className="h-4 w-4" /> },
   { id: 'assignments', label: 'Assignments', icon: <Gem className="h-4 w-4" /> },
   { id: 'documents', label: 'Documents', icon: <FileText className="h-4 w-4" /> },
   { id: 'comms', label: 'Comms', icon: <MessageCircle className="h-4 w-4" /> },
@@ -76,7 +72,6 @@ export default function PartnerDetailPage() {
 
   const dd = (partner.dd_status as string) ?? 'not_started'
   const engagement = (partner.engagement_status as string) ?? 'prospecting'
-  const risk = (partner.risk_level as string) ?? 'unknown'
   const pType = (partner.type as string) ?? 'other'
 
   return (
@@ -90,55 +85,38 @@ export default function PartnerDetailPage() {
         <span className="font-semibold text-[var(--text-primary)]">{partner.name as string}</span>
       </nav>
 
-      {/* Hero Card */}
-      <NeuCard variant="raised" padding="lg">
-        <div className="flex flex-col lg:flex-row gap-6">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-4">
-              <NeuAvatar name={partner.name as string} size="lg" />
-              <div className="min-w-0 flex-1">
-                <h1
-                  className="text-2xl font-semibold text-[var(--text-primary)] truncate"
-                  style={{ fontFamily: 'var(--font-display)' }}
-                >
-                  {partner.name as string}
-                </h1>
-                <div className="flex flex-wrap gap-1.5 mt-1.5">
-                  <NeuBadge color="amethyst">{fmt(pType)}</NeuBadge>
-                  <NeuBadge color={ENGAGEMENT_COLOR[engagement] ?? 'gray'}>{fmt(engagement)}</NeuBadge>
-                  <NeuBadge color={DD_COLOR[dd] ?? 'gray'}>DD: {DD_LABEL[dd] ?? dd}</NeuBadge>
-                  <NeuBadge color={RISK_COLOR[risk] ?? 'gray'}>Risk: {fmt(risk)}</NeuBadge>
-                </div>
-              </div>
-            </div>
-
-            {/* Contact Info */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5">
-              <ContactField icon={User} label="Contact" value={partner.contact_name as string} />
-              <ContactField icon={Mail} label="Email" value={partner.contact_email as string} isLink={`mailto:${partner.contact_email}`} />
-              <ContactField icon={Phone} label="Phone" value={partner.contact_phone as string} />
-              <ContactField icon={Globe} label="Website" value={partner.website as string} isLink={partner.website as string} external />
-            </div>
+      {/* Hero — compact bar */}
+      <div className="flex items-center gap-3">
+        <NeuAvatar name={partner.name as string} size="md" />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <h1 className="text-base lg:text-lg font-semibold text-[var(--text-primary)] truncate">{partner.name as string}</h1>
+            <NeuBadge color="amethyst" size="sm">{fmt(pType)}</NeuBadge>
+            <NeuBadge color={ENGAGEMENT_COLOR[engagement] ?? 'gray'} size="sm">{fmt(engagement)}</NeuBadge>
+            <NeuBadge color={DD_COLOR[dd] ?? 'gray'} size="sm">DD: {DD_LABEL[dd] ?? dd}</NeuBadge>
           </div>
-
-          {/* Actions */}
-          <div className="flex lg:flex-col gap-2 flex-wrap lg:w-40 shrink-0">
-            <NeuButton icon={<Edit3 className="h-4 w-4" />} size="sm" fullWidth onClick={() => setShowEdit(true)}>
-              Edit
-            </NeuButton>
-            <NeuButton variant="ghost" icon={<Bell className="h-4 w-4" />} size="sm" fullWidth onClick={() => setShowReminder(true)}>
-              Set Reminder
-            </NeuButton>
-            {(partner.website as string) && (
-              <a href={partner.website as string} target="_blank" rel="noreferrer" className="w-full">
-                <NeuButton variant="ghost" icon={<ExternalLink className="h-4 w-4" />} size="sm" fullWidth>
-                  Website
-                </NeuButton>
+          <div className="flex items-center gap-3 mt-0.5 text-xs text-[var(--text-muted)]">
+            {(partner.contact_name as string) && <span>{partner.contact_name as string}</span>}
+            {(partner.contact_email as string) && (
+              <a href={`mailto:${partner.contact_email}`} className="flex items-center gap-1 hover:text-[var(--teal)] transition-colors">
+                <Mail className="h-3 w-3" />{partner.contact_email as string}
               </a>
+            )}
+            {(partner.contact_phone as string) && (
+              <span className="flex items-center gap-1"><Phone className="h-3 w-3" />{partner.contact_phone as string}</span>
             )}
           </div>
         </div>
-      </NeuCard>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <NeuButton icon={<Edit3 className="h-3.5 w-3.5" />} size="sm" variant="ghost" onClick={() => setShowEdit(true)} />
+          <NeuButton icon={<Bell className="h-3.5 w-3.5" />} size="sm" variant="ghost" onClick={() => setShowReminder(true)} />
+          {(partner.website as string) && (
+            <a href={partner.website as string} target="_blank" rel="noreferrer">
+              <NeuButton icon={<ExternalLink className="h-3.5 w-3.5" />} size="sm" variant="ghost" />
+            </a>
+          )}
+        </div>
+      </div>
 
       {/* Tabs */}
       <NeuTabs tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} />
@@ -147,7 +125,6 @@ export default function PartnerDetailPage() {
       <div>
         {activeTab === 'overview' && <OverviewTab partner={partner} />}
         {activeTab === 'onboarding' && <PartnerOnboardingTab partnerId={params.id as string} partnerType={partner?.type as string} />}
-        {activeTab === 'credentials' && <PartnerCredentialsTab partnerId={params.id} />}
         {activeTab === 'assignments' && <PartnerAssignmentsTab assets={data?.assets ?? []} />}
         {activeTab === 'documents' && <PartnerDocumentsTab partnerId={params.id as string} />}
         {activeTab === 'comms' && <PartnerCommsTab partnerId={params.id as string} />}
@@ -170,30 +147,6 @@ export default function PartnerDetailPage() {
   )
 }
 
-// ── Shared field component ─────────────────────────────────
-function ContactField({ icon: Icon, label, value, isLink, external }: {
-  icon: typeof Mail; label: string; value: string | null | undefined
-  isLink?: string; external?: boolean
-}) {
-  if (!value) return null
-  return (
-    <div className="flex items-center gap-2.5 text-sm">
-      <div className="w-8 h-8 rounded-[var(--radius-md)] bg-[var(--bg-body)] shadow-[var(--shadow-pressed)] flex items-center justify-center shrink-0">
-        <Icon className="h-4 w-4 text-[var(--text-muted)]" />
-      </div>
-      <div>
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">{label}</p>
-        {isLink ? (
-          <a href={isLink} {...(external ? { target: '_blank', rel: 'noreferrer' } : {})} className="text-[var(--teal)] hover:underline">
-            {value}
-          </a>
-        ) : (
-          <p className="text-[var(--text-primary)]">{value}</p>
-        )}
-      </div>
-    </div>
-  )
-}
 
 // ── Overview Tab ────────────────────────────────────────────
 function OverviewTab({ partner }: { partner: Record<string, unknown> }) {

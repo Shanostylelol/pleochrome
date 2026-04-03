@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Clock, Paperclip, MessageCircle, Activity } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useToast } from '@/components/ui/NeuToast'
 import { TASK_TYPES, type TaskTypeKey } from '@/lib/constants'
 import { NeuButton, NeuInput } from '@/components/ui'
 import { trpc } from '@/lib/trpc'
@@ -91,6 +92,7 @@ export function TaskCardDetails({
   onUpdateSubtask,
   onReorderSubtasks,
 }: TaskCardDetailsProps) {
+  const { toast } = useToast()
   const { data: currentUser } = trpc.team.getCurrentUser.useQuery()
   const [editingDueDate, setEditingDueDate] = useState(false)
   const [dueValue, setDueValue] = useState(task.due_date ? task.due_date.slice(0, 10) : '')
@@ -101,6 +103,7 @@ export function TaskCardDetails({
 
   const reminderMutation = trpc.reminders.create.useMutation({
     onSuccess: () => { setShowReminder(false); setReminderDate(''); setReminderDesc('') },
+    onError: (err) => toast(err.message, 'error'),
   })
 
   function handleSetReminder() {

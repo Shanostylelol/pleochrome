@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { ChevronDown, Shield, Play, CheckCircle2, Paperclip, MessageCircle } from 'lucide-react'
+import { useToast } from '@/components/ui/NeuToast'
 import { cn } from '@/lib/utils'
 import { NeuCard } from '@/components/ui/NeuCard'
 import { NeuBadge } from '@/components/ui/NeuBadge'
@@ -105,12 +106,14 @@ export function StageAccordion({
   assetId,
   currentUserId,
 }: StageAccordionProps) {
+  const { toast } = useToast()
   const [activeDragId, setActiveDragId] = useState<string | null>(null)
   const [editingName, setEditingName] = useState(false)
   const [nameDraft, setNameDraft] = useState(stage.name)
   const utils = trpc.useUtils()
   const renameMut = trpc.stages.rename.useMutation({
     onSuccess: () => utils.assets.getById.invalidate(),
+    onError: (err) => toast(err.message, 'error'),
   })
   const statusCfg = STAGE_STATUSES[stage.status]
   const taskCount = tasks.length

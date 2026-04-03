@@ -18,6 +18,7 @@ import {
 import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useToast } from '@/components/ui/NeuToast'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type PipelineBoard = any
 
@@ -107,6 +108,7 @@ const LS_FILTER_KEY = 'plc-pipeline-filter'
 const LS_VIEW_KEY = 'plc-pipeline-view'
 
 function PipelineBoardInner() {
+  const { toast } = useToast()
   const searchParams = useSearchParams()
   const [pathFilter, setPathFilter] = useState<PathFilter | null>(() => {
     if (typeof window === 'undefined') return null
@@ -150,7 +152,8 @@ function PipelineBoardInner() {
     : rawAssets
   const { data: stats } = trpc.assets.getStats.useQuery(pathFilter ? { valueModel: pathFilter } : undefined)
   const updatePhase = trpc.assets.advancePhase.useMutation({
-    onSuccess: () => { utils.assets.listForPipeline.invalidate(); utils.assets.getStats.invalidate() },
+    onSuccess: () => { setPendingMove(null); utils.assets.listForPipeline.invalidate(); utils.assets.getStats.invalidate() },
+    onError: (err) => { setPendingMove(null); toast(err.message, 'error') },
   })
 
   useEffect(() => {
@@ -319,7 +322,6 @@ function PipelineBoardInner() {
                     assetId: pendingMove.assetId,
                     targetPhase: pendingMove.newPhase as 'lead' | 'intake' | 'asset_maturity' | 'security' | 'value_creation' | 'distribution',
                   })
-                  setPendingMove(null)
                 }}
                 loading={updatePhase.isPending}
                 fullWidth

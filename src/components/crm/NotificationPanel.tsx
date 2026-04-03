@@ -7,6 +7,7 @@ import { trpc } from '@/lib/trpc'
 import { NeuCard } from '@/components/ui/NeuCard'
 import { NeuButton } from '@/components/ui/NeuButton'
 import { cn } from '@/lib/utils'
+import { useToast } from '@/components/ui/NeuToast'
 
 const TYPE_COLORS: Record<string, string> = {
   comment_mention: 'var(--amethyst)',
@@ -32,6 +33,7 @@ function timeAgo(iso: string): string {
 }
 
 export function NotificationPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { toast } = useToast()
   const [filter, setFilter] = useState<'all' | 'unread'>('all')
   const utils = trpc.useUtils()
   const router = useRouter()
@@ -43,10 +45,12 @@ export function NotificationPanel({ open, onClose }: { open: boolean; onClose: (
 
   const markRead = trpc.notifications.markRead.useMutation({
     onSuccess: () => { utils.notifications.list.invalidate(); utils.notifications.getUnreadCount.invalidate() },
+    onError: (err) => toast(err.message, 'error'),
   })
 
   const markAllRead = trpc.notifications.markAllRead.useMutation({
     onSuccess: () => { utils.notifications.list.invalidate(); utils.notifications.getUnreadCount.invalidate() },
+    onError: (err) => toast(err.message, 'error'),
   })
 
   if (!open) return null

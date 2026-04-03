@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Sun, Moon, Menu, Search, Bell } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Sun, Moon, Menu, Search, Bell, LogOut } from 'lucide-react'
+import { createClient } from '@/lib/supabase'
 import { NeuButton } from '@/components/ui/NeuButton'
 import { NeuAvatar } from '@/components/ui/NeuAvatar'
 import { useTheme } from './ThemeProvider'
@@ -14,9 +16,17 @@ import { trpc } from '@/lib/trpc'
 export function CRMHeader() {
   const { theme, toggleTheme } = useTheme()
   const currentUser = useCurrentUser()
+  const router = useRouter()
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
+
+  async function handleSignOut() {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push('/login')
+  }
 
   const { data: unreadData } = trpc.notifications.getUnreadCount.useQuery(
     undefined,
@@ -89,7 +99,23 @@ export function CRMHeader() {
           >
             {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </NeuButton>
-          <NeuAvatar name={currentUser.full_name} size="sm" />
+          <div className="relative">
+            <button onClick={() => setUserMenuOpen(!userMenuOpen)} className="flex items-center">
+              <NeuAvatar name={currentUser.full_name} size="sm" />
+            </button>
+            {userMenuOpen && (
+              <div className="absolute right-0 top-full mt-1 z-50 neu-raised-sm p-1 min-w-[180px]">
+                <div className="px-3 py-2 border-b border-[var(--border)]">
+                  <p className="text-sm font-medium text-[var(--text-primary)]">{currentUser.full_name}</p>
+                  <p className="text-xs text-[var(--text-muted)]">{currentUser.email}</p>
+                </div>
+                <button onClick={() => { setUserMenuOpen(false); handleSignOut() }}
+                  className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)] mt-1">
+                  <LogOut className="h-3.5 w-3.5" /> Sign out
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
