@@ -14,7 +14,9 @@ import { DndContext, DragOverlay, closestCenter, type DragEndEvent, type DragSta
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 import { ConfirmHideModal } from '@/components/crm/ConfirmHideModal'
 import { CompactWorkflowView } from '@/components/crm/CompactWorkflowView'
+import { MobileWorkflowView } from '@/components/crm/MobileWorkflowView'
 import { TaskDetailDrawer } from '@/components/crm/TaskDetailDrawer'
+import { useIsMobile } from '@/lib/useIsMobile'
 import { BulkActionBar } from '@/components/crm/BulkActionBar'
 import { trpc } from '@/lib/trpc'
 import { useToast } from '@/components/ui/NeuToast'
@@ -52,6 +54,7 @@ export function WorkflowTab({ assetId, assetType, valueModel, stages, tasks, sub
   const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set())
   const [viewMode, setViewMode] = useState<'accordion' | 'compact'>('accordion')
   const [drawerTask, setDrawerTask] = useState<{ task: Task; stage: Stage } | null>(null)
+  const isMobile = useIsMobile()
   const [showApplyTemplate, setShowApplyTemplate] = useState(false)
   const utils = trpc.useUtils()
   const { toast } = useToast()
@@ -192,13 +195,13 @@ export function WorkflowTab({ assetId, assetType, valueModel, stages, tasks, sub
               }`}>{f.label}</button>
           ))}
           <button onClick={() => { setSelectMode(!selectMode); if (selectMode) setSelectedTaskIds(new Set()) }}
-            className={`px-2.5 py-1 text-xs rounded-[var(--radius-sm)] transition-all ${
+            className={`hidden sm:block px-2.5 py-1 text-xs rounded-[var(--radius-sm)] transition-all ${
               selectMode
                 ? 'bg-[var(--teal)] text-[var(--text-on-accent)] font-medium'
                 : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
             }`}>Select</button>
         </div>
-        <div className="flex items-center gap-1 ml-auto">
+        <div className="hidden sm:flex items-center gap-1 ml-auto">
           <NeuButton variant="ghost" size="sm" icon={<BookOpen className="h-3.5 w-3.5" />}
             onClick={() => setShowApplyTemplate(true)} className="!h-7 !px-2 !text-xs hidden sm:flex">
             Apply Template
@@ -250,7 +253,20 @@ export function WorkflowTab({ assetId, assetType, valueModel, stages, tasks, sub
         </NeuCard>
       )}
 
-      {viewMode === 'compact' ? (
+      {isMobile ? (
+        <MobileWorkflowView
+          stagesByPhase={stagesByPhase}
+          tasksByStage={tasksByStage}
+          subtasksByTask={subtasksByTask}
+          stages={stages}
+          assetId={assetId}
+          onOpenTask={(task, stage) => setDrawerTask({ task, stage })}
+          onUpdateStageStatus={handleUpdateStageStatus}
+          onCompleteTask={handleCompleteTask}
+          onSubmitTask={(stageId, title) => createTask.mutate({ stageId, assetId, title })}
+          focusTaskId={focusTaskId}
+        />
+      ) : viewMode === 'compact' ? (
         <CompactWorkflowView
           stagesByPhase={stagesByPhase}
           tasksByStage={tasksByStage}

@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useCallback } from 'react'
-import { X, ChevronRight } from 'lucide-react'
+import { useState, useRef } from 'react'
+import { X, ChevronRight, Edit3 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { NeuBadge } from '@/components/ui/NeuBadge'
 import { TaskCardDetails, type TaskCardDetailsProps } from './TaskCardDetails'
@@ -28,9 +29,28 @@ export function TaskDetailDrawer({
   open, onClose, task, stage, subtasks, assetId,
   onComplete, onAddSubtask, onUpdate, onDeleteSubtask, onUpdateSubtask, onReorderSubtasks,
 }: TaskDetailDrawerProps) {
+  const [editingTitle, setEditingTitle] = useState(false)
+  const [titleDraft, setTitleDraft] = useState('')
+  const titleRef = useRef<HTMLInputElement>(null)
+
   const handleEscape = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape') onClose()
   }, [onClose])
+
+  function handleTitleEdit() {
+    if (!task) return
+    setTitleDraft(task.title)
+    setEditingTitle(true)
+    setTimeout(() => titleRef.current?.focus(), 50)
+  }
+
+  function handleTitleSubmit() {
+    const trimmed = titleDraft.trim()
+    if (trimmed && trimmed !== task?.title && onUpdate) {
+      onUpdate(task!.id, { title: trimmed })
+    }
+    setEditingTitle(false)
+  }
 
   useEffect(() => {
     if (!open) return
@@ -64,14 +84,27 @@ export function TaskDetailDrawer({
               <ChevronRight className="h-3 w-3 shrink-0" />
             </div>
           )}
-          <h2 className="text-sm font-semibold text-[var(--text-primary)] truncate flex-1">{task.title}</h2>
+          {editingTitle ? (
+            <input ref={titleRef} value={titleDraft}
+              onChange={(e) => setTitleDraft(e.target.value)}
+              onBlur={handleTitleSubmit}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleTitleSubmit(); if (e.key === 'Escape') setEditingTitle(false) }}
+              className="flex-1 text-sm font-semibold bg-[var(--bg-input)] border border-[var(--teal)] text-[var(--text-primary)] rounded-[var(--radius-sm)] px-2 py-1 outline-none min-w-0" />
+          ) : (
+            <h2 className="text-sm font-semibold text-[var(--text-primary)] truncate flex-1">{task.title}</h2>
+          )}
+          {onUpdate && !editingTitle && (
+            <button onClick={handleTitleEdit} className="p-1 text-[var(--text-muted)] hover:text-[var(--teal)] transition-colors shrink-0">
+              <Edit3 className="h-3.5 w-3.5" />
+            </button>
+          )}
           <NeuBadge color={task.status === 'done' ? 'chartreuse' : task.status === 'blocked' ? 'ruby' : task.status === 'in_progress' ? 'teal' : 'gray'} size="sm">
             {task.status.replace(/_/g, ' ')}
           </NeuBadge>
         </div>
 
         {/* Content: reuse TaskCardDetails */}
-        <div className="p-4">
+        <div className="p-4" style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom))' }}>
           <TaskCardDetails
             task={task}
             subtasks={subtasks}
