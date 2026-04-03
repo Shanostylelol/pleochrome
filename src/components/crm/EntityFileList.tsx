@@ -197,7 +197,7 @@ export function EntityFileList({ entityType, entityId, taskId, assetId }: Entity
         <select
           value={docType}
           onChange={(e) => setDocType(e.target.value)}
-          className="h-7 text-[11px] rounded-[var(--radius-sm)] px-1.5 bg-[var(--bg-input)] text-[var(--text-muted)] border border-[var(--border)] shadow-[var(--shadow-pressed)] focus:outline-none focus:border-[var(--teal)]"
+          className="h-8 text-sm rounded-[var(--radius-sm)] px-2 bg-[var(--bg-input)] text-[var(--text-secondary)] border border-[var(--border)] shadow-[var(--shadow-pressed)] focus:outline-none focus:border-[var(--teal)]"
         >
           {DOC_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
         </select>
