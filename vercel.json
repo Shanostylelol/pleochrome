@@ -1,3 +1,11 @@
 {
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.pleochrome.com" }],
+      "destination": "https://pleochrome.com/:path*",
+      "permanent": true
+    }
+  ]
 }

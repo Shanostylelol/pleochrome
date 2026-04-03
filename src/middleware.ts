@@ -3,7 +3,14 @@ import type { NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
+  const { pathname, host } = request.nextUrl
+
+  // Redirect www to non-www (prevents cookie domain mismatches)
+  if (host.startsWith('www.')) {
+    const url = request.nextUrl.clone()
+    url.host = host.replace('www.', '')
+    return NextResponse.redirect(url, 301)
+  }
 
   // Skip auth check in development mode
   if (process.env.NEXT_PUBLIC_ENV === 'development') {
@@ -62,5 +69,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/crm/:path*', '/login'],
+  matcher: ['/((?!_next/static|_next/image|favicon\\.png|icons|partners|screenshots|logo).*)', '/crm/:path*', '/login'],
 }

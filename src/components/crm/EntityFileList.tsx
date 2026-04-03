@@ -39,29 +39,29 @@ function FileRow({ doc, onDownload, onDelete, onUpdateNote }: {
 
   return (
     <div className={cn('rounded-[var(--radius-sm)] transition-colors', 'hover:bg-[var(--bg-surface)]')}>
-      <div className="group flex items-center gap-2 py-1 px-2">
+      <div className="group flex items-center gap-2 py-1.5 px-2 cursor-pointer" onClick={() => onDownload(doc.id)}>
         <FileText className="h-3.5 w-3.5 text-[var(--text-muted)] shrink-0" />
         <div className="flex-1 min-w-0">
-          <span className="text-xs text-[var(--text-primary)] truncate block">{doc.filename}</span>
+          <span className="text-xs text-[var(--text-primary)] truncate block hover:text-[var(--teal)] transition-colors">{doc.filename}</span>
           {doc.notes && !noteOpen && (
             <span className="text-[10px] text-[var(--text-muted)] truncate block italic">{doc.notes}</span>
           )}
         </div>
         <span className="text-[10px] text-[var(--text-muted)] shrink-0">{formatBytes(doc.file_size_bytes)}</span>
-        <button onClick={() => { setNoteVal(doc.notes ?? ''); setNoteOpen(!noteOpen) }}
+        <button onClick={(e) => { e.stopPropagation(); setNoteVal(doc.notes ?? ''); setNoteOpen(!noteOpen) }}
           aria-label={doc.notes ? 'Edit note' : 'Add note'}
           title={doc.notes ? 'Edit note' : 'Add note'}
-          className={cn('p-1.5 transition-colors opacity-0 group-hover:opacity-100',
+          className={cn('p-1.5 transition-colors sm:opacity-0 sm:group-hover:opacity-100',
             doc.notes ? 'text-[var(--teal)]' : 'text-[var(--text-muted)] hover:text-[var(--teal)]')}>
           <StickyNote className="h-3 w-3" />
         </button>
-        <button onClick={() => onDownload(doc.id)} aria-label={`Download ${doc.filename}`}
-          className="p-1.5 text-[var(--text-muted)] hover:text-[var(--teal)] transition-colors opacity-0 group-hover:opacity-100">
+        <button onClick={(e) => { e.stopPropagation(); onDownload(doc.id) }} aria-label={`Download ${doc.filename}`}
+          className="p-1.5 text-[var(--text-muted)] hover:text-[var(--teal)] transition-colors sm:opacity-0 sm:group-hover:opacity-100">
           <Download className="h-3 w-3" />
         </button>
         {!doc.is_locked && (
-          <button onClick={() => onDelete(doc.id)} aria-label={`Delete ${doc.filename}`}
-            className="p-1.5 text-[var(--text-muted)] hover:text-[var(--ruby)] transition-colors opacity-0 group-hover:opacity-100">
+          <button onClick={(e) => { e.stopPropagation(); onDelete(doc.id) }} aria-label={`Delete ${doc.filename}`}
+            className="p-1.5 text-[var(--text-muted)] hover:text-[var(--ruby)] transition-colors sm:opacity-0 sm:group-hover:opacity-100">
             <Trash2 className="h-3 w-3" />
           </button>
         )}
