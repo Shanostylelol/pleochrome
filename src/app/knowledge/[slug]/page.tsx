@@ -5,16 +5,16 @@ import Image from 'next/image'
 import { ArrowLeft, Clock, ExternalLink } from 'lucide-react'
 import { SiteFooter } from '@/components/landing/SiteFooter'
 import { MobileNav } from '@/components/landing/MobileNav'
-import { VALUE_MODEL_ARTICLES } from '@/lib/knowledge-data'
+import { ALL_ARTICLES } from '@/lib/knowledge-data'
 
 type ArticlePageProps = {
   params: Promise<{ slug: string }>
 }
 
-const getArticleBySlug = (slug: string) => VALUE_MODEL_ARTICLES.find((article) => article.slug === slug)
+const getArticleBySlug = (slug: string) => ALL_ARTICLES.find((article) => article.slug === slug)
 
 export function generateStaticParams() {
-  return VALUE_MODEL_ARTICLES.map((article) => ({ slug: article.slug }))
+  return ALL_ARTICLES.map((article) => ({ slug: article.slug }))
 }
 
 export async function generateMetadata({ params }: ArticlePageProps): Promise<Metadata> {
@@ -60,7 +60,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     notFound()
   }
 
-  const related = VALUE_MODEL_ARTICLES.filter(a => a.slug !== article.slug).slice(0, 2)
+  const related = ALL_ARTICLES.filter(a => a.slug !== article.slug).slice(0, 2)
 
   // Convert markdown-style content to HTML-like rendering
   const renderContent = (content: string) => {

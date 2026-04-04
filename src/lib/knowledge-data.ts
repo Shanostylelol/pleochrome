@@ -1,4 +1,4 @@
-import { Layers, Coins, Landmark, Handshake, ArrowLeftRight } from 'lucide-react'
+import { Layers, Coins, Landmark, Handshake, ArrowLeftRight, Search, DollarSign, Shield, BookOpen, Droplets } from 'lucide-react'
 
 export interface Article {
   slug: string
@@ -13,6 +13,7 @@ export interface Article {
   excerpt: string
   content: string
   sources: { label: string; url: string }[]
+  category?: 'model' | 'research'
 }
 
 export const VALUE_MODEL_ARTICLES: Article[] = [
@@ -348,6 +349,348 @@ Still, I would not dismiss the strategy. When liquidity is constrained, when a r
     ],
   },
 ]
+
+export const RESEARCH_ARTICLES: Article[] = [
+  {
+    slug: 'testing-interest',
+    title: 'How to Test Investor Interest for Alternative Asset Offerings',
+    subtitle: 'Four regulatory pathways to validate demand before committing six figures to legal fees',
+    author: 'Shane Pierson',
+    date: 'April 2026',
+    readTime: '11 min read',
+    model: 'Research',
+    modelColor: '#1A8B7A',
+    icon: Search,
+    category: 'research',
+    excerpt: 'Before spending $80K-$150K on legal and compliance for a private placement, there are four proven ways to test whether real investor demand exists for your asset class.',
+    content: `## The Most Expensive Mistake in Alternative Investments
+
+The most common and most costly mistake in alternative asset offerings is building something nobody wants to buy. Legal fees for a Reg D 506(c) private placement run $80,000 to $150,000 before a single dollar is raised. Add appraisals, custody, broker-dealer engagement, and marketing, and you are looking at six figures committed before you know whether investors will show up.
+
+There are four ways to test the thesis before making that commitment. Each operates under different rules, costs different amounts, and produces different quality of data.
+
+## Pathway 1: Educational Content and Interest Capture ($5K-$15K)
+
+This is the lightest touch. You are not describing a specific offering. You are publishing research about the asset class, building an email list, and tracking who engages.
+
+What you do: publish articles about the asset class, create a landing page with a "learn more" form, run targeted LinkedIn ads, host an educational webinar. What you track: email signups, webinar attendance, inbound inquiries, content engagement.
+
+What you cannot do: describe a specific security, accept money, quote returns.
+
+This approach costs $5,000 to $15,000 and produces directional data. If 200 accredited investors sign up to learn more about gemstone-backed securities over 60 days, that is a signal. If 3 people sign up, that is also a signal.
+
+## Pathway 2: Reg CF Testing the Waters ($10K-$25K)
+
+Regulation Crowdfunding has a formal "Testing the Waters" provision under Rule 206. Before filing Form C, you can publicly solicit interest as long as your materials include required disclaimers stating that no money is being solicited and no offer can be accepted until the exemption requirements are met.
+
+This gives you permission to collect non-binding indications of interest with dollar amounts. Real demand data, not guesses.
+
+The cost is $10,000 to $25,000 for legal review of TTW materials, landing page development, and a 30-60 day campaign. If the data supports proceeding, you file Form C and launch the offering. If it does not, you have spent $15K instead of $150K learning the same lesson.
+
+Reg CF caps raises at $5 million per year, which may be too small for high-value asset offerings. But the TTW provision is useful as a demand validation tool even if the actual raise happens under a different exemption.
+
+## Pathway 3: Reg A+ Testing the Waters ($15K-$35K)
+
+Regulation A+ has the same TTW concept but at a larger scale. You can raise up to $75 million per year and include non-accredited (retail) investors. The TTW provision under Rule 255 lets you gauge interest before filing Form 1-A with the SEC.
+
+The cost is higher because Reg A+ materials tend to be more comprehensive, and the eventual filing requires audited financials (Tier 2). But the TTW phase itself costs $15,000 to $35,000, which is still a fraction of the full offering cost of $150,000 to $350,000.
+
+This pathway makes sense when you want to validate demand from a broader investor base, including retail investors who are not accredited.
+
+## Pathway 4: Direct Conversations (Free)
+
+Talk to 20 people who match your target investor profile. Not a pitch. A conversation. Ask what would make them allocate to this asset class. Ask what would make them pass. Ask what information they would need to feel confident.
+
+This produces qualitative data that surveys and landing pages cannot capture. The body language when someone says "I would be interested at $100K minimums" tells you more than a form submission.
+
+## Which Path Should You Choose?
+
+For most issuers targeting accredited investors with offerings above $1 million, the practical sequence is: start with Pathway 1 (educational content) to build an audience, then run a Reg CF TTW campaign (Pathway 2) to collect hard interest data, then use that data to decide whether to proceed with a full Reg D 506(c) offering.
+
+The SEC's March 2025 guidance makes this sequence even more practical. If your minimum investment is $200,000 or above, investor self-certification is now sufficient for 506(c) verification. That eliminates the most burdensome compliance step and lowers the cost of the actual offering launch.
+
+Test before you build.`,
+    sources: [
+      { label: 'SEC Rule 506(c) General Solicitation', url: 'https://www.sec.gov/resources-small-businesses/exempt-offerings/general-solicitation-rule-506c' },
+      { label: 'SEC Regulation Crowdfunding Guidance', url: 'https://www.sec.gov/resources-small-businesses/regulation-crowdfunding-guidance-issuers' },
+      { label: 'Gibson Dunn: SEC Bright-Line Test for 506(c)', url: 'https://www.gibsondunn.com/sec-provides-bright-line-test-for-investor-verification-under-rule-506c/' },
+      { label: 'Syndicationattorneys.com: Testing the Waters', url: 'https://syndicationattorneys.com/articles/testing-the-waters/' },
+    ],
+  },
+  {
+    slug: 'offering-costs',
+    title: 'What Does It Actually Cost to Launch a Reg D 506(c) Offering?',
+    subtitle: 'A line-by-line breakdown of real costs, from SPV formation to first subscription',
+    author: 'Shane Pierson',
+    date: 'April 2026',
+    readTime: '9 min read',
+    model: 'Research',
+    modelColor: '#C47A1A',
+    icon: DollarSign,
+    category: 'research',
+    excerpt: 'Legal fees, appraisals, custody, broker-dealers, verification, marketing. Here is what a Reg D 506(c) offering actually costs, broken down by line item.',
+    content: `## Nobody Talks About the Real Numbers
+
+Most articles about tokenization or fractional securities describe the process in conceptual terms. Form the SPV. Draft the PPM. File with the SEC. What they rarely include is what each of those steps actually costs.
+
+I am going to lay out the real numbers based on our research across multiple service providers, legal counsel consultations, and platform evaluations. These are ranges, not quotes. Your specific costs will depend on asset complexity, counsel choice, and offering structure.
+
+## The Line Items
+
+**SPV Formation: $2,000-$5,000**
+A Delaware LLC is the standard vehicle. Filing fees are minimal. The cost is primarily legal counsel to draft the operating agreement with proper investor protections, distribution waterfalls, and management authority provisions.
+
+**Securities Counsel (PPM, Operating Agreement, Subscription Docs): $15,000-$35,000**
+This is typically the largest single line item. The Private Placement Memorandum alone runs 50-100+ pages and must accurately describe the offering, the risks, the asset, the management team, and the use of proceeds. Cutting corners here is not advisable.
+
+**Asset Appraisals: $5,000-$15,000**
+For high-value physical assets, best practice is three independent USPAP-compliant appraisals. The two-lowest average establishes the offering value. For gemstones, add GIA certification at $100-$500 per stone.
+
+**Institutional Custody Setup: $5,000-$15,000**
+Bonded vault storage with a recognized custodian (Brink's, Malca-Amit). Includes initial transport, inventory verification, and insurance setup. Ongoing custody fees are separate.
+
+**Broker-Dealer Engagement: $5,000-$15,000 setup + 1-7% of capital raised**
+A FINRA-registered broker-dealer supervises the offering, manages compliance, and may provide investor transaction infrastructure. Dalmore Group, North Capital, and Rialto Markets are active in this space. Setup fees vary; the percentage of capital raised is the larger ongoing cost.
+
+**Investor Verification: $50-$500 per investor**
+Under 506(c), every investor must be verified as accredited. Third-party services like Parallel Markets (formerly Accredify) charge $50-$100 per verification. CPA or attorney letters run $250-$500. The SEC's March 2025 guidance allows self-certification at $200K+ minimums, potentially eliminating this cost for higher-minimum offerings.
+
+**Transfer Agent: $5,000-$10,000/year**
+Manages the cap table, processes transfers, and maintains shareholder records. KoreConX offers a free base platform; traditional transfer agents charge annual fees.
+
+**Investor Portal Technology: $5,000-$15,000**
+Online subscription flow, document delivery, e-signature, and investor dashboard. DealMaker, KoreConX, and Securitize all offer this functionality at different price points.
+
+**Marketing and Advertising: $10,000-$30,000**
+Landing pages, content marketing, LinkedIn ads, webinars, conference attendance. Under 506(c), you can advertise publicly, but the quality of materials matters. Cheap marketing signals cheap operations.
+
+**Insurance: $5,000-$15,000**
+Errors and omissions coverage for the manager, plus specie insurance for the physical asset. Coverage amounts depend on asset value and offering structure.
+
+**Blue Sky Filings: $2,000-$5,000**
+State-level notice filings required in each state where you sell. Filing fees vary by state. Some states require additional filings or disclosures.
+
+**Form D Filing: $0**
+The SEC does not charge a fee for Form D. The filing itself is a notice, not a registration.
+
+## Total Range
+
+Adding it all up: $80,000 to $150,000 to reach offering launch, before a single dollar is raised from investors.
+
+For a $5 million offering, that represents 1.6% to 3% of the raise in upfront costs. For a $10 million offering, it is 0.8% to 1.5%. For a $1 million offering, it is 8% to 15%, which starts to strain the economics.
+
+The practical minimum offering size for a full 506(c) structure is roughly $3-5 million. Below that, the fixed costs eat too much of the raise.
+
+## Where to Save (and Where Not To)
+
+You can save money on marketing by starting with organic content before paid ads. You can save on technology by using simpler portal solutions. You can save on appraisals by limiting to two instead of three (though three is best practice).
+
+Do not save money on securities counsel. Do not save money on custody. Do not save money on compliance. These are the areas where cutting corners creates regulatory risk, investor distrust, and potential personal liability.`,
+    sources: [
+      { label: 'Manhattan Street Capital: Reg D Offering Costs', url: 'https://www.manhattanstreetcapital.com/faq/for-fundraisers/how-much-does-regulation-d-offering-cost' },
+      { label: 'Accredify/Parallel Markets Pricing', url: 'https://parallelmarkets.com' },
+      { label: 'Dalmore Group Pricing', url: 'https://dalmoregroup.com/pricing' },
+      { label: 'KoreConX Platform', url: 'https://koreconx.com/pricing/' },
+    ],
+  },
+  {
+    slug: 'broker-landscape',
+    title: 'The Broker-Dealer Landscape for Tokenized Securities in 2026',
+    subtitle: 'Who the key players are, what they offer, and how to evaluate them',
+    author: 'Shane Pierson',
+    date: 'April 2026',
+    readTime: '10 min read',
+    model: 'Research',
+    modelColor: '#1E3A6E',
+    icon: Shield,
+    category: 'research',
+    excerpt: 'Broker-dealers and alternative trading systems are the regulated infrastructure that connects tokenized securities to actual investors. Here is who does what and how to choose.',
+    content: `## Why Broker-Dealers Matter More Than Platforms
+
+In the tokenized securities conversation, most of the attention goes to the technology platforms: which blockchain, which token standard, which smart contract framework. But the regulated infrastructure that actually enables securities to be sold and traded runs through broker-dealers and alternative trading systems.
+
+A broker-dealer is a firm registered with the SEC and FINRA that can legally facilitate the purchase and sale of securities. An ATS (Alternative Trading System) is a SEC-regulated electronic venue where securities can be matched and traded outside of traditional exchanges like NYSE or NASDAQ.
+
+For tokenized real-world assets, these are not optional. If your token is a security (and under most structures, it is), it must be distributed through or supervised by a registered broker-dealer.
+
+## The Key Players
+
+**tZERO**
+tZERO operates as a SEC/FINRA-regulated broker-dealer, ATS, and special purpose broker-dealer. They received FINRA approval in December 2025 to offer retail access to tokenized mutual funds and to facilitate secondary trading in corporate debt securities. Their ATS now supports 23.5 hours of trading per business day with 24/7 order entry. In March 2026, their partnership with Nomyx created an integrated issuance-to-trading pipeline.
+
+tZERO is the closest thing to a full-stack regulated exchange for digital securities in the United States. If secondary trading is a priority, they are the most established venue.
+
+**Securitize Markets**
+Securitize operates both an issuance platform and a registered broker-dealer/ATS. They are most notable for tokenizing BlackRock's BUIDL fund, which holds nearly $2 billion in assets. Their end-to-end approach covers issuance, compliance, cap table management, and secondary trading.
+
+For issuers who want a single platform handling everything from token creation to investor onboarding to secondary market access, Securitize is the most integrated option.
+
+**Dalmore Group**
+Dalmore is a FINRA-registered broker-dealer that acts as broker-dealer of record for Reg A+, Reg CF, and Reg D offerings. They have helped over 1,000 clients raise more than $2 billion. Their model is compliance supervision: they oversee the offering, manage KYC/AML, verify accreditation, and can license your own sales team under their broker-dealer umbrella.
+
+For issuers who want to maintain their own investor relationships and marketing while having a regulated BD supervise the compliance layer, Dalmore is the most flexible option.
+
+**North Capital Private Securities**
+North Capital is a registered broker-dealer that also operates the PPEX Alternative Trading System for secondary trading of private and exempt securities. Their TransactAPI platform enables broker-dealers and funding platforms to conduct online private securities offerings with standards-based API integration.
+
+For issuers with existing technology infrastructure who need a broker-dealer and ATS that integrates via API rather than requiring a platform switch, North Capital offers the most modular approach.
+
+**Rialto Markets**
+Rialto is a FINRA member broker-dealer and SEC-registered ATS focused on primary issuance and secondary trading for Reg A+, Reg CF, and Reg D securities. Their DATS (Decentralized Automated Trading System) embeds ATS logic into smart contracts for on-chain matching and settlement.
+
+Their 2025 partnership with Inveniam positions them for tokenized private market derivatives, futures, and swaps. For issuers interested in more sophisticated secondary market structures beyond simple buy-sell matching, Rialto is worth evaluating.
+
+## How to Evaluate a Broker-Dealer
+
+Three criteria separate the serious players:
+
+**Regulatory track record.** Have they actually supervised a compliant offering that closed? Ask for references from issuers, not just platform demos. Check their FINRA BrokerCheck record for any disclosures or disciplinary history.
+
+**Integration architecture.** Can they work with your existing workflow, or do they require you to rebuild everything around their platform? Some BDs require exclusive use of their technology. Others operate as a compliance overlay on your existing systems.
+
+**Fee transparency.** Setup fees, percentage of capital raised, per-investor costs, ongoing compliance fees, ATS listing fees. If they cannot give you a clear cost estimate before engagement, that is worth questioning.
+
+## The Bottom Line
+
+The broker-dealer you choose becomes a permanent part of your offering's infrastructure. Investors see the BD's name on the subscription documents. Regulators hold the BD responsible for compliance supervision. Secondary trading happens (or does not) based on the ATS's liquidity and reach.
+
+This is not a vendor selection. It is a partnership decision. Treat it accordingly.`,
+    sources: [
+      { label: 'tZERO Regulated Platform', url: 'https://www.tzero.com' },
+      { label: 'Securitize Platform', url: 'https://securitize.io' },
+      { label: 'Dalmore Group', url: 'https://dalmoregroup.com' },
+      { label: 'North Capital', url: 'https://www.northcapital.com' },
+      { label: 'Rialto Markets', url: 'https://rialtomarkets.com' },
+      { label: 'FINRA BrokerCheck', url: 'https://brokercheck.finra.org' },
+    ],
+  },
+  {
+    slug: 'sec-guidance',
+    title: "What Changed for Private Placements in 2025-2026",
+    subtitle: 'The SEC guidance that matters for anyone structuring tokenized or fractional offerings',
+    author: 'Shane Pierson',
+    date: 'April 2026',
+    readTime: '8 min read',
+    model: 'Research',
+    modelColor: '#1B6B4A',
+    icon: BookOpen,
+    category: 'research',
+    excerpt: 'Two SEC actions in 2025-2026 changed the practical landscape for private placements. Here is what they mean for issuers working with real-world assets.',
+    content: `## Two Actions That Matter
+
+The SEC publishes guidance regularly, and most of it is incremental. Two actions in the 2025-2026 period stand out because they change the practical cost and feasibility of structuring tokenized and fractional asset offerings.
+
+## Action 1: The March 2025 Rule 506(c) Verification Guidance
+
+On March 12, 2025, the SEC's Division of Corporation Finance published new Compliance and Disclosure Interpretations for Rule 506(c) of Regulation D. The core change: issuers can now satisfy accredited investor verification through self-certification when the minimum investment meets certain thresholds.
+
+For individual investors, the threshold is $200,000. For entity investors, it is $1,000,000. Below these amounts, traditional verification methods are still required (tax returns, bank statements, third-party letters, or broker-dealer/attorney confirmations).
+
+Why this matters practically: before this guidance, many issuers avoided 506(c) in favor of 506(b) specifically because of the verification burden. The cost of collecting and reviewing financial documents from each investor added $250-$500 per person to the offering cost. For an offering with 50 investors, that is $12,500-$25,000 in verification costs alone, plus the friction that causes some investors to drop out of the process entirely.
+
+With self-certification at $200K+ minimums, the verification cost drops to essentially zero for those investors. A written representation from the investor is sufficient.
+
+For PleoChrome's typical use case, where minimum investments are likely in the $100,000-$500,000 range, this guidance means offerings at the $200K+ level have a meaningfully lower compliance cost and faster investor onboarding.
+
+## Action 2: The January 2026 Tokenized Securities Statement
+
+On January 28, 2026, staff from three SEC divisions (Corporation Finance, Trading and Markets, and Investment Management) issued a joint statement on tokenized securities.
+
+The headline is simple: a tokenized security is still a security. All existing federal securities laws apply regardless of whether ownership is recorded on a blockchain, in a traditional book-entry system, or on paper.
+
+But the statement goes further by drawing a distinction between two types of tokenized products:
+
+**Issuer-sponsored tokenized securities** are digital representations of actual equity or debt interests issued directly by the company. These are the same securities that would exist in traditional form, just represented differently. The existing regulatory framework applies cleanly.
+
+**Third-party tokenized products** are created by someone other than the issuer, often providing synthetic exposure to an underlying asset rather than direct ownership. These face heightened scrutiny, particularly when offered to retail investors.
+
+For issuers structuring compliant offerings, the practical implication is clarity. If you are issuing LLC membership interests (fractional securities) and representing them as tokens, you follow the same rules as any other private placement. No new exemption is needed. No new compliance framework is required. The rules are the same. The record-keeping technology is different.
+
+## What This Means Together
+
+These two actions create a clearer, lower-friction path for compliant tokenized offerings:
+
+The verification simplification (March 2025) reduces the cost and friction of 506(c) offerings at higher minimums. The tokenized securities statement (January 2026) confirms that the regulatory framework works for digital representations without requiring new exemptions.
+
+For asset holders considering their first offering: the regulatory environment is more favorable now than it was 18 months ago. Not because the rules have changed, but because the guidance on how to follow them has gotten more practical.`,
+    sources: [
+      { label: 'SEC Statement on Tokenized Securities (Jan 2026)', url: 'https://www.sec.gov/newsroom/speeches-statements/corp-fin-statement-tokenized-securities-012826' },
+      { label: 'Gibson Dunn: SEC Bright-Line Test for 506(c)', url: 'https://www.gibsondunn.com/sec-provides-bright-line-test-for-investor-verification-under-rule-506c/' },
+      { label: 'Kirkland & Ellis: SEC No-Action Letter on 506(c)', url: 'https://www.kirkland.com/publications/kirkland-aim/2025/03/sec-no-action-letter-opens-the-door-wider-on-rule-506c-offerings' },
+      { label: 'Sidley Austin: SEC Tokenized Securities Playbook', url: 'https://www.sidley.com/en/insights/newsupdates/2026/01/sec-staff-unveils-a-playbook-for-tokenized-securities' },
+    ],
+  },
+  {
+    slug: 'collateral-liquidity',
+    title: "Collateral-Based Liquidity: Why You Don't Always Need to Sell",
+    subtitle: 'How DeFi lending, MakerDAO, and institutional collateral frameworks create liquidity without secondary markets',
+    author: 'Shane Pierson',
+    date: 'April 2026',
+    readTime: '9 min read',
+    model: 'Research',
+    modelColor: '#5B2D8E',
+    icon: Droplets,
+    category: 'research',
+    excerpt: 'When secondary trading markets are thin, collateral-based lending offers an alternative path to liquidity. MakerDAO, Binance, and institutional lenders are already accepting tokenized assets as collateral.',
+    content: `## The Liquidity Problem Has More Than One Solution
+
+Most discussions about RWA liquidity focus on secondary trading: building exchanges, attracting market makers, creating order books. These are important. But they are not the only way for token holders to access capital.
+
+Collateral-based liquidity allows investors to borrow against their tokenized holdings without selling them. Instead of finding a buyer, you find a lender. The token stays in your wallet (or a smart contract), and you receive a loan denominated in stablecoins or fiat.
+
+This is not a theoretical concept. It is already happening at institutional scale.
+
+## MakerDAO and the RWA Collateral Model
+
+MakerDAO (now rebranded as Sky) is the largest DeFi consumer of tokenized real-world assets. The protocol's RWA vaults hold over $2 billion in tokenized Treasuries, money market funds, and structured credit products as collateral backing the DAI stablecoin.
+
+In early 2025, MakerDAO's Spark protocol allocated $1 billion to tokenized asset investments, with BlackRock's BUIDL, Superstate, and Centrifuge selected as recipients. This is institutional-grade capital flowing into tokenized assets specifically for their collateral utility.
+
+The model works because MakerDAO does not need the underlying assets to trade actively. It needs them to maintain their value and generate yield. Tokenized Treasuries earning 4-5% annual yield are ideal collateral: stable value, predictable income, and transparent on-chain accounting.
+
+## BlackRock BUIDL as Collateral
+
+In November 2025, Binance listed BlackRock's BUIDL fund as off-exchange collateral for institutional trading. BUIDL holders can now use their tokenized Treasury positions to collateralize trading activity on Binance without liquidating the underlying position.
+
+This is significant because it demonstrates that the largest crypto exchange and the largest asset manager in the world both view tokenized securities as viable collateral. The collateral utility creates demand for the token independent of secondary market trading volume.
+
+## What This Means for Less Liquid Asset Classes
+
+For tokenized real estate, gemstones, or mineral rights, where secondary trading volumes may be thin for years, collateral-based liquidity offers a bridge.
+
+Consider a scenario: you hold $500,000 in tokenized fractional interests in a gemstone-backed SPV. The secondary market for these tokens is illiquid. Finding a buyer at fair value could take months. But if a lending protocol or institutional lender accepts these tokens as collateral at a 50% loan-to-value ratio, you can access $250,000 in capital without selling.
+
+This is structurally identical to how traditional asset-backed lending works. A homeowner borrows against their house. A business borrows against its inventory. A collector borrows against their art through services like Athena Art Finance. The asset stays in the borrower's possession (or custody), and the lender has a secured claim.
+
+The difference with tokenized assets is that the collateral can be locked in a smart contract with automated liquidation logic, reducing the lender's operational risk and potentially enabling lower interest rates.
+
+## The Infrastructure Is Being Built
+
+Several trends are converging to make collateral-based liquidity more accessible for tokenized RWAs:
+
+The 2022 UCC amendments, now adopted by more than half of U.S. states, include Article 12 provisions that address digital assets. This creates a more coherent legal framework for using tokenized assets as collateral in secured transactions.
+
+DeFi lending protocols are expanding beyond crypto-native collateral. Centrifuge, Maple Finance, and Goldfinch already facilitate lending against tokenized private credit and real-world receivables.
+
+Institutional custody solutions from providers like Fireblocks, BitGo, and Copper support the segregated custody arrangements that lenders require before accepting alternative collateral.
+
+## The Practical Takeaway
+
+If you are structuring a tokenized offering and worried about secondary market liquidity, consider this: your investors may not need an exchange to trade their tokens. They may need a lending facility that accepts them as collateral.
+
+Building collateral utility into your token design from the start, through compatible custody arrangements, transparent valuation, and smart contract standards that lending protocols can integrate with, may prove more valuable than chasing secondary market depth.
+
+Not all liquidity needs to come from a trade. Sometimes the best liquidity is a loan.`,
+    sources: [
+      { label: 'BlackRock BUIDL on Binance as Collateral (Nov 2025)', url: 'https://www.coindesk.com/business/2025/11/14/blackrock-s-usd2-5b-tokenized-fund-gets-listed-as-collateral-on-binance-expands-to-bnb-chain' },
+      { label: 'MakerDAO Spark $1B Tokenized Asset Allocation', url: 'https://www.coindesk.com/business/2025/03/18/blackrock-s-buidl-superstate-and-centrifuge-win-spark-s-usd1b-tokenized-asset-windfall-report' },
+      { label: 'UCC Articles 9 and 12: Digital Asset Framework', url: 'https://www.lowenstein.com/news-insights/publications/articles/ucc-articles-9-and-12-a-modern-legal-framework-for-secured-transactions-and-digital-assets-citron-caporale-podolnyy' },
+      { label: 'Mafrur, R. (2025). arXiv:2508.11651', url: 'https://arxiv.org/abs/2508.11651' },
+    ],
+  },
+]
+
+export const ALL_ARTICLES = [...VALUE_MODEL_ARTICLES, ...RESEARCH_ARTICLES]
 
 // Orbital timeline data derived from articles
 export const ORBITAL_TIMELINE_DATA = VALUE_MODEL_ARTICLES.map((article, i) => ({

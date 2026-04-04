@@ -7,7 +7,7 @@ import { ArrowRight } from 'lucide-react'
 import { SiteFooter } from '@/components/landing/SiteFooter'
 import { MobileNav } from '@/components/landing/MobileNav'
 import RadialOrbitalTimeline, { type TimelineItem } from '@/components/ui/radial-orbital-timeline'
-import { ORBITAL_TIMELINE_DATA, VALUE_MODEL_ARTICLES } from '@/lib/knowledge-data'
+import { ORBITAL_TIMELINE_DATA, VALUE_MODEL_ARTICLES, RESEARCH_ARTICLES } from '@/lib/knowledge-data'
 
 export default function KnowledgePage() {
   const router = useRouter()
@@ -52,6 +52,28 @@ export default function KnowledgePage() {
         <h2 className="text-sm uppercase tracking-[0.2em] text-white/30 mb-8 text-center">Research & Analysis</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {VALUE_MODEL_ARTICLES.map((article) => (
+            <Link key={article.slug} href={`/knowledge/${article.slug}`}
+              className="group p-5 rounded-xl border border-white/8 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/15 transition-all duration-300">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-2 h-2 rounded-full" style={{ background: article.modelColor }} />
+                <span className="text-[10px] uppercase tracking-widest text-white/40">{article.model}</span>
+                <span className="text-[10px] text-white/20 ml-auto">{article.readTime}</span>
+              </div>
+              <h3 className="text-sm font-semibold text-white/90 group-hover:text-white transition-colors leading-snug">{article.title}</h3>
+              <p className="text-xs text-white/40 mt-2 line-clamp-3">{article.excerpt}</p>
+              <div className="flex items-center gap-1 mt-4 text-[11px] text-[#1A8B7A] opacity-0 group-hover:opacity-100 transition-opacity">
+                Read Analysis <ArrowRight size={12} />
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* Research Articles */}
+      <div className="max-w-5xl mx-auto px-4 pb-16">
+        <h2 className="text-sm uppercase tracking-[0.2em] text-white/30 mb-8 text-center">Research & Guides</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {RESEARCH_ARTICLES.map((article) => (
             <Link key={article.slug} href={`/knowledge/${article.slug}`}
               className="group p-5 rounded-xl border border-white/8 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/15 transition-all duration-300">
               <div className="flex items-center gap-2 mb-3">
