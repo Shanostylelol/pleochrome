@@ -19,7 +19,7 @@ export const VALUE_MODEL_ARTICLES: Article[] = [
   {
     slug: 'tokenization',
     title: 'The Liquidity Paradox of Tokenized Real-World Assets',
-    subtitle: 'Why creating a token is only half the battle — and what the data tells us about the road ahead',
+    subtitle: 'Why creating a token is only half the battle. What the data tells us about the road ahead',
     author: 'Shane Pierson',
     date: 'April 2026',
     readTime: '12 min read',
@@ -29,7 +29,7 @@ export const VALUE_MODEL_ARTICLES: Article[] = [
     excerpt: 'Over $36 billion in real-world assets exist on-chain as of 2026. Yet most tokenized assets cannot be easily sold once purchased. We analyze the empirical data behind the liquidity gap.',
     content: `## The Scale of What Has Been Built
 
-The tokenization of real-world assets has grown from roughly $5 billion in 2022 to over $36 billion by late 2025 — a sevenfold increase in three years. Analysts project this market could reach $18.9 trillion by 2033, according to BCG and Ripple forecasts.
+The tokenization of real-world assets has grown from roughly $5 billion in 2022 to over $36 billion by late 2025, a sevenfold increase in three years. Analysts project this market could reach $18.9 trillion by 2033, according to BCG and Ripple forecasts.
 
 But scale of issuance does not equal scale of liquidity. As Rischan Mafrur of Macquarie University documented in his 2025 research paper "Tokenize Everything, But Can You Sell It?", the gap between tokenization and tradability remains the industry's defining challenge.
 
@@ -37,7 +37,7 @@ But scale of issuance does not equal scale of liquidity. As Rischan Mafrur of Ma
 
 Mafrur's analysis draws on data from RWA.xyz and Etherscan to examine what happens after assets are tokenized. Four findings stand out:
 
-**Market cap does not correlate with trading activity.** BlackRock's BUIDL fund — the largest tokenized RWA at nearly $2 billion — had only 85 unique holders and 30 monthly active addresses as of mid-2025. Compare this to Paxos Gold (PAXG), which supports over 69,000 holders despite a smaller market cap.
+**Market cap does not correlate with trading activity.** BlackRock's BUIDL fund, the largest tokenized RWA at nearly $2 billion, had only 85 unique holders and 30 monthly active addresses as of mid-2025. Compare this to Paxos Gold (PAXG), which supports over 69,000 holders despite a smaller market cap.
 
 **Most tokens change hands rarely.** On the RealT platform, one of the earliest tokenized real estate markets, token ownership changed hands on average only once per year.
 
@@ -53,13 +53,13 @@ The research identifies five reinforcing barriers to liquidity: fragmented marke
 
 Despite these challenges, meaningful progress is underway. The Depository Trust Company received SEC approval in late 2025 to offer tokenization services. Nasdaq has proposed rule changes to enable tokenized securities trading. MakerDAO has integrated over $2 billion in tokenized assets as collateral for its DAI stablecoin. And the SEC's January 2026 statement provided clearer guidance on how tokenized securities fit within existing regulatory frameworks.
 
-The future of RWA tokenization depends not on the technology — that works — but on building the legal, institutional, and market infrastructure that transforms a token from a digital certificate into a tradable financial instrument.
+The future of RWA tokenization depends not on the technology (that works) but on building the legal, institutional, and market infrastructure that transforms a token from a digital certificate into a tradable financial instrument.
 
 ## What This Means for Asset Holders
 
-If you hold a high-value physical asset and are considering tokenization, the data suggests you should plan for longer liquidity timelines than marketing materials may imply, evaluate whether a hybrid approach (combining tokenization with collateral-based lending or broker channels) better serves your needs, and invest in transparency — GIA certification, independent appraisals, on-chain proof of reserve — because the research consistently shows that valuation opacity is the primary barrier investors cite.
+If you hold a high-value physical asset and are considering tokenization, the data suggests you should plan for longer liquidity timelines than marketing materials may imply, evaluate whether a hybrid approach (combining tokenization with collateral-based lending or broker channels) better serves your needs, and invest in transparency (GIA certification, independent appraisals, on-chain proof of reserve) because the research consistently shows that valuation opacity is the primary barrier investors cite.
 
-Tokenization is not a shortcut to liquidity. It is a structural improvement in how assets are represented, transferred, and governed. The liquidity will follow as the surrounding infrastructure matures — but asset holders should enter with realistic expectations.`,
+Tokenization is not a shortcut to liquidity. It is a structural improvement in how assets are represented, transferred, and governed. The liquidity will follow as the surrounding infrastructure matures, but asset holders should enter with realistic expectations.`,
     sources: [
       { label: 'Mafrur, R. (2025). "Tokenize Everything, But Can You Sell It?" arXiv:2508.11651', url: 'https://arxiv.org/abs/2508.11651' },
       { label: 'SEC Statement on Tokenized Securities (Jan 2026)', url: 'https://www.sec.gov/newsroom/speeches-statements/corp-fin-statement-tokenized-securities-012826' },
@@ -71,7 +71,7 @@ Tokenization is not a shortcut to liquidity. It is a structural improvement in h
   {
     slug: 'fractional',
     title: 'Fractional Securities: Democratizing Access to High-Value Assets',
-    subtitle: 'How Regulation D 506(c) enables fractional ownership of previously inaccessible assets — and what issuers need to know',
+    subtitle: 'How Regulation D 506(c) enables fractional ownership of previously inaccessible assets. What issuers need to know',
     author: 'Shane Pierson',
     date: 'April 2026',
     readTime: '10 min read',
@@ -81,7 +81,7 @@ Tokenization is not a shortcut to liquidity. It is a structural improvement in h
     excerpt: 'Fractional securities allow high-value assets to be split into affordable, SEC-compliant shares. We examine the regulatory framework, SPV structures, and practical considerations for issuers.',
     content: `## The Problem Fractional Securities Solve
 
-A $10 million emerald lot or a $50 million commercial property is, by its nature, inaccessible to all but the wealthiest investors. Fractional securities change this equation by dividing ownership of a single asset into smaller units — shares in an LLC or limited partnership — that can be offered to qualified investors at substantially lower minimums.
+A $10 million emerald lot or a $50 million commercial property is, by its nature, inaccessible to all but the wealthiest investors. Fractional securities change this equation by dividing ownership of a single asset into smaller units, such as shares in an LLC or limited partnership, that can be offered to qualified investors at substantially lower minimums.
 
 This is not a new concept. Real estate syndications have used fractional ownership structures for decades. What has changed is the regulatory clarity around how these offerings can be marketed and sold.
 
@@ -95,13 +95,13 @@ The SEC's March 2025 guidance expanded the definition of "reasonable steps" for 
 
 A typical fractional securities offering proceeds through these steps:
 
-**1. SPV Formation.** A Special Purpose Vehicle — usually a Delaware LLC — is created to hold the asset. The SPV's sole purpose is to own, manage, and eventually monetize the specific asset.
+**1. SPV Formation.** A Special Purpose Vehicle, typically a Delaware LLC, is created to hold the asset. The SPV's sole purpose is to own, manage, and eventually monetize the specific asset.
 
 **2. Offering Documentation.** A Private Placement Memorandum (PPM), operating agreement, and subscription agreement are prepared by securities counsel. These documents define investor rights, management authority, fee structures, distribution waterfalls, and exit mechanisms.
 
 **3. Valuation and Diligence.** The asset undergoes independent appraisal (often multiple appraisals for high-value items). For gemstones, this includes GIA certification. For real estate, this includes environmental assessments and title searches.
 
-**4. Form D Filing.** The issuer files Form D with the SEC within 15 days of the first sale. This is a notice filing, not a registration — the offering itself is exempt from registration.
+**4. Form D Filing.** The issuer files Form D with the SEC within 15 days of the first sale. This is a notice filing, not a registration. The offering itself is exempt from registration.
 
 **5. General Solicitation.** With 506(c), the issuer can publicly market the offering through digital advertising, social media, webinars, and industry events.
 
@@ -111,17 +111,17 @@ A typical fractional securities offering proceeds through these steps:
 
 **Minimum investment size.** While fractional securities lower the barrier to entry, they do not eliminate it. Most offerings set minimums between $25,000 and $100,000 to balance accessibility with the administrative cost of managing a larger investor base.
 
-**Liquidity expectations.** Fractional securities in private placements are restricted securities under the Securities Act. Investors should expect limited liquidity — there is no public market for these shares, and transfer restrictions typically apply for at least 12 months under Rule 144.
+**Liquidity expectations.** Fractional securities in private placements are restricted securities under the Securities Act. Investors should expect limited liquidity. There is no public market for these shares, and transfer restrictions typically apply for at least 12 months under Rule 144.
 
-**Management and governance.** The SPV's operating agreement determines who manages the asset, how decisions are made, and how proceeds are distributed. Investors are typically passive — they provide capital but do not participate in day-to-day management.
+**Management and governance.** The SPV's operating agreement determines who manages the asset, how decisions are made, and how proceeds are distributed. Investors are typically passive. They provide capital but do not participate in day-to-day management.
 
 **Exit mechanisms.** Common exit strategies include sale of the underlying asset, buyback by the manager, or eventual listing on an Alternative Trading System (ATS) for secondary trading.
 
 ## The Opportunity
 
-For asset holders, fractional securities offer a path to monetize high-value assets without selling them outright. For investors, they provide access to asset classes — fine gemstones, commercial real estate, mineral rights — that were previously available only to ultra-high-net-worth individuals or institutional buyers.
+For asset holders, fractional securities offer a path to monetize high-value assets without selling them outright. For investors, they provide access to asset classes like fine gemstones, commercial real estate, and mineral rights that were previously available only to ultra-high-net-worth individuals or institutional buyers.
 
-The regulatory framework exists. The verification processes have been simplified. The question is no longer whether fractional securities are legally viable — it is whether issuers can build the trust and transparency that investors require.`,
+The regulatory framework exists. The verification processes have been simplified. The question is no longer whether fractional securities are legally viable. The question is whether issuers can build the trust and transparency that investors require.`,
     sources: [
       { label: 'SEC Rule 506(c) — General Solicitation', url: 'https://www.sec.gov/resources-small-businesses/exempt-offerings/general-solicitation-rule-506c' },
       { label: 'SEC Eases Verification Burdens (Mar 2025)', url: 'https://www.regulatoryandcompliance.com/2025/03/sec-eases-verification-burdens-in-rule-506c-offerings/' },
@@ -142,7 +142,7 @@ The regulatory framework exists. The verification processes have been simplified
     excerpt: 'Debt instruments allow asset holders to access capital by using their assets as collateral rather than selling them. We explore the legal framework, mechanics, and considerations.',
     content: `## When Selling Is Not the Goal
 
-Not every asset holder wants to sell. Some want to retain ownership while accessing the capital their asset represents. Asset-backed debt instruments — structured lending where the physical asset serves as collateral — address this need directly.
+Not every asset holder wants to sell. Some want to retain ownership while accessing the capital their asset represents. Asset-backed debt instruments, where the physical asset serves as collateral for a loan, address this need directly.
 
 This model is well-established in traditional finance. Banks lend against real estate (mortgages), inventory (commercial lines of credit), and receivables (factoring). What is newer is applying these structures to alternative assets like gemstones, fine art, and mineral rights.
 
@@ -154,13 +154,13 @@ Key elements of a UCC Article 9 secured transaction include:
 
 **Security Agreement.** A written agreement between borrower and lender that identifies the collateral, the obligation being secured, and the rights and remedies of each party.
 
-**UCC-1 Financing Statement.** A public filing with the state that puts third parties on notice of the lender's security interest. This filing establishes priority — the first to file generally has the first claim on the collateral.
+**UCC-1 Financing Statement.** A public filing with the state that puts third parties on notice of the lender's security interest. This filing establishes priority. The first to file generally has the first claim on the collateral.
 
 **Perfection.** The process of making the security interest enforceable against third parties. For most personal property, perfection is achieved by filing the UCC-1. For certain assets (like certificated securities or negotiable instruments), physical possession by the lender may be required.
 
 **Default and Remediation.** If the borrower defaults, Article 9 provides the secured party with specific remedies, including the right to repossess and sell the collateral in a commercially reasonable manner.
 
-As of 2025, more than half of U.S. states have adopted the 2022 UCC amendments, including the new Article 12 provisions that address digital assets — creating a more coherent legal framework for asset-backed lending that bridges physical and digital representations.
+As of 2025, more than half of U.S. states have adopted the 2022 UCC amendments, including the new Article 12 provisions that address digital assets, creating a more coherent legal framework for asset-backed lending that bridges physical and digital representations.
 
 ## How It Works for Alternative Assets
 
@@ -168,9 +168,9 @@ For a gemstone-backed loan, the typical structure involves:
 
 **1. Appraisal and Certification.** The asset is independently appraised (often three appraisals for cross-validation) and certified by a recognized authority (GIA for gemstones).
 
-**2. Custody Transfer.** The asset is placed in institutional custody — a bonded vault operated by a recognized custodian like Brink's or Malca-Amit. This serves both as physical security and as the lender's constructive possession of the collateral.
+**2. Custody Transfer.** The asset is placed in institutional custody with a bonded vault operated by a recognized custodian like Brink's or Malca-Amit. This serves both as physical security and as the lender's constructive possession of the collateral.
 
-**3. Loan-to-Value Determination.** The lender establishes a loan-to-value (LTV) ratio — the maximum loan amount as a percentage of the appraised value. For alternative assets, LTV ratios are typically conservative, reflecting the illiquidity and valuation uncertainty of the collateral.
+**3. Loan-to-Value Determination.** The lender establishes a loan-to-value (LTV) ratio, which is the maximum loan amount as a percentage of the appraised value. For alternative assets, LTV ratios are typically conservative, reflecting the illiquidity and valuation uncertainty of the collateral.
 
 **4. Loan Documentation.** The security agreement, promissory note, UCC-1 filing, and custody agreement are executed. Insurance coverage naming the lender as loss payee is typically required.
 
@@ -184,7 +184,7 @@ For a gemstone-backed loan, the typical structure involves:
 
 **Tax treatment.** Loan proceeds are generally not taxable income. Depending on the borrower's circumstances, interest payments may be deductible. However, tax treatment depends on individual circumstances and should be evaluated with a qualified tax advisor.
 
-**Liquidity risk.** If the borrower defaults, the lender may sell the collateral. For illiquid assets, this sale may occur at a discount to appraised value — a reality that informs the conservative LTV ratios applied to alternative collateral.
+**Liquidity risk.** If the borrower defaults, the lender may sell the collateral. For illiquid assets, this sale may occur at a discount to appraised value, which is why informs the conservative LTV ratios applied to alternative collateral.
 
 ## The Market Context
 
@@ -209,7 +209,7 @@ The private credit market has grown substantially, with tokenized private credit
     excerpt: 'Sometimes the most effective path to value is a direct sale through regulated channels. We examine the broker-dealer framework, ATS platforms, and when direct sale is the right strategy.',
     content: `## When Direct Sale Is the Right Path
 
-Not every asset needs to be fractionalized or tokenized. For some assets — particularly those with identified buyers, strong market demand, or time-sensitive value considerations — a direct sale through regulated broker-dealer channels is the most efficient path to value realization.
+Not every asset needs to be fractionalized or tokenized. For some assets, particularly those with identified buyers, strong market demand, or time-sensitive value considerations, a direct sale through regulated broker-dealer channels is the most efficient path to value realization.
 
 The broker sale model works within well-established regulatory frameworks. Broker-dealers are registered with the SEC and FINRA, operate under extensive compliance requirements, and provide the investor protections that institutional and accredited buyers expect.
 
@@ -223,7 +223,7 @@ For assets classified as securities, transactions must generally be conducted th
 
 Alternative Trading Systems (ATS) are SEC-regulated electronic trading platforms that match buyers and sellers of securities outside of traditional exchanges. For digital and alternative securities, ATS platforms have become the primary venue for secondary trading.
 
-tZERO, one of the leading ATS platforms for digital securities, has expanded significantly through 2025-2026. In December 2025, tZERO received FINRA approval to offer retail access to tokenized mutual funds and to facilitate secondary trading in corporate debt securities. The platform now supports 24/7 order entry and near-continuous trading hours — 23.5 hours per business day.
+tZERO, one of the leading ATS platforms for digital securities, has expanded significantly through 2025-2026. In December 2025, tZERO received FINRA approval to offer retail access to tokenized mutual funds and to facilitate secondary trading in corporate debt securities. The platform now supports 24/7 order entry and near-continuous trading hours of 23.5 hours per business day.
 
 tZERO's partnership with Nomyx, announced in March 2026, enables issuers to move seamlessly from primary issuance to secondary trading within a compliant market environment. This integration addresses one of the key friction points identified in RWA liquidity research: the disconnect between issuance platforms and trading venues.
 
@@ -267,10 +267,10 @@ A typical broker-assisted sale follows these steps: asset appraisal and due dili
     model: 'Barter',
     modelColor: '#5B2D8E',
     icon: ArrowLeftRight,
-    excerpt: 'Barter — the direct exchange of assets without cash intermediation — remains relevant for high-value assets where traditional markets are thin or where tax-advantaged exchanges apply.',
+    excerpt: 'Barter, the direct exchange of assets without cash intermediation, remains relevant for high-value assets where traditional markets are thin or where tax-advantaged exchanges apply.',
     content: `## Why Barter Still Matters
 
-Barter — the direct exchange of one asset for another without cash as an intermediary — is the oldest form of commerce. While it may seem anachronistic in an era of digital finance, structured barter transactions remain relevant for high-value assets, particularly when traditional markets are thin, buyers prefer asset-for-asset swaps, or tax-advantaged exchange structures apply.
+Barter, the direct exchange of one asset for another without cash as an intermediary, is the oldest form of commerce. While it may seem anachronistic in an era of digital finance, structured barter transactions remain relevant for high-value assets, particularly when traditional markets are thin, buyers prefer asset-for-asset swaps, or tax-advantaged exchange structures apply.
 
 The commercial barter industry in the United States represents a significant market. The International Reciprocal Trade Association (IRTA) estimates that hundreds of thousands of businesses participate in organized barter exchanges annually, with transactions valued in the billions of dollars.
 
@@ -278,7 +278,7 @@ The commercial barter industry in the United States represents a significant mar
 
 Asset-for-asset exchanges are most valuable in specific circumstances:
 
-**Illiquid markets.** When an asset cannot be easily sold for cash — perhaps because the buyer pool is extremely small or the asset is highly specialized — a direct exchange with a holder of a complementary asset can unlock value that would otherwise remain trapped.
+**Illiquid markets.** When an asset cannot be easily sold for cash, perhaps because the buyer pool is extremely small or the asset is highly specialized, a direct exchange with a holder of a complementary asset can unlock value that would otherwise remain trapped.
 
 **Portfolio rebalancing.** An investor holding a concentrated position in one asset class (e.g., gemstones) may prefer to exchange for a different asset class (e.g., real estate) rather than selling and reinvesting, particularly when transaction costs of sale and reinvestment would be significant.
 
@@ -308,7 +308,7 @@ For high-value assets, the intermediary role includes ensuring proper due dilige
 
 Barter is not a universal solution. Finding a counterparty with a complementary asset and complementary needs is inherently more difficult than finding a cash buyer. Valuation disputes can derail transactions when parties disagree on relative values. And the tax treatment of non-like-kind exchanges means that barter does not necessarily provide tax advantages over cash sales for most asset categories.
 
-However, for specific situations — particularly where liquidity is constrained, where 1031 exchanges apply, or where parties have complementary holdings — structured barter remains a viable and sometimes optimal path to value realization.`,
+However, for specific situations, particularly where liquidity is constrained, where 1031 exchanges apply, or where parties have complementary holdings, structured barter remains a viable and sometimes optimal path to value realization.`,
     sources: [
       { label: 'IRS: Like-Kind Exchanges Under IRC Section 1031', url: 'https://www.irs.gov/newsroom/like-kind-exchanges-under-irc-section-1031' },
       { label: 'International Reciprocal Trade Association (IRTA)', url: 'https://www.irta.com/' },
