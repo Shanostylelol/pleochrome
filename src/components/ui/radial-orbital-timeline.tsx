@@ -113,9 +113,9 @@ export default function RadialOrbitalTimeline({ timelineData, onNodeClick }: Rad
   }
 
   return (
-    <div className="w-full flex flex-col items-center justify-center overflow-hidden" ref={containerRef} onClick={handleContainerClick}>
+    <div className="w-full flex flex-col items-center justify-center" ref={containerRef} onClick={handleContainerClick}>
       {/* Desktop: orbital */}
-      <div className="hidden sm:flex relative w-full max-w-4xl items-center justify-center" style={{ height: '520px' }}>
+      <div className="hidden sm:flex relative w-full max-w-4xl items-center justify-center" style={{ height: '480px' }}>
         <div className="absolute w-full h-full flex items-center justify-center" ref={orbitRef} style={{ perspective: "1000px" }}>
           {/* Center orb */}
           <div className="absolute w-16 h-16 rounded-full bg-gradient-to-br from-[#1B6B4A] via-[#1A8B7A] to-[#1E3A6E] animate-pulse flex items-center justify-center z-10">
