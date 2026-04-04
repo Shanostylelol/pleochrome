@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
+import { SiteFooter } from '@/components/landing/SiteFooter'
 import RadialOrbitalTimeline, { type TimelineItem } from '@/components/ui/radial-orbital-timeline'
 import { ORBITAL_TIMELINE_DATA, VALUE_MODEL_ARTICLES } from '@/lib/knowledge-data'
 
@@ -67,12 +68,13 @@ export default function KnowledgePage() {
       </div>
 
       {/* Disclaimer */}
-      <div className="border-t border-white/5 py-8 px-4">
+      <div className="py-8 px-4">
         <p className="text-[10px] text-white/20 max-w-3xl mx-auto text-center leading-relaxed">
           The content on this page is for informational and educational purposes only. It does not constitute investment advice, an offer to sell, or a solicitation to buy any securities. All investments involve risk. Past performance is not indicative of future results. Consult with qualified legal and financial advisors before making investment decisions.
         </p>
-        <p className="text-[10px] text-white/15 text-center mt-2">PleoChrome — Value from Every Angle</p>
       </div>
+
+      <SiteFooter />
     </div>
   )
 }

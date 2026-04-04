@@ -3,7 +3,8 @@
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowLeft, Clock, User, ExternalLink } from 'lucide-react'
+import { ArrowLeft, Clock, ExternalLink } from 'lucide-react'
+import { SiteFooter } from '@/components/landing/SiteFooter'
 import { VALUE_MODEL_ARTICLES } from '@/lib/knowledge-data'
 
 export default function ArticlePage() {
@@ -137,6 +138,7 @@ export default function ArticlePage() {
           </div>
         </div>
       </article>
+      <SiteFooter />
     </div>
   )
 }

@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Layers, Coins, Landmark, Handshake, ArrowLeftRight } from 'lucide-react'
+import { SiteFooter } from '@/components/landing/SiteFooter'
 
 const team = [
   {
@@ -118,11 +119,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <div className="border-t border-white/5 py-8 px-4 text-center">
-        <Image src="/logo-white.png" alt="PleoChrome" width={100} height={26} className="mx-auto opacity-30" />
-        <p className="text-[10px] text-white/15 mt-4">PleoChrome &bull; Value from Every Angle &bull; Fitech Venture LLC</p>
-      </div>
+      <SiteFooter />
     </div>
   )
 }
