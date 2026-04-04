@@ -1,25 +1,62 @@
-'use client'
-
-import { useParams } from 'next/navigation'
+import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowLeft, Clock, ExternalLink } from 'lucide-react'
 import { SiteFooter } from '@/components/landing/SiteFooter'
 import { VALUE_MODEL_ARTICLES } from '@/lib/knowledge-data'
 
-export default function ArticlePage() {
-  const params = useParams<{ slug: string }>()
-  const article = VALUE_MODEL_ARTICLES.find(a => a.slug === params.slug)
+type ArticlePageProps = {
+  params: Promise<{ slug: string }>
+}
+
+const getArticleBySlug = (slug: string) => VALUE_MODEL_ARTICLES.find((article) => article.slug === slug)
+
+export function generateStaticParams() {
+  return VALUE_MODEL_ARTICLES.map((article) => ({ slug: article.slug }))
+}
+
+export async function generateMetadata({ params }: ArticlePageProps): Promise<Metadata> {
+  const { slug } = await params
+  const article = getArticleBySlug(slug)
 
   if (!article) {
-    return (
-      <div className="min-h-screen bg-[#0A0F1A] flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-white/50">Article not found</p>
-          <Link href="/knowledge" className="text-[#1A8B7A] text-sm mt-2 inline-block">Back to Knowledge Hub</Link>
-        </div>
-      </div>
-    )
+    return {
+      title: 'Article Not Found | PleoChrome Knowledge Hub',
+      description: 'The requested Knowledge Hub article could not be found.',
+    }
+  }
+
+  const url = `https://pleochrome.com/knowledge/${article.slug}`
+
+  return {
+    title: `${article.title} | PleoChrome Knowledge Hub`,
+    description: article.excerpt,
+    authors: [{ name: article.author }],
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title: article.title,
+      description: article.excerpt,
+      url,
+      siteName: 'PleoChrome',
+      type: 'article',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: article.title,
+      description: article.excerpt,
+    },
+  }
+}
+
+export default async function ArticlePage({ params }: ArticlePageProps) {
+  const { slug } = await params
+  const article = getArticleBySlug(slug)
+
+  if (!article) {
+    notFound()
   }
 
   const related = VALUE_MODEL_ARTICLES.filter(a => a.slug !== article.slug).slice(0, 2)
