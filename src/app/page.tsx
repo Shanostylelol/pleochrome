@@ -512,24 +512,62 @@ function PathsSection() {
           </p>
         </div>
 
-        {/* Pill bar tab selector */}
+        {/* Mobile: stacked accordion cards */}
+        <div className="sm:hidden space-y-2 mb-8">
+          {paths.map((path, i) => (
+            <div key={path.id}>
+              <button
+                onClick={() => handlePathChange(i)}
+                className={cn(
+                  "w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left transition-all duration-300",
+                  activePath === i
+                    ? "bg-white/[0.06] border border-white/[0.12]"
+                    : "bg-white/[0.02] border border-white/[0.05]"
+                )}
+              >
+                <span className="w-3 h-3 rounded-full shrink-0" style={{ background: path.color, boxShadow: activePath === i ? `0 0 10px ${path.color}50` : 'none' }} />
+                <span className={cn("text-sm font-medium flex-1", activePath === i ? "text-white" : "text-white/50")}>{path.title}</span>
+                <span className="text-xs text-white/25">{path.tagline}</span>
+              </button>
+              {activePath === i && (
+                <div className="px-2 pt-3 pb-1">
+                  <p className="text-xs text-white/40 leading-relaxed mb-4 px-2">{path.description}</p>
+                  <div className="space-y-3">
+                    {path.steps.map((step, si) => (
+                      <div key={si} className="flex gap-3 px-2">
+                        <div className="shrink-0 mt-1">
+                          <div className="w-2 h-2 rounded-full" style={{ background: path.color, opacity: 0.6 }} />
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold text-white/80">{step.title}</p>
+                          <p className="text-[11px] text-white/35 leading-relaxed mt-0.5">{step.description}</p>
+                          <span className="inline-block text-[9px] uppercase tracking-wider text-white/20 mt-1">{step.compliance}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop: Pill bar tab selector */}
         <div className={cn(
-          "flex justify-center mb-12 md:mb-16 transition-all duration-700 delay-200",
+          "hidden sm:flex justify-center mb-12 md:mb-16 transition-all duration-700 delay-200",
           visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
         )}>
-          <div className="overflow-x-auto scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
-          <div className="inline-flex bg-white/[0.03] border border-white/[0.06] rounded-full p-1 sm:p-1.5 min-w-max">
+          <div className="inline-flex bg-white/[0.03] border border-white/[0.06] rounded-full p-1">
             {paths.map((path, i) => (
               <button
                 key={path.id}
                 onClick={() => handlePathChange(i)}
                 className={cn(
-                  "relative flex items-center gap-1.5 sm:gap-2.5 rounded-full px-3 py-2 sm:px-6 sm:py-3 transition-colors duration-300 cursor-pointer",
-                  "text-[9px] sm:text-xs tracking-[0.1em] sm:tracking-[0.15em] uppercase font-medium whitespace-nowrap",
+                  "relative flex items-center gap-2 rounded-full px-3.5 py-2.5 lg:px-5 lg:py-3 transition-colors duration-300 cursor-pointer",
+                  "text-[10px] lg:text-xs tracking-[0.1em] lg:tracking-[0.15em] uppercase font-medium",
                   activePath === i ? "text-white" : "text-white/35 hover:text-white/55"
                 )}
               >
-                {/* Sliding active indicator */}
                 {activePath === i && (
                   <motion.div
                     layoutId="activePathPill"
@@ -538,9 +576,7 @@ function PathsSection() {
                     transition={springTab}
                   />
                 )}
-
-                {/* Dot + label */}
-                <span className="relative z-10 flex items-center gap-2 sm:gap-2.5">
+                <span className="relative z-10 flex items-center gap-2">
                   <span
                     className="w-2 h-2 rounded-full transition-all duration-300 shrink-0"
                     style={{
@@ -548,16 +584,15 @@ function PathsSection() {
                       boxShadow: activePath === i ? `0 0 8px ${path.color}40` : "none",
                     }}
                   />
-                  <span className="hidden sm:inline">{path.title}</span>
-                  <span className="sm:hidden">{path.title.split(" ")[0]}</span>
+                  {path.title}
                 </span>
               </button>
             ))}
           </div>
-          </div>
         </div>
 
-        {/* Animated workflow content */}
+        {/* Animated workflow content (desktop only) */}
+        <div className="hidden sm:block">
         <AnimatePresence mode="wait">
           <motion.div
             key={active.id}
@@ -663,6 +698,7 @@ function PathsSection() {
             </div>
           </motion.div>
         </AnimatePresence>
+        </div>
 
         {/* Bottom note */}
         <motion.div
