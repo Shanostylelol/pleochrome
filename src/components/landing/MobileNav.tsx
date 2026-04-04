@@ -36,10 +36,10 @@ export function MobileNav() {
       {open && (
         <>
           {/* Backdrop */}
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" onClick={() => setOpen(false)} />
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]" onClick={() => setOpen(false)} />
 
           {/* Drawer */}
-          <div className="fixed top-0 right-0 bottom-0 w-72 bg-[#0A0F1A] border-l border-white/10 z-50 overflow-y-auto"
+          <div className="fixed top-0 right-0 bottom-0 w-72 bg-[#0A0F1A] border-l border-white/10 z-[100] overflow-y-auto"
             style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
