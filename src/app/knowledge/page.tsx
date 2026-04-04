@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { SiteFooter } from '@/components/landing/SiteFooter'
+import { MobileNav } from '@/components/landing/MobileNav'
 import RadialOrbitalTimeline, { type TimelineItem } from '@/components/ui/radial-orbital-timeline'
 import { ORBITAL_TIMELINE_DATA, VALUE_MODEL_ARTICLES } from '@/lib/knowledge-data'
 
@@ -25,7 +26,8 @@ export default function KnowledgePage() {
         <div className="flex items-center gap-4">
           <Link href="/about" className="text-xs uppercase tracking-widest text-white/50 hover:text-white transition-colors">About</Link>
           <Link href="/knowledge" className="text-xs uppercase tracking-widest text-[#1A8B7A]">Knowledge</Link>
-          <Link href="/login" className="text-xs uppercase tracking-widest text-white/50 hover:text-white transition-colors px-4 py-1.5 border border-white/10 rounded-full">Sign In</Link>
+          <Link href="/login" className="hidden sm:inline-flex text-xs uppercase tracking-widest text-white/50 hover:text-white transition-colors px-4 py-1.5 border border-white/10 rounded-full">Sign In</Link>
+          <MobileNav />
         </div>
       </nav>
 

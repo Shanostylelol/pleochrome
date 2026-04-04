@@ -18,6 +18,7 @@ import {
   Handshake,
 } from "lucide-react";
 import { ShaderAnimation } from "@/components/ui/shader-animation";
+import { MobileNav } from "@/components/landing/MobileNav";
 import { cn } from "@/lib/utils";
 import {
   motion,
@@ -320,9 +321,10 @@ function HeroSection() {
             Knowledge
           </a>
           <a href="/login"
-            className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs tracking-[0.15em] uppercase text-white/70 hover:text-white border border-white/10 hover:border-white/25 bg-white/[0.04] hover:bg-white/[0.08] backdrop-blur-sm transition-all duration-300">
+            className="hidden sm:inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs tracking-[0.15em] uppercase text-white/70 hover:text-white border border-white/10 hover:border-white/25 bg-white/[0.04] hover:bg-white/[0.08] backdrop-blur-sm transition-all duration-300">
             Sign In
           </a>
+          <MobileNav />
         </div>
       </nav>
 
@@ -496,7 +498,7 @@ function PathsSection() {
           <p className={cn(
             "text-xs tracking-[0.4em] uppercase text-[#C47A1A] mb-4 transition-all duration-700",
             visible ? "opacity-100" : "opacity-0"
-          )}>Three Levels of Value Creation</p>
+          )}>Five Paths to Value Creation</p>
           <h2 className={cn(
             "font-display text-3xl md:text-4xl lg:text-5xl font-light text-white/90 transition-all duration-1000 delay-100",
             visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
@@ -505,7 +507,7 @@ function PathsSection() {
             "mt-5 text-sm sm:text-base md:text-lg text-white/40 max-w-2xl mx-auto leading-relaxed transition-all duration-700 delay-300",
             visible ? "opacity-100" : "opacity-0"
           )}>
-            Every verified gemstone can unlock value in multiple ways. Select a path
+            Every high-value asset can unlock value through multiple paths. Select one
             to explore the complete orchestration workflow.
           </p>
         </div>
@@ -515,14 +517,15 @@ function PathsSection() {
           "flex justify-center mb-12 md:mb-16 transition-all duration-700 delay-200",
           visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
         )}>
-          <div className="inline-flex bg-white/[0.03] border border-white/[0.06] rounded-full p-1 sm:p-1.5">
+          <div className="overflow-x-auto scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
+          <div className="inline-flex bg-white/[0.03] border border-white/[0.06] rounded-full p-1 sm:p-1.5 min-w-max">
             {paths.map((path, i) => (
               <button
                 key={path.id}
                 onClick={() => handlePathChange(i)}
                 className={cn(
-                  "relative flex items-center gap-2 sm:gap-2.5 rounded-full px-4 py-2.5 sm:px-6 sm:py-3 transition-colors duration-300 cursor-pointer",
-                  "text-[10px] sm:text-xs tracking-[0.15em] uppercase font-medium",
+                  "relative flex items-center gap-1.5 sm:gap-2.5 rounded-full px-3 py-2 sm:px-6 sm:py-3 transition-colors duration-300 cursor-pointer",
+                  "text-[9px] sm:text-xs tracking-[0.1em] sm:tracking-[0.15em] uppercase font-medium whitespace-nowrap",
                   activePath === i ? "text-white" : "text-white/35 hover:text-white/55"
                 )}
               >
@@ -550,6 +553,7 @@ function PathsSection() {
                 </span>
               </button>
             ))}
+          </div>
           </div>
         </div>
 

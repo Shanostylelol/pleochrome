@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowLeft, Clock, ExternalLink } from 'lucide-react'
 import { SiteFooter } from '@/components/landing/SiteFooter'
+import { MobileNav } from '@/components/landing/MobileNav'
 import { VALUE_MODEL_ARTICLES } from '@/lib/knowledge-data'
 
 type ArticlePageProps = {
@@ -92,7 +93,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         <div className="flex items-center gap-4">
           <Link href="/about" className="text-xs uppercase tracking-widest text-white/50 hover:text-white transition-colors hidden sm:inline">About</Link>
           <Link href="/knowledge" className="text-xs uppercase tracking-widest text-white/50 hover:text-white transition-colors">Knowledge</Link>
-          <Link href="/login" className="text-xs uppercase tracking-widest text-white/50 hover:text-white transition-colors px-4 py-1.5 border border-white/10 rounded-full">Sign In</Link>
+          <Link href="/login" className="hidden sm:inline-flex text-xs uppercase tracking-widest text-white/50 hover:text-white transition-colors px-4 py-1.5 border border-white/10 rounded-full">Sign In</Link>
+          <MobileNav />
         </div>
       </nav>
 
