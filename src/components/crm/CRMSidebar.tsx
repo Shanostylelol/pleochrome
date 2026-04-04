@@ -8,7 +8,7 @@ import { NeuAvatar } from '@/components/ui/NeuAvatar'
 import { trpc } from '@/lib/trpc'
 import {
   LayoutGrid, LayoutDashboard, Gem, Handshake, Users2, FileText, CheckSquare,
-  Calendar, Activity, ShieldCheck, Users, LayoutTemplate, Shield, Settings, Bell,
+  Calendar, Activity, ShieldCheck, Users, LayoutTemplate, Shield, Settings, Bell, HelpCircle,
 } from 'lucide-react'
 
 const mainNav = [
@@ -30,6 +30,7 @@ const adminNav = [
   { label: 'Templates', icon: LayoutTemplate, href: '/crm/templates' },
   { label: 'Compliance', icon: Shield, href: '/crm/compliance' },
   { label: 'Settings', icon: Settings, href: '/crm/settings' },
+  { label: 'Help', icon: HelpCircle, href: '/crm/help' },
 ]
 
 function isActive(pathname: string, href: string) {
