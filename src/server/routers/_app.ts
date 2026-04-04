@@ -22,6 +22,7 @@ import { searchRouter } from './search'
 import { activityRouter } from './activity'
 import { dashboardRouter } from './dashboard'
 import { teamRouter } from './team'
+import { interestRouter } from './interest'
 
 export const appRouter = createRouter({
   health: healthRouter,
@@ -47,6 +48,7 @@ export const appRouter = createRouter({
   activity: activityRouter,
   dashboard: dashboardRouter,
   team: teamRouter,
+  interest: interestRouter,
 })
 
 export type AppRouter = typeof appRouter

@@ -16,6 +16,7 @@ const navItems = [
   { label: 'Debt Instruments', href: '/knowledge/debt', icon: Landmark },
   { label: 'Broker Sale', href: '/knowledge/broker-sale', icon: Handshake },
   { label: 'Barter Exchange', href: '/knowledge/barter', icon: ArrowLeftRight },
+  { label: 'Register Interest', href: '/interest', icon: BookOpen },
   { type: 'divider' as const, label: '' },
   { label: 'Team Login', href: '/login', icon: LogIn },
 ]
