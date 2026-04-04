@@ -41,7 +41,7 @@ interface WorkflowStep {
   icon: React.ReactNode;
 }
 
-// ── Three Paths data ─────────────────────────
+// ── Five Paths data ──────────────────────────
 
 const paths = [
   {
@@ -198,6 +198,76 @@ const paths = [
       },
     ] as WorkflowStep[],
   },
+  {
+    id: "broker",
+    icon: <Handshake className="h-5 w-5" />,
+    title: "Broker Sale",
+    tagline: "Identify, Negotiate, Close",
+    color: "#C47A1A",
+    description:
+      "When a buyer is identified or the asset has strong market demand, a direct sale through regulated broker-dealer channels is the fastest path to value. No fractionalization, no token creation. Clean exit.",
+    steps: [
+      {
+        title: "Asset Appraisal & Packaging",
+        description: "Independent valuation with GIA certification and market comparables analysis. Professional offering materials prepared for qualified buyers.",
+        compliance: "USPAP · FTC Jewelry Guides",
+        icon: <Gem className="h-4 w-4" />,
+      },
+      {
+        title: "Broker-Dealer Engagement",
+        description: "Engage a SEC/FINRA-registered broker-dealer with expertise in the relevant asset class. Broker manages buyer identification, qualification, and negotiation.",
+        compliance: "SEC · FINRA Registration",
+        icon: <ShieldCheck className="h-4 w-4" />,
+      },
+      {
+        title: "Buyer Qualification & Escrow",
+        description: "Buyer verified as accredited or qualified. Purchase agreement executed. Funds placed in escrow. Custody transfer arranged through bonded logistics.",
+        compliance: "KYC/AML · Escrow Standards",
+        icon: <Lock className="h-4 w-4" />,
+      },
+      {
+        title: "Settlement & Transfer",
+        description: "Final inspection, ownership transfer, and settlement. All regulatory filings completed. Clean title delivered. Proceeds disbursed.",
+        compliance: "UCC Transfer · Tax Reporting",
+        icon: <FileCheck2 className="h-4 w-4" />,
+      },
+    ] as WorkflowStep[],
+  },
+  {
+    id: "barter",
+    icon: <Building2 className="h-5 w-5" />,
+    title: "Barter Exchange",
+    tagline: "Trade Asset for Asset",
+    color: "#5B2D8E",
+    description:
+      "When cash buyers are scarce or tax-advantaged structures apply, a structured asset-for-asset exchange lets holders swap value directly. Both sides get what they need without the friction of liquidation.",
+    steps: [
+      {
+        title: "Asset Valuation (Both Sides)",
+        description: "Independent appraisal of both assets in the exchange. Both parties must agree on fair market values before proceeding. Multiple appraisals for high-value items.",
+        compliance: "USPAP · IRS Fair Market Value",
+        icon: <Gem className="h-4 w-4" />,
+      },
+      {
+        title: "Exchange Agreement & Structure",
+        description: "Formal exchange contract documenting asset descriptions, agreed valuations, representations, warranties, conditions, and closing mechanics. Legal review by both parties.",
+        compliance: "Contract Law · IRC Section 1031 (if applicable)",
+        icon: <ShieldCheck className="h-4 w-4" />,
+      },
+      {
+        title: "Intermediary & Custody",
+        description: "Qualified intermediary facilitates the exchange. Both assets placed in custody or escrow. Simultaneous or staged closing arranged based on logistics.",
+        compliance: "Escrow Standards · Custody Protocols",
+        icon: <Lock className="h-4 w-4" />,
+      },
+      {
+        title: "Transfer & Tax Reporting",
+        description: "Simultaneous transfer of both assets. IRS Form 8824 filed for like-kind exchanges where applicable. Fair market value of received property reported as required.",
+        compliance: "IRS Reporting · State Tax Compliance",
+        icon: <FileCheck2 className="h-4 w-4" />,
+      },
+    ] as WorkflowStep[],
+  },
 ];
 
 // ── Gem accent colors ────────────────────────
@@ -347,7 +417,7 @@ function IntroSection() {
           "font-display text-2xl sm:text-3xl md:text-4xl lg:text-[2.75rem] font-light leading-[1.3] sm:leading-[1.25] text-white/90 transition-all duration-1000 delay-200",
           visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
         )}>
-          One asset. Three paths to value.
+          One asset. Five paths to value.
           PleoChrome orchestrates them all.
         </h2>
         <p className={cn(
