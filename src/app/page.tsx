@@ -762,7 +762,7 @@ function ValueSection() {
             "font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-white/90 transition-all duration-1000",
             visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
           )}>
-            Value, Revealed<br className="hidden md:block" />
+            Value, Revealed{' '}<br className="hidden md:block" />
             from Every Angle
           </h2>
         </div>
