@@ -237,13 +237,23 @@ function HeroSection() {
       <ShaderAnimation />
       <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60 z-[1]" />
 
-      {/* Top bar — login link */}
+      {/* Top bar — navigation */}
       <nav className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-6 py-4">
         <span />
-        <a href="/login"
-          className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs tracking-[0.15em] uppercase text-white/70 hover:text-white border border-white/10 hover:border-white/25 bg-white/[0.04] hover:bg-white/[0.08] backdrop-blur-sm transition-all duration-300">
-          Sign In
-        </a>
+        <div className="flex items-center gap-3">
+          <a href="/about"
+            className="hidden sm:inline-flex items-center px-4 py-2 text-xs tracking-[0.15em] uppercase text-white/50 hover:text-white transition-colors duration-300">
+            About
+          </a>
+          <a href="/knowledge"
+            className="hidden sm:inline-flex items-center px-4 py-2 text-xs tracking-[0.15em] uppercase text-white/50 hover:text-white transition-colors duration-300">
+            Knowledge
+          </a>
+          <a href="/login"
+            className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs tracking-[0.15em] uppercase text-white/70 hover:text-white border border-white/10 hover:border-white/25 bg-white/[0.04] hover:bg-white/[0.08] backdrop-blur-sm transition-all duration-300">
+            Sign In
+          </a>
+        </div>
       </nav>
 
       <div className="relative z-10 flex flex-col items-center text-center px-4 sm:px-6 w-full">
