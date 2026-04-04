@@ -557,14 +557,14 @@ function PathsSection() {
           "hidden sm:flex justify-center mb-12 md:mb-16 transition-all duration-700 delay-200",
           visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
         )}>
-          <div className="inline-flex bg-white/[0.03] border border-white/[0.06] rounded-full p-1">
+          <div className="flex w-full max-w-4xl bg-white/[0.03] border border-white/[0.06] rounded-full p-1">
             {paths.map((path, i) => (
               <button
                 key={path.id}
                 onClick={() => handlePathChange(i)}
                 className={cn(
-                  "relative flex items-center gap-2 rounded-full px-3.5 py-2.5 lg:px-5 lg:py-3 transition-colors duration-300 cursor-pointer",
-                  "text-[10px] lg:text-xs tracking-[0.1em] lg:tracking-[0.15em] uppercase font-medium",
+                  "relative flex-1 flex items-center justify-center gap-1.5 lg:gap-2 rounded-full py-2.5 lg:py-3 transition-colors duration-300 cursor-pointer",
+                  "text-[9px] md:text-[10px] lg:text-xs tracking-[0.08em] lg:tracking-[0.12em] uppercase font-medium",
                   activePath === i ? "text-white" : "text-white/35 hover:text-white/55"
                 )}
               >
