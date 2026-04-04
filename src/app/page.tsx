@@ -285,7 +285,6 @@ const gemColors = [
 
 // ── Shared spring config ─────────────────────
 
-const springTab = { type: "spring" as const, stiffness: 400, damping: 30 };
 const easeSmooth = [0.25, 0.1, 0.25, 1] as const;
 
 // ── Hero Section ─────────────────────────────
@@ -552,43 +551,43 @@ function PathsSection() {
           ))}
         </div>
 
-        {/* Desktop: Pill bar tab selector */}
+        {/* Desktop: Grid selector */}
         <div className={cn(
-          "hidden sm:flex justify-center mb-12 md:mb-16 transition-all duration-700 delay-200",
+          "hidden sm:grid grid-cols-5 gap-2 mb-12 md:mb-16 transition-all duration-700 delay-200",
           visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
         )}>
-          <div className="inline-flex bg-white/[0.03] border border-white/[0.06] rounded-full p-1">
-            {paths.map((path, i) => (
-              <button
-                key={path.id}
-                onClick={() => handlePathChange(i)}
-                className={cn(
-                  "relative flex items-center gap-2 rounded-full px-3.5 py-2.5 lg:px-5 lg:py-3 transition-colors duration-300 cursor-pointer",
-                  "text-[10px] lg:text-xs tracking-[0.1em] lg:tracking-[0.15em] uppercase font-medium",
-                  activePath === i ? "text-white" : "text-white/35 hover:text-white/55"
-                )}
-              >
-                {activePath === i && (
-                  <motion.div
-                    layoutId="activePathPill"
-                    className="absolute inset-0 rounded-full border border-white/[0.1]"
-                    style={{ backgroundColor: `${path.color}20` }}
-                    transition={springTab}
-                  />
-                )}
-                <span className="relative z-10 flex items-center gap-2">
-                  <span
-                    className="w-2 h-2 rounded-full transition-all duration-300 shrink-0"
-                    style={{
-                      backgroundColor: activePath === i ? path.color : "rgba(255,255,255,0.15)",
-                      boxShadow: activePath === i ? `0 0 8px ${path.color}40` : "none",
-                    }}
-                  />
-                  {path.title}
-                </span>
-              </button>
-            ))}
-          </div>
+          {paths.map((path, i) => (
+            <button
+              key={path.id}
+              onClick={() => handlePathChange(i)}
+              className={cn(
+                "relative text-center px-3 py-4 rounded-xl transition-all duration-300 cursor-pointer border",
+                activePath === i
+                  ? "bg-white/[0.06] border-white/[0.12]"
+                  : "bg-white/[0.02] border-white/[0.04] hover:border-white/[0.08] hover:bg-white/[0.04]"
+              )}
+            >
+              <span
+                className="block w-3 h-3 rounded-full mx-auto mb-2.5 transition-all duration-300"
+                style={{
+                  backgroundColor: activePath === i ? path.color : "rgba(255,255,255,0.1)",
+                  boxShadow: activePath === i ? `0 0 12px ${path.color}50` : "none",
+                }}
+              />
+              <span className={cn(
+                "block text-[10px] lg:text-xs tracking-[0.1em] uppercase font-medium transition-colors duration-300",
+                activePath === i ? "text-white" : "text-white/35"
+              )}>
+                {path.title}
+              </span>
+              <span className={cn(
+                "block text-[9px] text-white/20 mt-1 transition-opacity duration-300",
+                activePath === i ? "opacity-100" : "opacity-0"
+              )}>
+                {path.tagline}
+              </span>
+            </button>
+          ))}
         </div>
 
         {/* Animated workflow content (desktop only) */}
