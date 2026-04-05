@@ -28,11 +28,11 @@ const team = [
 ]
 
 const models = [
-  { icon: Coins, name: 'Tokenization', color: '#1A8B7A', desc: 'Digital tokens on blockchain with programmable compliance and global settlement' },
-  { icon: Layers, name: 'Fractional Securities', color: '#1B6B4A', desc: 'SEC-compliant fractional LLC units through Reg D 506(c) private placements' },
-  { icon: Landmark, name: 'Debt Instruments', color: '#1E3A6E', desc: 'Asset-backed lending with UCC Article 9 collateral structures' },
-  { icon: Handshake, name: 'Broker Sale', color: '#C47A1A', desc: 'Direct sales through regulated broker-dealer channels and ATS platforms' },
-  { icon: ArrowLeftRight, name: 'Barter', color: '#5B2D8E', desc: 'Structured asset-for-asset exchanges with independent valuation' },
+  { icon: Coins, name: 'Tokenization', slug: 'tokenization', color: '#1A8B7A', desc: 'Digital tokens on blockchain with programmable compliance and global settlement' },
+  { icon: Layers, name: 'Fractional Securities', slug: 'fractional', color: '#1B6B4A', desc: 'SEC-compliant fractional LLC units through Reg D 506(c) private placements' },
+  { icon: Landmark, name: 'Debt Instruments', slug: 'debt', color: '#1E3A6E', desc: 'Asset-backed lending with UCC Article 9 collateral structures' },
+  { icon: Handshake, name: 'Broker Sale', slug: 'broker-sale', color: '#C47A1A', desc: 'Direct sales through regulated broker-dealer channels and ATS platforms' },
+  { icon: ArrowLeftRight, name: 'Barter', slug: 'barter', color: '#5B2D8E', desc: 'Structured asset-for-asset exchanges with independent valuation' },
 ]
 
 export default function AboutPage() {
@@ -88,7 +88,7 @@ export default function AboutPage() {
             {models.map(m => {
               const Icon = m.icon
               return (
-                <Link key={m.name} href={`/knowledge/${m.name.toLowerCase().replace(/\s+/g, '-')}`}
+                <Link key={m.name} href={`/knowledge/${m.slug}`}
                   className="group p-4 rounded-xl border border-white/8 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/15 transition-all text-center">
                   <div className="w-10 h-10 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: `${m.color}20`, border: `1px solid ${m.color}40` }}>
                     <Icon size={18} style={{ color: m.color }} />
