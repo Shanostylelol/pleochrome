@@ -371,7 +371,7 @@ There are four ways to test the thesis before making that commitment. Each opera
 
 ## Pathway 1: Educational Content and Interest Capture ($5K-$15K)
 
-Start here. Publish research about the asset class, build an email list, track who engages. No specific offering described.
+Start here. Publish research about the asset class, build an email list, and track who engages. Keep everything educational with no specific offering described.
 
 What you do: publish articles about the asset class, create a landing page with a "learn more" form, run targeted LinkedIn ads, host an educational webinar. What you track: email signups, webinar attendance, inbound inquiries, content engagement.
 
@@ -399,7 +399,7 @@ This pathway makes sense when you want to validate demand from a broader investo
 
 ## Pathway 4: Direct Conversations (Free)
 
-Talk to 20 people who match your target investor profile. Not a pitch. A conversation. Ask what would make them allocate to this asset class. Ask what would make them pass. Ask what information they would need to feel confident.
+Talk to 20 people who match your target investor profile. Have real conversations, not scripted pitches. Ask what would make them allocate to the asset class and what would make them walk away. The answers tell you more than any landing page metric.
 
 This produces qualitative data that surveys and landing pages cannot capture. The body language when someone says "I would be interested at $100K minimums" tells you more than a form submission.
 
@@ -604,7 +604,7 @@ But the statement goes further by drawing a distinction between two types of tok
 
 **Third-party tokenized products** are created by someone other than the issuer, often providing synthetic exposure to an underlying asset rather than direct ownership. These face heightened scrutiny, particularly when offered to retail investors.
 
-For issuers structuring compliant offerings, the practical implication is clarity. If you are issuing LLC membership interests (fractional securities) and representing them as tokens, you follow the same rules as any other private placement. No new exemption is needed. No new compliance framework is required. The rules are the same. The record-keeping technology is different.
+For issuers structuring compliant offerings, the practical implication is clarity. If you are issuing LLC membership interests (fractional securities) and representing them as tokens, you follow the same rules as any other private placement. The same exemptions apply. The same compliance framework applies. Only the record-keeping technology changes.
 
 ## What This Means Together
 
@@ -612,7 +612,7 @@ These two actions create a clearer, lower-friction path for compliant tokenized 
 
 The verification simplification (March 2025) reduces the cost and friction of 506(c) offerings at higher minimums. The tokenized securities statement (January 2026) confirms that the regulatory framework works for digital representations without requiring new exemptions.
 
-For asset holders considering their first offering: the regulatory environment is more favorable now than it was 18 months ago. Not because the rules have changed, but because the guidance on how to follow them has gotten more practical.`,
+For asset holders considering their first offering: the regulatory environment is more favorable now than it was 18 months ago. The rules haven't changed, but the guidance on how to follow them has gotten more practical.`,
     sources: [
       { label: 'SEC Statement on Tokenized Securities (Jan 2026)', url: 'https://www.sec.gov/newsroom/speeches-statements/corp-fin-statement-tokenized-securities-012826' },
       { label: 'Gibson Dunn: SEC Bright-Line Test for 506(c)', url: 'https://www.gibsondunn.com/sec-provides-bright-line-test-for-investor-verification-under-rule-506c/' },

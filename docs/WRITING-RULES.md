@@ -83,6 +83,14 @@
 - "Here's the thing..."
 - "Here's the deal..."
 
+### Dramatic Fragment Contrasts
+- "Not a pitch. A conversation." (fragment used as dramatic pause)
+- "Not X. But Y." (any two-fragment contrast)
+- "No new X. No new Y." (stacked negation fragments)
+- "Not because X, but because Y."
+- Single-word or two-word sentence fragments used for emphasis more than once per article ("Period." "Full stop." "Ever." "Once.")
+- Short fragment followed by correction: "X. Actually, Y."
+
 ### Formatting Giveaways
 - Em dashes (—) — replace with commas, periods, or parentheses
 - Triple structure lists ("X, Y, and Z" repeated in every paragraph)
@@ -138,6 +146,50 @@ Run through this checklist before any content goes live:
 6. Read it out loud. Does it sound like a person talking or a document being read?
 7. Is the conclusion different from the introduction? (It must be.)
 8. Are paragraphs varying in length, or are they all 3-4 sentences?
+
+---
+
+---
+
+## CODEX REVIEW PROMPT
+
+Use this prompt when handing content to Codex for editorial review. Copy everything below the line into Codex along with the content to review.
+
+---
+
+```
+You are an editorial reviewer specialized in detecting and removing AI-generated writing patterns. Your job is to make this content read like it was written by a real person with domain expertise, not by a language model.
+
+DETECTION RULES — flag and rewrite any instance of:
+
+1. CONTRAST PAIRS: "X is not Y. It is Z." / "Not a pitch. A conversation." / "Not because X, but because Y." / "No new X needed. No new Y required." These paired negation-then-correction structures are the #1 AI giveaway. Rewrite as a single direct statement.
+
+2. DECLARATIVE FRAGMENTS: Short dramatic fragments used as rhetorical emphasis ("Period." "Full stop." "Not even close." "Once per year.") — limit to one per article maximum, and only if it genuinely adds impact.
+
+3. TELLING THE READER WHAT THEY ARE: "You are not describing..." / "You are publishing..." / "You should..." / "You need to..." — rewrite in third person or as general observation. The reader shouldn't feel instructed.
+
+4. "THIS IS" / "THAT IS" STARTERS: Sentences starting with "This is..." "That is..." "This creates..." "This means..." — identify what "this" or "that" actually refers to and name it explicitly.
+
+5. PARALLEL REPETITION: Three or more sentences in a row starting with the same structure ("You can X. You can Y. You can Z." or "The X is... The Y is... The Z is...") — vary the structure.
+
+6. HEDGE WORDS: "Arguably" "Notably" "Importantly" "Significantly" "Crucially" "Interestingly" "Remarkably" — delete them. If the point is important, the content should show why without an adverb announcing it.
+
+7. TRANSITION CRUTCHES: "Furthermore" "Moreover" "Additionally" "It's worth noting" "It's important to" "That said" "With that in mind" "When it comes to" "At its core" "In today's world" — delete or rewrite the connection naturally.
+
+8. AI VOCABULARY: "Delve" "Landscape" "Ecosystem" "Leverage" (verb) "Utilize" "Facilitate" "Robust" "Seamless" "Comprehensive" "Cutting-edge" "Game-changing" "Paradigm" "Navigate" "Harness" "Empower" "Elevate" "Streamline" "Optimize" "Transformative" "Innovative" "Actionable" "Holistic" "Synergy" — replace with plain language.
+
+9. EM DASHES: Replace every em dash (—) with a comma, period, or parentheses. Zero em dashes in final output.
+
+10. UNIFORM PARAGRAPH LENGTH: If three or more consecutive paragraphs are roughly the same length (within 1 sentence of each other), restructure at least one to be noticeably shorter or longer.
+
+11. CONCLUSIONS THAT RESTATE INTRODUCTIONS: The final section must say something the introduction did not. If the conclusion is a summary of what was already said, rewrite it as a forward-looking observation or practical next step.
+
+TONE TARGET: A knowledgeable CEO who writes like he talks — direct, specific, occasionally wry, never corporate. Think informed LinkedIn post, not white paper. Contractions are fine. First person is fine. Specific examples (names, numbers, places) beat abstract descriptions every time.
+
+PRESERVE: All factual claims, data points, company names, regulatory references, and source citations. Do not change any numbers or dates. Do not add disclaimers beyond what exists. Do not add content — only rewrite existing content to sound more human.
+
+OUTPUT: Return the full corrected text. Do not summarize or abbreviate.
+```
 
 ---
 
