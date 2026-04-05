@@ -42,7 +42,7 @@ Mafrur's analysis uses data from RWA.xyz and Etherscan to examine what happens a
 
 **Market cap does not guarantee trading activity.** BlackRock's BUIDL fund, the largest tokenized RWA at nearly $2 billion, had only 85 unique holders and 30 monthly active addresses as of mid-2025. Paxos Gold (PAXG), meanwhile, had a smaller market cap but more than 69,000 holders. Bigger is not the same as more liquid.
 
-**Most tokenized assets barely trade after purchase.** On RealT, one of the earliest tokenized real estate platforms, token ownership changed hands on average only once per year. That is not an active secondary market. It is closer to buy-and-hold with occasional transfer activity.
+**Most tokenized assets barely trade after purchase.** On RealT, one of the earliest tokenized real estate platforms, token ownership changed hands on average only once per year. By any standard, that qualifies as illiquid. Closer to buy-and-hold than anything resembling a traded market.
 
 **Transfer activity is episodic.** Most institutional tokens showed longest active streaks of only 3-13 days. Activity tends to spike during issuance and redemption windows, then fade. The token exists, the legal wrapper exists, but continuous market participation often does not.
 
@@ -64,7 +64,7 @@ The research points to five reinforcing barriers, and in practice they compound 
 
 ## The Infrastructure Gap Is Starting to Close
 
-None of this means the thesis is dead. It means the missing layer is market structure, not token issuance.
+The thesis still holds. What's missing is market structure, not token issuance.
 
 There were meaningful signals in late 2025 and early 2026. The Depository Trust Company received SEC approval to offer tokenization services. Nasdaq has proposed rule changes to enable tokenized securities trading. MakerDAO has integrated over $2 billion in tokenized assets as collateral for its DAI stablecoin. The SEC's January 2026 statement also gave the market clearer guidance on how tokenized securities fit within existing regulatory frameworks.
 
@@ -106,7 +106,7 @@ For owners of unusual assets, this matters. A single asset may be too valuable, 
 
 ## What Rule 506(c) Actually Opens Up
 
-Under Rule 506(c) of SEC Regulation D, issuers can broadly solicit and advertise an offering to the general public, provided that all purchasers are verified accredited investors. That is the key difference from Rule 506(b), which prohibits general solicitation.
+Under Rule 506(c) of SEC Regulation D, issuers can broadly solicit and advertise an offering to the general public, provided that all purchasers are verified accredited investors. Rule 506(b), by contrast, prohibits general solicitation entirely.
 
 That distinction sounds technical, but it changes the go-to-market playbook. An issuer using 506(c) can speak publicly about the deal through digital advertising, social media, webinars, and industry events. An issuer relying on 506(b) cannot do that in the same way.
 
@@ -175,7 +175,7 @@ There are a few pieces every serious borrower should understand.
 
 **Security Agreement.** This written agreement identifies the collateral, the obligation being secured, and the rights and remedies of both sides.
 
-**UCC-1 Financing Statement.** This is the public filing that puts third parties on notice of the lender's security interest. It establishes priority, and in most cases the first to file has the first claim on the collateral.
+**UCC-1 Financing Statement.** A public filing that puts third parties on notice of the lender's security interest. It establishes priority, and in most cases the first to file has the first claim on the collateral.
 
 **Perfection.** Perfection is what makes the security interest enforceable against third parties. For most personal property, filing the UCC-1 does the job. For some assets, such as certificated securities or negotiable instruments, physical possession may also matter.
 
@@ -199,7 +199,7 @@ For a gemstone-backed loan, the process is usually more disciplined than people 
 
 ## Why Borrowers Choose This Route
 
-**Retained ownership.** If the loan is repaid, the asset comes back. That is a meaningful advantage when the owner believes the asset may appreciate or simply does not want to part with it.
+**Retained ownership.** If the loan is repaid, the asset comes back. Owners who believe the asset will appreciate, or who simply don't want to part with it, keep full upside.
 
 **No securities registration.** A loan secured by personal property is not a securities offering. There is no Form D filing, no PPM, and no accredited investor verification requirement. That usually reduces legal complexity and cost.
 
@@ -209,7 +209,7 @@ For a gemstone-backed loan, the process is usually more disciplined than people 
 
 The risk is not theoretical. If the borrower defaults, the lender may sell the collateral. With illiquid assets, that sale can happen at a discount to appraised value, which is exactly why conservative LTV ratios are common. The lender is underwriting not just the object, but also the speed and certainty of an eventual liquidation.
 
-That is the part many borrowers miss. A lender does not lend against what the asset might be worth in a patient private negotiation. A lender lends against what it can recover under pressure.
+Many borrowers miss this distinction. Lenders don't underwrite based on what the asset might fetch in a patient private sale. They underwrite based on what they can recover under pressure.
 
 ## Why This Market Is Expanding
 
@@ -337,7 +337,7 @@ In some cases the intermediary is a formal barter exchange that maintains trade 
 
 ## The Limits Are Real
 
-Barter is harder than cash sale for one obvious reason: both sides have to want what the other side has at roughly the same time and at roughly compatible values. That is a narrow target.
+Barter is harder than a cash sale. Both sides have to want what the other has, at roughly the same time, at roughly compatible values. A narrow target.
 
 Valuation disputes can sink the transaction. So can mismatched timing, incomplete diligence, or tax assumptions that do not survive professional review. And because non-like-kind exchanges do not automatically produce tax advantages, many barter deals should be evaluated purely on commercial logic, not on hoped-for tax benefits.
 
@@ -371,7 +371,7 @@ There are four ways to test the thesis before making that commitment. Each opera
 
 ## Pathway 1: Educational Content and Interest Capture ($5K-$15K)
 
-This is the lightest touch. You are not describing a specific offering. You are publishing research about the asset class, building an email list, and tracking who engages.
+Start here. Publish research about the asset class, build an email list, track who engages. No specific offering described.
 
 What you do: publish articles about the asset class, create a landing page with a "learn more" form, run targeted LinkedIn ads, host an educational webinar. What you track: email signups, webinar attendance, inbound inquiries, content engagement.
 
@@ -383,7 +383,7 @@ This approach costs $5,000 to $15,000 and produces directional data. If 200 accr
 
 Regulation Crowdfunding has a formal "Testing the Waters" provision under Rule 206. Before filing Form C, you can publicly solicit interest as long as your materials include required disclaimers stating that no money is being solicited and no offer can be accepted until the exemption requirements are met.
 
-This gives you permission to collect non-binding indications of interest with dollar amounts. Real demand data, not guesses.
+With TTW approval, you can collect non-binding indications of interest with dollar amounts attached. Real demand data instead of guesses.
 
 The cost is $10,000 to $25,000 for legal review of TTW materials, landing page development, and a 30-60 day campaign. If the data supports proceeding, you file Form C and launch the offering. If it does not, you have spent $15K instead of $150K learning the same lesson.
 
@@ -483,7 +483,7 @@ The practical minimum offering size for a full 506(c) structure is roughly $3-5 
 
 ## Where to Save (and Where Not To)
 
-You can save money on marketing by starting with organic content before paid ads. You can save on technology by using simpler portal solutions. You can save on appraisals by limiting to two instead of three (though three is best practice).
+Marketing costs drop if you start with organic content before paying for ads. Simpler portal solutions cost less than full-featured platforms. Two appraisals instead of three saves money, though three remains best practice.
 
 Do not save money on securities counsel. Do not save money on custody. Do not save money on compliance. These are the areas where cutting corners creates regulatory risk, investor distrust, and potential personal liability.`,
     sources: [
@@ -554,7 +554,7 @@ Three criteria separate the serious players:
 
 The broker-dealer you choose becomes a permanent part of your offering's infrastructure. Investors see the BD's name on the subscription documents. Regulators hold the BD responsible for compliance supervision. Secondary trading happens (or does not) based on the ATS's liquidity and reach.
 
-This is not a vendor selection. It is a partnership decision. Treat it accordingly.`,
+Choose carefully. Your broker-dealer becomes a permanent part of your offering's infrastructure, and the relationship is hard to unwind once investors are onboarded.`,
     sources: [
       { label: 'tZERO Regulated Platform', url: 'https://www.tzero.com' },
       { label: 'Securitize Platform', url: 'https://securitize.io' },
@@ -638,7 +638,7 @@ Most discussions about RWA liquidity focus on secondary trading: building exchan
 
 Collateral-based liquidity allows investors to borrow against their tokenized holdings without selling them. Instead of finding a buyer, you find a lender. The token stays in your wallet (or a smart contract), and you receive a loan denominated in stablecoins or fiat.
 
-This is not a theoretical concept. It is already happening at institutional scale.
+Collateral-based liquidity is already happening at institutional scale.
 
 ## MakerDAO and the RWA Collateral Model
 
@@ -668,7 +668,7 @@ The difference with tokenized assets is that the collateral can be locked in a s
 
 Several trends are converging to make collateral-based liquidity more accessible for tokenized RWAs:
 
-The 2022 UCC amendments, now adopted by more than half of U.S. states, include Article 12 provisions that address digital assets. This creates a more coherent legal framework for using tokenized assets as collateral in secured transactions.
+The 2022 UCC amendments, now adopted by more than half of U.S. states, include Article 12 provisions that address digital assets. Together they build a more coherent legal framework for using tokenized assets as collateral in secured transactions.
 
 DeFi lending protocols are expanding beyond crypto-native collateral. Centrifuge, Maple Finance, and Goldfinch already support lending against tokenized private credit and real-world receivables.
 

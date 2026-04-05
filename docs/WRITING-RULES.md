@@ -25,6 +25,15 @@
 - "X is not the answer. Y is."
 - "Not X — but Y" (any negation-then-correction pattern)
 - "Less about X and more about Y"
+- "This is not X. It is Y." (declarative contrast pair)
+- "That is not X. That is Y."
+- "You are not X. You are Y." (telling the reader what they are/aren't)
+- "None of this means X. It means Y."
+
+### "This is" / "That is" Sentence Starters
+- Avoid starting sentences with "This is..." or "That is..." more than once per section
+- "This creates..." / "This gives..." / "This allows..." / "This means..." — rewrite to name the actual subject
+- "That is a..." / "That is the..." — same rule, name what "that" refers to
 
 ### Emphasis Hedging
 - "Arguably..."
