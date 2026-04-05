@@ -38,7 +38,7 @@ export default function KnowledgePage() {
           Five Paths to Value Creation
         </h1>
         <p className="text-sm sm:text-base text-white/40 mt-4 max-w-xl mx-auto">
-          Deep analysis of each value creation model — grounded in academic research, regulatory frameworks, and real-world market data.
+          Deep analysis of each value creation model, grounded in academic research, regulatory frameworks, and real-world market data.
         </p>
       </div>
 

@@ -71,7 +71,7 @@ export default function AboutPage() {
               The global market for high-value physical assets is enormous. Gemstones alone represent a $34 billion annual market. Add real estate, precious metals, mineral rights, and fine art, and you are looking at trillions in asset value sitting in vaults, safety deposit boxes, and private collections.
             </p>
             <p>
-              The problem is that these assets are effectively frozen capital. Selling a $10 million emerald lot is not like selling shares of stock. There is no exchange, no ticker symbol, no instant liquidity. Owners who need capital must navigate fragmented dealer networks, opaque pricing, and a buyer pool measured in dozens rather than thousands.
+              The problem is that these assets are effectively frozen capital. Selling a $10 million emerald lot is not like selling shares of stock. There is no exchange, no ticker symbol, no instant liquidity. Owners who need capital must work through fragmented dealer networks, opaque pricing, and a buyer pool measured in dozens rather than thousands.
             </p>
             <p>
               PleoChrome exists to solve this problem. We are the operational backbone that connects every specialist needed to convert a physical asset into a financial product. Think of us as the general contractor for asset monetization. We do not own the assets, hold investor funds, or provide investment advice. We orchestrate the process.

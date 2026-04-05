@@ -72,7 +72,7 @@ That matters because liquidity usually arrives after legal clarity, institutiona
 
 ## What Asset Owners Should Take From This
 
-If you are considering tokenization for a high-value physical asset, the right question is not whether the tech works. It does. The better question is what kind of liquidity timeline is realistic for your asset, with your buyer pool, under your regulatory constraints.
+If you are considering tokenization for a high-value physical asset, the tech works. That part is settled. What matters now is what kind of liquidity timeline is realistic for your asset, with your buyer pool, under your regulatory constraints.
 
 In practical terms, that means planning for slower exits than a marketing deck may imply. It means asking whether a hybrid approach, such as tokenization combined with collateral-based lending or broker channels, gives you more flexibility. And it means investing heavily in evidence: GIA certification, independent appraisals, and on-chain proof of reserve. The research keeps circling back to the same point. When investors cannot trust valuation, they hesitate.
 
@@ -203,7 +203,7 @@ For a gemstone-backed loan, the process is usually more disciplined than people 
 
 **No securities registration.** A loan secured by personal property is not a securities offering. There is no Form D filing, no PPM, and no accredited investor verification requirement. That usually reduces legal complexity and cost.
 
-**Tax treatment.** Loan proceeds are generally not taxable income. Depending on the borrower's situation, interest may be deductible. That said, tax treatment always depends on the facts and should be reviewed with a qualified tax advisor.
+**Tax treatment.** Loan proceeds are generally not taxable income. Depending on the borrower's situation, interest may be deductible. Tax treatment always depends on the facts and should be reviewed with a qualified tax advisor.
 
 ## Where the Risk Really Sits
 
@@ -250,9 +250,9 @@ For assets classified as securities, transactions generally need to go through a
 
 ## Where Alternative Trading Systems Fit
 
-Alternative Trading Systems, or ATS platforms, are SEC-regulated electronic venues that match buyers and sellers of securities outside traditional exchanges. For digital securities and other alternative instruments, they have become an important part of the secondary market landscape.
+Alternative Trading Systems, or ATS platforms, are SEC-regulated electronic venues that match buyers and sellers of securities outside traditional exchanges. For digital securities and other alternative instruments, they have become the primary venue for secondary trading.
 
-tZERO is one of the clearest examples of that evolution. In December 2025, tZERO received FINRA approval to offer retail access to tokenized mutual funds and to facilitate secondary trading in corporate debt securities. The platform also moved to 24/7 order entry with near-continuous trading hours of 23.5 hours per business day.
+tZERO is one of the clearest examples of that evolution. In December 2025, tZERO received FINRA approval to offer retail access to tokenized mutual funds and for secondary trading in corporate debt securities. The platform also moved to 24/7 order entry with near-continuous trading hours of 23.5 hours per business day.
 
 Its March 2026 partnership with Nomyx matters for a different reason. It creates a more direct path from issuance to trading, which is exactly where many tokenized asset structures have historically broken down. Creating the security is not usually the hard part. Creating the compliant route to a trade is.
 
@@ -276,7 +276,7 @@ In practice, the process is less glamorous than people think. It is mostly about
 
 **Broker-dealer fees.** Commissions vary with asset value, complexity, and market conditions. Those fees need to be weighed against the cost and time of more elaborate structures.
 
-**Buyer concentration risk.** A direct sale depends on a small number of buyers being willing to pay fair value. If the market is thin, the seller can lose leverage quickly.
+**Buyer concentration risk.** A direct sale depends on a small number of buyers being willing to pay fair value. If the market is thin, the seller can lose negotiating power quickly.
 
 **No participation after the sale.** Unlike tokenized or fractional models, a broker sale is typically a one-time monetization event. Once the asset is sold, the holder does not participate in future appreciation.
 
@@ -393,7 +393,7 @@ Reg CF caps raises at $5 million per year, which may be too small for high-value
 
 Regulation A+ has the same TTW concept but at a larger scale. You can raise up to $75 million per year and include non-accredited (retail) investors. The TTW provision under Rule 255 lets you gauge interest before filing Form 1-A with the SEC.
 
-The cost is higher because Reg A+ materials tend to be more comprehensive, and the eventual filing requires audited financials (Tier 2). But the TTW phase itself costs $15,000 to $35,000, which is still a fraction of the full offering cost of $150,000 to $350,000.
+The cost is higher because Reg A+ materials tend to be more detailed, and the eventual filing requires audited financials (Tier 2). But the TTW phase itself costs $15,000 to $35,000, which is still a fraction of the full offering cost of $150,000 to $350,000.
 
 This pathway makes sense when you want to validate demand from a broader investor base, including retail investors who are not accredited.
 
@@ -495,7 +495,7 @@ Do not save money on securities counsel. Do not save money on custody. Do not sa
   },
   {
     slug: 'broker-landscape',
-    title: 'The Broker-Dealer Landscape for Tokenized Securities in 2026',
+    title: 'Broker-Dealers and ATS Platforms for Tokenized Securities in 2026',
     subtitle: 'Who the key players are, what they offer, and how to evaluate them',
     author: 'Shane Pierson',
     date: 'April 2026',
@@ -509,14 +509,14 @@ Do not save money on securities counsel. Do not save money on custody. Do not sa
 
 In the tokenized securities conversation, most of the attention goes to the technology platforms: which blockchain, which token standard, which smart contract framework. But the regulated infrastructure that actually enables securities to be sold and traded runs through broker-dealers and alternative trading systems.
 
-A broker-dealer is a firm registered with the SEC and FINRA that can legally facilitate the purchase and sale of securities. An ATS (Alternative Trading System) is a SEC-regulated electronic venue where securities can be matched and traded outside of traditional exchanges like NYSE or NASDAQ.
+A broker-dealer is a firm registered with the SEC and FINRA that can legally buy and sell of securities. An ATS (Alternative Trading System) is a SEC-regulated electronic venue where securities can be matched and traded outside of traditional exchanges like NYSE or NASDAQ.
 
 For tokenized real-world assets, these are not optional. If your token is a security (and under most structures, it is), it must be distributed through or supervised by a registered broker-dealer.
 
 ## The Key Players
 
 **tZERO**
-tZERO operates as a SEC/FINRA-regulated broker-dealer, ATS, and special purpose broker-dealer. They received FINRA approval in December 2025 to offer retail access to tokenized mutual funds and to facilitate secondary trading in corporate debt securities. Their ATS now supports 23.5 hours of trading per business day with 24/7 order entry. In March 2026, their partnership with Nomyx created an integrated issuance-to-trading pipeline.
+tZERO operates as a SEC/FINRA-regulated broker-dealer, ATS, and special purpose broker-dealer. They received FINRA approval in December 2025 to offer retail access to tokenized mutual funds and for secondary trading in corporate debt securities. Their ATS now supports 23.5 hours of trading per business day with 24/7 order entry. In March 2026, their partnership with Nomyx created an integrated issuance-to-trading pipeline.
 
 tZERO is the closest thing to a full-stack regulated exchange for digital securities in the United States. If secondary trading is a priority, they are the most established venue.
 
@@ -550,7 +550,7 @@ Three criteria separate the serious players:
 
 **Fee transparency.** Setup fees, percentage of capital raised, per-investor costs, ongoing compliance fees, ATS listing fees. If they cannot give you a clear cost estimate before engagement, that is worth questioning.
 
-## The Bottom Line
+## Choosing a Partner
 
 The broker-dealer you choose becomes a permanent part of your offering's infrastructure. Investors see the BD's name on the subscription documents. Regulators hold the BD responsible for compliance supervision. Secondary trading happens (or does not) based on the ATS's liquidity and reach.
 
@@ -575,7 +575,7 @@ This is not a vendor selection. It is a partnership decision. Treat it according
     modelColor: '#1B6B4A',
     icon: BookOpen,
     category: 'research',
-    excerpt: 'Two SEC actions in 2025-2026 changed the practical landscape for private placements. Here is what they mean for issuers working with real-world assets.',
+    excerpt: 'Two SEC actions in 2025-2026 changed the practical reality of private placements. Here is what they mean for issuers working with real-world assets.',
     content: `## Two Actions That Matter
 
 The SEC publishes guidance regularly, and most of it is incremental. Two actions in the 2025-2026 period stand out because they change the practical cost and feasibility of structuring tokenized and fractional asset offerings.
@@ -670,7 +670,7 @@ Several trends are converging to make collateral-based liquidity more accessible
 
 The 2022 UCC amendments, now adopted by more than half of U.S. states, include Article 12 provisions that address digital assets. This creates a more coherent legal framework for using tokenized assets as collateral in secured transactions.
 
-DeFi lending protocols are expanding beyond crypto-native collateral. Centrifuge, Maple Finance, and Goldfinch already facilitate lending against tokenized private credit and real-world receivables.
+DeFi lending protocols are expanding beyond crypto-native collateral. Centrifuge, Maple Finance, and Goldfinch already support lending against tokenized private credit and real-world receivables.
 
 Institutional custody solutions from providers like Fireblocks, BitGo, and Copper support the segregated custody arrangements that lenders require before accepting alternative collateral.
 
