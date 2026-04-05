@@ -23,7 +23,7 @@ const team = [
     name: 'G. Christopher Ramsey, JD',
     title: 'Chief Revenue Officer',
     initials: 'CR',
-    bio: 'Chris is a licensed attorney with over 33 years of legal and business experience spanning corporate law, capital markets, and strategic advisory. He holds a JD from Widener University School of Law and a BA in Psychology from Villanova University. Chris has led business development and legal strategy across multiple ventures and brings deep expertise in deal structuring and investor relations.',
+    bio: 'Chris brings over 33 years of business and legal experience spanning corporate strategy, capital markets, and deal structuring. He holds a JD from Widener University School of Law and a BA in Psychology from Villanova University. Chris has led business development across multiple ventures and brings deep expertise in investor relations, partnership strategy, and revenue operations.',
   },
 ]
 
